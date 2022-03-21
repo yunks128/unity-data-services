@@ -1,0 +1,76 @@
+{
+  "type": "object",
+  "properties": {
+    "cma": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "object",
+          "properties": {
+            "meta": {
+              "type": "object",
+              "properties": {
+                "input_granules": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "granuleId": {
+                        "type": "string"
+                      },
+                      "files": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "bucket": {
+                              "type": "string"
+                            },
+                            "key": {
+                              "type": "string"
+                            },
+                            "source": {
+                              "type": "string"
+                            },
+                            "fileName": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "size": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "bucket",
+                            "key",
+                            "type"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "granuleId",
+                      "files"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "input_granules"
+              ]
+            }
+          },
+          "required": [
+            "meta"
+          ]
+        }
+      },
+      "required": []
+    }
+  },
+  "required": [
+    "cma"
+  ]
+}
