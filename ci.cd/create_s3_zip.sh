@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-ZIP_NAME?='cumulus_lambda_functions_deployment.zip'
+
+apt-get update -y && apt-get install zip -y
+
+ZIP_NAME='cumulus_lambda_functions_deployment.zip'
 project_root_dir=${PWD}
 zip_file="${project_root_dir}/$ZIP_NAME" ; # save the result file in current working directory
 
@@ -15,11 +18,6 @@ python3 setup.py install && \
 python3 setup.py install_lib && \
 python -m pip uninstall boto3 -y && \
 python -m pip uninstall botocore -y && \
-python -m pip uninstall h5py -y && \
-python -m pip uninstall numpy -y && \
-python -m pip uninstall pandas -y && \
-python -m pip uninstall pymongo -y && \
-python -m pip uninstall redis -y && \
 cd ${source_dir}
 rm -rf ${zip_file} && \
 zip -r9 ${zip_file} . && \
