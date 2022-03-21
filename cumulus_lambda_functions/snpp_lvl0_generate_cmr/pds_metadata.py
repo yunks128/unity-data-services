@@ -52,7 +52,6 @@ class PdsMetadata:
         """
         :param input_pds_metadata_str: str - XML string
         """
-        self.__shit = None
         self.__input_pds_metadata = input_pds_metadata
 
         self.__beginning_dt = None
@@ -176,11 +175,12 @@ class PdsMetadata:
         granule_met = self.__input_pds_metadata['S4PAGranuleMetaDataFile']['DataGranule']
         self.__granule_id = granule_met['GranuleID']
         self.__prod_dt = granule_met['ProductionDateTime']
-        self._insert_dt = granule_met['InsertDateTime']
+        self.__insert_dt = granule_met['InsertDateTime']
         return
 
     def load(self):
         self.__validate_pds_metadata()
         self.__load_time_range()
+        self.__load_collection_metadata()
         self.__load_granule_metadata()
         return self

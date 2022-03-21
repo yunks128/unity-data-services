@@ -3,8 +3,10 @@ from setuptools import find_packages, setup
 install_requires = [
     'fastjsonschema',
     'xmltodict',
-    'botocore', 'boto3',
+
 ]
+
+extra_requires = ['botocore', 'boto3',]
 
 setup(
     name="cumulus_lambda_functions",
