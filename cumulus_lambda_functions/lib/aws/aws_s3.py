@@ -36,6 +36,10 @@ class AwsS3:
         self.__target_key = val
         return
 
+    def get_size(self):
+        response = self.__s3_client.head_object(Bucket=self.target_bucket, Key=self.target_key)
+        return response['ContentLength']
+
     def get_stream(self):
         if self.target_bucket is None or self.target_key is None:
             raise ValueError('bucket or key is None. Set them before calling this method')

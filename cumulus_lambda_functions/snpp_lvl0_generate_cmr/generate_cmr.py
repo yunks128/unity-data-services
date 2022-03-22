@@ -95,6 +95,7 @@ class GenerateCmr:
         self.__event = event
         self.__s3 = AwsS3()
         self._pds_file_dict = None
+        self.__input_file_list = []
 
     def __validate_input(self):
         result = JsonValidator(INPUT_EVENT_SCHEMA).validate(self.__event)
@@ -103,7 +104,8 @@ class GenerateCmr:
         raise ValueError(f'input json has validation errors: {result}')
 
     def __get_pds_metadata_file(self):
-        for each_file in self.__event['cma']['event']['meta']['input_granules'][0]['files']:
+        self.__input_file_list = self.__event['cma']['event']['meta']['input_granules'][0]['files']
+        for each_file in self.__input_file_list:
             LOGGER.debug(f'checking file: {each_file}')
             if each_file['key'].upper().endswith('1.PDS.XML'):
                 return each_file
@@ -119,12 +121,11 @@ class GenerateCmr:
 
     def start(self):
         self.__validate_input()
+        LOGGER.error(f'input: {self.__event}')
         pds_metadata = PdsMetadata(xmltodict.parse(self.__read_pds_metadata_file())).load()
         echo_metadata = EchoMetadata(pds_metadata).load().echo_metadata
-        LOGGER.error(f': echo_metadata: {echo_metadata}')
         echo_metadata_xml_str = xmltodict.unparse(echo_metadata, pretty=True)
         self.__s3.target_key = os.path.join(os.path.dirname(self.__s3.target_key), f'{pds_metadata.granule_id}.cmr.xml')
-        LOGGER.error(f'temp log: {self.__s3.target_bucket} -- {self.__s3.target_key}')
         self.__s3.upload_bytes(echo_metadata_xml_str.encode())
         # return {
         #     'files': ['example', 'mock', 'return'],
@@ -283,22 +284,47 @@ class GenerateCmr:
                 ],
                 "process": "modis"
             },
-            "payload": [
-                "s3://am-uds-dev-cumulus-internal/file-staging/am-uds-dev-cumulus/ATMS_SCIENCE_Group_2011___001/P1570515ATMSSCIENCEAXT11349120000000.PDS",
-                "s3://am-uds-dev-cumulus-internal/file-staging/am-uds-dev-cumulus/ATMS_SCIENCE_Group_2011___001/P1570515ATMSSCIENCEAXT11349120000001.PDS",
-                "s3://am-uds-dev-cumulus-internal/file-staging/am-uds-dev-cumulus/ATMS_SCIENCE_Group_2011___001/P1570515ATMSSCIENCEAXT11349120000001.PDS.xml",
-                f's3://{self.__s3.target_bucket}/{self.__s3.target_key}',
-            ],
+            "payload": {
+                "granules": [
+                    {
+                        "granuleId": pds_metadata.granule_id,
+                        "dataType": pds_metadata.collection_name,
+                        "version": f'{pds_metadata.collection_version}',
+                        # "beginningDateTime": pds_metadata.beginning_dt,
+                        # "endingDateTime": pds_metadata.ending_dt,
+                        "beginningDateTime": '2022-12-15T12:00:00.009054',
+                        "endingDateTime": '2022-12-15T12:00:00.009054',
+                        "files": self.__input_file_list + [{
+                                "key": self.__s3.target_key,
+                                "fileName": os.path.basename(self.__s3.target_key),
+                                "bucket": self.__s3.target_bucket,
+                                "size": int(self.__s3.get_size()),
+                            }],
+                        "sync_granule_duration": 20302,
+                        "createdAt": 1646935567596
+                    }
+                ]
+            },
+            # "payload": [
+            #     "s3://am-uds-dev-cumulus-internal/file-staging/am-uds-dev-cumulus/ATMS_SCIENCE_Group_2011___001/P1570515ATMSSCIENCEAXT11349120000000.PDS",
+            #     "s3://am-uds-dev-cumulus-internal/file-staging/am-uds-dev-cumulus/ATMS_SCIENCE_Group_2011___001/P1570515ATMSSCIENCEAXT11349120000001.PDS",
+            #     "s3://am-uds-dev-cumulus-internal/file-staging/am-uds-dev-cumulus/ATMS_SCIENCE_Group_2011___001/P1570515ATMSSCIENCEAXT11349120000001.PDS.xml",
+            #     f's3://{self.__s3.target_bucket}/{self.__s3.target_key}',
+            # ],
             "task_config": {
-                "bucket": "{$.meta.buckets.internal.name}",
-                "collection": "{$.meta.collection}",
-                "cumulus_message": {
-                    "outputs": [
-                        {
-                            "source": "{$.files}",
-                            "destination": "{$.payload}"
-                        }
-                    ]
-                }
-            }
+                "inputGranules": "{$.meta.input_granules}",
+                "granuleIdExtraction": "{$.meta.collection.granuleIdExtraction}"
+            },
+            # "task_config": {
+            #     "bucket": "{$.meta.buckets.internal.name}",
+            #     "collection": "{$.meta.collection}",
+            #     "cumulus_message": {
+            #         "outputs": [
+            #             {
+            #                 "source": "{$.files}",
+            #                 "destination": "{$.payload}"
+            #             }
+            #         ]
+            #     }
+            # }
         }
