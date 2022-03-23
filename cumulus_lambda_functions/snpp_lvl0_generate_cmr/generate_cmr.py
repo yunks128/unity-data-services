@@ -143,6 +143,41 @@ class GenerateCmr:
         returning_dict = deepcopy(self.__event['cma']['event'])
         if 'replace' in returning_dict:
             returning_dict.pop('replace')
+        # TODO This is a hack since distribution_endpoint = null is complained by MoveGranule.
+        """
+        {
+          "errorType": "CumulusMessageAdapterExecutionError",
+          "errorMessage": "warning setting command to loadAndUpdateRemoteEvent\\nwarning setting command to loadNestedEvent\\nUnexpected Error <class 'jsonschema.exceptions.ValidationError'>. config schema: None is not of type 'string'\\n\\nFailed validating 'type' in schema['properties']['distribution_endpoint']:\\n    {'description': 'The api distribution endpoint', 'type': 'string'}\\n\\nOn instance['distribution_endpoint']:\\n    None\\n\\nFailed validating 'type' in schema['properties']['distribution_endpoint']:\\n    {'description': 'The api distribution endpoint', 'type': 'string'}\\n\\nOn instance['distribution_endpoint']:\\n    None",
+          "trace": [
+            "CumulusMessageAdapterExecutionError: warning setting command to loadAndUpdateRemoteEvent",
+            "warning setting command to loadNestedEvent",
+            "Unexpected Error <class 'jsonschema.exceptions.ValidationError'>. config schema: None is not of type 'string'",
+            "",
+            "Failed validating 'type' in schema['properties']['distribution_endpoint']:",
+            "    {'description': 'The api distribution endpoint', 'type': 'string'}",
+            "",
+            "On instance['distribution_endpoint']:",
+            "    None",
+            "",
+            "Failed validating 'type' in schema['properties']['distribution_endpoint']:",
+            "    {'description': 'The api distribution endpoint', 'type': 'string'}",
+            "",
+            "On instance['distribution_endpoint']:",
+            "    None",
+            "    at Interface.<anonymous> (/var/task/webpack:/node_modules/@cumulus/cumulus-message-adapter-js/dist/cma.js:155:1)",
+            "    at Interface.emit (events.js:326:22)",
+            "    at Interface.EventEmitter.emit (domain.js:483:12)",
+            "    at Interface.close (readline.js:416:8)",
+            "    at Socket.onend (readline.js:194:10)",
+            "    at Socket.emit (events.js:326:22)",
+            "    at Socket.EventEmitter.emit (domain.js:483:12)",
+            "    at endReadableNT (_stream_readable.js:1241:12)",
+            "    at processTicksAndRejections (internal/process/task_queues.js:84:21)"
+          ]
+        }
+        """
+        if 'distribution_endpoint' in returning_dict['meta'] and returning_dict['meta']['distribution_endpoint'] is None:
+            returning_dict['meta']['distribution_endpoint'] = f's3://{self.__s3.target_bucket}/'
         returning_dict['task_config'] = {
             "inputGranules": "{$.meta.input_granules}",
             "granuleIdExtraction": "{$.meta.collection.granuleIdExtraction}"
