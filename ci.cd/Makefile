@@ -1,4 +1,15 @@
-all: build_lambda upload_lambda update_lambda_function
+export IMAGE_PREFIX ?= cae-artifactory.jpl.nasa.gov:16001/gov/nasa/jpl/unity
+export NAME ?= uds
+export VERSION ?= latest
+
+
+all: build_lambda upload_lambda update_lambda_function build_docker
+
+build_docker:
+	docker build -t "$(IMAGE_PREFIX)/$(NAME):$(VERSION)" -f docker/Dockerfile .
+
+zip_docker:
+	docker save "$(IMAGE_PREFIX)/$(NAME):$(VERSION)" | gzip > "$(NAME)__$(VERSION).tar.gz"
 
 build_lambda:
 	docker run --rm -v `PWD`:"/usr/src/app/cumulus_lambda_functions":z -w "/usr/src/app/cumulus_lambda_functions" cae-artifactory.jpl.nasa.gov:17001/python:3.7 ci.cd/create_s3_zip.sh

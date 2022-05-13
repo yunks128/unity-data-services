@@ -3,7 +3,10 @@ from setuptools import find_packages, setup
 install_requires = [
     'fastjsonschema',
     'xmltodict',
-
+    'flask===2.0.1', 'flask_restful===0.3.9', 'flask-restx===0.5.0',  # to create Flask server
+    'gevent===21.8.0', 'greenlet===1.1.1',  # to run flask server
+    'werkzeug===2.0.1',
+    'requests===2.27.1'
 ]
 
 extra_requires = ['botocore', 'boto3',]
