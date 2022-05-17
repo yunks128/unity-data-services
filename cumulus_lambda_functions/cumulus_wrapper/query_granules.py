@@ -54,7 +54,7 @@ class GranulesQuery(CumulusBase):
         if query_result.status_code >= 400:
             return {'client_error': query_result.text}
         query_result = json.loads(query_result.content.decode())
-        if 'results'not in query_result:
+        if 'results' not in query_result:
             return {'server_error': f'missing key: results. invalid response json: {query_result}'}
         query_result = query_result['results']
         return {'results': [ItemTransformer().to_stac(k) for k in query_result]}

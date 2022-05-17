@@ -2,6 +2,9 @@ import json
 import os
 
 from cumulus_lambda_functions.cumulus_wrapper.query_granules import GranulesQuery
+from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
+
+LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
 class CumulusGranulesDapa:
@@ -15,6 +18,7 @@ class CumulusGranulesDapa:
 
         :param event:
         """
+        LOGGER.info(f'event: {event}')
         self.__event = event
         self.__jwt_token = ''
         self.__datetime = None
@@ -82,5 +86,5 @@ class CumulusGranulesDapa:
             }
         return {
             'statusCode': 200,
-            'body': json.dumps(cumulus_result)
+            'body': json.dumps({'features': cumulus_result['results']})
         }
