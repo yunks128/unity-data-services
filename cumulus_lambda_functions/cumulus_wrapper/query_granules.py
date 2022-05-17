@@ -1,9 +1,11 @@
 import json
-
 import requests
 from cumulus_lambda_functions.cumulus_stac.item_transformer import ItemTransformer
 
 from cumulus_lambda_functions.cumulus_wrapper.cumulus_base import CumulusBase
+from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
+
+LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
 class GranulesQuery(CumulusBase):
@@ -44,11 +46,15 @@ class GranulesQuery(CumulusBase):
 
     def query(self):
         conditions_str = '&'.join(self._conditions)
+        LOGGER.info(f'cumulus_base: {self.cumulus_base}')
+        LOGGER.info(f'get_base_headers: {self.get_base_headers()}')
         query_result = requests.get(url=f'{self.cumulus_base}/{self.__granules_key}?{conditions_str}', headers=self.get_base_headers())
         if query_result.status_code >= 500:
             return {'server_error': query_result.text}
         if query_result.status_code >= 400:
             return {'client_error': query_result.text}
         query_result = json.loads(query_result.content.decode())
+        if 'results'not in query_result:
+            return {'server_error': f'missing key: results. invalid response json: {query_result}'}
         query_result = query_result['results']
         return {'results': [ItemTransformer().to_stac(k) for k in query_result]}
