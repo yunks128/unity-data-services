@@ -15,8 +15,10 @@ rm -rf ${zip_file} && \
 zip -r9 ${zip_file} . && \
 echo "zipped to ${zip_file}"
 
-echo $GITHUB_ENV
-software_version=`python3 setup.py --version`
+cat $GITHUB_ENV
+echo "---"
+echo ${{ env.ARTIFACT_BASE_NAME }}
+software_version=`python3 ${project_root_dir}/setup.py --version`
 echo "software_version=${software_version}" >> $GITHUB_ENV
 artifact_file_name="${{ env.ARTIFACT_BASE_NAME }}-${{ env.software_version }}.zip"
 echo "ARTIFACT_FILE=$artifact_file_name" >> $GITHUB_ENV
