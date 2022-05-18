@@ -12,7 +12,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Build Zip file
-      run: make -f ci.cd/Makefile build_lambda_public
+    - name: Check out source code
+      uses: actions/checkout@v3
+    - name: Setup Python3
+    - uses: actions/setup-python@v3
+      with:
+        python-version: '3.7'
+        cache: 'pip'
+    - name: Install dependencies
+      run: python3 setup.py install
+    - name: Install lib as a code
+      run: python3 setup.py install_lib
+    - run: |
+        # make file runnable, might not be necessary
+        chmod +x "${GITHUB_WORKSPACE}/ci.cd/create_aws_lambda_zip.sh"
+
+        # run script
+        "${GITHUB_WORKSPACE}/ci.cd/create_aws_lambda_zip.sh"
