@@ -16,7 +16,6 @@ jobs:
     - uses: actions/setup-python@v3
       with:
         python-version: '3.7'
-        cache: 'pip'
     - run: |
         python3 "${GITHUB_WORKSPACE}/setup.py" install
     - run: |
