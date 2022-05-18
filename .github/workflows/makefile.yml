@@ -15,4 +15,4 @@ jobs:
     - uses: actions/checkout@v3
     
     - name: Build Zip file
-      run: make -f ci.cd/Makefile build_lambda
+      run: make -f ci.cd/Makefile build_lambda_public
