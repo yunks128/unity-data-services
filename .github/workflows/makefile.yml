@@ -17,8 +17,10 @@ jobs:
       with:
         python-version: '3.7'
         cache: 'pip'
-    - run: python3 setup.py install
-    - run: python3 setup.py install_lib
+    - run: |
+        python3 "${GITHUB_WORKSPACE}/setup.py" install
+    - run: |
+        python3 "${GITHUB_WORKSPACE}/setup.py" install_lib
     - run: |
         # make file runnable, might not be necessary
         chmod +x "${GITHUB_WORKSPACE}/ci.cd/create_aws_lambda_zip.sh"
