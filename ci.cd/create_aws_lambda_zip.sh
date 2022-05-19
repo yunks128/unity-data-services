@@ -15,9 +15,6 @@ rm -rf ${zip_file} && \
 zip -r9 ${zip_file} . && \
 echo "zipped to ${zip_file}"
 
-echo "----"
-cat ${GITHUB_ENV}
-echo "----"
-env
 software_version=`python3 ${project_root_dir}/setup.py --version`
-echo "software_version=${software_version}" >> GITHUB_ENV
+echo "software_version=${software_version}" >> ${GITHUB_ENV}
+cat ${GITHUB_ENV}
