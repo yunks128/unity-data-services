@@ -6,7 +6,7 @@ from cumulus_lambda_functions.snpp_lvl0_generate_cmr.echo_metadata import EchoMe
 from cumulus_lambda_functions.snpp_lvl0_generate_cmr.pds_metadata import PdsMetadata
 
 
-class TestEcsvToHdf5(unittest.TestCase):
+class TestEchoMetadata(unittest.TestCase):
     def test_01(self):
         input_str = '''<?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="http://snppl0.gesdisc.eosdis.nasa.gov/data/S4paGran2HTML.xsl"?>
