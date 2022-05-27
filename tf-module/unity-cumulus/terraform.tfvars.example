@@ -1,0 +1,35 @@
+# DO NOT CHANGE THIS VARIABLE UNLESS DEPLOYING OUTSIDE NGAP
+deploy_to_ngap = false
+
+region = "us-west-2"
+
+cumulus_message_adapter_version = "1.3.0"
+
+# Replace 12345 with your actual AWS account ID
+permissions_boundary_arn                 = "arn:aws:iam::884500545225:policy/Security_Boundary_NoIAM"
+
+# Optional - Otherwise a default AMI will be used
+#ecs_cluster_instance_image_id            = "ami-12345abcde"
+
+# Replace all instances of PREFIX with your deployment prefix
+
+buckets = {
+  internal = {
+    name = "am-uds-dev-cumulus-internal"
+    type = "internal"
+  },
+  protected = {
+    name = "am-uds-dev-cumulus-protected"
+    type = "protected"
+  },
+  sps = {
+    name = "am-uds-dev-cumulus-sps"
+    type = "protected"
+  }
+}
+prefix  = "am-uds-dev-cumulus"
+cumulus_lambda_subnet_ids    = ["subnet-00cacaab15b901d53", "subnet-068f7d5c0a859d710"]
+system_bucket = "am-uds-dev-cumulus-internal"
+cumulus_lambda_vpc_id        = "vpc-06e627ef021d1854e"
+security_group_ids = ["sg-045f9c24c760940b6"]
+aws_region = "us-west-2"
