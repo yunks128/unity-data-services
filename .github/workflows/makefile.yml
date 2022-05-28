@@ -64,8 +64,8 @@ jobs:
           ${{ github.event.head_commit.message }}
         draft: false
         prerelease: true
-    - name: Upload PreRelease Asset
-      id: upload-prerelease-asset
+    - name: Upload PreRelease Asset 1
+      id: upload-prerelease-asset-1
       if: ${{ contains(github.ref, 'develop') }}
       uses: actions/upload-release-asset@v1
       env:
@@ -75,8 +75,8 @@ jobs:
         asset_path: "${{ env.ARTIFACT_FILE }}"
         asset_name: "${{ env.ARTIFACT_FILE }}"
         asset_content_type: application/zip
-    - name: Upload PreRelease Asset
-      id: upload-prerelease-asset
+    - name: Upload PreRelease Asset 1
+      id: upload-prerelease-asset-2
       if: ${{ contains(github.ref, 'develop') }}
       uses: actions/upload-release-asset@v1
       env:
@@ -86,8 +86,8 @@ jobs:
         asset_path: "${{ env.TERRAFORM_ARTIFACT_FILE }}"
         asset_name: "${{ env.TERRAFORM_ARTIFACT_FILE }}"
         asset_content_type: application/zip
-    - name: Upload Release Asset
-      id: upload-release-asset
+    - name: Upload Release Asset 1
+      id: upload-release-asset-1
       if: ${{ contains(github.ref, 'master') }}
       uses: actions/upload-release-asset@v1
       env:
@@ -97,8 +97,8 @@ jobs:
         asset_path: "${{ env.ARTIFACT_FILE }}"
         asset_name: "${{ env.ARTIFACT_FILE }}"
         asset_content_type: application/zip
-    - name: Upload Release Asset
-      id: upload-release-asset
+    - name: Upload Release Asset 2
+      id: upload-release-asset-2
       if: ${{ contains(github.ref, 'master') }}
       uses: actions/upload-release-asset@v1
       env:
