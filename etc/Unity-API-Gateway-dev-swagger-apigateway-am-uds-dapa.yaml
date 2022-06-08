@@ -9,11 +9,13 @@ basePath: "/dev"
 schemes:
 - "https"
 paths:
-  /am-uds-dapa/collections/observation/items:
+  /am-uds-dapa/collections/{collectionId}/observation/items:
     get:
       produces:
       - "application/json"
       parameters:
+      - name: "collectionId"
+        in: "path"
       - name: "datetime"
         in: "query"
         required: false
