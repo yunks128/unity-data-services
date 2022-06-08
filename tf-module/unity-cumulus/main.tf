@@ -61,6 +61,12 @@ resource "aws_lambda_function" "cumulus_granules_dapa" {
   runtime       = "python3.7"
   timeout       = 300
 
+  environment {
+    variables = {
+      CUMULUS_BASE = var.cumulus_base
+      CUMULUS_LAMBDA_PREFIX = var.prefix
+    }
+  }
 
   vpc_config {
     subnet_ids         = var.cumulus_lambda_subnet_ids
