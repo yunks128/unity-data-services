@@ -14,9 +14,14 @@ class GranulesQuery(CumulusBase):
     __granules_key = 'granules'
     __ending_time_key = 'endingDateTime'
     __beginning_time_key = 'beginningDateTime'
+    __collection_id_key = 'collectionId'
 
     def __init__(self, cumulus_base: str, cumulus_token: str):
         super().__init__(cumulus_base, cumulus_token)
+
+    def with_collection_id(self, collection_id: str):
+        self._conditions.append(f'{self.__collection_id_key}={collection_id}')
+        return self
 
     def with_bbox(self):
         return self
