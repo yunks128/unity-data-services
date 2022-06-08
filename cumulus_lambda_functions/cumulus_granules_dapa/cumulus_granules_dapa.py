@@ -50,11 +50,13 @@ class CumulusGranulesDapa:
         return self
 
     def __assign_values(self):
-        if 'headers' not in self.__event or 'Authorization' not in self.__event['headers']:
-            raise ValueError('missing Authorization in HTTP headers')
-        self.__jwt_token = self.__event['headers']['Authorization']
-        if self.__jwt_token[:6].lower() == 'bearer':
-            self.__jwt_token = self.__jwt_token[6:].strip()
+        # commenting out checking Bearer token in the event as we are bypassing it in DAPA.
+        # if 'headers' not in self.__event or 'Authorization' not in self.__event['headers']:
+        #     raise ValueError('missing Authorization in HTTP headers')
+        # self.__jwt_token = self.__event['headers']['Authorization']
+        # if self.__jwt_token[:6].lower() == 'bearer':
+        #     self.__jwt_token = self.__jwt_token[6:].strip()
+        self.__jwt_token = 'NA'
         if 'queryStringParameters' not in self.__event:
             return self
         query_str_dict = self.__event['queryStringParameters']
@@ -68,7 +70,7 @@ class CumulusGranulesDapa:
 
     def start(self):
         try:
-            cumulus_result = self.__cumulus.query()
+            cumulus_result = self.__cumulus.query_direct_to_private_api()
         except Exception as e:
             return {
                 'statusCode': 500,
