@@ -28,7 +28,11 @@ class CumulusGranulesDapa:
         self.__page_number = (self.__offset // self.__limit) + 1
         if 'CUMULUS_BASE' not in os.environ:
             raise EnvironmentError('missing key: CUMULUS_BASE')
+        if 'CUMULUS_LAMBDA_PREFIX' not in os.environ:
+            raise EnvironmentError('missing key: CUMULUS_LAMBDA_PREFIX')
+
         self.__cumulus_base = os.getenv('CUMULUS_BASE')
+        self.__cumulus_lambda_prefix = os.getenv('CUMULUS_LAMBDA_PREFIX')
 
         self.__cumulus = GranulesQuery(self.__cumulus_base, self.__jwt_token)
         self.__cumulus.with_limit(self.__limit)
@@ -70,7 +74,7 @@ class CumulusGranulesDapa:
 
     def start(self):
         try:
-            cumulus_result = self.__cumulus.query_direct_to_private_api()
+            cumulus_result = self.__cumulus.query_direct_to_private_api(self.__cumulus_lambda_prefix)
         except Exception as e:
             return {
                 'statusCode': 500,

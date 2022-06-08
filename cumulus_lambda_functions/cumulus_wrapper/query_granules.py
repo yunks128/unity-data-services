@@ -46,12 +46,12 @@ class GranulesQuery(CumulusBase):
         self._conditions.append(f'{self.__beginning_time_key}__to={to_time}')
         return self
 
-    def __invoke_api(self, payload):
+    def __invoke_api(self, payload, private_api_prefix: str):
         """Function to invoke cumulus api via aws lambda"""
 
         client = boto3.client('lambda')
         response = client.invoke(
-            FunctionName='am-uds-dev-cumulus-PrivateApiLambda',
+            FunctionName=f'{private_api_prefix}-PrivateApiLambda',
             Payload=json.dumps(payload),
         )
         json_response_payload = response.get('Payload').read().decode('utf-8')
@@ -59,7 +59,7 @@ class GranulesQuery(CumulusBase):
 
         return response_data
 
-    def query_direct_to_private_api(self):
+    def query_direct_to_private_api(self, private_api_prefix: str):
         payload = {
             'httpMethod': 'GET',
             'resource': '/{proxy+}',
@@ -73,7 +73,7 @@ class GranulesQuery(CumulusBase):
         }
         LOGGER.debug(f'payload: {payload}')
         try:
-            query_result = self.__invoke_api(payload)
+            query_result = self.__invoke_api(payload, private_api_prefix)
             """
         {'statusCode': 200, 'body': '{"meta":{"name":"cumulus-api","stack":"am-uds-dev-cumulus","table":"granule","limit":3,"page":1,"count":0},"results":[]}', 'headers': {'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'strict-transport-security': 'max-age=31536000; includeSubDomains', 'content-type': 'application/json; charset=utf-8', 'content-length': '120', 'etag': 'W/"78-YdHqDNIH4LuOJMR39jGNA/23yOQ"', 'date': 'Tue, 07 Jun 2022 22:30:44 GMT', 'connection': 'close'}, 'isBase64Encoded': False}
             """
