@@ -1,0 +1,70 @@
+---
+swagger: "2.0"
+info:
+  description: "Unity API Gateway"
+  version: "2022-05-04T20:23:33Z"
+  title: "Unity API Gateway"
+host: "k3a3qmarxh.execute-api.us-west-2.amazonaws.com"
+basePath: "/dev"
+schemes:
+- "https"
+paths:
+  /am-uds-dapa/collections/observation/items:
+    get:
+      produces:
+      - "application/json"
+      parameters:
+      - name: "datetime"
+        in: "query"
+        required: false
+        type: "string"
+      - name: "limit"
+        in: "query"
+        required: false
+        type: "string"
+      - name: "offset"
+        in: "query"
+        required: false
+        type: "string"
+      - name: "bbox"
+        in: "query"
+        required: false
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        required: false
+        type: "string"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+      x-amazon-apigateway-request-validator: "Validate body, query string parameters,\
+        \ and headers"
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        httpMethod: "POST"
+        uri: "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/arn:aws:lambda:us-west-2:884500545225:function:am-uds-dapa-test-1/invocations"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        contentHandling: "CONVERT_TO_TEXT"
+securityDefinitions:
+  Unity_API_Gateway_Lambda_WPST_UI_Demo_Authorizer_Node:
+    type: "apiKey"
+    name: "Authorization"
+    in: "header"
+    x-amazon-apigateway-authtype: "custom"
+    x-amazon-apigateway-authorizer:
+      type: "token"
+      authorizerUri: "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/arn:aws:lambda:us-west-2:884500545225:function:cs-token-auth-wpst-demo-ui/invocations"
+      authorizerResultTtlInSeconds: 0
+definitions:
+  Empty:
+    type: "object"
+    title: "Empty Schema"
+x-amazon-apigateway-request-validators:
+  Validate body, query string parameters, and headers:
+    validateRequestParameters: true
+    validateRequestBody: true
