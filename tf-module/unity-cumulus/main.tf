@@ -75,7 +75,7 @@ resource "aws_lambda_function" "cumulus_granules_dapa" {
   tags = var.tags
 }
 
-resource "aws_lambda_function" "cumulus_granules_dapa" {
+resource "aws_lambda_function" "cumulus_collections_dapa" {
   filename      = local.lambda_file_name
   function_name = "${var.prefix}-cumulus_collections_dapa"
   role          = data.aws_iam_role.unity_cumulus_lambda_role.arn
