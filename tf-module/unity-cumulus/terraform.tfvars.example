@@ -33,3 +33,5 @@ system_bucket = "am-uds-dev-cumulus-internal"
 cumulus_lambda_vpc_id        = "vpc-06e627ef021d1854e"
 security_group_ids = ["sg-045f9c24c760940b6"]
 aws_region = "us-west-2"
+aws_region = "us-west-2"
+cumulus_base = "https://axhmoecy02.execute-api.us-west-2.amazonaws.com/dev"

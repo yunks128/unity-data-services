@@ -1,3 +1,6 @@
+import boto3
+import json
+
 from abc import ABC
 from copy import deepcopy
 
@@ -21,6 +24,17 @@ class CumulusBase(ABC):
 
     def get_base_headers(self):
         return deepcopy(self.__base_headers)
+
+    def _invoke_api(self, payload, private_api_prefix: str):
+        """Function to invoke cumulus api via aws lambda"""
+        client = boto3.client('lambda')
+        response = client.invoke(
+            FunctionName=f'{private_api_prefix}-PrivateApiLambda',
+            Payload=json.dumps(payload),
+        )
+        json_response_payload = response.get('Payload').read().decode('utf-8')
+        response_data = json.loads(json_response_payload)
+        return response_data
 
     @property
     def cumulus_base(self):
