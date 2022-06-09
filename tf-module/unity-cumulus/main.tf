@@ -7,7 +7,7 @@ provider "aws" {
 }
 
 data "aws_iam_role" "unity_cumulus_lambda_role" {
-  name                 = "${var.prefix}-PublishExecutionsLambda"
+  name                 = "${var.prefix}-lambda-processing"
 }
 
 locals {
