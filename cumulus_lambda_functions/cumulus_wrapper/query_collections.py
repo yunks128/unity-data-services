@@ -1,8 +1,7 @@
 import json
 
-import boto3
 import requests
-from cumulus_lambda_functions.cumulus_stac.item_transformer import ItemTransformer
+from cumulus_lambda_functions.cumulus_stac.collection_transformer import CollectionTransformer
 
 from cumulus_lambda_functions.cumulus_wrapper.cumulus_base import CumulusBase
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
@@ -10,58 +9,18 @@ from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGen
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
-class GranulesQuery(CumulusBase):
-    __granules_key = 'granules'
-    __ending_time_key = 'endingDateTime'
-    __beginning_time_key = 'beginningDateTime'
-    __collection_id_key = 'collectionId'
+class CollectionsQuery(CumulusBase):
+    __collections_key = 'collections'
 
     def __init__(self, cumulus_base: str, cumulus_token: str):
         super().__init__(cumulus_base, cumulus_token)
-
-    def with_collection_id(self, collection_id: str):
-        self._conditions.append(f'{self.__collection_id_key}={collection_id}')
-        return self
-
-    def with_bbox(self):
-        return self
-
-    def with_time_from(self, from_time):
-        self._conditions.append(f'{self.__ending_time_key}__from={from_time}')
-        return self
-
-    def with_time_to(self, to_time):
-        self._conditions.append(f'{self.__beginning_time_key}__from={to_time}')
-        return self
-
-    def with_time(self, input_time):
-        self._conditions.append(f'{self.__beginning_time_key}__from={input_time}')
-        self._conditions.append(f'{self.__ending_time_key}__to={input_time}')
-        return self
-
-    def with_time_range(self, from_time, to_time):
-        """
-
-        curl -k "$CUMULUS_BASEURL/granules?limit=1&beginningDateTime__from=2016-01-18T22:00:00&endingDateTime__to=2016-01-20T22:00:00" --header "Authorization: Bearer $cumulus_token"|jq
-        :param beginning_dt:
-        :param ending_dt:
-        :return:
-        """
-        self._conditions.append(f'{self.__ending_time_key}__from={from_time}')
-        self._conditions.append(f'{self.__beginning_time_key}__to={to_time}')
-        return self
 
     def query_direct_to_private_api(self, private_api_prefix: str):
         payload = {
             'httpMethod': 'GET',
             'resource': '/{proxy+}',
-            'path': f'/{self.__granules_key}',
+            'path': f'/{self.__collections_key}',
             'queryStringParameters': {k[0]: k[1] for k in [k1.split('=') for k1 in self._conditions]},
-            # 'queryStringParameters': {'limit': '30'},
-            'headers': {
-                'Content-Type': 'application/json',
-            },
-            # 'body': json.dumps({"action": "removeFromCmr"})
         }
         LOGGER.debug(f'payload: {payload}')
         try:
@@ -81,7 +40,7 @@ class GranulesQuery(CumulusBase):
                 LOGGER.error(f'missing key: results. invalid response json: {query_result}')
                 return {'server_error': f'missing key: results. invalid response json: {query_result}'}
             query_result = query_result['results']
-            stac_list = [ItemTransformer().to_stac(k) for k in query_result]
+            stac_list = [CollectionTransformer().to_stac(k) for k in query_result]
         except Exception as e:
             LOGGER.exception('error while invoking')
             return {'server_error': f'error while invoking:{str(e)}'}
@@ -92,7 +51,7 @@ class GranulesQuery(CumulusBase):
         LOGGER.info(f'cumulus_base: {self.cumulus_base}')
         LOGGER.info(f'get_base_headers: {self.get_base_headers()}')
         try:
-            query_result = requests.get(url=f'{self.cumulus_base}/{self.__granules_key}?{conditions_str}', headers=self.get_base_headers())
+            query_result = requests.get(url=f'{self.cumulus_base}/{self.__collections_key}?{conditions_str}', headers=self.get_base_headers())
             LOGGER.info(f'query_result: {query_result}')
             if query_result.status_code >= 500:
                 return {'server_error': query_result.text}
@@ -106,4 +65,4 @@ class GranulesQuery(CumulusBase):
         except Exception as e:
             LOGGER.exception('error during cumulus query')
             return {'server_error': str(e)}
-        return {'results': [ItemTransformer().to_stac(k) for k in query_result]}
+        return {'results': [CollectionTransformer().to_stac(k) for k in query_result]}
