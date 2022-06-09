@@ -1,3 +1,4 @@
+import json
 import os
 
 from cumulus_lambda_functions.cumulus_wrapper.query_collections import CollectionsQuery
