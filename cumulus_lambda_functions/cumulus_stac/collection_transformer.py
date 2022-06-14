@@ -283,7 +283,7 @@ class CollectionTransformer(StacTransformerAbstract):
         self.__cumulus_collection_schema = {}
 
     def to_stac(self, source: dict) -> dict:
-        source = {
+        source_sample = {
             "createdAt": 1647992847582,
             "granuleId": "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}0$",
             "process": "modis",
@@ -354,7 +354,7 @@ class CollectionTransformer(StacTransformerAbstract):
             ]
         }
 
-        return {}
+        return stac_collection
 
     def from_stac(self, source: dict) -> dict:
         return {}

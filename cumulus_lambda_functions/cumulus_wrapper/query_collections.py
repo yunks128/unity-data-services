@@ -35,12 +35,13 @@ class CollectionsQuery(CumulusBase):
                 LOGGER.error(f'client error status code: {query_result.statusCode}. details: {query_result}')
                 return {'client_error': query_result}
             query_result = json.loads(query_result['body'])
-            LOGGER.info(f'json query_result: {query_result}')
+            LOGGER.debug(f'json query_result: {query_result}')
             if 'results' not in query_result:
                 LOGGER.error(f'missing key: results. invalid response json: {query_result}')
                 return {'server_error': f'missing key: results. invalid response json: {query_result}'}
             query_result = query_result['results']
             stac_list = [CollectionTransformer().to_stac(k) for k in query_result]
+            LOGGER.debug(f'stac_list: {stac_list}')
         except Exception as e:
             LOGGER.exception('error while invoking')
             return {'server_error': f'error while invoking:{str(e)}'}
