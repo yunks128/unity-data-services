@@ -1,0 +1,23 @@
+version: "3.7"
+services:
+  cumulus_granules_download:
+    image: cumulus_unity:1.0.0-t1
+    volumes:
+      - /tmp/cumulus_granules:/etc/granules
+    environment:
+      AWS_ACCESS_KEY_ID: 'dd'
+      AWS_SECRET_ACCESS_KEY: 'dddd'
+      AWS_SESSION_TOKEN: 'dddd'
+      AWS_REGION: 'us-west-2'
+      LOG_LEVEL: '20'
+      DOWNLOAD_DIR: '/etc/granules'
+      DAPA_API: 'https://gwaxi7ijl4.execute-api.us-west-2.amazonaws.com/dev'
+      COLLECTION_ID: 'ATMS_SCIENCE_Group___001'
+      LIMITS: '100'
+      DATE_FROM: '2016-01-17T00:00:00Z'
+      DATE_TO: '2016-01-17T12:00:00Z'
+      VERIFY_SSL: 'FALSE'
+    networks:
+      - internal
+networks:
+  internal:
