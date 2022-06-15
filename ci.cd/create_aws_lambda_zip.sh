@@ -19,8 +19,8 @@ cd ${project_root_dir}/tf-module/unity-cumulus
 mkdir build
 cp ${zip_file} build/
 
-cd $project_root_dir/tf-module
-zip -r9 ${terraform_zip_file} unity-cumulus
+cd $project_root_dir/tf-module/unity-cumulus
+zip -9 ${terraform_zip_file} * **/*
 
 software_version=`python3 ${project_root_dir}/setup.py --version`
 echo "software_version=${software_version}" >> ${GITHUB_ENV}
