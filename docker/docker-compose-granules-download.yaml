@@ -5,13 +5,14 @@ services:
     volumes:
       - /tmp/cumulus_granules:/etc/granules
     environment:
+      UNITY_BEARER_TOKEN: ''
       AWS_ACCESS_KEY_ID: 'dd'
       AWS_SECRET_ACCESS_KEY: 'dddd'
       AWS_SESSION_TOKEN: 'dddd'
       AWS_REGION: 'us-west-2'
       LOG_LEVEL: '20'
       DOWNLOAD_DIR: '/etc/granules'
-      DAPA_API: 'https://gwaxi7ijl4.execute-api.us-west-2.amazonaws.com/dev'
+      DAPA_API: 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
       COLLECTION_ID: 'ATMS_SCIENCE_Group___001'
       LIMITS: '100'
       DATE_FROM: '2016-01-17T00:00:00Z'

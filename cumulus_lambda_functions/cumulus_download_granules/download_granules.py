@@ -12,6 +12,7 @@ LOGGER = logging.getLogger(__name__)
 
 class DownloadGranules:
     DAPA_API_KEY = 'DAPA_API'
+    UNITY_BEARER_TOKEN_KEY = 'UNITY_BEARER_TOKEN'
     COLLECTION_ID_KEY = 'COLLECTION_ID'
     DOWNLOAD_DIR_KEY = 'DOWNLOAD_DIR'
 
@@ -22,6 +23,7 @@ class DownloadGranules:
 
     def __init__(self):
         self.__dapa_api = ''
+        self.__unity_bearer_token = ''
         self.__collection_id = ''
         self.__date_from = ''
         self.__date_to = ''
@@ -31,11 +33,12 @@ class DownloadGranules:
         self.__s3 = AwsS3()
 
     def __set_props_from_env(self):
-        missing_keys = [k for k in [self.DAPA_API_KEY, self.COLLECTION_ID_KEY, self.DOWNLOAD_DIR_KEY] if k not in os.environ]
+        missing_keys = [k for k in [self.DAPA_API_KEY, self.COLLECTION_ID_KEY, self.DOWNLOAD_DIR_KEY, self.UNITY_BEARER_TOKEN_KEY] if k not in os.environ]
         if len(missing_keys) > 0:
             raise ValueError(f'missing environment keys: {missing_keys}')
 
         self.__dapa_api = os.environ.get(self.DAPA_API_KEY)
+        self.__unity_bearer_token = os.environ.get(self.UNITY_BEARER_TOKEN_KEY)
         self.__collection_id = os.environ.get(self.COLLECTION_ID_KEY)
         self.__download_dir = os.environ.get(self.DOWNLOAD_DIR_KEY)
         self.__download_dir = self.__download_dir[:-1] if self.__download_dir.endswith('/') else self.__download_dir
@@ -59,7 +62,8 @@ class DownloadGranules:
 
     def __get_granules(self, dapa_granules_api):  # TODO pagination if needed
         LOGGER.debug(f'getting granules for: {dapa_granules_api}')
-        response = requests.get(url=dapa_granules_api, verify=self.__verify_ssl)
+        header = {'Authorization': f'Bearer {self.__unity_bearer_token}'}
+        response = requests.get(url=dapa_granules_api, headers=header, verify=self.__verify_ssl)
         if response.status_code > 400:
             raise RuntimeError(f'querying granules ends in error. status_code: {response.status_code}. url: {dapa_granules_api}. details: {response.text}')
         granules_result = json.loads(response.text)
