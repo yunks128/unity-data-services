@@ -5,7 +5,7 @@ services:
     volumes:
       - /tmp/cumulus_granules:/etc/granules
     environment:
-      UNITY_BEARER_TOKEN: ''
+      UNITY_BEARER_TOKEN: 'token without the header "Bearer"'
       AWS_ACCESS_KEY_ID: 'dd'
       AWS_SECRET_ACCESS_KEY: 'dddd'
       AWS_SESSION_TOKEN: 'dddd'
