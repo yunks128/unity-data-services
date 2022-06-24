@@ -1,3 +1,8 @@
+variable "log_level" {
+  type = string
+  default = '20'
+  description = "Lambda Log Level. Follow Python3 log level numbers info=20, warning=30, etc..."
+}
 variable "prefix" {
   type = string
 }
