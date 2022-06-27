@@ -45,7 +45,9 @@ resource "aws_lambda_function" "snpp_lvl0_generate_cmr" {
   runtime       = "python3.7"
   timeout       = 300
   environment = {
-    LOG_LEVEL       = var.log_level
+    variables = {
+      LOG_LEVEL = var.log_level
+    }
   }
 
   vpc_config {
@@ -63,7 +65,9 @@ resource "aws_lambda_function" "snpp_lvl1_generate_cmr" {
   runtime       = "python3.7"
   timeout       = 300
   environment = {
-    LOG_LEVEL       = var.log_level
+    variables = {
+      LOG_LEVEL = var.log_level
+    }
   }
 
   vpc_config {
