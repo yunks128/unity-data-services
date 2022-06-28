@@ -185,7 +185,7 @@ class GenerateCmr:
         returning_dict['payload'] = {
                 "granules": [
                     {
-                        "granuleId": pds_metadata.granule_id,
+                        "granuleId": self.__event['cma']['event']['meta']['input_granules'][0]['granuleId'],
                         "dataType": pds_metadata.collection_name,
                         "version": f'{pds_metadata.collection_version}',
                         "files": self.__input_file_list + [{
