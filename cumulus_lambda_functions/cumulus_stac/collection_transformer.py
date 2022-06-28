@@ -331,7 +331,7 @@ class CollectionTransformer(StacTransformerAbstract):
             "type": "Collection",
             "stac_version": "1.0.0",
             # "stac_extensions": [],
-            "id": f"{source['name']}__{source['version']}",
+            "id": f"{source['name']}___{source['version']}",
             "description": "TODO",
             "license": "proprietary",
             # "keywords": [],
