@@ -13,6 +13,15 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.7'
+      - run: |
+          # make file runnable, might not be necessary
+          chmod +x "${GITHUB_WORKSPACE}/ci.cd/store_version.sh"
+          # run script
+          "${GITHUB_WORKSPACE}/ci.cd/store_version.sh"
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -48,4 +57,4 @@ jobs:
           context: "{{defaultContext}}"
           file: "docker/Dockerfile_download_granules.public"
           push: true
-          tags: waiphyojpl/uds1:latest
+          tags: "waiphyojpl/uds1:${{ env.software_version }}"
