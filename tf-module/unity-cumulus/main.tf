@@ -44,8 +44,10 @@ resource "aws_lambda_function" "snpp_lvl0_generate_cmr" {
   handler       = "cumulus_lambda_functions.snpp_lvl0_generate_cmr.lambda_function.lambda_handler"
   runtime       = "python3.7"
   timeout       = 300
-  environment = {
-    LOG_LEVEL       = var.log_level
+  environment {
+    variables = {
+      LOG_LEVEL = var.log_level
+    }
   }
 
   vpc_config {
@@ -62,8 +64,10 @@ resource "aws_lambda_function" "snpp_lvl1_generate_cmr" {
   handler       = "cumulus_lambda_functions.snpp_level1a_generate_cmr.lambda_function.lambda_handler"
   runtime       = "python3.7"
   timeout       = 300
-  environment = {
-    LOG_LEVEL       = var.log_level
+  environment {
+    variables = {
+      LOG_LEVEL = var.log_level
+    }
   }
 
   vpc_config {
