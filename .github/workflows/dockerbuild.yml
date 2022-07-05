@@ -45,7 +45,7 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
-          context: ./
-          file: "${GITHUB_WORKSPACE}/docker/Dockerfile_download_granules.public"
+          context: "{{defaultContext}}"
+          file: "docker/Dockerfile_download_granules.public"
           push: true
           tags: waiphyojpl/uds1:latest
