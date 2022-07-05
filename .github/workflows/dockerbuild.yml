@@ -46,6 +46,6 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           context: ./
-          file: ./docker/Dockerfile_download_granules.public
+          file: "${GITHUB_WORKSPACE}/docker/Dockerfile_download_granules.public"
           push: true
           tags: waiphyojpl/uds1:latest
