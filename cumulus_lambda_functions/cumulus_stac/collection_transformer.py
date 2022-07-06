@@ -282,6 +282,45 @@ class CollectionTransformer(StacTransformerAbstract):
         self.__stac_collection_schema = json.loads(STAC_COLLECTION_SCHEMA)
         self.__cumulus_collection_schema = {}
 
+    def __convert_to_stac_links(self, collection_file_obj: dict):
+        """
+        expected output
+        {
+          "title": "<sampleFileName>",
+          "href": "<bucket>___<regex>"
+          "type": "<type>",
+          "rel": "item"
+        }
+
+        Sample input:
+                {
+                    "bucket": "internal",
+                    "regex": "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}00\\.PDS$",
+                    "sampleFileName": "P1570515ATMSSCIENCEAXT11344000000000.PDS",
+                    "type": "data",
+                    "reportToEms": True
+                }
+        TODO: missing reportToEms
+        :param collection_file_obj:
+        :return: dict
+        """
+        if collection_file_obj is None:
+            return {}
+        stac_link = {
+            'rel': 'item',
+        }
+        if 'type' in collection_file_obj:
+            stac_link['type'] = collection_file_obj['type']
+        if 'sampleFileName' in collection_file_obj:
+            stac_link['title'] = collection_file_obj['sampleFileName']
+        href_link = ['unknown_bucket', 'unknown_regex']
+        if 'bucket' in collection_file_obj:
+            href_link[0] = collection_file_obj['bucket']
+        if 'regex' in collection_file_obj:
+            href_link[1] = collection_file_obj['regex']
+        stac_link['href'] = '___'.join(href_link)
+        return stac_link
+
     def to_stac(self, source: dict) -> dict:
         source_sample = {
             "createdAt": 1647992847582,
@@ -346,14 +385,8 @@ class CollectionTransformer(StacTransformerAbstract):
             },
             "assets": {},
             "summaries": {},
-            "links": [
-                {
-                    "rel": "root",
-                    "href": ".",
-                },
-            ]
+            "links": [self.__convert_to_stac_links(k) for k in source['files']],
         }
-
         return stac_collection
 
     def from_stac(self, source: dict) -> dict:
