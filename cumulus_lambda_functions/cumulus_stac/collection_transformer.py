@@ -384,7 +384,11 @@ class CollectionTransformer(StacTransformerAbstract):
                 }
             },
             "assets": {},
-            "summaries": {},
+            "summaries": {
+                "granuleId":  source['granuleId'] if 'granuleId' in source else '',
+                "granuleIdExtraction": source['granuleIdExtraction'] if 'granuleIdExtraction' in source else '',
+                "process": source['process'] if 'process' in source else '',
+            },
             "links": [self.__convert_to_stac_links(k) for k in source['files']],
         }
         return stac_collection
