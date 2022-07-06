@@ -45,6 +45,9 @@ INPUT_EVENT_SCHEMA = {
                                                         "key": {
                                                             "type": "string"
                                                         },
+                                                        "url_path": {
+                                                            "type": "string"
+                                                        },
                                                         "source": {
                                                             "type": "string"
                                                         },
@@ -59,10 +62,12 @@ INPUT_EVENT_SCHEMA = {
                                                         }
                                                     },
                                                     "required": [
-                                                        "bucket",
-                                                        "key",
                                                         "type"
-                                                    ]
+                                                    ],
+                                                    "oneOf": [
+                                                        {"required": ["bucket", "key"]},
+                                                        {"required": ["url_path"]}
+                                                    ],
                                                 }
                                             }
                                         },
@@ -116,6 +121,10 @@ class GenerateCmr:
     def __get_pds_metadata_file(self):
         self.__input_file_list = self.__event['cma']['event']['meta']['input_granules'][0]['files']
         for each_file in self.__input_file_list:
+            if 'url_path' in each_file:
+                s3_bucket, s3_key = self.__s3.split_s3_url(each_file['url_path'])
+                each_file['bucket'] = s3_bucket
+                each_file['key'] = s3_key
             LOGGER.debug(f'checking file: {each_file}')
             if each_file['key'].upper().endswith('.NC.CAS'):
                 return each_file
