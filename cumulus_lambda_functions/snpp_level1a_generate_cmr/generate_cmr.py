@@ -1,3 +1,4 @@
+import hashlib
 import os
 from copy import deepcopy
 
@@ -121,6 +122,8 @@ class GenerateCmr:
     def __get_pds_metadata_file(self):
         self.__input_file_list = self.__event['cma']['event']['meta']['input_granules'][0]['files']
         for each_file in self.__input_file_list:
+            if 'fileName' not in each_file and 'name' in each_file:  # add fileName if there is only name
+                each_file['fileName'] = each_file['name']
             if 'url_path' in each_file:
                 s3_bucket, s3_key = self.__s3.split_s3_url(each_file['url_path'])
                 each_file['bucket'] = s3_bucket
@@ -319,7 +322,7 @@ class GenerateCmr:
         echo_metadata_xml_str = xmltodict.unparse(echo_metadata, pretty=True)
         self.__s3.target_key = os.path.join(os.path.dirname(self.__s3.target_key), f'{granule_id}.cmr.xml')
         self.__s3.upload_bytes(echo_metadata_xml_str.encode())
-
+        echo_metadata_md5 = hashlib.md5(echo_metadata_xml_str.encode()).hexdigest()
         returning_dict = deepcopy(self.__event['cma']['event'])
         if 'replace' in returning_dict:
             returning_dict.pop('replace')
@@ -369,9 +372,18 @@ class GenerateCmr:
                         "dataType": collection_name,
                         "version": collection_version,
                         "files": self.__input_file_list + [{
+
+                                "path": os.path.dirname(self.__s3.target_key),
+                                "checksumType": "md5",
+                                "checksum": echo_metadata_md5,
+                                "type": "metadata",
+
                                 "key": self.__s3.target_key,
+                                "name": os.path.basename(self.__s3.target_key),
                                 "fileName": os.path.basename(self.__s3.target_key),
                                 "bucket": self.__s3.target_bucket,
+                                "source_bucket": self.__s3.target_bucket,
+                                "url_path": f's3://{self.__s3.target_bucket}/{self.__s3.target_key}',
                                 "size": int(self.__s3.get_size()),
                             }],
                         # "files": self.__input_file_list,
