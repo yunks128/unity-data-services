@@ -2,6 +2,7 @@ import json
 import os
 
 from cumulus_lambda_functions.cumulus_wrapper.query_granules import GranulesQuery
+from cumulus_lambda_functions.lib.aws.aws_sns import AwsSns
 from cumulus_lambda_functions.lib.json_validator import JsonValidator
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
@@ -43,22 +44,12 @@ class CumulusGranulesDapaIngestCnm:
 
         :param event:
         """
-        LOGGER.info(f'event: {event}')
+        LOGGER.debug(f'event: {event}')
+        if 'SNS_TOPIC_ARN' not in os.environ:
+            raise EnvironmentError('missing key: SNS_TOPIC_ARN')
         self.__event = event
         self.__request_body = {}
-
-        self.__jwt_token = ''
-        if 'CUMULUS_BASE' not in os.environ:
-            raise EnvironmentError('missing key: CUMULUS_BASE')
-        if 'CUMULUS_LAMBDA_PREFIX' not in os.environ:
-            raise EnvironmentError('missing key: CUMULUS_LAMBDA_PREFIX')
-
-        self.__cumulus_base = os.getenv('CUMULUS_BASE')
-        self.__cumulus_lambda_prefix = os.getenv('CUMULUS_LAMBDA_PREFIX')
-
-        self.__cumulus = GranulesQuery(self.__cumulus_base, self.__jwt_token)
-        self.__cumulus.with_limit(self.__limit)
-        self.__cumulus.with_page_number(self.__page_number)
+        self.__sns_topic_arn = os.getenv('SNS_TOPIC_ARN')
 
     def __get_json_request_body(self):
         if 'requestContext' not in self.__event:
@@ -71,7 +62,7 @@ class CumulusGranulesDapaIngestCnm:
 
     def start(self):
         """
-
+        Publish granule messages to CNM SNS Topic.
 
 Sample Output:
 {
@@ -164,7 +155,8 @@ aws sns publish --topic-arn arn:aws:sns:us-west-2:884500545225:am-uds-dev-cumulu
                     }
                 }
                 LOGGER.debug(f'sending sns message: {sns_msg}')
-                cumulus_result = self.__cumulus.query_direct_to_private_api(self.__cumulus_lambda_prefix)
+                sns_response = AwsSns().set_topic_arn(self.__sns_topic_arn).publish_message(json.dumps(sns_msg))
+                LOGGER.debug(f'published message result: {sns_response}')
             except Exception as e:
                 LOGGER.exception(f'error while sending SNS msg for granule: {each_granule}')
                 error_list.append({'message': str(e), 'feature': each_granule})
