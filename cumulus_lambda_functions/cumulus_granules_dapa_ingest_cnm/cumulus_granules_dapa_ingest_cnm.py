@@ -33,6 +33,7 @@ REQUEST_BODY_SCHEMA = {
     }
 }
 
+
 class CumulusGranulesDapaIngestCnm:
     def __init__(self, event):
         """
@@ -128,6 +129,29 @@ Message:
  "version": "1.6.0"
 }
 aws sns publish --topic-arn arn:aws:sns:us-west-2:884500545225:am-uds-dev-cumulus-cnm-submission-sns --message file:///tmp/SNDR.SNPP.ATMS.L1A.nominal2.01.json
+
+
+
+Test Input message
+{
+    "requestContext": {
+        "provider_id": "SNPP",
+        "features": [
+            {
+                "id": "SNDR.SNPP.ATMS.L1A.nominal2.01",
+                "collection": "SNDR_SNPP_ATMS_L1A___1",
+                "assets": {
+                    "data": {
+                        "href": "s3://am-uds-dev-cumulus-staging/SNDR_SNPP_ATMS_L1A/SNDR.SNPP.ATMS.L1A.nominal2.01.nc"
+                    },
+                    "metadata": {
+                        "href": "s3://am-uds-dev-cumulus-staging/SNDR_SNPP_ATMS_L1A/SNDR.SNPP.ATMS.L1A.nominal2.01.nc.cas"
+                    }
+                }
+            }
+        ]
+    }
+}
         :return:
         """
         self.__get_json_request_body()
@@ -135,12 +159,13 @@ aws sns publish --topic-arn arn:aws:sns:us-west-2:884500545225:am-uds-dev-cumulu
         for each_granule in self.__request_body['features']:
             LOGGER.debug(f'executing: {each_granule}')
             try:
+                collection_id_version = each_granule['collection'].split('___')
                 sns_msg = {
-                    'collection': each_granule['collection'],
+                    'collection': collection_id_version[0],
                     'identifier': each_granule['id'],
                     'submissionTime': TimeUtils.get_current_time(),
                     "provider": self.__request_body['provider_id'],
-                    "version": "1.6.0",  # TODO
+                    "version": '1.6.0',  # TODO
                     'product': {
                         'name': each_granule['id'],
                         'dataVersion': '1',  # TODO
