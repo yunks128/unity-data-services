@@ -1,27 +1,60 @@
-name: Makefile CI
+name: Build Docker file CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
+env:
+  REGISTRY: ghcr.io
+  software_version: 0.0.1
 jobs:
-  build:
-
+  docker:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: configure
-      run: ./configure
-      
-    - name: Install dependencies
-      run: make
-      
-    - name: Run check
-      run: make check
-      
-    - name: Run distcheck
-      run: make distcheck
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.7'
+      - run: |
+          # make file runnable, might not be necessary
+          chmod +x "${GITHUB_WORKSPACE}/ci.cd/store_version.sh"
+          # run script
+          "${GITHUB_WORKSPACE}/ci.cd/store_version.sh"
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      -
+        name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+          context: "{{defaultContext}}"
+          file: "docker/Dockerfile_download_granules.public"
+          push: true
+          tags: "waiphyojpl/uds1:${{ env.software_version }}"
