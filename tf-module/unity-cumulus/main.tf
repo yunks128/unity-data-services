@@ -120,3 +120,25 @@ resource "aws_lambda_function" "cumulus_collections_dapa" {
   }
   tags = var.tags
 }
+
+resource "aws_lambda_function" "cumulus_collections_ingest_cnm_dapa" {
+  filename      = local.lambda_file_name
+  function_name = "${var.prefix}-cumulus_collections_ingest_cnm_dapa"
+  role          = data.aws_iam_role.unity_cumulus_lambda_role.arn
+  handler       = "cumulus_lambda_functions.cumulus_granules_dapa_ingest_cnm.lambda_function.lambda_handler"
+  runtime       = "python3.7"
+  timeout       = 300
+
+  environment {
+    variables = {
+      LOG_LEVEL = var.log_level
+      SNS_TOPIC_ARN = var.cnm_sns_topic_arn
+    }
+  }
+
+  vpc_config {
+    subnet_ids         = var.cumulus_lambda_subnet_ids
+    security_group_ids = local.security_group_ids_set ? var.security_group_ids : [aws_security_group.unity_cumulus_lambda_sg[0].id]
+  }
+  tags = var.tags
+}
