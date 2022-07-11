@@ -1,0 +1,16 @@
+FROM python:3.7
+MAINTAINER Wai Phyo <wai.phyo@jpl.nasa.gov>
+RUN apt-get update -y && apt-get install vim -y
+
+ENV PYTHONPATH "${PYTHONPATH}:/usr/src/app/unity"
+RUN python -m pip install boto3
+RUN mkdir -p /usr/src/app/unity
+COPY setup.py ./setup.py
+RUN ["python", "setup.py", "install"]
+
+COPY setup.py /usr/src/app/unity/setup.py
+COPY cumulus_lambda_functions /usr/src/app/unity/cumulus_lambda_functions
+WORKDIR /usr/src/app/unity
+
+
+CMD ["python","-m", "cumulus_lambda_functions.cumulus_download_granules"]
