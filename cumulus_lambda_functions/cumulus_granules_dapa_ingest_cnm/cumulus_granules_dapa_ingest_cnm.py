@@ -53,11 +53,12 @@ class CumulusGranulesDapaIngestCnm:
         self.__sns_topic_arn = os.getenv('SNS_TOPIC_ARN')
 
     def __get_json_request_body(self):
-        if 'requestContext' not in self.__event:
-            raise ValueError(f'missing requestContext in {self.__event}')
-        self.__request_body = self.__event['requestContext']
+        if 'body' not in self.__event:
+            raise ValueError(f'missing body in {self.__event}')
+        self.__request_body = json.loads(self.__event['body'])
         validation_result = JsonValidator(REQUEST_BODY_SCHEMA).validate(self.__request_body)
         if validation_result is not None:
+            LOGGER.debug(f'invalid request body: {self.__request_body}')
             raise ValueError(f'invalid cumulus granule json: {validation_result}')
         return self
 
