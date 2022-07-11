@@ -34,6 +34,11 @@ variable "tags" {
   default     = {}
 }
 
+variable "cnm_sns_topic_arn" {
+  description = "SNS ARN of CNM submission topic"
+  type = string
+}
+
 variable "cumulus_base" {
   type = string
   description = "Cumulus base URL. Example: https://axhmoecy02.execute-api.us-west-2.amazonaws.com/dev"
