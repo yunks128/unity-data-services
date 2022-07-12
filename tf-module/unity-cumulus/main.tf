@@ -6,10 +6,6 @@ provider "aws" {
   }
 }
 
-data "aws_iam_role" "unity_cumulus_lambda_role" {
-  name                 = "${var.prefix}-lambda-processing"
-}
-
 locals {
   lambda_file_name = "${path.module}/build/cumulus_lambda_functions_deployment.zip"
   security_group_ids_set = var.security_group_ids != null
@@ -40,7 +36,7 @@ data "aws_iam_policy_document" "lambda_assume_role_policy" {
 resource "aws_lambda_function" "snpp_lvl0_generate_cmr" {
   filename      = local.lambda_file_name
   function_name = "${var.prefix}-snpp_lvl0_generate_cmr"
-  role          = data.aws_iam_role.unity_cumulus_lambda_role.arn
+  role          = var.lambda_processing_role_arn
   handler       = "cumulus_lambda_functions.snpp_lvl0_generate_cmr.lambda_function.lambda_handler"
   runtime       = "python3.7"
   timeout       = 300
@@ -60,7 +56,7 @@ resource "aws_lambda_function" "snpp_lvl0_generate_cmr" {
 resource "aws_lambda_function" "snpp_lvl1_generate_cmr" {
   filename      = local.lambda_file_name
   function_name = "${var.prefix}-snpp_lvl1_generate_cmr"
-  role          = data.aws_iam_role.unity_cumulus_lambda_role.arn
+  role          = var.lambda_processing_role_arn
   handler       = "cumulus_lambda_functions.snpp_level1a_generate_cmr.lambda_function.lambda_handler"
   runtime       = "python3.7"
   timeout       = 300
@@ -80,7 +76,7 @@ resource "aws_lambda_function" "snpp_lvl1_generate_cmr" {
 resource "aws_lambda_function" "cumulus_granules_dapa" {
   filename      = local.lambda_file_name
   function_name = "${var.prefix}-cumulus_granules_dapa"
-  role          = data.aws_iam_role.unity_cumulus_lambda_role.arn
+  role          = var.lambda_processing_role_arn
   handler       = "cumulus_lambda_functions.cumulus_granules_dapa.lambda_function.lambda_handler"
   runtime       = "python3.7"
   timeout       = 300
@@ -102,7 +98,7 @@ resource "aws_lambda_function" "cumulus_granules_dapa" {
 resource "aws_lambda_function" "cumulus_collections_dapa" {
   filename      = local.lambda_file_name
   function_name = "${var.prefix}-cumulus_collections_dapa"
-  role          = data.aws_iam_role.unity_cumulus_lambda_role.arn
+  role          = var.lambda_processing_role_arn
   handler       = "cumulus_lambda_functions.cumulus_collections_dapa.lambda_function.lambda_handler"
   runtime       = "python3.7"
   timeout       = 300
@@ -124,7 +120,7 @@ resource "aws_lambda_function" "cumulus_collections_dapa" {
 resource "aws_lambda_function" "cumulus_collections_ingest_cnm_dapa" {
   filename      = local.lambda_file_name
   function_name = "${var.prefix}-cumulus_collections_ingest_cnm_dapa"
-  role          = data.aws_iam_role.unity_cumulus_lambda_role.arn
+  role          = var.lambda_processing_role_arn
   handler       = "cumulus_lambda_functions.cumulus_granules_dapa_ingest_cnm.lambda_function.lambda_handler"
   runtime       = "python3.7"
   timeout       = 300
