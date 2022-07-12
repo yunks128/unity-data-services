@@ -74,7 +74,7 @@ class CumulusGranulesDapa:
         # if self.__jwt_token[:6].lower() == 'bearer':
         #     self.__jwt_token = self.__jwt_token[6:].strip()
         self.__jwt_token = 'NA'
-        if 'queryStringParameters' not in self.__event:
+        if 'queryStringParameters' not in self.__event or self.__event['queryStringParameters'] is None:
             return self
         query_str_dict = self.__event['queryStringParameters']
         if 'datetime' in query_str_dict:
