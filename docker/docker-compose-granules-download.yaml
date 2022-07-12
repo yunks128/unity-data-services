@@ -4,6 +4,7 @@ services:
     image: cumulus_unity:1.0.0-t1
     volumes:
       - /tmp/cumulus_granules:/etc/granules
+    command: ["download"]
     environment:
       UNITY_BEARER_TOKEN: 'token without the header "Bearer"'
       AWS_ACCESS_KEY_ID: 'dd'
