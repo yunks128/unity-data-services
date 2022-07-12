@@ -12,5 +12,4 @@ COPY setup.py /usr/src/app/unity/setup.py
 COPY cumulus_lambda_functions /usr/src/app/unity/cumulus_lambda_functions
 WORKDIR /usr/src/app/unity
 
-
-CMD ["python","-m", "cumulus_lambda_functions.cumulus_download_granules"]
+ENTRYPOINT ["python", "-m", "cumulus_lambda_functions.docker_entrypoint"]
