@@ -28,7 +28,7 @@ class CumulusCollectionsDapa:
         self.__cumulus.with_page_number(self.__page_number)
 
     def __assign_values(self):
-        if 'queryStringParameters' not in self.__event:
+        if 'queryStringParameters' not in self.__event or self.__event['queryStringParameters'] is None:
             return self
         query_str_dict = self.__event['queryStringParameters']
         if 'limit' in query_str_dict:

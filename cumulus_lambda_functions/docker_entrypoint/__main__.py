@@ -8,8 +8,10 @@ from cumulus_lambda_functions.cumulus_upload_granules.upload_granules import Upl
 
 def choose_process():
     if argv[1].strip().upper() == 'DOWNLOAD':
+        logging.info('starting DOWNLOAD script')
         DownloadGranules().start()
     elif argv[1].strip().upper() == 'UPLOAD':
+        logging.info('starting UPLOAD script')
         logging.info(UploadGranules().start())
     else:
         raise ValueError(f'invalid argument: {argv}')
