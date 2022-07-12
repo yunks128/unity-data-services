@@ -24,6 +24,12 @@ from subprocess import Popen, PIPE
 
 class FileUtils:
     @staticmethod
+    def remove_if_exists(file_path):
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            os.remove(file_path)
+        return
+
+    @staticmethod
     def mk_dir_p(dir_path):
         Path(dir_path).mkdir(parents=True, exist_ok=True)
         return
