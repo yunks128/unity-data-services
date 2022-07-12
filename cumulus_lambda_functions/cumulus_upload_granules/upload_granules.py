@@ -59,12 +59,12 @@ class UploadGranules:
     def __get_collection_stac(self):
         LOGGER.debug(f'getting collection details for: {self.__collection_id}')
         header = {'Authorization': f'Bearer {self.__unity_bearer_token}'}
-        dapa_collection_url = f'{self.__dapa_api}/collections?limit=1000'
+        dapa_collection_url = f'{self.__dapa_api}/am-uds-dapa/collections?limit=1000'
         # TODO need better endpoint to get exactly 1 collection
         # TODO pagination?
         response = requests.get(url=dapa_collection_url, headers=header, verify=self.__verify_ssl)
         if response.status_code > 400:
-            raise RuntimeError(f'querying granules ends in error. status_code: {response.status_code}. url: {dapa_collection_url}. details: {response.text}')
+            raise RuntimeError(f'querying collections ends in error. status_code: {response.status_code}. url: {dapa_collection_url}. details: {response.text}')
         collections_result = json.loads(response.text)
         if 'features' not in collections_result:
             raise RuntimeError(f'missing features in response. invalid response: response: {collections_result}')
@@ -121,7 +121,7 @@ class UploadGranules:
         response = requests.put(url=dapa_ingest_cnm_api, headers=header, verify=self.__verify_ssl, data=json.dumps(cnm_ingest_body))
         if response.status_code > 400:
             raise RuntimeError(
-                f'querying granules ends in error. status_code: {response.status_code}. url: {dapa_ingest_cnm_api}. details: {response.text}')
+                f'querying granules ingestion ends in error. status_code: {response.status_code}. url: {dapa_ingest_cnm_api}. details: {response.text}')
         granules_result = response.text
         return granules_result
 
