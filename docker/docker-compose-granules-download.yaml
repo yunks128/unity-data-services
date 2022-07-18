@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   cumulus_granules_download:
-    image: cumulus_unity:1.0.0-t1
+    image: ghcr.io/unity-sds/unity-data-services:1.5.15
     volumes:
       - /tmp/cumulus_granules:/etc/granules
     command: ["download"]

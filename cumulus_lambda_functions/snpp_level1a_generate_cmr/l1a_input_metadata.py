@@ -24,7 +24,10 @@ L1A_INPUT_METADATA_SCHEMA = {
                                 "type": "string",
                             },
                             "val": {
-                                "type": "string",
+                                "oneOf": [
+                                    {"type": "string"},
+                                    {"type": "array", "items": {"type": "string"}},
+                                ]
                             },
                         }
                     },
