@@ -169,7 +169,7 @@ Test Input message
                     "version": '1.6.0',  # TODO
                     'product': {
                         'name': each_granule['id'],
-                        'dataVersion': '1',  # TODO
+                        'dataVersion': collection_id_version[1],
                         'files': [{
                             'name': os.path.basename(v['href']),
                             'type': k,
