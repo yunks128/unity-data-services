@@ -53,6 +53,8 @@ class CumulusGranulesDapa:
         return self
 
     def __get_time_range(self):
+        if self.__datetime is None:
+            return
         if '/' not in self.__datetime:
             self.__cumulus.with_time(self.__datetime)
             return
