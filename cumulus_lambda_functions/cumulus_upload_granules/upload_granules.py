@@ -82,7 +82,7 @@ class UploadGranules:
     def __upload_granules(self, granule_assets: dict, granule_id: str):
         for data_type, href_dict in granule_assets.items():
             LOGGER.debug(f'uploading {href_dict}')
-            s3_url = self.__s3.upload(href_dict['href'], self.__staging_bucket, granule_id, self.__delete_files)
+            s3_url = self.__s3.upload(href_dict['href'], self.__staging_bucket, f'{self.__collection_id}:{granule_id}', self.__delete_files)
             href_dict['href'] = s3_url
         return self
 
@@ -108,7 +108,7 @@ class UploadGranules:
         for granule_id, granule_hrefs in on_disk_granules.items():
             self.__upload_granules(granule_hrefs, granule_id)
             dapa_body_granules.append({
-                'id': granule_id,
+                'id': f'{self.__collection_id}:{granule_id}',
                 'collection': self.__collection_id,
                 'assets': granule_hrefs,
             })
