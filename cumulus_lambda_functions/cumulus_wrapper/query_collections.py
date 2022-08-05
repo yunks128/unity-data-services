@@ -11,9 +11,26 @@ LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_le
 
 class CollectionsQuery(CumulusBase):
     __collections_key = 'collections'
+    __stats_key = 'stats'
 
     def __init__(self, cumulus_base: str, cumulus_token: str):
         super().__init__(cumulus_base, cumulus_token)
+
+    def __get_stats(self, collection_id, private_api_prefix: str):
+        payload = {
+            'httpMethod': 'GET',
+            'resource': '/{proxy+}',
+            'path': f'/{self.__collections_key}',
+            'queryStringParameters': {k[0]: k[1] for k in [k1.split('=') for k1 in self._conditions]},
+        }
+        try:
+            query_stats_result = self._invoke_api(payload, private_api_prefix)
+        except:
+            LOGGER.exception(f'error while trying to retrieve stats for collection: {collection_id}')
+            return {}
+        if query_stats_result['statusCode'] >= 400:
+            return {}
+        return query_stats_result['results']
 
     def query_direct_to_private_api(self, private_api_prefix: str):
         payload = {
