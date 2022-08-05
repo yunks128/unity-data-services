@@ -3,6 +3,7 @@ import os
 
 from cumulus_lambda_functions.cumulus_wrapper.query_granules import GranulesQuery
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
+from cumulus_lambda_functions.lib.utils.lambda_api_gateway_utils import LambdaApiGatewayUtils
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
@@ -105,7 +106,19 @@ class CumulusGranulesDapa:
                 'statusCode': 400,
                 'body': {'message': cumulus_result['client_error']}
             }
+        try:
+            cumulus_size = self.__cumulus.get_size(self.__cumulus_lambda_prefix)
+        except:
+            LOGGER.exception(f'cannot get cumulus_size')
+            cumulus_size = {'total_size': -1}
         return {
             'statusCode': 200,
-            'body': json.dumps({'features': cumulus_result['results']})
+            'body': json.dumps({
+                'size': cumulus_size['total_size'],
+                'rel': {
+                    'next': LambdaApiGatewayUtils.generate_next_url(self.__event, self.__limit),
+                    'prev': LambdaApiGatewayUtils.generate_prev_url(self.__event, self.__limit),
+                },
+                'features': cumulus_result['results']
+            })
         }
