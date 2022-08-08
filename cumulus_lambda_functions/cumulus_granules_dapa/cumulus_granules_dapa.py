@@ -88,37 +88,42 @@ class CumulusGranulesDapa:
             self.__offset = int(query_str_dict['offset'])
         return self
 
-    def start(self):
-        try:
-            cumulus_result = self.__cumulus.query_direct_to_private_api(self.__cumulus_lambda_prefix)
-        except Exception as e:
-            return {
-                'statusCode': 500,
-                'body': {'message': f'unpredicted error: {str(e)}'}
-            }
-        if 'server_error' in cumulus_result:
-            return {
-                'statusCode': 500,
-                'body': {'message': cumulus_result['server_error']}
-            }
-        if 'client_error' in cumulus_result:
-            return {
-                'statusCode': 400,
-                'body': {'message': cumulus_result['client_error']}
-            }
+    def __get_size(self):
         try:
             cumulus_size = self.__cumulus.get_size(self.__cumulus_lambda_prefix)
         except:
             LOGGER.exception(f'cannot get cumulus_size')
             cumulus_size = {'total_size': -1}
-        return {
-            'statusCode': 200,
-            'body': json.dumps({
-                'size': cumulus_size['total_size'],
-                'rel': {
-                    'next': LambdaApiGatewayUtils.generate_next_url(self.__event, self.__limit),
-                    'prev': LambdaApiGatewayUtils.generate_prev_url(self.__event, self.__limit),
-                },
-                'features': cumulus_result['results']
-            })
-        }
+        return cumulus_size
+
+    def start(self):
+        try:
+            cumulus_result = self.__cumulus.query_direct_to_private_api(self.__cumulus_lambda_prefix)
+            if 'server_error' in cumulus_result:
+                return {
+                    'statusCode': 500,
+                    'body': {'message': cumulus_result['server_error']}
+                }
+            if 'client_error' in cumulus_result:
+                return {
+                    'statusCode': 400,
+                    'body': {'message': cumulus_result['client_error']}
+                }
+            cumulus_size = self.__get_size()
+            return {
+                'statusCode': 200,
+                'body': json.dumps({
+                    'size': cumulus_size['total_size'],
+                    'rel': {
+                        'next': LambdaApiGatewayUtils.generate_next_url(self.__event, self.__limit),
+                        'prev': LambdaApiGatewayUtils.generate_prev_url(self.__event, self.__limit),
+                    },
+                    'features': cumulus_result['results']
+                })
+            }
+        except Exception as e:
+            LOGGER.exception(f'unexpected error')
+            return {
+                'statusCode': 500,
+                'body': {'message': f'unpredicted error: {str(e)}'}
+            }
