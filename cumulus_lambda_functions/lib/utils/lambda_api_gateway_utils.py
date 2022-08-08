@@ -48,11 +48,11 @@ class LambdaApiGatewayUtils:
     @staticmethod
     def generate_next_url(event: dict, default_limit: int = 10):
         requesting_base_url = LambdaApiGatewayUtils.generate_requesting_url(event)
-        new_queries = deepcopy(event['queryStringParameters']) if 'queryStringParameters' in event else {}
-        limit = new_queries['limit'] if 'limit' in new_queries else default_limit
+        new_queries = deepcopy(event['queryStringParameters']) if 'queryStringParameters' in event and event['queryStringParameters'] is not None else {}
+        limit = int(new_queries['limit'] if 'limit' in new_queries else default_limit)
         if limit == 0:
             return ''
-        offset = new_queries['offset'] if 'offset' in new_queries else 0
+        offset = int(new_queries['offset'] if 'offset' in new_queries else 0)
         offset += limit
         new_queries['limit'] = limit
         new_queries['offset'] = offset
@@ -62,11 +62,11 @@ class LambdaApiGatewayUtils:
     @staticmethod
     def generate_prev_url(event: dict, default_limit: int = 10):
         requesting_base_url = LambdaApiGatewayUtils.generate_requesting_url(event)
-        new_queries = deepcopy(event['queryStringParameters']) if 'queryStringParameters' in event else {}
-        limit = new_queries['limit'] if 'limit' in new_queries else default_limit
+        new_queries = deepcopy(event['queryStringParameters']) if 'queryStringParameters' in event and event['queryStringParameters'] is not None else {}
+        limit = int(new_queries['limit'] if 'limit' in new_queries else default_limit)
         if limit == 0:
             return ''
-        offset = new_queries['offset'] if 'offset' in new_queries else 0
+        offset = int(new_queries['offset'] if 'offset' in new_queries else 0)
         offset -= limit
         if offset < 0:
             offset = 0
