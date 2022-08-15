@@ -4,7 +4,7 @@ export VERSION ?= latest
 
 
 all: build_lambda upload_lambda update_lambda_function build_docker
-
+local: build_lambda upload_lambda update_lambda_function_1 update_lambda_function_2 update_lambda_function_3
 build_docker:
 	docker build -t "$(IMAGE_PREFIX)/$(NAME):$(VERSION)" -f docker/Dockerfile .
 
@@ -19,6 +19,9 @@ build_lambda_public:
 
 upload_lambda:
 	aws --profile saml-pub s3 cp cumulus_lambda_functions_deployment.zip s3://am-uds-dev-cumulus-tf-state/unity_cumulus_lambda/
-
-update_lambda_function:
-	aws --profile saml-pub lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket am-uds-dev-cumulus-tf-state --function-name arn:aws:lambda:us-west-2:884500545225:function:Test1 --publish
+update_lambda_function_1:
+	aws --profile saml-pub lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket am-uds-dev-cumulus-tf-state --function-name arn:aws:lambda:us-west-2:884500545225:function:am-uds-dev-cumulus-cumulus_collections_dapa --publish &>/dev/null
+update_lambda_function_2:
+	aws --profile saml-pub lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket am-uds-dev-cumulus-tf-state --function-name arn:aws:lambda:us-west-2:884500545225:function:am-uds-dev-cumulus-cumulus_granules_dapa --publish &>/dev/null
+update_lambda_function_3:
+	aws --profile saml-pub lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket am-uds-dev-cumulus-tf-state --function-name arn:aws:lambda:us-west-2:884500545225:function:am-uds-dev-cumulus-cumulus_collections_ingest_cnm_dapa --publish &>/dev/null
