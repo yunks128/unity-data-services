@@ -96,6 +96,16 @@ class CumulusGranulesDapa:
             cumulus_size = {'total_size': -1}
         return cumulus_size
 
+    def __get_pagination_url(self):
+        try:
+            next_page = LambdaApiGatewayUtils.generate_next_url(self.__event, self.__limit)
+            prev_page = LambdaApiGatewayUtils.generate_prev_url(self.__event, self.__limit)
+        except Exception as e:
+            LOGGER.exception(f'exception while generation pagination URLs')
+            next_page = f'error while generating it. check lambda logs for details: {str(e)}'
+            prev_page = f'error while generating it. check lambda logs for details: {str(e)}'
+        return next_page, prev_page
+
     def start(self):
         try:
             cumulus_result = self.__cumulus.query_direct_to_private_api(self.__cumulus_lambda_prefix)
@@ -110,13 +120,14 @@ class CumulusGranulesDapa:
                     'body': {'message': cumulus_result['client_error']}
                 }
             cumulus_size = self.__get_size()
+            next_page, prev_page = self.__get_pagination_url()
             return {
                 'statusCode': 200,
                 'body': json.dumps({
                     'size': cumulus_size['total_size'],
                     'rel': {
-                        'next': LambdaApiGatewayUtils.generate_next_url(self.__event, self.__limit),
-                        'prev': LambdaApiGatewayUtils.generate_prev_url(self.__event, self.__limit),
+                        'next': next_page,
+                        'prev': prev_page,
                     },
                     'features': cumulus_result['results']
                 })
