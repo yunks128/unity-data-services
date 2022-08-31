@@ -51,7 +51,7 @@ class TestItemTransformer(TestCase):
             "granuleIdExtraction": "(P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}0).+",
             "reportToEms": True,
             "version": "001",
-            "duplicateHandling": "replace",
+            "duplicateHandling": "skip",
             "updatedAt": 1647992847582,
             "url_path": "{cmrMetadata.Granule.Collection.ShortName}___{cmrMetadata.Granule.Collection.VersionId}",
             "timestamp": 1647992849273
@@ -85,5 +85,11 @@ class TestItemTransformer(TestCase):
         converted_stac = CollectionTransformer().to_stac(source)
         self.assertEqual(None, stac_validator.validate(converted_stac), f'invalid stac format: {stac_validator}')
         converted_cumulus = CollectionTransformer().from_stac(converted_stac)
-        self.assertEqual(1, 2, f'wrong converted_cumulus: {json.dumps(converted_cumulus, indent=4)}')
+        for k, v in source.items():
+            if k in ['updatedAt', 'timestamp', 'createdAt']:
+                continue
+            self.assertTrue(k in converted_cumulus, f'missing {k}')
+            if k not in ['files', 'dateFrom', 'dateTo']:
+                self.assertEqual(v, converted_cumulus[k], f'wrong value for {k}')
+        self.assertEqual(sorted(json.dumps(source['files'])), sorted(json.dumps(converted_cumulus['files'])), f"wrong files content: {source['files']} vs. {converted_cumulus['files']}")
         return

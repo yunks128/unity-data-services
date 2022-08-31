@@ -6,6 +6,7 @@ import pystac
 from pystac import Link
 
 from cumulus_lambda_functions.cumulus_stac.stac_transformer_abstract import StacTransformerAbstract
+from cumulus_lambda_functions.lib.time_utils import TimeUtils
 
 STAC_COLLECTION_SCHEMA = '''{
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -487,4 +488,11 @@ class CollectionTransformer(StacTransformerAbstract):
             else:
                 output_files.append(each_file_obj)
         output_collection_cumulus['files'] = output_files
+        if len(input_dapa_collection.extent.temporal.intervals) > 0:
+            date_interval = input_dapa_collection.extent.temporal.intervals[0]
+            if len(date_interval) == 2:
+                if date_interval[0] is not None:
+                    output_collection_cumulus['dateFrom'] = date_interval[0].strftime(TimeUtils.MMDD_FORMAT)
+                if date_interval[1] is not None:
+                    output_collection_cumulus['dateTo'] = date_interval[1].strftime(TimeUtils.MMDD_FORMAT)
         return output_collection_cumulus
