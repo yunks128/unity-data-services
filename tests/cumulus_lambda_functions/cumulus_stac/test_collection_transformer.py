@@ -56,7 +56,7 @@ class TestItemTransformer(TestCase):
             "url_path": "{cmrMetadata.Granule.Collection.ShortName}___{cmrMetadata.Granule.Collection.VersionId}",
             "timestamp": 1647992849273
         }
-        raw = {
+        converted_stac = {
             "type": "Collection",
             "stac_version": "1.0.0",
             # "stac_extensions": [],
@@ -82,6 +82,8 @@ class TestItemTransformer(TestCase):
                 },
             ]
         }
-        raw = CollectionTransformer().to_stac(source)
-        self.assertEqual(None, stac_validator.validate(raw), f'invalid stac format: {stac_validator}')
+        converted_stac = CollectionTransformer().to_stac(source)
+        self.assertEqual(None, stac_validator.validate(converted_stac), f'invalid stac format: {stac_validator}')
+        converted_cumulus = CollectionTransformer().from_stac(converted_stac)
+        self.assertEqual(1, 2, f'wrong converted_cumulus: {json.dumps(converted_cumulus, indent=4)}')
         return
