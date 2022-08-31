@@ -46,6 +46,36 @@ class CollectionsQuery(CumulusBase):
         total_size = query_result['meta']['count']
         return {'total_size': total_size}
 
+    def create_creation(self, new_collection: dict, private_api_prefix: str):
+        payload = {
+            'httpMethod': 'POST',
+            'resource': '/{proxy+}',
+            'path': f'/{self.__collections_key}',
+            'headers': {
+                'Content-Type': 'application/json',
+            },
+            'body': json.dumps(new_collection)
+        }
+        LOGGER.debug(f'payload: {payload}')
+        try:
+            query_result = self._invoke_api(payload, private_api_prefix)
+            """
+            {'statusCode': 500, 'body': '', 'headers': {}}
+            """
+            if query_result['statusCode'] >= 500:
+                LOGGER.error(f'server error status code: {query_result["statusCode"]}. details: {query_result}')
+                return {'server_error': query_result}
+            if query_result['statusCode'] >= 400:
+                LOGGER.error(f'client error status code: {query_result["statusCode"]}. details: {query_result}')
+                return {'client_error': query_result}
+            query_result = json.loads(query_result['body'])
+            LOGGER.debug(f'json query_result: {query_result}')
+            if 'message' not in query_result:
+                return {'server_error': f'invalid response: {query_result}'}
+        except Exception as e:
+            LOGGER.exception('error while invoking')
+            return {'server_error': f'error while invoking:{str(e)}'}
+        return {'status': query_result['message']}
 
     def __get_stats(self, collection_id, private_api_prefix: str):
         payload = {
