@@ -289,6 +289,14 @@ class CollectionTransformer(StacTransformerAbstract):
         self.__cumulus_collection_schema = {}
         self.__report_to_ems = report_to_ems
 
+    def generate_target_link_url(self, regex: str = None, bucket: str = None):
+        href_link = ['unknown_bucket', 'unknown_regex']
+        if regex is not None and regex != '':
+            href_link[1] = regex
+        if bucket is not None and bucket != '':
+            href_link[0] = bucket
+        return f"./collection.json?bucket={href_link[0]}&regex={quote_plus(href_link[1])}"
+
     def __convert_to_stac_links(self, collection_file_obj: dict, rel_type: str = 'item'):
         """
         expected output
@@ -320,12 +328,10 @@ class CollectionTransformer(StacTransformerAbstract):
             stac_link['type'] = collection_file_obj['type']
         if 'sampleFileName' in collection_file_obj:
             stac_link['title'] = collection_file_obj['sampleFileName']
-        href_link = ['unknown_bucket', 'unknown_regex']
-        if 'bucket' in collection_file_obj:
-            href_link[0] = collection_file_obj['bucket']
-        if 'regex' in collection_file_obj:
-            href_link[1] = collection_file_obj['regex']
-        stac_link['href'] = f"./collection.json?bucket={href_link[0]}&regex={quote_plus(href_link[1])}"
+        stac_link['href'] = self.generate_target_link_url(
+            collection_file_obj['regex'] if 'regex' in collection_file_obj else None,
+            collection_file_obj['bucket'] if 'bucket' in collection_file_obj else None,
+        )
         return stac_link
 
     # def to_pystac_link_obj(self, input_dict: dict):

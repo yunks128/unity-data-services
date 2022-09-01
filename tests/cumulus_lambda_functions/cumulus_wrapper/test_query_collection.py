@@ -10,15 +10,15 @@ class TestQueryCollection(TestCase):
         collection_query = CollectionsQuery('NA', 'NA')
         collection_version = int(datetime.utcnow().timestamp())
         sample_collection = {
+            # "dataType": "MOD09GQ",
+            # "provider_path": "cumulus-test-data/pdrs",
             "name": "UNITY_CUMULUS_DEV_UNIT_TEST",
             "version": str(collection_version),
-            "process": "modis",
-          # "dataType": "MOD09GQ",
-              "duplicateHandling": "skip",
-          # "provider_path": "cumulus-test-data/pdrs",
+            # "process": "modis",
+            # "duplicateHandling": "skip",
             "granuleId": "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}0$",
             "granuleIdExtraction": "(P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}0).+",
-            "url_path": "{cmrMetadata.Granule.Collection.ShortName}___{cmrMetadata.Granule.Collection.VersionId}",
+            # "url_path": "{cmrMetadata.Granule.Collection.ShortName}___{cmrMetadata.Granule.Collection.VersionId}",
             "sampleFileName": "P1570515ATMSSCIENCEAXT11344000000001.PDS",
             "files": [
                 {
