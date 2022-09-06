@@ -46,7 +46,7 @@ class CollectionsQuery(CumulusBase):
         total_size = query_result['meta']['count']
         return {'total_size': total_size}
 
-    def create_creation(self, new_collection: dict, private_api_prefix: str):
+    def create_collection(self, new_collection: dict, private_api_prefix: str):
         payload = {
             'httpMethod': 'POST',
             'resource': '/{proxy+}',

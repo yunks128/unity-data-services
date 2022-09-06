@@ -1,6 +1,5 @@
 from datetime import datetime
 
-import pystac
 from pystac import Link, Collection, Extent, SpatialExtent, TemporalExtent, Summaries
 
 from cumulus_lambda_functions.cumulus_stac.collection_transformer import CollectionTransformer
@@ -9,7 +8,7 @@ from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGen
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
-class CumulusCollectionDapaCreation:
+class UnityCollectionStac:
     def __init__(self):
         self.__id = ''
         self.__granule_id_extraction_regex = ''
@@ -54,7 +53,7 @@ class CumulusCollectionDapaCreation:
         # TODO validate
         stac_collection = Collection(id=self.__id,
                                      description='TODO',
-                                     extent=Extent(SpatialExtent([0, 0, 0, 0]),
+                                     extent=Extent(SpatialExtent([[0, 0, 0, 0]]),
                                                    TemporalExtent([[datetime.utcnow(), datetime.utcnow()]])),
                                      title=self.__collection_title,
                                      summaries=Summaries({
@@ -64,4 +63,7 @@ class CumulusCollectionDapaCreation:
                                      }),
                                      )
         stac_collection.add_links(self.__files)
-        return stac_collection.to_dict(include_self_link=False)
+        new_collection = stac_collection.to_dict(include_self_link=False)
+        if 'links' in new_collection and len(new_collection['links']) > 0 and new_collection['links'][0]['rel'] == 'root':
+            new_collection['links'][0]['href'] = './collection.json'
+        return new_collection

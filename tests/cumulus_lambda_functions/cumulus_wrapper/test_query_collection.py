@@ -57,7 +57,7 @@ class TestQueryCollection(TestCase):
         #     "updatedAt": 1647992847582,
         #     "timestamp": 1647992849273
         # }
-        response = collection_query.create_creation(sample_collection, lambda_prefix)
+        response = collection_query.create_collection(sample_collection, lambda_prefix)
         self.assertTrue('status' in response, f'status not in response: {response}')
         self.assertEqual('Record saved', response['status'], f'wrong status: {response}')
         return
