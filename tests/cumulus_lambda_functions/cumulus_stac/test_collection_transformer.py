@@ -82,9 +82,9 @@ class TestItemTransformer(TestCase):
                 },
             ]
         }
-        converted_stac = CollectionTransformer().to_stac(source)
+        converted_stac = CollectionTransformer(include_date_range=True).to_stac(source)
         self.assertEqual(None, stac_validator.validate(converted_stac), f'invalid stac format: {stac_validator}')
-        converted_cumulus = CollectionTransformer().from_stac(converted_stac)
+        converted_cumulus = CollectionTransformer(include_date_range=True).from_stac(converted_stac)
         for k, v in source.items():
             if k in ['updatedAt', 'timestamp', 'createdAt']:
                 continue

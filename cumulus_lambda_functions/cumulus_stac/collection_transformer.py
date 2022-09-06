@@ -284,10 +284,11 @@ STAC_COLLECTION_SCHEMA = '''{
 
 
 class CollectionTransformer(StacTransformerAbstract):
-    def __init__(self, report_to_ems:bool = True):
+    def __init__(self, report_to_ems:bool = True, include_date_range=False):
         self.__stac_collection_schema = json.loads(STAC_COLLECTION_SCHEMA)
         self.__cumulus_collection_schema = {}
         self.__report_to_ems = report_to_ems
+        self.__include_date_range = include_date_range
 
     def generate_target_link_url(self, regex: str = None, bucket: str = None):
         href_link = ['unknown_bucket', 'unknown_regex']
@@ -496,7 +497,7 @@ class CollectionTransformer(StacTransformerAbstract):
         output_collection_cumulus['files'] = output_files
         if len(input_dapa_collection.extent.temporal.intervals) > 0:
             date_interval = input_dapa_collection.extent.temporal.intervals[0]
-            if len(date_interval) == 2:
+            if len(date_interval) == 2 and self.__include_date_range is True:
                 if date_interval[0] is not None:
                     output_collection_cumulus['dateFrom'] = date_interval[0].strftime(TimeUtils.MMDD_FORMAT)
                 if date_interval[1] is not None:
