@@ -29,7 +29,7 @@ cat $GITHUB_ENV
 echo "DONE displaying $GITHUB_ENV"
 github_job="TODO"
 #github_job=${github.job}
-echo "run_id: ${BUILD_NUMBER}"
+echo "run_id: ${GITHUB_RUN_ID}"
 software_version_trailing=""
 main_branch="main"
 if ["$github_branch"!="$main_branch"];
