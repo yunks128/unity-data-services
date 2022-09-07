@@ -143,7 +143,7 @@ resource "aws_lambda_function" "cumulus_collections_creation_dapa" {
   filename      = local.lambda_file_name
   function_name = "${var.prefix}-cumulus_collections_creation_dapa"
   role          = var.lambda_processing_role_arn
-  handler       = "cumulus_lambda_functions.cumulus_granules_dapa_ingest_cnm.lambda_function.lambda_handler_ingestion"
+  handler       = "cumulus_lambda_functions.cumulus_collections_dapa.lambda_function.lambda_handler_ingestion"
   runtime       = "python3.9"
   timeout       = 300
 
