@@ -1,9 +1,12 @@
 import json
 from datetime import datetime
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, urlparse, unquote_plus
 
+import pystac
+from pystac import Link
 
 from cumulus_lambda_functions.cumulus_stac.stac_transformer_abstract import StacTransformerAbstract
+from cumulus_lambda_functions.lib.time_utils import TimeUtils
 
 STAC_COLLECTION_SCHEMA = '''{
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -281,11 +284,21 @@ STAC_COLLECTION_SCHEMA = '''{
 
 
 class CollectionTransformer(StacTransformerAbstract):
-    def __init__(self):
+    def __init__(self, report_to_ems:bool = True, include_date_range=False):
         self.__stac_collection_schema = json.loads(STAC_COLLECTION_SCHEMA)
         self.__cumulus_collection_schema = {}
+        self.__report_to_ems = report_to_ems
+        self.__include_date_range = include_date_range
 
-    def __convert_to_stac_links(self, collection_file_obj: dict):
+    def generate_target_link_url(self, regex: str = None, bucket: str = None):
+        href_link = ['unknown_bucket', 'unknown_regex']
+        if regex is not None and regex != '':
+            href_link[1] = regex
+        if bucket is not None and bucket != '':
+            href_link[0] = bucket
+        return f"./collection.json?bucket={href_link[0]}&regex={quote_plus(href_link[1])}"
+
+    def __convert_to_stac_links(self, collection_file_obj: dict, rel_type: str = 'item'):
         """
         expected output
         {
@@ -310,18 +323,16 @@ class CollectionTransformer(StacTransformerAbstract):
         if collection_file_obj is None:
             return {}
         stac_link = {
-            'rel': 'item',
+            'rel': rel_type,
         }
         if 'type' in collection_file_obj:
             stac_link['type'] = collection_file_obj['type']
         if 'sampleFileName' in collection_file_obj:
             stac_link['title'] = collection_file_obj['sampleFileName']
-        href_link = ['unknown_bucket', 'unknown_regex']
-        if 'bucket' in collection_file_obj:
-            href_link[0] = collection_file_obj['bucket']
-        if 'regex' in collection_file_obj:
-            href_link[1] = collection_file_obj['regex']
-        stac_link['href'] = f"./collection.json?bucket={href_link[0]}&regex={quote_plus(href_link[1])}"
+        stac_link['href'] = self.generate_target_link_url(
+            collection_file_obj['regex'] if 'regex' in collection_file_obj else None,
+            collection_file_obj['bucket'] if 'bucket' in collection_file_obj else None,
+        )
         return stac_link
 
     # def to_pystac_link_obj(self, input_dict: dict):
@@ -418,14 +429,77 @@ class CollectionTransformer(StacTransformerAbstract):
                 "process": [source['process'] if 'process' in source else ''],
                 "totalGranules": [source['total_size'] if 'total_size' in source else -1],
             },
-            "links": [{
-                        "rel": "root",
-                        "type": "application/json",
-                        "title": f"{source['name']}___{source['version']}",
-                        "href": "./collection.json"
-                    }] + [self.__convert_to_stac_links(k) for k in source['files']],
+            "links": [self.__convert_to_stac_links({
+                "regex": source['url_path'],
+                "sampleFileName": source['sampleFileName'],
+                "type": "application/json",
+
+            }, 'root')] + [self.__convert_to_stac_links(k) for k in source['files']],
         }
         return stac_collection
 
+    def get_href(self, input_href: str):
+        parse_result = urlparse(input_href)
+        if parse_result.query == '':
+            return ''
+        query_dict = [k.split('=') for k in parse_result.query.split('&')]
+        query_dict = {k[0]: unquote_plus(k[1]) for k in query_dict}
+        return query_dict
+
+    def __convert_from_stac_links(self, link_obj: dict):
+        output_file_object = {
+            'reportToEms': self.__report_to_ems
+        }
+        if 'type' in link_obj:
+            output_file_object['type'] = link_obj['type']
+        if 'title' in link_obj:
+            output_file_object['sampleFileName'] = link_obj['title']
+        if 'href' in link_obj:
+            href_dict = self.get_href(link_obj['href'])
+            if 'bucket' in href_dict:
+                output_file_object['bucket'] = href_dict['bucket']
+            if 'regex' in href_dict:
+                output_file_object['regex'] = href_dict['regex']
+        return output_file_object
+
     def from_stac(self, source: dict) -> dict:
-        return {}
+        input_dapa_collection = pystac.Collection.from_dict(source)
+        if not input_dapa_collection.validate():
+            raise ValueError(f'invalid source dapa: {input_dapa_collection}')
+        output_collection_cumulus = {
+            # "createdAt": 1647992847582,
+            "reportToEms": self.__report_to_ems,
+            "duplicateHandling": "skip",
+            # "updatedAt": 1647992847582,
+            # "timestamp": 1647992849273
+        }
+        summaries = input_dapa_collection.summaries.lists
+        if 'granuleId' in summaries:
+            output_collection_cumulus['granuleId'] = summaries['granuleId'][0]
+        if 'granuleIdExtraction' in summaries:
+            output_collection_cumulus['granuleIdExtraction'] = summaries['granuleIdExtraction'][0]
+        if 'process' in summaries:
+            output_collection_cumulus['process'] = summaries['process'][0]
+        name_version = input_dapa_collection.id.split('___')
+        output_collection_cumulus['name'] = name_version[0]
+        output_collection_cumulus['version'] = name_version[1]
+        output_files = []
+        for each_link_obj in input_dapa_collection.links:
+            each_link_obj: Link = each_link_obj
+            each_file_obj = self.__convert_from_stac_links(each_link_obj.to_dict())
+            if each_link_obj.rel == 'root':
+                if 'regex' in each_file_obj:
+                    output_collection_cumulus['url_path'] = each_file_obj['regex']
+                if 'sampleFileName' in each_file_obj:
+                    output_collection_cumulus['sampleFileName'] = each_file_obj['sampleFileName']
+            else:
+                output_files.append(each_file_obj)
+        output_collection_cumulus['files'] = output_files
+        if len(input_dapa_collection.extent.temporal.intervals) > 0:
+            date_interval = input_dapa_collection.extent.temporal.intervals[0]
+            if len(date_interval) == 2 and self.__include_date_range is True:
+                if date_interval[0] is not None:
+                    output_collection_cumulus['dateFrom'] = date_interval[0].strftime(TimeUtils.MMDD_FORMAT)
+                if date_interval[1] is not None:
+                    output_collection_cumulus['dateTo'] = date_interval[1].strftime(TimeUtils.MMDD_FORMAT)
+        return output_collection_cumulus

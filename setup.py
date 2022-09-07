@@ -7,6 +7,7 @@ install_requires = [
 ]
 
 flask_requires = [
+    'pystac', 'jsonschema',
     'flask===2.0.1', 'flask_restful===0.3.9', 'flask-restx===0.5.0',  # to create Flask server
     'gevent===21.8.0', 'greenlet===1.1.1',  # to run flask server
     'werkzeug===2.0.1',
@@ -16,7 +17,7 @@ extra_requires = ['botocore', 'boto3',]
 
 setup(
     name="cumulus_lambda_functions",
-    version="1.7.0",
+    version="1.7.1",
     packages=find_packages(),
     install_requires=install_requires,
     tests_require=['mock', 'nose', 'sphinx', 'sphinx_rtd_theme', 'coverage', 'pystac', 'python-dotenv', 'jsonschema'],
