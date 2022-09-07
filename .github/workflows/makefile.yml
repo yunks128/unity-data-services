@@ -52,7 +52,7 @@ jobs:
         prerelease: false
     - name: Create PreRelease
       id: create_prerelease
-      if: ${{ contains(github.ref, 'main') }}
+#      if: ${{ contains(github.ref, 'main') }}
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
@@ -66,7 +66,7 @@ jobs:
         prerelease: true
     - name: Upload PreRelease Asset 1
       id: upload-prerelease-asset-1
-      if: ${{ contains(github.ref, 'main') }}
+#      if: ${{ contains(github.ref, 'main') }}
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -77,7 +77,7 @@ jobs:
         asset_content_type: application/zip
     - name: Upload PreRelease Asset 2
       id: upload-prerelease-asset-2
-      if: ${{ contains(github.ref, 'main') }}
+#      if: ${{ contains(github.ref, 'main') }}
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
