@@ -2,9 +2,9 @@ name: Makefile CI
 
 on:
   push:
-    branches: [ main ]
-#  pull_request:
-#    branches: [ main ]
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ develop ]
 
 env:
   ARTIFACT_BASE_NAME: cumulus_lambda_functions
