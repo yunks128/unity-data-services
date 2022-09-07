@@ -22,6 +22,20 @@ cp ${zip_file} build/
 cd $project_root_dir/tf-module/unity-cumulus
 zip -9 ${terraform_zip_file} * **/*
 
+# github.job
+github_branch=${GITHUB_REF##*/}
+echo "branch: ${github_branch}"
+cat $GITHUB_ENV
+echo "DONE displaying $GITHUB_ENV"
+github_job="TODO"
+#github_job=${github.job}
+echo "run_id: ${BUILD_NUMBER}"
+software_version_trailing=""
+main_branch="main"
+if ["$github_branch"!="$main_branch"];
+then
+  software_version_trailing="-${github_branch}-${github_job}"
+fi
 software_version=`python3 ${project_root_dir}/setup.py --version`
-echo "software_version=${software_version}" >> ${GITHUB_ENV}
+echo "software_version=${software_version}${software_version_trailing}" >> ${GITHUB_ENV}
 cat ${GITHUB_ENV}

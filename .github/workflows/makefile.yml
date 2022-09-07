@@ -2,9 +2,9 @@ name: Makefile CI
 
 on:
   push:
-    branches: [ main ]
-#  pull_request:
-#    branches: [ main ]
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ develop ]
 
 env:
   ARTIFACT_BASE_NAME: cumulus_lambda_functions
@@ -15,9 +15,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Generate build number
+      uses: einaregilsson/build-number@v3
+      with:
+        token: ${{secrets.github_token}}
     - uses: actions/setup-python@v3
       with:
-        python-version: '3.7'
+        python-version: '3.9'
     - run: |
         python3 "${GITHUB_WORKSPACE}/setup.py" install
     - run: |
