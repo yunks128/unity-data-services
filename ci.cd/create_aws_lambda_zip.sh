@@ -24,11 +24,12 @@ zip -9 ${terraform_zip_file} * **/*
 
 # github.job
 github_branch=${GITHUB_REF##*/}
+echo "branch: ${$github_branch}"
 github_job=${github.job}
-echo $github_branch
-echo github_job
+echo "job: ${github_job}"
+echo "run_id: ${github.run_id}"
 software_version_trailing=""
-if [["github_branch"=="main"]]
+if [["$github_branch"=="main"]]
 then
   software_version_trailing=""
 else
