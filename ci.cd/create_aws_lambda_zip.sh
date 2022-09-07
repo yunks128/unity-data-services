@@ -29,15 +29,12 @@ cat $GITHUB_ENV
 echo "DONE displaying $GITHUB_ENV"
 github_job="TODO"
 #github_job=${github.job}
-#echo "run_id: ${github.run_id}"
+echo "run_id: ${BUILD_NUMBER}"
 software_version_trailing=""
 main_branch="main"
-if ["$github_branch"=="$main_branch"];
+if ["$github_branch"!="$main_branch"];
 then
-  software_version_trailing=""
-else
   software_version_trailing="-${github_branch}-${github_job}"
-
 fi
 software_version=`python3 ${project_root_dir}/setup.py --version`
 echo "software_version=${software_version}${software_version_trailing}" >> ${GITHUB_ENV}
