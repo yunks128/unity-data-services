@@ -26,13 +26,12 @@ zip -9 ${terraform_zip_file} * **/*
 github_branch=${GITHUB_REF##*/}
 software_version_trailing=""
 main_branch="main"
-if ["$github_branch"="$main_branch"];
+if [ "$github_branch" = "$main_branch" ];
 then
   software_version=""
 else
   software_version_trailing="-${github_branch}-${GITHUB_RUN_ID}"
 fi
 software_version=`python3 ${project_root_dir}/setup.py --version`
-cat ${project_root_dir}/setup.py
 echo "software_version=${software_version}${software_version_trailing}" >> ${GITHUB_ENV}
 cat ${GITHUB_ENV}
