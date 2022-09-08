@@ -430,7 +430,7 @@ class CollectionTransformer(StacTransformerAbstract):
                 "totalGranules": [source['total_size'] if 'total_size' in source else -1],
             },
             "links": [self.__convert_to_stac_links({
-                "regex": source['url_path'],
+                "regex": source['url_path'] if 'url_path' in source else './collection.json',
                 "sampleFileName": source['sampleFileName'],
                 "type": "application/json",
 

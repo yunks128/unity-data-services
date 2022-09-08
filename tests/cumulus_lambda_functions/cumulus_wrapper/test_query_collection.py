@@ -65,7 +65,8 @@ class TestQueryCollection(TestCase):
     def test_02(self):
         lambda_prefix = 'am-uds-dev-cumulus'
         collection_query = CollectionsQuery('NA', 'NA')
-
+        collection_query.with_limit(2)
         collections = collection_query.query_direct_to_private_api(lambda_prefix)
         self.assertTrue('results' in collections, f'results not in collections: {collections}')
+        self.assertEqual(2, len(collections['results']), f'wrong length: {collections}')
         return
