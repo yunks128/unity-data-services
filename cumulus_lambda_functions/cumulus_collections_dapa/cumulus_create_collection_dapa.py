@@ -12,10 +12,16 @@ LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_le
 
 class CumulusCreateCollectionDapa:
     def __init__(self, event):
+        required_env = ['CUMULUS_LAMBDA_PREFIX', 'CUMULUS_WORKFLOW_SQS_URL']
+        if not all([k in os.environ for k in required_env]):
+            raise EnvironmentError(f'one or more missing env: {required_env}')
         self.__event = event
         self.__request_body = None
         self.__cumulus_collection_query = CollectionsQuery('', '')
         self.__cumulus_lambda_prefix = os.getenv('CUMULUS_LAMBDA_PREFIX')
+        self.__ingest_sqs_url = os.getenv('CUMULUS_WORKFLOW_SQS_URL')
+        self.__workflow_name = os.getenv('CUMULUS_WORKFLOW_NAME', 'CatalogGranule')
+        self.__provider_id = ''  # TODO. need this?
 
     def start(self):
         if 'body' not in self.__event:
@@ -38,6 +44,21 @@ class CumulusCreateCollectionDapa:
                     'statusCode': 500,
                     'body': {
                         'message': {creation_result}
+                    }
+                }
+            rule_creation_result = self.__cumulus_collection_query.create_sqs_rules(
+                cumulus_collection_doc,
+                self.__cumulus_lambda_prefix,
+                self.__ingest_sqs_url,
+                self.__provider_id,
+                self.__workflow_name,
+            )
+            if 'status' not in rule_creation_result:
+                # 'TODO' delete collection
+                return {
+                    'statusCode': 500,
+                    'body': {
+                        'message': {rule_creation_result},
                     }
                 }
         except Exception as e:

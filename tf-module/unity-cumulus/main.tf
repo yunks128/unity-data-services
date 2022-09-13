@@ -151,6 +151,8 @@ resource "aws_lambda_function" "cumulus_collections_creation_dapa" {
     variables = {
       LOG_LEVEL = var.log_level
       CUMULUS_LAMBDA_PREFIX = var.prefix
+      CUMULUS_WORKFLOW_SQS_URL = var.workflow_sqs_url
+      CUMULUS_WORKFLOW_NAME = 'CatalogGranule'
     }
   }
 
