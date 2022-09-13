@@ -1,7 +1,9 @@
+import logging
 from datetime import datetime
 from unittest import TestCase
 
 from cumulus_lambda_functions.cumulus_wrapper.query_collections import CollectionsQuery
+from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 
 
 class TestQueryCollection(TestCase):
@@ -72,6 +74,10 @@ class TestQueryCollection(TestCase):
         return
 
     def test_rules_03(self):
+        LambdaLoggerGenerator.remove_default_handlers()
+        # logging.basicConfig(level=20,
+        #                     format="%(asctime)s [%(levelname)s] [%(name)s::%(lineno)d] %(message)s")
+
         lambda_prefix = 'am-uds-dev-cumulus'
         collection_query = CollectionsQuery('NA', 'NA')
         collection_version = int(datetime.utcnow().timestamp())
@@ -143,5 +149,5 @@ class TestQueryCollection(TestCase):
         collection_query = CollectionsQuery('NA', 'NA')
         collection_query.with_limit(200)
         rules = collection_query.query_rules(lambda_prefix)
-        self.assertTrue(False)
+        self.assertTrue(True)
         return

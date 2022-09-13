@@ -26,13 +26,14 @@ class TestCumulusCreateCollectionDapa(TestCase):
             .add_file_type("P1570515ATMSSCIENCEAXT11344000000000.PDS", "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}00\\.PDS$",
                            'internal', 'data', 'item')
         os.environ['CUMULUS_LAMBDA_PREFIX'] = 'am-uds-dev-cumulus'
+        os.environ['CUMULUS_WORKFLOW_SQS_URL'] = 'https://sqs.us-west-2.amazonaws.com/884500545225/am-uds-dev-cumulus-cnm-submission-queue'
         stac_collection = dapa_collection.start()
         event = {
             'body': json.dumps(stac_collection)
         }
         creation = CumulusCreateCollectionDapa(event).start()
         self.assertTrue('statusCode' in creation, f'missing statusCode: {creation}')
-        self.assertEqual(200, creation['statusCode'], f'wrong statusCode: {creation}')
+        self.assertEqual(202, creation['statusCode'], f'wrong statusCode: {creation}')
         return
 
     def test_02(self):
@@ -68,5 +69,5 @@ class TestCumulusCreateCollectionDapa(TestCase):
                                     headers=headers,
                                     json=stac_collection,
                                     )
-        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        self.assertEqual(query_result.status_code, 202, f'wrong status code. {query_result.text}')
         return

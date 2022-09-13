@@ -1,5 +1,6 @@
 import json
 import os
+from threading import Thread
 
 import pystac
 
@@ -8,6 +9,45 @@ from cumulus_lambda_functions.cumulus_wrapper.query_collections import Collectio
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
+
+
+class CollectionCreationThread(Thread):
+    def __init__(self, request_body):
+        super().__init__()
+        # self.thread_name = thread_name
+        # self.thread_ID = thread_ID
+        self.__request_body = request_body
+        self.__cumulus_collection_query = CollectionsQuery('', '')
+        self.__cumulus_lambda_prefix = os.getenv('CUMULUS_LAMBDA_PREFIX')
+        self.__ingest_sqs_url = os.getenv('CUMULUS_WORKFLOW_SQS_URL')
+        self.__workflow_name = os.getenv('CUMULUS_WORKFLOW_NAME', 'CatalogGranule')
+        self.__provider_id = ''  # TODO. need this?
+        # helper function to execute the threads
+
+    def run(self):
+        try:
+            cumulus_collection_doc = CollectionTransformer().from_stac(self.__request_body)
+            creation_result = self.__cumulus_collection_query.create_collection(cumulus_collection_doc, self.__cumulus_lambda_prefix)
+            if 'status' not in creation_result:
+                LOGGER.error(f'status not in creation_result: {creation_result}')
+                return
+
+            rule_creation_result = self.__cumulus_collection_query.create_sqs_rules(
+                cumulus_collection_doc,
+                self.__cumulus_lambda_prefix,
+                self.__ingest_sqs_url,
+                self.__provider_id,
+                self.__workflow_name,
+            )
+            if 'status' not in rule_creation_result:
+                # 'TODO' delete collection
+                LOGGER.error(f'status not in rule_creation_result: {rule_creation_result}')
+                return
+        except Exception as e:
+            LOGGER.exception('error while creating new collection in Cumulus')
+            return
+        LOGGER.info(f'collection and rule created for: {self.__request_body}')
+        return
 
 
 class CumulusCreateCollectionDapa:
@@ -36,43 +76,49 @@ class CumulusCreateCollectionDapa:
                 'body': {'message': f'request body is not valid STAC Collection schema. check details',
                          'details': validation_result}
             }
-        try:
-            cumulus_collection_doc = CollectionTransformer().from_stac(self.__request_body)
-            creation_result = self.__cumulus_collection_query.create_collection(cumulus_collection_doc, self.__cumulus_lambda_prefix)
-            if 'status' not in creation_result:
-                return {
-                    'statusCode': 500,
-                    'body': {
-                        'message': {creation_result}
-                    }
-                }
-            rule_creation_result = self.__cumulus_collection_query.create_sqs_rules(
-                cumulus_collection_doc,
-                self.__cumulus_lambda_prefix,
-                self.__ingest_sqs_url,
-                self.__provider_id,
-                self.__workflow_name,
-            )
-            if 'status' not in rule_creation_result:
-                # 'TODO' delete collection
-                return {
-                    'statusCode': 500,
-                    'body': {
-                        'message': {rule_creation_result},
-                    }
-                }
-        except Exception as e:
-            LOGGER.exception('error while creating new collection in Cumulus')
-            return {
-                'statusCode': 500,
-                'body': {
-                    'message': f'error while creating new collection in Cumulus. check details',
-                    'details': str(e)
-                }
-            }
+        thread1 = CollectionCreationThread(self.__request_body)
+        thread1.start()
         return {
-            'statusCode': 200,
-            'body': {
-                'message': creation_result
-            }
+            'statusCode': 202,
+            'body': {'message': 'started in backgorund'}
         }
+        # try:
+        #     cumulus_collection_doc = CollectionTransformer().from_stac(self.__request_body)
+        #     creation_result = self.__cumulus_collection_query.create_collection(cumulus_collection_doc, self.__cumulus_lambda_prefix)
+        #     if 'status' not in creation_result:
+        #         return {
+        #             'statusCode': 500,
+        #             'body': {
+        #                 'message': {creation_result}
+        #             }
+        #         }
+        #     rule_creation_result = self.__cumulus_collection_query.create_sqs_rules(
+        #         cumulus_collection_doc,
+        #         self.__cumulus_lambda_prefix,
+        #         self.__ingest_sqs_url,
+        #         self.__provider_id,
+        #         self.__workflow_name,
+        #     )
+        #     if 'status' not in rule_creation_result:
+        #         # 'TODO' delete collection
+        #         return {
+        #             'statusCode': 500,
+        #             'body': {
+        #                 'message': {rule_creation_result},
+        #             }
+        #         }
+        # except Exception as e:
+        #     LOGGER.exception('error while creating new collection in Cumulus')
+        #     return {
+        #         'statusCode': 500,
+        #         'body': {
+        #             'message': f'error while creating new collection in Cumulus. check details',
+        #             'details': str(e)
+        #         }
+        #     }
+        # return {
+        #     'statusCode': 200,
+        #     'body': {
+        #         'message': creation_result
+        #     }
+        # }
