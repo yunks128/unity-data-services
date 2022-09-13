@@ -76,49 +76,51 @@ class CumulusCreateCollectionDapa:
                 'body': {'message': f'request body is not valid STAC Collection schema. check details',
                          'details': validation_result}
             }
-        thread1 = CollectionCreationThread(self.__request_body)
-        thread1.start()
-        return {
-            'statusCode': 202,
-            'body': {'message': 'started in backgorund'}
-        }
-        # try:
-        #     cumulus_collection_doc = CollectionTransformer().from_stac(self.__request_body)
-        #     creation_result = self.__cumulus_collection_query.create_collection(cumulus_collection_doc, self.__cumulus_lambda_prefix)
-        #     if 'status' not in creation_result:
-        #         return {
-        #             'statusCode': 500,
-        #             'body': {
-        #                 'message': {creation_result}
-        #             }
-        #         }
-        #     rule_creation_result = self.__cumulus_collection_query.create_sqs_rules(
-        #         cumulus_collection_doc,
-        #         self.__cumulus_lambda_prefix,
-        #         self.__ingest_sqs_url,
-        #         self.__provider_id,
-        #         self.__workflow_name,
-        #     )
-        #     if 'status' not in rule_creation_result:
-        #         # 'TODO' delete collection
-        #         return {
-        #             'statusCode': 500,
-        #             'body': {
-        #                 'message': {rule_creation_result},
-        #             }
-        #         }
-        # except Exception as e:
-        #     LOGGER.exception('error while creating new collection in Cumulus')
-        #     return {
-        #         'statusCode': 500,
-        #         'body': {
-        #             'message': f'error while creating new collection in Cumulus. check details',
-        #             'details': str(e)
-        #         }
-        #     }
+        # thread1 = CollectionCreationThread(self.__request_body)
+        # LOGGER.info(f'starting background thread')
+        # thread1.start()
+        # LOGGER.info(f'not waiting for background thread')
         # return {
-        #     'statusCode': 200,
-        #     'body': {
-        #         'message': creation_result
-        #     }
+        #     'statusCode': 202,
+        #     'body': {'message': 'started in backgorund'}
         # }
+        try:
+            cumulus_collection_doc = CollectionTransformer().from_stac(self.__request_body)
+            creation_result = self.__cumulus_collection_query.create_collection(cumulus_collection_doc, self.__cumulus_lambda_prefix)
+            if 'status' not in creation_result:
+                return {
+                    'statusCode': 500,
+                    'body': {
+                        'message': {creation_result}
+                    }
+                }
+            rule_creation_result = self.__cumulus_collection_query.create_sqs_rules(
+                cumulus_collection_doc,
+                self.__cumulus_lambda_prefix,
+                self.__ingest_sqs_url,
+                self.__provider_id,
+                self.__workflow_name,
+            )
+            if 'status' not in rule_creation_result:
+                # 'TODO' delete collection
+                return {
+                    'statusCode': 500,
+                    'body': {
+                        'message': {rule_creation_result},
+                    }
+                }
+        except Exception as e:
+            LOGGER.exception('error while creating new collection in Cumulus')
+            return {
+                'statusCode': 500,
+                'body': {
+                    'message': f'error while creating new collection in Cumulus. check details',
+                    'details': str(e)
+                }
+            }
+        return {
+            'statusCode': 200,
+            'body': {
+                'message': creation_result
+            }
+        }
