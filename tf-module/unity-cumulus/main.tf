@@ -162,3 +162,28 @@ resource "aws_lambda_function" "cumulus_collections_creation_dapa" {
   }
   tags = var.tags
 }
+
+resource "aws_lambda_function" "cumulus_collections_creation_dapa_facade" {
+  filename      = local.lambda_file_name
+  function_name = "${var.prefix}-cumulus_collections_creation_dapa_facade"
+  role          = var.lambda_processing_role_arn
+  handler       = "cumulus_lambda_functions.cumulus_collections_dapa.lambda_function.lambda_handler_ingestion"
+  runtime       = "python3.9"
+  timeout       = 300
+
+  environment {
+    variables = {
+      LOG_LEVEL = var.log_level
+      CUMULUS_LAMBDA_PREFIX = var.prefix
+      CUMULUS_WORKFLOW_SQS_URL = var.workflow_sqs_url
+      CUMULUS_WORKFLOW_NAME = "CatalogGranule"
+      COLLECTION_CREATION_LAMBDA_NAME = aws_lambda_function.cumulus_collections_creation_dapa.arn
+    }
+  }
+
+  vpc_config {
+    subnet_ids         = var.cumulus_lambda_subnet_ids
+    security_group_ids = local.security_group_ids_set ? var.security_group_ids : [aws_security_group.unity_cumulus_lambda_sg[0].id]
+  }
+  tags = var.tags
+}
