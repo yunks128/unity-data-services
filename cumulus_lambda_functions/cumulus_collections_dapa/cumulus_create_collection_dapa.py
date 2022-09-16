@@ -34,7 +34,7 @@ class CumulusCreateCollectionDapa:
                 return {
                     'statusCode': 500,
                     'body': json.dumps({
-                        'message': {creation_result}
+                        'message': creation_result
                     })
                 }
             rule_creation_result = self.__cumulus_collection_query.create_sqs_rules(
