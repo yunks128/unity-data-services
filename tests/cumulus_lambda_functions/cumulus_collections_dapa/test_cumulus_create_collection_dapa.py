@@ -65,6 +65,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
                            'internal', 'data', 'item')
         stac_collection = dapa_collection.start()
 
+        print(json.dumps(stac_collection))
         query_result = requests.post(url=post_url,
                                     headers=headers,
                                     json=stac_collection,

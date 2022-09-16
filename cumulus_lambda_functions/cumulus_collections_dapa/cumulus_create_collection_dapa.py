@@ -33,9 +33,9 @@ class CumulusCreateCollectionDapa:
                 LOGGER.error(f'status not in creation_result: {creation_result}')
                 return {
                     'statusCode': 500,
-                    'body': {
+                    'body': json.dumps({
                         'message': {creation_result}
-                    }
+                    })
                 }
             rule_creation_result = self.__cumulus_collection_query.create_sqs_rules(
                 cumulus_collection_doc,
@@ -49,25 +49,25 @@ class CumulusCreateCollectionDapa:
                 LOGGER.error(f'status not in rule_creation_result: {rule_creation_result}')
                 return {
                     'statusCode': 500,
-                    'body': {
+                    'body': json.dumps({
                         'message': {rule_creation_result},
-                    }
+                    })
                 }
         except Exception as e:
             LOGGER.exception('error while creating new collection in Cumulus')
             return {
                 'statusCode': 500,
-                'body': {
+                'body': json.dumps({
                     'message': f'error while creating new collection in Cumulus. check details',
                     'details': str(e)
-                }
+                })
             }
         LOGGER.info(f'creation_result: {creation_result}')
         return {
             'statusCode': 200,
-            'body': {
+            'body': json.dumps({
                 'message': creation_result
-            }
+            })
         }
 
     def start(self):
@@ -80,8 +80,8 @@ class CumulusCreateCollectionDapa:
             LOGGER.error(f'request body is not valid STAC collection: {validation_result}')
             return {
                 'statusCode': 500,
-                'body': {'message': f'request body is not valid STAC Collection schema. check details',
-                         'details': validation_result}
+                'body': json.dumps({'message': f'request body is not valid STAC Collection schema. check details',
+                         'details': validation_result})
             }
         if self.__collection_creation_lambda_name != '':
             response = AwsLambda().invoke_function(
@@ -91,9 +91,9 @@ class CumulusCreateCollectionDapa:
             LOGGER.debug(f'async function started: {response}')
             return {
                 'statusCode': 202,
-                'body': {
+                'body': json.dumps({
                     'message': 'processing'
-                }
+                })
             }
-
+        LOGGER.debug(f'creating collection.')
         return self.execute_creation()

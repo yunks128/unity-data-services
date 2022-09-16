@@ -110,12 +110,12 @@ class CumulusGranulesDapa:
             if 'server_error' in cumulus_result:
                 return {
                     'statusCode': 500,
-                    'body': {'message': cumulus_result['server_error']}
+                    'body': json.dumps({'message': cumulus_result['server_error']})
                 }
             if 'client_error' in cumulus_result:
                 return {
                     'statusCode': 400,
-                    'body': {'message': cumulus_result['client_error']}
+                    'body': json.dumps({'message': cumulus_result['client_error']})
                 }
             cumulus_size = self.__get_size()
             return {
@@ -133,5 +133,5 @@ class CumulusGranulesDapa:
             LOGGER.exception(f'unexpected error')
             return {
                 'statusCode': 500,
-                'body': {'message': f'unpredicted error: {str(e)}'}
+                'body': json.dumps({'message': f'unpredicted error: {str(e)}'})
             }
