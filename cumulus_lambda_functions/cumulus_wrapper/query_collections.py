@@ -13,9 +13,21 @@ class CollectionsQuery(CumulusBase):
     __collections_key = 'collections'
     __rules_key = 'rules'
     __stats_key = 'stats'
+    __collection_id_key = 'collectionId'
+    __collection_name = 'name'
+    __collection_version = 'version'
+
 
     def __init__(self, cumulus_base: str, cumulus_token: str):
         super().__init__(cumulus_base, cumulus_token)
+
+    def with_collection_id(self, collection_id: str):
+        # self._conditions.append(f'{self.__collection_id_key}={collection_id}')
+        split_collection = collection_id.split('___')
+        self._conditions.append(f'{self.__collection_name}={split_collection[0]}')
+        self._conditions.append(f'{self.__collection_version}={split_collection[1]}')
+
+        return self
 
     def get_size(self, private_api_prefix: str):
         payload = {

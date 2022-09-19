@@ -28,6 +28,19 @@ class CumulusCollectionsDapa:
         self.__cumulus = CollectionsQuery(self.__cumulus_base, self.__jwt_token)
         self.__cumulus.with_limit(self.__limit)
         self.__cumulus.with_page_number(self.__page_number)
+        self.__get_collection_id()
+
+    def __get_collection_id(self):
+        if 'pathParameters' not in self.__event:
+            return self
+        path_param_dict = self.__event['pathParameters']
+        if 'collectionId' not in path_param_dict:
+            return self
+        collection_id = path_param_dict['collectionId']
+        if collection_id == '*':
+            return self
+        self.__cumulus.with_collection_id(path_param_dict['collectionId'])
+        return self
 
     def __assign_values(self):
         if 'queryStringParameters' not in self.__event or self.__event['queryStringParameters'] is None:

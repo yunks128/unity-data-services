@@ -73,6 +73,17 @@ class TestQueryCollection(TestCase):
         self.assertEqual(2, len(collections['results']), f'wrong length: {collections}')
         return
 
+    def test_03(self):
+        lambda_prefix = 'am-uds-dev-cumulus'
+        collection_query = CollectionsQuery('NA', 'NA')
+        collection_query.with_limit(2)
+        collection_query.with_collection_id('CUMULUS_DAPA_UNIT_TEST___1663627653')
+        collections = collection_query.query_direct_to_private_api(lambda_prefix)
+        self.assertTrue('results' in collections, f'results not in collections: {collections}')
+        self.assertEqual(1, len(collections['results']), f'wrong length: {collections}')
+        self.assertEqual('CUMULUS_DAPA_UNIT_TEST___1663627653', collections['results'][0]['id'], f'wrong id (DAPA style)')
+        return
+
     def test_rules_03(self):
         LambdaLoggerGenerator.remove_default_handlers()
         # logging.basicConfig(level=20,
