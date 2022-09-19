@@ -6,6 +6,7 @@ from glob import glob
 from urllib.parse import urlparse, unquote_plus
 
 from cumulus_lambda_functions.cumulus_dapa_client.dapa_client import DapaClient
+from cumulus_lambda_functions.cumulus_stac.collection_transformer import CollectionTransformer
 from cumulus_lambda_functions.lib.aws.aws_s3 import AwsS3
 
 LOGGER = logging.getLogger(__name__)
@@ -49,11 +50,7 @@ class UploadGranules:
         return self
 
     def __get_href(self, input_href: str):
-        parse_result = urlparse(input_href)
-        if parse_result.query == '':
-            return ''
-        query_dict = [k.split('=') for k in parse_result.query.split('&')]
-        query_dict = {k[0]: unquote_plus(k[1]) for k in query_dict}
+        query_dict = CollectionTransformer().get_href(input_href)
         if 'regex' not in query_dict:
             raise ValueError(f'missing regex in {input_href}')
         return query_dict['regex']
