@@ -27,12 +27,62 @@ paths:
           description: "200 response"
           schema:
             $ref: "#/definitions/Empty"
+      security:
+        - Unity_API_Gateway_Lambda_HySDS_Authorizer_Node1: []
       x-amazon-apigateway-request-validator: "Validate body, query string parameters,\
           \ and headers"
       x-amazon-apigateway-integration:
         type: "aws_proxy"
         httpMethod: "POST"
         uri: "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/arn:aws:lambda:us-west-2:884500545225:function:am-uds-dev-cumulus-cumulus_collections_dapa/invocations"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        contentHandling: "CONVERT_TO_TEXT"
+    put:
+      produces:
+        - "application/json"
+      body:
+        schema:
+          $ref: "#/definitions/Empty"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+      security:
+        - Unity_API_Gateway_Lambda_HySDS_Authorizer_Node1: []
+      x-amazon-apigateway-request-validator: "Validate body, query string parameters,\
+          \ and headers"
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        httpMethod: "POST"
+        uri: "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/arn:aws:lambda:us-west-2:884500545225:function:am-uds-dev-cumulus-cumulus_collections_ingest_cnm_dapa/invocations"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        contentHandling: "CONVERT_TO_TEXT"
+    post:
+      produces:
+        - "application/json"
+      body:
+        schema:
+          $ref: "#/definitions/Empty"
+      responses:
+        "202":
+          description: "202 response"
+          schema:
+            $ref: "#/definitions/Empty"
+      security:
+        - Unity_API_Gateway_Lambda_HySDS_Authorizer_Node1: []
+      x-amazon-apigateway-request-validator: "Validate body, query string parameters,\
+          \ and headers"
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        httpMethod: "POST"
+        uri: "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/arn:aws:lambda:us-west-2:884500545225:function:am-uds-dev-cumulus-cumulus_collections_creation_dapa_facade/invocations"
         responses:
           default:
             statusCode: "200"
@@ -64,6 +114,8 @@ paths:
           description: "200 response"
           schema:
             $ref: "#/definitions/Empty"
+      security:
+        - Unity_API_Gateway_Lambda_HySDS_Authorizer_Node1: []
       x-amazon-apigateway-request-validator: "Validate body, query string parameters,\
         \ and headers"
       x-amazon-apigateway-integration:
@@ -76,14 +128,14 @@ paths:
         passthroughBehavior: "when_no_match"
         contentHandling: "CONVERT_TO_TEXT"
 securityDefinitions:
-  Unity_API_Gateway_Lambda_WPST_UI_Demo_Authorizer_Node:
+  Unity_API_Gateway_Lambda_HySDS_Authorizer_Node1:
     type: "apiKey"
     name: "Authorization"
     in: "header"
     x-amazon-apigateway-authtype: "custom"
     x-amazon-apigateway-authorizer:
       type: "token"
-      authorizerUri: "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/arn:aws:lambda:us-west-2:884500545225:function:cs-token-auth-wpst-demo-ui/invocations"
+      authorizerUri: "arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/arn:aws:lambda:us-west-2:884500545225:function:cs-basic-token-auth-node/invocations"
       authorizerResultTtlInSeconds: 0
 definitions:
   Empty:

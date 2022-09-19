@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import datetime
+from time import sleep
 from unittest import TestCase
 
 import requests
@@ -44,15 +45,15 @@ class TestCumulusCreateCollectionDapa(TestCase):
 
         os.environ[Constants.COGNITO_URL] = 'https://cognito-idp.us-west-2.amazonaws.com'
         bearer_token = CognitoTokenRetriever().start()
-
+        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
         post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'
         headers = {
             'Authorization': f'Bearer {bearer_token}',
-            'Content-Type': 'application/json',
+            # 'Content-Type': 'application/json',
         }
-
+        temp_collection_id = f'CUMULUS_DAPA_UNIT_TEST___{int(datetime.utcnow().timestamp())}'
         dapa_collection = UnityCollectionStac() \
-            .with_id(f'CUMULUS_DAPA_UNIT_TEST___{int(datetime.utcnow().timestamp())}') \
+            .with_id(temp_collection_id) \
             .with_graule_id_regex("^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}0$") \
             .with_granule_id_extraction_regex("(P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}0).+") \
             .with_title("P1570515ATMSSCIENCEAXT11344000000001.PDS") \
@@ -71,4 +72,12 @@ class TestCumulusCreateCollectionDapa(TestCase):
                                     json=stac_collection,
                                     )
         self.assertEqual(query_result.status_code, 202, f'wrong status code. {query_result.text}')
+        sleep(60)
+        collection_created_result = requests.get(url=f'{post_url}{temp_collection_id}', headers=headers)
+        self.assertEqual(collection_created_result.status_code, 200, f'wrong status code. {query_result.text}')
+        collection_created_result = json.loads(collection_created_result.text)
+        self.assertTrue('features' in collection_created_result, f'features not in collection_created_result: {collection_created_result}')
+        self.assertEqual(len(collection_created_result['features']), 1, f'wrong length: {collection_created_result}')
+        self.assertEqual(collection_created_result['features'][0]['id'], temp_collection_id, f'wrong id')
+        # TODO check if collection shows up
         return

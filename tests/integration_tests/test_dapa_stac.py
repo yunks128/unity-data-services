@@ -20,7 +20,7 @@ class TestDapaStac(TestCase):
             .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(), base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
         collection_url = f'{os.environ.get("UNITY_URL")}/am-uds-dapa/collections'
         response = requests.get(url=collection_url, headers={'Authorization': f'Bearer {cognito_login.token}'}, verify=False)
-        self.assertEqual(response.status_code, 200, 'wrong status code')
+        self.assertEqual(response.status_code, 200, f'wrong status code: {response.text}')
         response_json = json.loads(response.content.decode())
         self.assertTrue(len(response_json['features']) > 0, f'empty collections. Need collections to compare')
         for each_feature in response_json['features']:
@@ -37,7 +37,7 @@ class TestDapaStac(TestCase):
             .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(), base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
         collection_url = f'{os.environ.get("UNITY_URL")}/am-uds-dapa/collections/*/items'
         response = requests.get(url=collection_url, headers={'Authorization': f'Bearer {cognito_login.token}'}, verify=False)
-        self.assertEqual(response.status_code, 200, 'wrong status code')
+        self.assertEqual(response.status_code, 200, f'wrong status code: {response.text}')
         response_json = json.loads(response.content.decode())
         self.assertTrue(len(response_json['features']) > 0, f'empty granules. Need collections to compare')
         for each_feature in response_json['features']:

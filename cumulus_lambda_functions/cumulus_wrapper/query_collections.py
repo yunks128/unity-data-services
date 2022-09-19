@@ -30,11 +30,17 @@ class CollectionsQuery(CumulusBase):
         return self
 
     def get_size(self, private_api_prefix: str):
+        query_params = {'field': 'status', 'type': 'collections'}
+        main_conditions = {k[0]: k[1] for k in [k1.split('=') for k1 in self._conditions]}
+        if self.__collection_name in main_conditions:
+            query_params[self.__collection_name] = main_conditions[self.__collection_name]
+        if self.__collection_version in main_conditions:
+            query_params[self.__collection_version] = main_conditions[self.__collection_version]
         payload = {
             'httpMethod': 'GET',
             'resource': '/{proxy+}',
             'path': f'/stats/aggregate',
-            'queryStringParameters': {'field': 'status', 'type': 'collections'},
+            'queryStringParameters': query_params,
             'headers': {
                 'Content-Type': 'application/json',
             },
