@@ -96,6 +96,33 @@ class CollectionsQuery(CumulusBase):
             return {'server_error': f'error while invoking:{str(e)}'}
         return {'status': query_result['message']}
 
+    def delete_collection(self, private_api_prefix, collection_id, collection_version):
+        payload = {
+            'httpMethod': 'DELETE',
+            'resource': '/{proxy+}',
+            'path': f'/{self.__collections_key}/{collection_id}/{collection_version}',
+        }
+        LOGGER.debug(f'payload: {payload}')
+        try:
+            query_result = self._invoke_api(payload, private_api_prefix)
+            """
+            {'statusCode': 500, 'body': '', 'headers': {}}
+            """
+            if query_result['statusCode'] >= 500:
+                LOGGER.error(f'server error status code: {query_result["statusCode"]}. details: {query_result}')
+                return {'server_error': query_result}
+            if query_result['statusCode'] >= 400:
+                LOGGER.error(f'client error status code: {query_result["statusCode"]}. details: {query_result}')
+                return {'client_error': query_result}
+            query_result = json.loads(query_result['body'])
+            LOGGER.debug(f'json query_result: {query_result}')
+            if 'message' not in query_result:
+                return {'server_error': f'invalid response: {query_result}'}
+        except Exception as e:
+            LOGGER.exception('error while invoking')
+            return {'server_error': f'error while invoking:{str(e)}'}
+        return {'status': query_result['message']}
+
     def query_rules(self, private_api_prefix: str):
         payload = {
             'httpMethod': 'GET',

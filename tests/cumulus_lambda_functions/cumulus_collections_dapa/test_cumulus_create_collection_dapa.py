@@ -34,7 +34,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
         }
         creation = CumulusCreateCollectionDapa(event).start()
         self.assertTrue('statusCode' in creation, f'missing statusCode: {creation}')
-        self.assertEqual(202, creation['statusCode'], f'wrong statusCode: {creation}')
+        self.assertEqual(200, creation['statusCode'], f'wrong statusCode: {creation}')
         return
 
     def test_02(self):

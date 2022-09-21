@@ -62,6 +62,11 @@ class TestQueryCollection(TestCase):
         response = collection_query.create_collection(sample_collection, lambda_prefix)
         self.assertTrue('status' in response, f'status not in response: {response}')
         self.assertEqual('Record saved', response['status'], f'wrong status: {response}')
+
+        delete_response = collection_query.delete_collection(lambda_prefix, 'UNITY_CUMULUS_DEV_UNIT_TEST', str(collection_version))
+        self.assertTrue('status' in delete_response, f'status not in response: {response}')
+        self.assertEqual('Record deleted', delete_response['status'], f'wrong status: {response}')
+
         return
 
     def test_02(self):

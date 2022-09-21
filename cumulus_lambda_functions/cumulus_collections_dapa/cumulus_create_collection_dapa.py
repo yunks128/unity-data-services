@@ -45,12 +45,13 @@ class CumulusCreateCollectionDapa:
                 self.__workflow_name,
             )
             if 'status' not in rule_creation_result:
-                # 'TODO' delete collection
-                LOGGER.error(f'status not in rule_creation_result: {rule_creation_result}')
+                LOGGER.error(f'status not in rule_creation_result. deleting collection: {rule_creation_result}')
+                delete_collection_result = self.__cumulus_collection_query.delete_collection(self.__cumulus_lambda_prefix, cumulus_collection_doc['name'], cumulus_collection_doc['version'])
                 return {
                     'statusCode': 500,
                     'body': json.dumps({
                         'message': {rule_creation_result},
+                        'details': f'collection deletion result: {delete_collection_result}'
                     })
                 }
         except Exception as e:
