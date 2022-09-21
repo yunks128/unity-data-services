@@ -1,6 +1,7 @@
 from setuptools import find_packages, setup
 
 install_requires = [
+    'pystac', 'jsonschema',
     'fastjsonschema',
     'xmltodict',
     'requests'
@@ -16,7 +17,7 @@ extra_requires = ['botocore', 'boto3',]
 
 setup(
     name="cumulus_lambda_functions",
-    version="1.7.2",
+    version="1.8.0",
     packages=find_packages(),
     install_requires=install_requires,
     tests_require=['mock', 'nose', 'sphinx', 'sphinx_rtd_theme', 'coverage', 'pystac', 'python-dotenv', 'jsonschema'],

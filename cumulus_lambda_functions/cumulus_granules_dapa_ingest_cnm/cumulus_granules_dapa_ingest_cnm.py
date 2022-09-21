@@ -193,5 +193,5 @@ Test Input message
             }
         return {
             'statusCode': 500,
-            'body': {'message': f'failed {len(error_list)}/{len(self.__request_body["features"])}', 'details': error_list}
+            'body': json.dumps({'message': f'failed {len(error_list)}/{len(self.__request_body["features"])}', 'details': error_list})
         }

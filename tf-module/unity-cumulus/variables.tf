@@ -39,6 +39,11 @@ variable "cnm_sns_topic_arn" {
   type = string
 }
 
+variable "workflow_sqs_url" {
+  type = string
+  description = "SNS ARN of CNM submission topic"
+}
+
 variable "cumulus_base" {
   type = string
   description = "Cumulus base URL. Example: https://axhmoecy02.execute-api.us-west-2.amazonaws.com/dev"
