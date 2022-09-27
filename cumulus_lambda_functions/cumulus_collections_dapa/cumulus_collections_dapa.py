@@ -11,21 +11,20 @@ LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_le
 class CumulusCollectionsDapa:
     def __init__(self, event):
         LOGGER.info(f'event: {event}')
+        required_varaibles = ['CUMULUS_LAMBDA_PREFIX', 'RDS_CREDENTIALS_KEY']
+        if not all([k in os.environ for k in required_varaibles]):
+            raise ValueError(f'missing environment values: {required_varaibles}')
         self.__event = event
         self.__jwt_token = 'NA'
         self.__limit = 10
         self.__offset = 0
         self.__assign_values()
         self.__page_number = (self.__offset // self.__limit) + 1
-        if 'CUMULUS_BASE' not in os.environ:
-            raise EnvironmentError('missing key: CUMULUS_BASE')
-        if 'CUMULUS_LAMBDA_PREFIX' not in os.environ:
-            raise EnvironmentError('missing key: CUMULUS_LAMBDA_PREFIX')
-
         self.__cumulus_base = os.getenv('CUMULUS_BASE')
         self.__cumulus_lambda_prefix = os.getenv('CUMULUS_LAMBDA_PREFIX')
+        self.__rds_cred_key = os.getenv('RDS_CREDENTIALS_KEY')
 
-        self.__cumulus = CollectionsQuery(self.__cumulus_base, self.__jwt_token)
+        self.__cumulus = CollectionsQuery('NA', self.__jwt_token, self.__rds_cred_key)
         self.__cumulus.with_limit(self.__limit)
         self.__cumulus.with_page_number(self.__page_number)
         self.__get_collection_id()
@@ -67,6 +66,8 @@ class CumulusCollectionsDapa:
             LOGGER.exception(f'error while generating pagination links')
             return [{'message': f'error while generating pagination links: {str(e)}'}]
         return pagination_links
+
+
 
     def start(self):
         try:

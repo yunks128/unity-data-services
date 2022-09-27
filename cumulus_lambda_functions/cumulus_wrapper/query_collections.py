@@ -4,6 +4,8 @@ import requests
 from cumulus_lambda_functions.cumulus_stac.collection_transformer import CollectionTransformer
 
 from cumulus_lambda_functions.cumulus_wrapper.cumulus_base import CumulusBase
+from cumulus_lambda_functions.lib.aws.rds_middleware import RdsMiddleware
+from cumulus_lambda_functions.lib.aws.security_manager_middleware import SecurityManagerMiddleware
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
@@ -17,9 +19,9 @@ class CollectionsQuery(CumulusBase):
     __collection_name = 'name'
     __collection_version = 'version'
 
-
-    def __init__(self, cumulus_base: str, cumulus_token: str):
+    def __init__(self, cumulus_base: str, cumulus_token: str, rds_security_id: str):
         super().__init__(cumulus_base, cumulus_token)
+        self.__rds_security_id = rds_security_id
 
     def with_collection_id(self, collection_id: str):
         # self._conditions.append(f'{self.__collection_id_key}={collection_id}')
@@ -28,6 +30,27 @@ class CollectionsQuery(CumulusBase):
         self._conditions.append(f'{self.__collection_version}={split_collection[1]}')
 
         return self
+
+    def get_temporal_range_from_rds(self):
+        try:
+            ssm = SecurityManagerMiddleware()
+            result = ssm.get_secret(self.__rds_security_id)
+            result = json.loads(result)
+            """
+            {"username":"am_uds_dev_cumulus","password":"xxx","database":"am_uds_dev_cumulus_db","host":"am-uds-dev-cumulus-serverless.cluster-c8wguw5gwadk.us-west-2.rds.amazonaws.com","port":5432}
+            """
+            rds = RdsMiddleware(result['host'], result['database'], result['username'], result['password'], result['port'], )
+            query_result = rds.query('select c.name, c.version, count(g.cumulus_id), min(g.beginning_date_time), max(g.ending_date_time) from public.collections as c left join public.granules as g on c.cumulus_id = g.collection_cumulus_id group by c.name, c.version;')
+            LOGGER.debug(f'query_result: {query_result}')
+            query_result = {f'{k[0]}___{k[1]}': {
+                'total_size': k[2],
+                'dateFrom': '1970-01-01T00:00:00Z' if k[3] is None else k[3].strftime('%Y-%m-%dT%H:%M:%SZ'),
+                'dateTo': '1970-01-01T00:00:00Z' if k[4] is None else k[4].strftime('%Y-%m-%dT%H:%M:%S'),
+            } for k in query_result}
+        except:
+            LOGGER.exception('rds error')
+            return {}
+        return query_result
 
     def get_size(self, private_api_prefix: str):
         query_params = {'field': 'status', 'type': 'collections'}
@@ -296,12 +319,23 @@ curl --request POST "$CUMULUS_BASEURL/rules" --header "Authorization: Bearer $cu
                 LOGGER.error(f'missing key: results. invalid response json: {query_result}')
                 return {'server_error': f'missing key: results. invalid response json: {query_result}'}
             query_result = query_result['results']
+            temporal_range = self.get_temporal_range_from_rds()
             for each_collection in query_result:
                 stac_collection_id = f"{each_collection['name']}___{each_collection['version']}"
-                stats = self.get_stats(stac_collection_id, private_api_prefix)
-                each_collection['dateFrom'] = stats['dateFrom']
-                each_collection['dateTo'] = stats['dateTo']
-                each_collection['total_size'] = stats['value']
+                if stac_collection_id not in temporal_range:
+                    each_collection['dateFrom'] = '1970-01-01T00:00:00Z'
+                    each_collection['dateTo'] = '1970-01-01T00:00:00Z'
+                    each_collection['total_size'] = 0
+                else:
+                    each_collection['dateFrom'] = temporal_range[stac_collection_id]['dateFrom']
+                    each_collection['dateTo'] = temporal_range[stac_collection_id]['dateTo']
+                    each_collection['total_size'] = temporal_range[stac_collection_id]['total_size']
+            # for each_collection in query_result:
+            #     stac_collection_id = f"{each_collection['name']}___{each_collection['version']}"
+            #     stats = self.get_stats(stac_collection_id, private_api_prefix)
+            #     each_collection['dateFrom'] = stats['dateFrom']
+            #     each_collection['dateTo'] = stats['dateTo']
+            #     each_collection['total_size'] = ` stats['value']
             stac_list = [CollectionTransformer().to_stac(k) for k in query_result]
             LOGGER.debug(f'stac_list: {stac_list}')
         except Exception as e:
