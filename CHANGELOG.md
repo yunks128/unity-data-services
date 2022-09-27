@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.1] - 2022-09-27
+### Added
+- [#79](https://github.com/unity-sds/unity-data-services/pull/79) Collection Creation endpoint with DAPA format
+### Changed
+- [#80](https://github.com/unity-sds/unity-data-services/pull/80) level.1.a.missing.filename
+- [#82](https://github.com/unity-sds/unity-data-services/pull/82) not honoring offset and limit in Collection query
+- [#89](https://github.com/unity-sds/unity-data-services/pull/89) check pathParameters is None
+### Fixed
+
+
 ## [1.7.0] - 2022-09-06
 ### Added
 - [#62](https://github.com/unity-sds/unity-data-services/issues/66) Added OpenAPI spec for DAPA endpoints
