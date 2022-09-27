@@ -34,7 +34,7 @@ class CumulusCollectionsDapa:
         if 'pathParameters' not in self.__event:
             return self
         path_param_dict = self.__event['pathParameters']
-        if 'collectionId' not in path_param_dict:
+        if path_param_dict is None or 'collectionId' not in path_param_dict:
             return self
         collection_id = path_param_dict['collectionId']
         if collection_id == '*':
