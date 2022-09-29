@@ -4,7 +4,9 @@ install_requires = [
     'pystac', 'jsonschema',
     'fastjsonschema',
     'xmltodict',
-    'requests'
+    'requests',
+    'elasticsearch===7.13.4',
+    'requests_aws4auth',
 ]
 
 flask_requires = [
