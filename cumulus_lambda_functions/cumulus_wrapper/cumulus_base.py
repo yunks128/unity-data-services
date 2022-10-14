@@ -12,7 +12,7 @@ class CumulusBase(ABC):
         self.__base_headers = {
             'Authorization': f'Bearer {cumulus_token}'
         }
-        self._conditions = []
+        self._conditions = ['status=completed']
 
     def with_page_number(self, page_number):
         self._conditions.append(f'page={page_number}')
