@@ -15,7 +15,7 @@ build_lambda:
 	docker run --rm -v `PWD`:"/usr/src/app/cumulus_lambda_functions":z -w "/usr/src/app/cumulus_lambda_functions" cae-artifactory.jpl.nasa.gov:17001/python:3.9 ci.cd/create_s3_zip.sh
 
 build_lambda_public:
-	docker run --rm -v `PWD`:"/usr/src/app/cumulus_lambda_functions":z -w "/usr/src/app/cumulus_lambda_functions" python:3.7 ci.cd/create_s3_zip.sh
+	docker run --rm -v `PWD`:"/usr/src/app/cumulus_lambda_functions":z -w "/usr/src/app/cumulus_lambda_functions" python:3.9 ci.cd/create_s3_zip.sh
 
 upload_lambda:
 	aws --profile saml-pub s3 cp cumulus_lambda_functions_deployment.zip s3://am-uds-dev-cumulus-tf-state/unity_cumulus_lambda/
