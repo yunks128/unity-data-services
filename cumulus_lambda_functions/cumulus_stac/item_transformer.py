@@ -330,6 +330,11 @@ class ItemTransformer(StacTransformerAbstract):
         }
         return asset_dict
 
+    def __get_datetime_from_source(self, source: dict, datetime_key: str):
+        if datetime_key not in source:
+            return '1970-01-01T00:00:00Z'
+        return f"{source[datetime_key]}{'' if source[datetime_key].endswith('Z') else 'Z'}"
+
     def to_stac(self, source: dict) -> dict:
         """
         Sample: Cumulus granule
@@ -409,10 +414,10 @@ class ItemTransformer(StacTransformerAbstract):
             },
             "properties": {
                 "datetime": f"{TimeUtils.decode_datetime(source['createdAt'], False)}Z",
-                "start_datetime": f"{source['beginningDateTime']}{'' if source['beginningDateTime'].endswith('Z') else 'Z'}",
-                "end_datetime": f"{source['endingDateTime']}{'' if source['endingDateTime'].endswith('Z') else 'Z'}",
+                "start_datetime": self.__get_datetime_from_source(source, 'beginningDateTime'),
+                "end_datetime": self.__get_datetime_from_source(source, 'endingDateTime'),
+                "created": self.__get_datetime_from_source(source, 'productionDateTime'),
                 # "created": source['processingEndDateTime'],  # TODO
-                "created": source['productionDateTime'],  # TODO
             },
             "collection": source['collectionId'],
             "links": [
