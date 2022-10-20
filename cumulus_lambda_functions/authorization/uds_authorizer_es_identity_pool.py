@@ -14,10 +14,11 @@ class UDSAuthorizorEsIdentityPool(UDSAuthorizorAbstract):
     def __init__(self, user_pool_id: str) -> None:
         super().__init__()
         es_url = os.getenv('ES_URL')  # TODO validation
+        authorization_index = os.getenv('AUTHORIZATION_URL')  # LDAP_Group_Permission
         es_port = int(os.getenv('ES_PORT', '443'))
         self.__cognito = AwsCognito(user_pool_id)
         self.__es: ESAbstract = ESFactory().get_instance('AWS',
-                                                         index='LDAP_Group_Permission',
+                                                         index=authorization_index,
                                                          base_url=es_url,
                                                          port=es_port)
 
