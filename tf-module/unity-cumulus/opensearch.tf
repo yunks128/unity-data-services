@@ -29,8 +29,8 @@ resource "aws_elasticsearch_domain" "uds-es" {
   }
   ebs_options {
     ebs_enabled = true
-    volumne_type = "gp3"
-    throughput = 125
+    volume_type = "gp2"
+//    throughput = 125
     volume_size = 30
   }
   access_policies = templatefile(
