@@ -1,5 +1,5 @@
 resource "aws_elasticsearch_domain" "uds-es" {
-  domain_name    = "${var.prefix}-uds-es-domain"
+  domain_name    = "${var.prefix}-es"
 //  engine_version = "Elasticsearch_7.10"
 // Not supported that in elastic_search
   elasticsearch_version = "7.10"
