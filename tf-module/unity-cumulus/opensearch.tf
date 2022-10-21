@@ -1,7 +1,8 @@
 resource "aws_elasticsearch_domain" "uds-es" {
   domain_name    = "${var.prefix}-uds-es-domain"
-  engine_version = "Elasticsearch_7.10"
-
+//  engine_version = "Elasticsearch_7.10"
+// Not supported that in elastic_search
+  elasticsearch_version = "7.10"
   cluster_config {
     instance_count = var.uds_es_cluster_instance_count
     instance_type  = var.uds_es_cluster_instance_type
