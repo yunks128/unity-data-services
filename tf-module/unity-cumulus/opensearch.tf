@@ -1,4 +1,4 @@
-resource "aws_opensearch_domain" "uds-es" {
+resource "aws_elasticsearch_domain" "uds-es" {
   domain_name    = "${var.prefix}-uds-es-domain"
   engine_version = "Elasticsearch_7.10"
 
@@ -36,7 +36,7 @@ resource "aws_opensearch_domain" "uds-es" {
   access_policies = templatefile(
     "${path.module}/es_access_policy.json",
     {
-      es_resource: "arn:aws:es:${var.aws_region}:${var.account_id}:domain/${aws_opensearch_domain.uds-es.domain_name}/*"
+      es_resource: "arn:aws:es:${var.aws_region}:${var.account_id}:domain/${aws_elasticsearch_domain.uds-es.domain_name}/*"
     }
   )
   tags = {
