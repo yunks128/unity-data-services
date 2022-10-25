@@ -51,6 +51,10 @@ class ESAbstract(ABC):
         return
 
     @abstractmethod
+    def delete_by_query(self, dsl, querying_index=None):
+        return
+
+    @abstractmethod
     def query_pages(self, dsl, querying_index=None):
         return
 

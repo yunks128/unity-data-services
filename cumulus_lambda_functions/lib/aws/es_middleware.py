@@ -167,6 +167,10 @@ class ESMiddleware(ESAbstract):
         index = self.__validate_index(querying_index)
         return self._engine.search(body=dsl, index=index)
 
+    def delete_by_query(self, dsl, querying_index=None):
+        index = self.__validate_index(querying_index)
+        return self._engine.delete_by_query(body=dsl, index=index)
+
     def __is_querying_next_page(self, targeted_size: int, current_size: int, total_size: int):
         if targeted_size < 0:
             return current_size > 0
