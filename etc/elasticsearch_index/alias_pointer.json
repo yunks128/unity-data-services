@@ -1,0 +1,5 @@
+{
+    "actions" : [
+        {"add" : {"index" : "authorization_mappings_v1", "alias" : "authorization_mappings"}}
+    ]
+}
