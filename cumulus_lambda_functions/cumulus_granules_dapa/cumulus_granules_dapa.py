@@ -124,6 +124,8 @@ class CumulusGranulesDapa:
     def start(self):
         try:
             self.__setup_authorized_project_venue()
+            # TODO. cannot accept multiple collection_id. need single collection_id
+            # get project and project_venue from collection_id and compare against authorization table
             cumulus_result = self.__cumulus.query_direct_to_private_api(self.__cumulus_lambda_prefix)
             if 'server_error' in cumulus_result:
                 return {
