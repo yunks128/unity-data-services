@@ -187,3 +187,27 @@ resource "aws_lambda_function" "cumulus_collections_creation_dapa_facade" {
   }
   tags = var.tags
 }
+
+resource "aws_ssm_parameter" "cumulus_collections_dapa_ssm_param" {
+  name  = "/unity/unity-ds/api-gateway/integrations/collections-dapa-function-name"
+  type  = "String"
+  value = aws_lambda_function.cumulus_collections_dapa.function_name
+}
+
+resource "aws_ssm_parameter" "cumulus_collections_create_dapa_ssm_param" {
+  name  = "/unity/unity-ds/api-gateway/integrations/collections-create-dapa-function-name"
+  type  = "String"
+  value = aws_lambda_function.cumulus_collections_creation_dapa_facade.function_name
+}
+
+resource "aws_ssm_parameter" "cumulus_collections_ingest_dapa_ssm_param" {
+  name  = "/unity/unity-ds/api-gateway/integrations/collections-ingest-dapa-function-name"
+  type  = "String"
+  value = aws_lambda_function.cumulus_collections_ingest_cnm_dapa.function_name
+}
+
+resource "aws_ssm_parameter" "cumulus_granules_dapa_ssm_param" {
+  name  = "/unity/unity-ds/api-gateway/integrations/granules-dapa-function-name"
+  type  = "String"
+  value = aws_lambda_function.cumulus_granules_dapa.function_name
+}
