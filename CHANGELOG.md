@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- [#94](https://github.com/unity-sds/unity-data-services/issues/94) Added DAPA lambdas invoke arn values to parameter store for UCS API Gateway integration
+- [#94](https://github.com/unity-sds/unity-data-services/issues/94) Added DAPA lambdas function name to parameter store for UCS API Gateway integration
 ### Changed
 ### Fixed
 
