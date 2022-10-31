@@ -40,6 +40,7 @@ class CumulusGranulesDapa:
         self.__cumulus.with_page_number(self.__page_number)
         self.__get_time_range()
         self.__get_collection_id()
+        self.__lambda_utils = LambdaApiGatewayUtils(self.__event, self.__limit)
 
     def __get_collection_id(self):
         if 'pathParameters' not in self.__event:
@@ -98,7 +99,7 @@ class CumulusGranulesDapa:
 
     def __get_pagination_urls(self):
         try:
-            pagination_links = LambdaApiGatewayUtils(self.__event, self.__limit).generate_pagination_links()
+            pagination_links = self.__lambda_utils.generate_pagination_links()
         except Exception as e:
             LOGGER.exception(f'error while generating pagination links')
             return [{'message': f'error while generating pagination links: {str(e)}'}]
