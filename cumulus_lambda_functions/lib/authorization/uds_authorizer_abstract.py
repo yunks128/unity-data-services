@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 class UDSAuthorizorAbstract(ABC):
     @abstractmethod
-    def add_authorized_group(self, action: [str], project: str, venue: str, ldap_group_name: str):
+    def add_authorized_group(self, action: [str], resource: [str], project: str, venue: str, ldap_group_name: str):
         return
 
     @abstractmethod
@@ -15,9 +15,9 @@ class UDSAuthorizorAbstract(ABC):
         return
 
     @abstractmethod
-    def update_authorized_group(self, action: [str], project: str, venue: str, ldap_group_name: str):
+    def update_authorized_group(self, action: [str], resource: [str], project: str, venue: str, ldap_group_name: str):
         return
 
     @abstractmethod
-    def get_authorized_tenant(self, username: str, action: str) -> list:
+    def get_authorized_tenant(self, username: str, action: str, resource: str) -> list:
         return []
