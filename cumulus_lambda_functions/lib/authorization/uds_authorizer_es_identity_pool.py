@@ -23,9 +23,10 @@ class UDSAuthorizorEsIdentityPool(UDSAuthorizorAbstract):
                                                          base_url=es_url,
                                                          port=es_port)
 
-    def add_authorized_group(self, action: [str], project: str, venue: str, ldap_group_name: str):
+    def add_authorized_group(self, action: [str], resource: [str], project: str, venue: str, ldap_group_name: str):
         self.__es.index_one({
             DBConstants.action_key: action,
+            DBConstants.resource_key: resource,
             DBConstants.project: project,
             DBConstants.project_venue: venue,
             DBConstants.authorized_group_name_key: ldap_group_name,
@@ -65,16 +66,17 @@ class UDSAuthorizorEsIdentityPool(UDSAuthorizorAbstract):
         result = [k['_source'] for k in result['hits']['hits']]
         return result
 
-    def update_authorized_group(self, action: [str], project: str, venue: str, ldap_group_name: str):
+    def update_authorized_group(self, action: [str], resource: [str], project: str, venue: str, ldap_group_name: str):
         self.__es.update_one({
             DBConstants.action_key: action,
+            DBConstants.resource_key: resource,
             DBConstants.project: project,
             DBConstants.project_venue: venue,
             DBConstants.authorized_group_name_key: ldap_group_name,
         }, f'{project}__{venue}__{ldap_group_name}', self.__authorization_index)
         return
 
-    def get_authorized_tenant(self, username: str, action: str) -> list:
+    def get_authorized_tenant(self, username: str, action: str, resource: str) -> list:
         belonged_groups = set(self.__cognito.get_groups(username))
 
         authorized_groups = self.__es.query({
@@ -89,6 +91,11 @@ class UDSAuthorizorEsIdentityPool(UDSAuthorizorAbstract):
                         {
                             'term': {
                                 DBConstants.action_key: action,
+                            }
+                        },
+                        {
+                            'term': {
+                                DBConstants.resource_key: resource,
                             }
                         }
                     ]
