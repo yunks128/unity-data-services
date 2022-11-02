@@ -15,9 +15,9 @@ class CumulusBase(ABC):
         self._conditions = ['status=completed']
         self._authorized_tenants = []
 
-    def with_tenant(self, project: str, venue: str):
+    def with_tenant(self, tenant: str, venue: str):
         self._authorized_tenants.append({
-            'project': project,
+            'tenant': tenant,
             'venue': venue,
         })
         return self
