@@ -5,15 +5,21 @@ import pystac
 
 from cumulus_lambda_functions.cumulus_stac.collection_transformer import CollectionTransformer
 from cumulus_lambda_functions.cumulus_wrapper.query_collections import CollectionsQuery
+from cumulus_lambda_functions.lib.authorization.uds_authorizer_abstract import UDSAuthorizorAbstract
+from cumulus_lambda_functions.lib.authorization.uds_authorizer_factory import UDSAuthorizerFactory
 from cumulus_lambda_functions.lib.aws.aws_lambda import AwsLambda
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
+from cumulus_lambda_functions.lib.utils.lambda_api_gateway_utils import LambdaApiGatewayUtils
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
 class CumulusCreateCollectionDapa:
+    RESOURCE = 'COLLECTIONS'
+    ACTION = 'WRITE'
+
     def __init__(self, event):
-        required_env = ['CUMULUS_LAMBDA_PREFIX', 'CUMULUS_WORKFLOW_SQS_URL']
+        required_env = ['CUMULUS_LAMBDA_PREFIX', 'CUMULUS_WORKFLOW_SQS_URL', 'COGNITO_UESR_POOL_ID']
         if not all([k in os.environ for k in required_env]):
             raise EnvironmentError(f'one or more missing env: {required_env}')
         self.__event = event
@@ -24,6 +30,8 @@ class CumulusCreateCollectionDapa:
         self.__workflow_name = os.getenv('CUMULUS_WORKFLOW_NAME', 'CatalogGranule')
         self.__provider_id = ''  # TODO. need this?
         self.__collection_creation_lambda_name = os.environ.get('COLLECTION_CREATION_LAMBDA_NAME', '').strip()
+        self.__lambda_utils = LambdaApiGatewayUtils(self.__event, 10)
+        self.__authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory().get_instance(UDSAuthorizerFactory.cognito, user_pool_id=os.environ.get('COGNITO_UESR_POOL_ID'))
 
     def execute_creation(self):
         try:
@@ -74,6 +82,11 @@ class CumulusCreateCollectionDapa:
     def start(self):
         if 'body' not in self.__event:
             raise ValueError(f'missing body in {self.__event}')
+        username = self.__lambda_utils.get_authorization_info()['username']
+        LOGGER.debug(f'query for user: {username}')
+        authorized_tenants = self.__authorizer.get_authorized_tenant(username, self.ACTION, self.RESOURCE)
+        # TODO compare project and project_venue vs the ones from request body.
+        # TODO project and project_venue in STAC body?
         self.__request_body = json.loads(self.__event['body'])
         LOGGER.debug(f'request body: {self.__request_body}')
         validation_result = pystac.Collection.from_dict(self.__request_body).validate()

@@ -2,13 +2,19 @@ import json
 import os
 
 from cumulus_lambda_functions.cumulus_wrapper.query_collections import CollectionsQuery
+from cumulus_lambda_functions.lib.authorization.uds_authorizer_abstract import UDSAuthorizorAbstract
+from cumulus_lambda_functions.lib.authorization.uds_authorizer_factory import UDSAuthorizerFactory
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
+from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
 from cumulus_lambda_functions.lib.utils.lambda_api_gateway_utils import LambdaApiGatewayUtils
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
 class CumulusCollectionsDapa:
+    RESOURCE = 'COLLECTIONS'
+    ACTION = 'READ'
+
     def __init__(self, event):
         LOGGER.info(f'event: {event}')
         self.__event = event
@@ -17,6 +23,8 @@ class CumulusCollectionsDapa:
         self.__offset = 0
         self.__assign_values()
         self.__page_number = (self.__offset // self.__limit) + 1
+        if 'COGNITO_UESR_POOL_ID' not in os.environ:
+            raise EnvironmentError('missing key: COGNITO_UESR_POOL_ID')
         if 'CUMULUS_BASE' not in os.environ:
             raise EnvironmentError('missing key: CUMULUS_BASE')
         if 'CUMULUS_LAMBDA_PREFIX' not in os.environ:
@@ -29,6 +37,8 @@ class CumulusCollectionsDapa:
         self.__cumulus.with_limit(self.__limit)
         self.__cumulus.with_page_number(self.__page_number)
         self.__get_collection_id()
+        self.__lambda_utils = LambdaApiGatewayUtils(self.__event, self.__limit)
+        self.__authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory().get_instance(UDSAuthorizerFactory.cognito, user_pool_id=os.environ.get('COGNITO_UESR_POOL_ID'))
 
     def __get_collection_id(self):
         if 'pathParameters' not in self.__event:
@@ -62,14 +72,23 @@ class CumulusCollectionsDapa:
 
     def __get_pagination_urls(self):
         try:
-            pagination_links = LambdaApiGatewayUtils(self.__event, self.__limit).generate_pagination_links()
+            pagination_links = self.__lambda_utils.generate_pagination_links()
         except Exception as e:
             LOGGER.exception(f'error while generating pagination links')
             return [{'message': f'error while generating pagination links: {str(e)}'}]
         return pagination_links
 
+    def __setup_authorized_tenant_venue(self):
+        username = self.__lambda_utils.get_authorization_info()['username']
+        LOGGER.debug(f'query for user: {username}')
+        authorized_tenants = self.__authorizer.get_authorized_tenant(username, self.ACTION, self.RESOURCE)
+        for each_tenant in authorized_tenants:
+            self.__cumulus.with_tenant(each_tenant[DBConstants.tenant], each_tenant[DBConstants.tenant_venue])
+        return self
+
     def start(self):
         try:
+            self.__setup_authorized_tenant_venue()
             cumulus_result = self.__cumulus.query_direct_to_private_api(self.__cumulus_lambda_prefix)
             if 'server_error' in cumulus_result:
                 return {

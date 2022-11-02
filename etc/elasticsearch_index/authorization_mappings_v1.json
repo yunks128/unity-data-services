@@ -1,0 +1,15 @@
+{
+  "settings" : {
+        "number_of_shards" : 3,
+        "number_of_replicas" : 2
+    },
+  "mappings": {
+    "properties": {
+      "action": {"type": "keyword"},
+      "resource": {"type": "keyword"},
+      "cognito_group": {"type": "keyword"},
+      "tenant": {"type": "keyword"},
+      "tenant_venue": {"type": "keyword"}
+    }
+  }
+}
