@@ -5,6 +5,7 @@ from cumulus_lambda_functions.cumulus_wrapper.query_granules import GranulesQuer
 from cumulus_lambda_functions.lib.authorization.uds_authorizer_abstract import UDSAuthorizorAbstract
 from cumulus_lambda_functions.lib.authorization.uds_authorizer_factory import UDSAuthorizerFactory
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
+from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
 from cumulus_lambda_functions.lib.utils.lambda_api_gateway_utils import LambdaApiGatewayUtils
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
@@ -113,17 +114,17 @@ class CumulusGranulesDapa:
             return [{'message': f'error while generating pagination links: {str(e)}'}]
         return pagination_links
 
-    def __setup_authorized_project_venue(self):
+    def __setup_authorized_tenant_venue(self):
         username = self.__lambda_utils.get_authorization_info()['username']
         LOGGER.debug(f'query for user: {username}')
         authorized_tenants = self.__authorizer.get_authorized_tenant(username, self.ACTION, self.RESOURCE)
         for each_tenant in authorized_tenants:
-            self.__cumulus.with_tenant(each_tenant['project'], each_tenant['project_venue'])
+            self.__cumulus.with_tenant(each_tenant[DBConstants.tenant], each_tenant[DBConstants.tenant_venue])
         return self
 
     def start(self):
         try:
-            self.__setup_authorized_project_venue()
+            self.__setup_authorized_tenant_venue()
             # TODO. cannot accept multiple collection_id. need single collection_id
             # get project and project_venue from collection_id and compare against authorization table
             cumulus_result = self.__cumulus.query_direct_to_private_api(self.__cumulus_lambda_prefix)

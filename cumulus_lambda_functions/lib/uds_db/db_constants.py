@@ -3,5 +3,5 @@ class DBConstants:
     authorized_group_name_key = 'cognito_group'
     action_key = 'action'
     resource_key = 'resource'
-    project_venue = 'project_venue'
-    project = 'project'
+    tenant_venue = 'tenant_venue'
+    tenant = 'tenant'
