@@ -19,7 +19,7 @@ resource "aws_elasticsearch_domain" "uds-es" {
 //  }
 
   vpc_options {
-    subnet_ids         = var.cumulus_lambda_subnet_ids
+    subnet_ids         = [var.cumulus_lambda_subnet_ids[0]]
     security_group_ids = local.security_group_ids_set ? var.security_group_ids : [aws_security_group.unity_cumulus_lambda_sg[0].id]
   }
   encrypt_at_rest {
