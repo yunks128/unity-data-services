@@ -65,6 +65,6 @@ variable "uds_es_cluster_instance_count" {
 
 variable "uds_es_cluster_instance_type" {
   type = string
-  default = "r5.large.search"
+  default = "r5.large.elasticsearch"
   description = "EC2 instance type for Opensearch"
 }
