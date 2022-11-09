@@ -6,8 +6,8 @@
   "mappings": {
     "properties": {
       "action": {"type": "keyword"},
-      "resource": {"type": "keyword"},
-      "cognito_group": {"type": "keyword"},
+      "collection_map": {"type": "keyword"},
+      "user_group": {"type": "keyword"},
       "tenant": {"type": "keyword"},
       "tenant_venue": {"type": "keyword"}
     }

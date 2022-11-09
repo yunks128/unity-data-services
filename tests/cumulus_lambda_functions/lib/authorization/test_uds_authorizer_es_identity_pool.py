@@ -3,14 +3,13 @@ from time import sleep
 from unittest import TestCase
 
 from cumulus_lambda_functions.lib.authorization.uds_authorizer_es_identity_pool import UDSAuthorizorEsIdentityPool
+from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
 
 
 class TestUDSAuthorizorEsIdentityPool(TestCase):
     def test_01(self):
-        os.environ['ES_URL'] = 'https://search-uds-es-test-2-olhpweojwudrginxdizzn3itt4.us-west-2.es.amazonaws.com'
-        os.environ['AUTHORIZATION_INDEX'] = 'authorization_mappings'
-
-        authorizer = UDSAuthorizorEsIdentityPool('us-west-2_FLDyXE2mO')
+        es_url = 'https://search-uds-es-test-2-olhpweojwudrginxdizzn3itt4.us-west-2.es.amazonaws.com'
+        authorizer = UDSAuthorizorEsIdentityPool('us-west-2_FLDyXE2mO', es_url)
 
         authorizer.add_authorized_group(['PUT', 'POST'], ['COLLECTION'], 'unitty_project_1', 'DEV_001', 'sample_group_1A')
         authorizer.add_authorized_group(['PUT', 'POST'], ['COLLECTION', 'GET'], 'unitty_project_2', 'DEV_001', 'sample_group_2A')
@@ -33,23 +32,25 @@ class TestUDSAuthorizorEsIdentityPool(TestCase):
         return
 
     def test_02(self):
-        os.environ['ES_URL'] = 'https://search-uds-es-test-2-olhpweojwudrginxdizzn3itt4.us-west-2.es.amazonaws.com'
-        os.environ['AUTHORIZATION_INDEX'] = 'authorization_mappings'
-
-        authorizer = UDSAuthorizorEsIdentityPool('us-west-2_FLDyXE2mO')
-        authorizer.add_authorized_group(['PUT', 'POST'], ['COLLECTION'], 'unitty_project_1', 'DEV_001', 'Unity_Viewer')
-        authorizer.add_authorized_group(['PUT'], ['COLLECTION', 'GRANULE'], 'unitty_project_2', 'DEV_001', 'Test_Group')
+        es_url = 'https://search-uds-es-test-2-olhpweojwudrginxdizzn3itt4.us-west-2.es.amazonaws.com'
+        authorizer = UDSAuthorizorEsIdentityPool('us-west-2_FLDyXE2mO', es_url)
+        authorizer.add_authorized_group([DBConstants.create, DBConstants.update], ['urn:nasa:unity:unitty_project_1:DEV_001:ecm_*', 'urn:nasa:unity:unitty_project_1:DEV_001:aaa_*'], 'unitty_project_1', 'DEV_001', 'Unity_Viewer')
+        authorizer.add_authorized_group([DBConstants.create], ['urn:nasa:unity:unitty_project_2:DEV_001:ecm_*', 'urn:nasa:unity:unitty_project_2:DEV_001:ls_*'], 'unitty_project_2', 'DEV_001', 'Test_Group')
         sleep(2)
-        self.assertEqual(len(authorizer.get_authorized_tenant('wphyo', 'GET', 'COLLECTION')), 0, f'wrong length of result')
-        self.assertEqual(len(authorizer.get_authorized_tenant('wphyo', 'PUT', 'COLLECTION')), 2, f'wrong length of result')
-        self.assertEqual(len(authorizer.get_authorized_tenant('wphyo', 'GET', 'GRANULE')), 0, f'wrong length of result')
-        put_authorized_list = authorizer.get_authorized_tenant('wphyo', 'PUT', 'GRANULE')
-        self.assertEqual(len(put_authorized_list), 1, f'wrong length of result')
-        self.assertEqual(put_authorized_list[0]['tenant'], 'unitty_project_2', 'wrong project for PUT GRANULES')
-        self.assertEqual(put_authorized_list[0]['tenant_venue'], 'DEV_001', 'wrong venue for PUT GRANULES')
-        self.assertEqual(len(authorizer.get_authorized_tenant('wphyo', 'POST', 'COLLECTION')), 1, f'wrong length of result')
-        self.assertEqual(len(authorizer.get_authorized_tenant('wphyo', 'DELETE', 'COLLECTION')), 0, f'wrong length of result')
+        self.assertTrue(authorizer.is_authorized_for_collection(DBConstants.create, 'urn:nasa:unity:unitty_project_1:DEV_001:ecm_ids__001', 'wphyo', 'unitty_project_1', 'DEV_001'))
+        self.assertTrue(authorizer.is_authorized_for_collection(DBConstants.update, 'urn:nasa:unity:unitty_project_1:DEV_001:ecm_ids__001', 'wphyo', 'unitty_project_1', 'DEV_001'))
+        self.assertFalse(authorizer.is_authorized_for_collection(DBConstants.update, 'urn:nasa:unity:unitty_project_1:DEV_001:ecn_ids__001', 'wphyo', 'unitty_project_1', 'DEV_001'))
+
+        self.assertTrue(authorizer.is_authorized_for_collection(DBConstants.create, 'urn:nasa:unity:unitty_project_2:DEV_001:ecm_ids__001', 'wphyo', 'unitty_project_2', 'DEV_001'))
+        self.assertTrue(authorizer.is_authorized_for_collection(DBConstants.create, 'urn:nasa:unity:unitty_project_2:DEV_001:ls_ids__001', 'wphyo', 'unitty_project_2', 'DEV_001'))
+        self.assertFalse(authorizer.is_authorized_for_collection(DBConstants.update, 'urn:nasa:unity:unitty_project_2:DEV_001:ls_ids__001', 'wphyo', 'unitty_project_2', 'DEV_001'))
+
+        collection_regex = authorizer.get_authorized_collections(DBConstants.create, 'wphyo')
+        self.assertEqual(4, len(collection_regex), f'wrong length: {collection_regex}')
+
+        collection_regex = authorizer.get_authorized_collections(DBConstants.update, 'wphyo')
+        self.assertEqual(2, len(collection_regex), f'wrong length: {collection_regex}')
+
         authorizer.delete_authorized_group('unitty_project_1', 'DEV_001', 'Unity_Viewer')
         authorizer.delete_authorized_group('unitty_project_2', 'DEV_001', 'Test_Group')
-
         return

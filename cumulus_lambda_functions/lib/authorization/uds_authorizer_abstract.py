@@ -19,5 +19,9 @@ class UDSAuthorizorAbstract(ABC):
         return
 
     @abstractmethod
-    def get_authorized_tenant(self, username: str, action: str, resource: str) -> list:
-        return []
+    def is_authorized_for_collection(self, action: str, collection_id: str, username: str, tenant: str, venue: str):
+        return
+
+    @abstractmethod
+    def get_authorized_collections(self, action: str, username: str, tenant: str = '', venue: str = ''):
+        return
