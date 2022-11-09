@@ -1,5 +1,6 @@
 {
     "actions" : [
-        {"add" : {"index" : "authorization_mappings_v1", "alias" : "authorization_mappings"}}
+        {"add" : {"index" : "authorization_mappings_v1", "alias" : "authorization_mappings"}},
+        {"add" : {"index" : "unity_collections_v1", "alias" : "unity_collections"}}
     ]
 }

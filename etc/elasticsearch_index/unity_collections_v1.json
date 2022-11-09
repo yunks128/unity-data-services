@@ -1,0 +1,13 @@
+{
+  "settings" : {
+        "number_of_shards" : 3,
+        "number_of_replicas" : 2
+    },
+  "mappings": {
+    "properties": {
+      "collection_id": {"type": "keyword"},
+      "start_time": {"type":  "integer"},
+      "end_time": {"type":  "integer"}
+    }
+  }
+}
