@@ -9,17 +9,16 @@ from cumulus_lambda_functions.lib.authorization.uds_authorizer_abstract import U
 from cumulus_lambda_functions.lib.authorization.uds_authorizer_factory import UDSAuthorizerFactory
 from cumulus_lambda_functions.lib.aws.aws_lambda import AwsLambda
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
+from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
+from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
 from cumulus_lambda_functions.lib.utils.lambda_api_gateway_utils import LambdaApiGatewayUtils
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
 class CumulusCreateCollectionDapa:
-    RESOURCE = 'COLLECTIONS'
-    ACTION = 'WRITE'
-
     def __init__(self, event):
-        required_env = ['CUMULUS_LAMBDA_PREFIX', 'CUMULUS_WORKFLOW_SQS_URL', 'COGNITO_UESR_POOL_ID']
+        required_env = ['CUMULUS_LAMBDA_PREFIX', 'CUMULUS_WORKFLOW_SQS_URL', 'COGNITO_UESR_POOL_ID', 'ES_URL']
         if not all([k in os.environ for k in required_env]):
             raise EnvironmentError(f'one or more missing env: {required_env}')
         self.__event = event
@@ -31,7 +30,12 @@ class CumulusCreateCollectionDapa:
         self.__provider_id = ''  # TODO. need this?
         self.__collection_creation_lambda_name = os.environ.get('COLLECTION_CREATION_LAMBDA_NAME', '').strip()
         self.__lambda_utils = LambdaApiGatewayUtils(self.__event, 10)
-        self.__authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory().get_instance(UDSAuthorizerFactory.cognito, user_pool_id=os.environ.get('COGNITO_UESR_POOL_ID'))
+        self.__authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory()\
+            .get_instance(UDSAuthorizerFactory.cognito,
+                          user_pool_id=os.getenv('COGNITO_UESR_POOL_ID'),
+                          es_url=os.getenv('ES_URL'),
+                          es_port=int(os.getenv('ES_PORT', '443'))
+                          )
 
     def execute_creation(self):
         try:
@@ -82,20 +86,29 @@ class CumulusCreateCollectionDapa:
     def start(self):
         if 'body' not in self.__event:
             raise ValueError(f'missing body in {self.__event}')
-        username = self.__lambda_utils.get_authorization_info()['username']
-        LOGGER.debug(f'query for user: {username}')
-        authorized_tenants = self.__authorizer.get_authorized_tenant(username, self.ACTION, self.RESOURCE)
-        # TODO compare project and project_venue vs the ones from request body.
-        # TODO project and project_venue in STAC body?
         self.__request_body = json.loads(self.__event['body'])
         LOGGER.debug(f'request body: {self.__request_body}')
-        validation_result = pystac.Collection.from_dict(self.__request_body).validate()
+        stac_collection = pystac.Collection.from_dict(self.__request_body)
+        validation_result = stac_collection.validate()
         if not isinstance(validation_result, list):
             LOGGER.error(f'request body is not valid STAC collection: {validation_result}')
             return {
                 'statusCode': 500,
                 'body': json.dumps({'message': f'request body is not valid STAC Collection schema. check details',
                          'details': validation_result})
+            }
+
+        username = self.__lambda_utils.get_authorization_info()['username']
+        collection_id = stac_collection.id
+        collection_identifier = UdsCollections.decode_identifier(collection_id)
+        LOGGER.debug(f'query for user: {username}')
+        if not self.__authorizer.is_authorized_for_collection(DBConstants.create, collection_id, username, collection_identifier.tenant, collection_identifier.venue):
+            LOGGER.debug(f'user: {username} is not authorized for {collection_id}')
+            return {
+                'statusCode': 403,
+                'body': json.dumps({
+                    'message': 'not authorized to create an action'
+                })
             }
         if self.__collection_creation_lambda_name != '':
             response = AwsLambda().invoke_function(
