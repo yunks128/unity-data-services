@@ -6,6 +6,7 @@ from cumulus_lambda_functions.lib.authorization.uds_authorizer_abstract import U
 from cumulus_lambda_functions.lib.authorization.uds_authorizer_factory import UDSAuthorizerFactory
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
+from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
 from cumulus_lambda_functions.lib.utils.lambda_api_gateway_utils import LambdaApiGatewayUtils
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
@@ -17,18 +18,16 @@ class CumulusCollectionsDapa:
 
     def __init__(self, event):
         LOGGER.info(f'event: {event}')
+        required_env = ['CUMULUS_BASE', 'CUMULUS_LAMBDA_PREFIX', 'COGNITO_UESR_POOL_ID', 'ES_URL']
+        if not all([k in os.environ for k in required_env]):
+            raise EnvironmentError(f'one or more missing env: {required_env}')
+
         self.__event = event
         self.__jwt_token = 'NA'
         self.__limit = 10
         self.__offset = 0
         self.__assign_values()
         self.__page_number = (self.__offset // self.__limit) + 1
-        if 'COGNITO_UESR_POOL_ID' not in os.environ:
-            raise EnvironmentError('missing key: COGNITO_UESR_POOL_ID')
-        if 'CUMULUS_BASE' not in os.environ:
-            raise EnvironmentError('missing key: CUMULUS_BASE')
-        if 'CUMULUS_LAMBDA_PREFIX' not in os.environ:
-            raise EnvironmentError('missing key: CUMULUS_LAMBDA_PREFIX')
 
         self.__cumulus_base = os.getenv('CUMULUS_BASE')
         self.__cumulus_lambda_prefix = os.getenv('CUMULUS_LAMBDA_PREFIX')
@@ -38,7 +37,13 @@ class CumulusCollectionsDapa:
         self.__cumulus.with_page_number(self.__page_number)
         self.__get_collection_id()
         self.__lambda_utils = LambdaApiGatewayUtils(self.__event, self.__limit)
-        self.__authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory().get_instance(UDSAuthorizerFactory.cognito, user_pool_id=os.environ.get('COGNITO_UESR_POOL_ID'))
+        self.__authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory().\
+            get_instance(UDSAuthorizerFactory.cognito,
+                         user_pool_id=os.environ.get('COGNITO_UESR_POOL_ID'),
+                         es_url=os.getenv('ES_URL'),
+                         es_port=int(os.getenv('ES_PORT', '443'))
+                         )
+        self.__uds_collections = UdsCollections(os.getenv('ES_URL'), int(os.getenv('ES_PORT', '443')))
 
     def __get_collection_id(self):
         if 'pathParameters' not in self.__event:
@@ -88,6 +93,11 @@ class CumulusCollectionsDapa:
 
     def start(self):
         try:
+            username = self.__lambda_utils.get_authorization_info()['username']
+
+            collection_regexes = self.__authorizer.get_authorized_collections(DBConstants.read, username)
+            authorized_collections = self.__uds_collections.get_collections(collection_regexes)
+            
             self.__setup_authorized_tenant_venue()
             cumulus_result = self.__cumulus.query_direct_to_private_api(self.__cumulus_lambda_prefix)
             if 'server_error' in cumulus_result:

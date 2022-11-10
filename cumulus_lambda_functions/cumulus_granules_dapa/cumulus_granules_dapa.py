@@ -6,15 +6,13 @@ from cumulus_lambda_functions.lib.authorization.uds_authorizer_abstract import U
 from cumulus_lambda_functions.lib.authorization.uds_authorizer_factory import UDSAuthorizerFactory
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
+from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
 from cumulus_lambda_functions.lib.utils.lambda_api_gateway_utils import LambdaApiGatewayUtils
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
 class CumulusGranulesDapa:
-    RESOURCE = 'GRANULES'
-    ACTION = 'READ'
-
     def __init__(self, event):
         """
 {'resource': '/collections/observation/items',
@@ -26,6 +24,11 @@ class CumulusGranulesDapa:
         :param event:
         """
         LOGGER.info(f'event: {event}')
+        required_env = ['CUMULUS_BASE', 'CUMULUS_LAMBDA_PREFIX', 'COGNITO_UESR_POOL_ID', 'ES_URL']
+        if not all([k in os.environ for k in required_env]):
+            raise EnvironmentError(f'one or more missing env: {required_env}')
+
+
         self.__event = event
         self.__jwt_token = ''
         self.__datetime = None
@@ -33,12 +36,6 @@ class CumulusGranulesDapa:
         self.__offset = 0
         self.__assign_values()
         self.__page_number = (self.__offset // self.__limit) + 1
-        if 'COGNITO_UESR_POOL_ID' not in os.environ:
-            raise EnvironmentError('missing key: COGNITO_UESR_POOL_ID')
-        if 'CUMULUS_BASE' not in os.environ:
-            raise EnvironmentError('missing key: CUMULUS_BASE')
-        if 'CUMULUS_LAMBDA_PREFIX' not in os.environ:
-            raise EnvironmentError('missing key: CUMULUS_LAMBDA_PREFIX')
 
         self.__cumulus_base = os.getenv('CUMULUS_BASE')
         self.__cumulus_lambda_prefix = os.getenv('CUMULUS_LAMBDA_PREFIX')
@@ -47,21 +44,26 @@ class CumulusGranulesDapa:
         self.__cumulus.with_limit(self.__limit)
         self.__cumulus.with_page_number(self.__page_number)
         self.__get_time_range()
-        self.__get_collection_id()
+        self.__collection_id = self.__get_collection_id()
+        self.__cumulus.with_collection_id(self.__collection_id)
         self.__lambda_utils = LambdaApiGatewayUtils(self.__event, self.__limit)
-        self.__authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory().get_instance(UDSAuthorizerFactory.cognito, user_pool_id=os.environ.get('COGNITO_UESR_POOL_ID'))
+        self.__authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory()\
+            .get_instance(UDSAuthorizerFactory.cognito,
+                          user_pool_id=os.environ.get('COGNITO_UESR_POOL_ID'),
+                          es_url=os.getenv('ES_URL'),
+                          es_port=int(os.getenv('ES_PORT', '443'))
+                          )
 
     def __get_collection_id(self):
         if 'pathParameters' not in self.__event:
-            return self
+            return ''
         path_param_dict = self.__event['pathParameters']
         if 'collectionId' not in path_param_dict:
-            return self
+            return ''
         collection_id = path_param_dict['collectionId']
         if collection_id == '*':
-            return self
-        self.__cumulus.with_collection_id(path_param_dict['collectionId'])
-        return self
+            return ''
+        return path_param_dict['collectionId']
 
     def __get_time_range(self):
         if self.__datetime is None:
@@ -114,17 +116,27 @@ class CumulusGranulesDapa:
             return [{'message': f'error while generating pagination links: {str(e)}'}]
         return pagination_links
 
-    def __setup_authorized_tenant_venue(self):
-        username = self.__lambda_utils.get_authorization_info()['username']
-        LOGGER.debug(f'query for user: {username}')
-        authorized_tenants = self.__authorizer.get_authorized_tenant(username, self.ACTION, self.RESOURCE)
-        for each_tenant in authorized_tenants:
-            self.__cumulus.with_tenant(each_tenant[DBConstants.tenant], each_tenant[DBConstants.tenant_venue])
-        return self
-
     def start(self):
         try:
-            self.__setup_authorized_tenant_venue()
+            if self.__collection_id == '':
+                return {
+                    'statusCode': 500,
+                    'body': json.dumps({'message': 'unknown collection_id. require 1 collection id. '})
+                }
+            username = self.__lambda_utils.get_authorization_info()['username']
+            collection_identifier = UdsCollections.decode_identifier(self.__collection_id)
+            if not self.__authorizer.is_authorized_for_collection(DBConstants.create, self.__collection_id,
+                                                                  username,
+                                                                  collection_identifier.tenant,
+                                                                  collection_identifier.venue):
+                LOGGER.debug(f'user: {username} is not authorized for {self.__collection_id}')
+                return {
+                    'statusCode': 403,
+                    'body': json.dumps({
+                        'message': 'not authorized to create an action'
+                    })
+                }
+
             # TODO. cannot accept multiple collection_id. need single collection_id
             # get project and project_venue from collection_id and compare against authorization table
             cumulus_result = self.__cumulus.query_direct_to_private_api(self.__cumulus_lambda_prefix)
