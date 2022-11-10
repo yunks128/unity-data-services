@@ -1,9 +1,13 @@
 import logging
+from collections import namedtuple
 
 from cumulus_lambda_functions.lib.aws.es_abstract import ESAbstract
 from cumulus_lambda_functions.lib.aws.es_factory import ESFactory
 from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
 LOGGER = logging.getLogger(__name__)
+
+
+CollectionIdentifier = namedtuple('CollectionIdentifier', ['urn', 'nasa', 'project', 'tenant', 'venue', 'id'])
 
 
 class UdsCollections:
@@ -12,6 +16,10 @@ class UdsCollections:
                                                          index=DBConstants.collections_index,
                                                          base_url=es_url,
                                                          port=es_port)
+
+    @staticmethod
+    def decode_identifier(incoming_identifier: str) -> CollectionIdentifier:
+        return CollectionIdentifier._make(incoming_identifier.split(':'))
 
     def get_collections(self, collection_regex: list):
         authorized_collection_ids_dsl = {
