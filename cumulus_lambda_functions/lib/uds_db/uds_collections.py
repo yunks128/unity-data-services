@@ -11,6 +11,7 @@ CollectionIdentifier = namedtuple('CollectionIdentifier', ['urn', 'nasa', 'proje
 
 
 class UdsCollections:
+    collection_id = 'collection_id'
     def __init__(self, es_url, es_port=443):
         self.__es: ESAbstract = ESFactory().get_instance('AWS',
                                                          index=DBConstants.collections_index,

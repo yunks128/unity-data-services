@@ -13,14 +13,6 @@ class CumulusBase(ABC):
             'Authorization': f'Bearer {cumulus_token}'
         }
         self._conditions = ['status=completed']
-        self._authorized_tenants = []
-
-    def with_tenant(self, tenant: str, venue: str):
-        self._authorized_tenants.append({
-            'tenant': tenant,
-            'venue': venue,
-        })
-        return self
 
     def with_page_number(self, page_number):
         self._conditions.append(f'page={page_number}')

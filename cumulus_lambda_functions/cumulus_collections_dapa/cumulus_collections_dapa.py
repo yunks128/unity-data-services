@@ -83,22 +83,16 @@ class CumulusCollectionsDapa:
             return [{'message': f'error while generating pagination links: {str(e)}'}]
         return pagination_links
 
-    def __setup_authorized_tenant_venue(self):
-        username = self.__lambda_utils.get_authorization_info()['username']
-        LOGGER.debug(f'query for user: {username}')
-        authorized_tenants = self.__authorizer.get_authorized_tenant(username, self.ACTION, self.RESOURCE)
-        for each_tenant in authorized_tenants:
-            self.__cumulus.with_tenant(each_tenant[DBConstants.tenant], each_tenant[DBConstants.tenant_venue])
-        return self
-
     def start(self):
         try:
             ldap_groups = self.__lambda_utils.get_authorization_info()['ldap_groups']
 
             collection_regexes = self.__authorizer.get_authorized_collections(DBConstants.read, ldap_groups)
             authorized_collections = self.__uds_collections.get_collections(collection_regexes)
-            
-            self.__setup_authorized_tenant_venue()
+            # TODO how to pass the authorized collections + versions to cumulus
+            # self.__cumulus.with_collection_id(authorized_collections)
+            # for each in authorized_collections:
+            #     self.__cumulus.with_collection_id(each[UdsCollections.collection_id])
             cumulus_result = self.__cumulus.query_direct_to_private_api(self.__cumulus_lambda_prefix)
             if 'server_error' in cumulus_result:
                 return {
