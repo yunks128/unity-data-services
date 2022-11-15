@@ -290,6 +290,13 @@ class CollectionTransformer(StacTransformerAbstract):
         self.__report_to_ems = report_to_ems
         self.__include_date_range = include_date_range
 
+        self.__output_provider = None
+        self.__output_cumulus_collection = None
+
+    @property
+    def output_provider(self):
+        return self.__output_provider
+
     def generate_target_link_url(self, regex: str = None, bucket: str = None):
         href_link = ['unknown_bucket', 'unknown_regex']
         if regex is not None and regex != '':
@@ -502,4 +509,6 @@ class CollectionTransformer(StacTransformerAbstract):
                     output_collection_cumulus['dateFrom'] = date_interval[0].strftime(TimeUtils.MMDD_FORMAT)
                 if date_interval[1] is not None:
                     output_collection_cumulus['dateTo'] = date_interval[1].strftime(TimeUtils.MMDD_FORMAT)
+        self.__output_provider = None if input_dapa_collection.providers is None or len(input_dapa_collection.providers) < 1 else input_dapa_collection.providers[0].name
+        self.__output_cumulus_collection = output_collection_cumulus
         return output_collection_cumulus
