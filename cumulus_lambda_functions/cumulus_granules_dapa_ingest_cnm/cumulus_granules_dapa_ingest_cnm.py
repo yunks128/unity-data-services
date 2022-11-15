@@ -175,10 +175,12 @@ Test Input message
                 'statusCode': 500,
                 'body': json.dumps({'message': f'does not allow multiple collections in a single request', 'details': collection_ids})
             }
-        username = self.__lambda_utils.get_authorization_info()['username']
+        ldap_groups = self.__lambda_utils.get_authorization_info()['ldap_groups']
         collection_id = collection_ids[0]
         collection_identifier = UdsCollections.decode_identifier(collection_id)
-        if not self.__authorizer.is_authorized_for_collection(DBConstants.create, collection_id, username, collection_identifier.tenant, collection_identifier.venue):
+        if not self.__authorizer.is_authorized_for_collection(DBConstants.create, collection_id, ldap_groups,
+                                                              collection_identifier.tenant,
+                                                              collection_identifier.venue):
             LOGGER.debug(f'user: {username} is not authorized for {collection_id}')
             return {
                 'statusCode': 403,
