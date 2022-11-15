@@ -37,13 +37,25 @@ class TestUDSAuthorizorEsIdentityPool(TestCase):
         authorizer.add_authorized_group([DBConstants.create, DBConstants.update], ['urn:nasa:unity:unitty_project_1:DEV_001:ecm_*', 'urn:nasa:unity:unitty_project_1:DEV_001:aaa_*'], 'unitty_project_1', 'DEV_001', 'Unity_Viewer')
         authorizer.add_authorized_group([DBConstants.create], ['urn:nasa:unity:unitty_project_2:DEV_001:ecm_*', 'urn:nasa:unity:unitty_project_2:DEV_001:ls_*'], 'unitty_project_2', 'DEV_001', 'Test_Group')
         sleep(2)
-        self.assertTrue(authorizer.is_authorized_for_collection(DBConstants.create, 'urn:nasa:unity:unitty_project_1:DEV_001:ecm_ids__001', 'wphyo', 'unitty_project_1', 'DEV_001'))
-        self.assertTrue(authorizer.is_authorized_for_collection(DBConstants.update, 'urn:nasa:unity:unitty_project_1:DEV_001:ecm_ids__001', 'wphyo', 'unitty_project_1', 'DEV_001'))
-        self.assertFalse(authorizer.is_authorized_for_collection(DBConstants.update, 'urn:nasa:unity:unitty_project_1:DEV_001:ecn_ids__001', 'wphyo', 'unitty_project_1', 'DEV_001'))
+        self.assertTrue(authorizer.is_authorized_for_collection(DBConstants.create,
+                                                                'urn:nasa:unity:unitty_project_1:DEV_001:ecm_ids__001',
+                                                                'wphyo', 'unitty_project_1', 'DEV_001'))
+        self.assertTrue(authorizer.is_authorized_for_collection(DBConstants.update,
+                                                                'urn:nasa:unity:unitty_project_1:DEV_001:ecm_ids__001',
+                                                                'wphyo', 'unitty_project_1', 'DEV_001'))
+        self.assertFalse(authorizer.is_authorized_for_collection(DBConstants.update,
+                                                                 'urn:nasa:unity:unitty_project_1:DEV_001:ecn_ids__001',
+                                                                 'wphyo', 'unitty_project_1', 'DEV_001'))
 
-        self.assertTrue(authorizer.is_authorized_for_collection(DBConstants.create, 'urn:nasa:unity:unitty_project_2:DEV_001:ecm_ids__001', 'wphyo', 'unitty_project_2', 'DEV_001'))
-        self.assertTrue(authorizer.is_authorized_for_collection(DBConstants.create, 'urn:nasa:unity:unitty_project_2:DEV_001:ls_ids__001', 'wphyo', 'unitty_project_2', 'DEV_001'))
-        self.assertFalse(authorizer.is_authorized_for_collection(DBConstants.update, 'urn:nasa:unity:unitty_project_2:DEV_001:ls_ids__001', 'wphyo', 'unitty_project_2', 'DEV_001'))
+        self.assertTrue(authorizer.is_authorized_for_collection(DBConstants.create,
+                                                                'urn:nasa:unity:unitty_project_2:DEV_001:ecm_ids__001',
+                                                                'wphyo', 'unitty_project_2', 'DEV_001'))
+        self.assertTrue(authorizer.is_authorized_for_collection(DBConstants.create,
+                                                                'urn:nasa:unity:unitty_project_2:DEV_001:ls_ids__001',
+                                                                'wphyo', 'unitty_project_2', 'DEV_001'))
+        self.assertFalse(authorizer.is_authorized_for_collection(DBConstants.update,
+                                                                 'urn:nasa:unity:unitty_project_2:DEV_001:ls_ids__001',
+                                                                 'wphyo', 'unitty_project_2', 'DEV_001'))
 
         collection_regex = authorizer.get_authorized_collections(DBConstants.create, 'wphyo')
         self.assertEqual(4, len(collection_regex), f'wrong length: {collection_regex}')

@@ -102,15 +102,14 @@ class UDSAuthorizorEsIdentityPool(UDSAuthorizorAbstract):
         })
         return [k['_source'] for k in authorized_groups['hits']['hits']]
 
-    def is_authorized_for_collection(self, action: str, collection_id: str, username: str, tenant: str, venue: str):
-        belonged_groups = set(self.__cognito.get_groups(username))
+    def is_authorized_for_collection(self, action: str, collection_id: str, ldap_groups: list, tenant: str, venue: str):
         authorization_dsl = {
             '_source': [DBConstants.resource_key],
             'size': 9999,
             'query': {
                 'bool': {
                     'must': [
-                        {'terms': {DBConstants.authorized_group_name_key: list(belonged_groups)}},
+                        {'terms': {DBConstants.authorized_group_name_key: ldap_groups}},
                         {'term': {DBConstants.action_key: action}},
                         {'term': {DBConstants.tenant: tenant}},
                         {'term': {DBConstants.tenant_venue: venue}},
@@ -128,15 +127,14 @@ class UDSAuthorizorEsIdentityPool(UDSAuthorizorAbstract):
                 return True
         return False
 
-    def get_authorized_collections(self, action: str, username: str, tenant: str = '', venue: str = ''):
-        belonged_groups = set(self.__cognito.get_groups(username))
+    def get_authorized_collections(self, action: str, ldap_groups: list, tenant: str = '', venue: str = ''):
         authorization_dsl = {
             '_source': [DBConstants.resource_key],
             'size': 9999,
             'query': {
                 'bool': {
                     'must': [
-                        {'terms': {DBConstants.authorized_group_name_key: list(belonged_groups)}},
+                        {'terms': {DBConstants.authorized_group_name_key: ldap_groups}},
                         {'term': {DBConstants.action_key: action}},
                     ]
                 }

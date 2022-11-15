@@ -93,9 +93,9 @@ class CumulusCollectionsDapa:
 
     def start(self):
         try:
-            username = self.__lambda_utils.get_authorization_info()['username']
+            ldap_groups = self.__lambda_utils.get_authorization_info()['ldap_groups']
 
-            collection_regexes = self.__authorizer.get_authorized_collections(DBConstants.read, username)
+            collection_regexes = self.__authorizer.get_authorized_collections(DBConstants.read, ldap_groups)
             authorized_collections = self.__uds_collections.get_collections(collection_regexes)
             
             self.__setup_authorized_tenant_venue()
