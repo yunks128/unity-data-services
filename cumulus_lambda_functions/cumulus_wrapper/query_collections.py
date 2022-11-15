@@ -17,7 +17,6 @@ class CollectionsQuery(CumulusBase):
     __collection_name = 'name'
     __collection_version = 'version'
 
-
     def __init__(self, cumulus_base: str, cumulus_token: str):
         super().__init__(cumulus_base, cumulus_token)
 
