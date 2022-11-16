@@ -3,6 +3,7 @@ from datetime import datetime
 from urllib.parse import quote_plus, urlparse, unquote_plus
 
 import pystac
+from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from pystac import Link
 
 from cumulus_lambda_functions.cumulus_stac.stac_transformer_abstract import StacTransformerAbstract
@@ -281,6 +282,7 @@ STAC_COLLECTION_SCHEMA = '''{
 # "items": {
 #     "description": "For each field only the original data type of the property can occur (except for arrays), but we can't validate that in JSON Schema yet. See the sumamry description in the STAC specification for details."
 # }
+LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
 class CollectionTransformer(StacTransformerAbstract):
@@ -509,6 +511,7 @@ class CollectionTransformer(StacTransformerAbstract):
                     output_collection_cumulus['dateFrom'] = date_interval[0].strftime(TimeUtils.MMDD_FORMAT)
                 if date_interval[1] is not None:
                     output_collection_cumulus['dateTo'] = date_interval[1].strftime(TimeUtils.MMDD_FORMAT)
+        LOGGER.debug(f'input_dapa_collection.providers: {input_dapa_collection.providers}')
         self.__output_provider = None if input_dapa_collection.providers is None or len(input_dapa_collection.providers) < 1 else input_dapa_collection.providers[0].name
         self.__output_cumulus_collection = output_collection_cumulus
         return output_collection_cumulus

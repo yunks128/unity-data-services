@@ -39,6 +39,7 @@ class CumulusCreateCollectionDapa:
                         'message': creation_result
                     })
                 }
+            LOGGER.debug(f'__provider_id: {self.__provider_id}')
             rule_creation_result = self.__cumulus_collection_query.create_sqs_rules(
                 cumulus_collection_doc,
                 self.__cumulus_lambda_prefix,
