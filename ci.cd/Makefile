@@ -33,6 +33,10 @@ update_lambda_function_5:
 
 upload_lambda_mcp_dev:
 	aws s3 cp cumulus_lambda_functions_deployment.zip s3://uds-dev-cumulus-public/unity_cumulus_lambda/
+update_lambda_function_mcp_dev_1:
+	aws lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket uds-dev-cumulus-public --function-name arn:aws:lambda:us-west-2:237868187491:function:uds-dev-cumulus-cumulus_collections_dapa --publish &>/dev/null
+update_lambda_function_mcp_dev_2:
+	aws lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket uds-dev-cumulus-public --function-name arn:aws:lambda:us-west-2:237868187491:function:uds-dev-cumulus-cumulus_granules_dapa --publish &>/dev/null
 update_lambda_function_mcp_dev_4:
 	aws lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket uds-dev-cumulus-public --function-name arn:aws:lambda:us-west-2:237868187491:function:uds-dev-cumulus-cumulus_collections_creation_dapa --publish &>/dev/null
 update_lambda_function_mcp_dev_5:
