@@ -171,6 +171,31 @@ curl --request POST "$CUMULUS_BASEURL/rules" --header "Authorization: Bearer $cu
 }'
         :return:
         """
+        rule_body = {
+            'workflow': workflow_name,
+            'collection': {
+                'name': new_collection['name'],
+                'version': new_collection['version'],
+            },
+            # 'provider': provider_name,
+            'name': f'{new_collection["name"]}___{new_collection["version"]}___rules_sqs',
+            'rule': {
+                # 'type': 'onetime',
+                'type': 'sqs',
+                'value': sqs_url,
+            },
+            'state': 'ENABLED',
+            "meta": {
+                'retries': 1,
+                'visibilityTimeout': visibility_timeout,
+                # "provider_path": "data/SNPP_ATMS_Level0_T/ATMS_SCIENCE_Group/2016/002/",
+                # "publish": False,
+                # "distribution_endpoint": "s3://am-uds-dev-cumulus-internal/"
+            },
+
+        }
+        if provider_name is not None and provider_name != '':
+            rule_body['provider'] = provider_name
         payload = {
             'httpMethod': 'POST',
             'resource': '/{proxy+}',
@@ -178,32 +203,8 @@ curl --request POST "$CUMULUS_BASEURL/rules" --header "Authorization: Bearer $cu
             'headers': {
                 'Content-Type': 'application/json',
             },
-            'body': json.dumps({
-                'workflow': workflow_name,
-                'collection': {
-                    'name': new_collection['name'],
-                    'version': new_collection['version'],
-                },
-                # 'provider': provider_name,
-                'name': f'{new_collection["name"]}___{new_collection["version"]}___rules_sqs',
-                'rule': {
-                    # 'type': 'onetime',
-                    'type': 'sqs',
-                    'value': sqs_url,
-                },
-                'state': 'ENABLED',
-                "meta": {
-                    'retries': 1,
-                    'visibilityTimeout': visibility_timeout,
-                    # "provider_path": "data/SNPP_ATMS_Level0_T/ATMS_SCIENCE_Group/2016/002/",
-                    # "publish": False,
-                    # "distribution_endpoint": "s3://am-uds-dev-cumulus-internal/"
-                 },
-
-            })
+            'body': json.dumps(rule_body)
         }
-        if provider_name is not None and provider_name != '':
-            payload['provider'] = provider_name
         LOGGER.debug(f'payload: {payload}')
         try:
             query_result = self._invoke_api(payload, private_api_prefix)
