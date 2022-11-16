@@ -153,6 +153,7 @@ resource "aws_lambda_function" "cumulus_collections_creation_dapa" {
       CUMULUS_LAMBDA_PREFIX = var.prefix
       CUMULUS_WORKFLOW_SQS_URL = var.workflow_sqs_url
       CUMULUS_WORKFLOW_NAME = "CatalogGranule"
+      UNITY_DEFAULT_PROVIDER = var.unity_default_provider
     }
   }
 
@@ -177,6 +178,7 @@ resource "aws_lambda_function" "cumulus_collections_creation_dapa_facade" {
       CUMULUS_LAMBDA_PREFIX = var.prefix
       CUMULUS_WORKFLOW_SQS_URL = var.workflow_sqs_url
       CUMULUS_WORKFLOW_NAME = "CatalogGranule"
+      UNITY_DEFAULT_PROVIDER = var.unity_default_provider
       COLLECTION_CREATION_LAMBDA_NAME = aws_lambda_function.cumulus_collections_creation_dapa.arn
     }
   }
