@@ -61,7 +61,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
             .with_granule_id_extraction_regex("(P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}0).+") \
             .with_title("P1570515ATMSSCIENCEAXT11344000000001.PDS") \
             .with_process('modis') \
-            .with_provider('SNPP')\
+            .with_provider('unity')\
             .add_file_type("P1570515ATMSSCIENCEAXT11344000000000.PDS.cmr.xml",
                            "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}00.PDS.cmr.xml$", 'internal', 'metadata', 'item') \
             .add_file_type("P1570515ATMSSCIENCEAXT11344000000001.PDS.xml",
