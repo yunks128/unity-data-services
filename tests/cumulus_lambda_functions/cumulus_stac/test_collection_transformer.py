@@ -64,7 +64,7 @@ class TestItemTransformer(TestCase):
             "description": "Sentinel-2 is a wide-swath, high-resolution, multi-spectral\nimaging mission supporting Copernicus Land Monitoring studies,\nincluding the monitoring of vegetation, soil and water cover,\nas well as observation of inland waterways and coastal areas.\n\nThe Sentinel-2 data contain 13 UINT16 spectral bands representing\nTOA reflectance scaled by 10000. See the [Sentinel-2 User Handbook](https://sentinel.esa.int/documents/247904/685211/Sentinel-2_User_Handbook)\nfor details. In addition, three QA bands are present where one\n(QA60) is a bitmask band with cloud mask information. For more\ndetails, [see the full explanation of how cloud masks are computed.](https://sentinel.esa.int/web/sentinel/technical-guides/sentinel-2-msi/level-1c/cloud-masks)\n\nEach Sentinel-2 product (zip archive) may contain multiple\ngranules. Each granule becomes a separate Earth Engine asset.\nEE asset ids for Sentinel-2 assets have the following format:\nCOPERNICUS/S2/20151128T002653_20151128T102149_T56MNN. Here the\nfirst numeric part represents the sensing date and time, the\nsecond numeric part represents the product generation date and\ntime, and the final 6-character string is a unique granule identifier\nindicating its UTM grid reference (see [MGRS](https://en.wikipedia.org/wiki/Military_Grid_Reference_System)).\n\nFor more details on Sentinel-2 radiometric resoltuon, [see this page](https://earth.esa.int/web/sentinel/user-guides/sentinel-2-msi/resolutions/radiometric).\n",
             "license": "proprietary",
             # "keywords": [],
-            "providers": [],
+            "providers": [{"name": "Test123"}],
             "extent": {
                 "spatial": {
                     "bbox": [[0, 0, 0, 0]]
@@ -84,7 +84,9 @@ class TestItemTransformer(TestCase):
         }
         converted_stac = CollectionTransformer(include_date_range=True).to_stac(source)
         self.assertEqual(None, stac_validator.validate(converted_stac), f'invalid stac format: {stac_validator}')
-        converted_cumulus = CollectionTransformer(include_date_range=True).from_stac(converted_stac)
+        converted_stac['providers'].append({'name': 'Test123'})
+        transformer = CollectionTransformer(include_date_range=True)
+        converted_cumulus = transformer.from_stac(converted_stac)
         for k, v in source.items():
             if k in ['updatedAt', 'timestamp', 'createdAt']:
                 continue
@@ -92,4 +94,5 @@ class TestItemTransformer(TestCase):
             if k not in ['files', 'dateFrom', 'dateTo']:
                 self.assertEqual(v, converted_cumulus[k], f'wrong value for {k}')
         self.assertEqual(sorted(json.dumps(source['files'])), sorted(json.dumps(converted_cumulus['files'])), f"wrong files content: {source['files']} vs. {converted_cumulus['files']}")
+        self.assertEqual(transformer.output_provider, 'Test123', f'wrong provider')
         return

@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.2] - 2022-11-16
+### Fixed
+- [#100](https://github.com/unity-sds/unity-data-services/pull/100) status=completed is only for granules, not for collections
+## [1.9.1] - 2022-11-15
+### Added
+- [#94](https://github.com/unity-sds/unity-data-services/issues/94) Added DAPA lambdas function name to parameter store for UCS API Gateway integration
+### Fixed
+- [#98](https://github.com/unity-sds/unity-data-services/issues/98) accept provider from ENV or optionally from user call
+
 ## [1.8.1] - 2022-09-27
 ### Added
 - [#79](https://github.com/unity-sds/unity-data-services/pull/79) Collection Creation endpoint with DAPA format

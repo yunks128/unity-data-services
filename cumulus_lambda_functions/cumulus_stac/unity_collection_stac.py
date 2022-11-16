@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pystac import Link, Collection, Extent, SpatialExtent, TemporalExtent, Summaries
+from pystac import Link, Collection, Extent, SpatialExtent, TemporalExtent, Summaries, Provider
 
 from cumulus_lambda_functions.cumulus_stac.collection_transformer import CollectionTransformer
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
@@ -18,6 +18,11 @@ class UnityCollectionStac:
         self.__sample_filename = ''
         self.__files = []
         self.__collection_transformer = CollectionTransformer()
+        self.__provider_name = ''
+
+    def with_provider(self, provider_name: str):
+        self.__provider_name = provider_name
+        return self
 
     def with_title(self, title: str):
         self.__collection_title = title
@@ -56,6 +61,7 @@ class UnityCollectionStac:
                                      extent=Extent(SpatialExtent([[0, 0, 0, 0]]),
                                                    TemporalExtent([[datetime.utcnow(), datetime.utcnow()]])),
                                      title=self.__collection_title,
+                                     providers=[Provider(self.__provider_name)],
                                      summaries=Summaries({
                                          'granuleId': [self.__granule_id_regex],
                                          'granuleIdExtraction': [self.__granule_id_extraction_regex],
