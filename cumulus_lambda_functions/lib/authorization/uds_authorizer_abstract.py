@@ -19,7 +19,7 @@ class UDSAuthorizorAbstract(ABC):
         return
 
     @abstractmethod
-    def is_authorized_for_collection(self, action: str, collection_id: list, ldap_groups: str, tenant: str, venue: str):
+    def is_authorized_for_collection(self, action: str, collection_id: str, ldap_groups: list, tenant: str, venue: str):
         return
 
     @abstractmethod
