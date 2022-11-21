@@ -28,6 +28,10 @@ class CollectionsQuery(CumulusBase):
 
         return self
 
+    def with_collections(self, collection_ids: list):
+        collection_names = [k.split('___')[0] for k in collection_ids]
+        self._conditions.append(f'{self.__collection_name}__in={",".join(collection_names)}')
+        return self
     def get_size(self, private_api_prefix: str):
         query_params = {'field': 'status', 'type': 'collections'}
         main_conditions = {k[0]: k[1] for k in [k1.split('=') for k1 in self._conditions]}

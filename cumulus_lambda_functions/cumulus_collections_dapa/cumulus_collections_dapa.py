@@ -89,10 +89,9 @@ class CumulusCollectionsDapa:
 
             collection_regexes = self.__authorizer.get_authorized_collections(DBConstants.read, ldap_groups)
             authorized_collections = self.__uds_collections.get_collections(collection_regexes)
-            # TODO how to pass the authorized collections + versions to cumulus
-            # self.__cumulus.with_collection_id(authorized_collections)
-            # for each in authorized_collections:
-            #     self.__cumulus.with_collection_id(each[UdsCollections.collection_id])
+            authorized_collection_ids = [k[DBConstants.collection_id] for k in authorized_collections]
+            # NOTE: 2022-11-21: only pass collections. not versions
+            self.__cumulus.with_collections(authorized_collection_ids)
             cumulus_result = self.__cumulus.query_direct_to_private_api(self.__cumulus_lambda_prefix)
             if 'server_error' in cumulus_result:
                 return {
