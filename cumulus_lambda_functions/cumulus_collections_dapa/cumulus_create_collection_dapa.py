@@ -27,7 +27,7 @@ class CumulusCreateCollectionDapa:
         self.__cumulus_lambda_prefix = os.getenv('CUMULUS_LAMBDA_PREFIX')
         self.__ingest_sqs_url = os.getenv('CUMULUS_WORKFLOW_SQS_URL')
         self.__workflow_name = os.getenv('CUMULUS_WORKFLOW_NAME', 'CatalogGranule')
-        self.__provider_id = ''  # TODO. need this?
+        self.__provider_id = os.getenv('UNITY_DEFAULT_PROVIDER', '')
         self.__collection_creation_lambda_name = os.environ.get('COLLECTION_CREATION_LAMBDA_NAME', '').strip()
         self.__lambda_utils = LambdaApiGatewayUtils(self.__event, 10)
         self.__authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory()\
@@ -39,7 +39,9 @@ class CumulusCreateCollectionDapa:
 
     def execute_creation(self):
         try:
-            cumulus_collection_doc = CollectionTransformer().from_stac(self.__request_body)
+            collection_transformer = CollectionTransformer()
+            cumulus_collection_doc = collection_transformer.from_stac(self.__request_body)
+            self.__provider_id = self.__provider_id if collection_transformer.output_provider is None else collection_transformer.output_provider
             creation_result = self.__cumulus_collection_query.create_collection(cumulus_collection_doc, self.__cumulus_lambda_prefix)
             if 'status' not in creation_result:
                 LOGGER.error(f'status not in creation_result: {creation_result}')
@@ -49,6 +51,7 @@ class CumulusCreateCollectionDapa:
                         'message': creation_result
                     })
                 }
+            LOGGER.debug(f'__provider_id: {self.__provider_id}')
             rule_creation_result = self.__cumulus_collection_query.create_sqs_rules(
                 cumulus_collection_doc,
                 self.__cumulus_lambda_prefix,

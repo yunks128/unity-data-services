@@ -18,6 +18,8 @@ class GranulesQuery(CumulusBase):
 
     def __init__(self, cumulus_base: str, cumulus_token: str):
         super().__init__(cumulus_base, cumulus_token)
+        self._conditions.append('status=completed')
+
 
     def with_collection_id(self, collection_id: str):
         self._conditions.append(f'{self.__collection_id_key}={collection_id}')

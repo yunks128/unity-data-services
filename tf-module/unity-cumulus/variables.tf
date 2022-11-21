@@ -48,6 +48,12 @@ variable "workflow_sqs_url" {
   description = "SNS ARN of CNM submission topic"
 }
 
+variable "unity_default_provider" {
+  type = string
+  description = "default provider name"
+
+}
+
 variable "cumulus_base" {
   type = string
   description = "Cumulus base URL. Example: https://axhmoecy02.execute-api.us-west-2.amazonaws.com/dev"
