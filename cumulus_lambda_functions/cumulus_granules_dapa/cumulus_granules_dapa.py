@@ -123,12 +123,12 @@ class CumulusGranulesDapa:
                     'statusCode': 500,
                     'body': json.dumps({'message': 'unknown collection_id. require 1 collection id. '})
                 }
-            ldap_groups = self.__lambda_utils.get_authorization_info()['ldap_groups']
+            auth_info = self.__lambda_utils.get_authorization_info()
             collection_identifier = UdsCollections.decode_identifier(self.__collection_id)
-            if not self.__authorizer.is_authorized_for_collection(DBConstants.create, self.__collection_id, ldap_groups,
+            if not self.__authorizer.is_authorized_for_collection(DBConstants.create, self.__collection_id, auth_info['ldap_groups'],
                                                                   collection_identifier.tenant,
                                                                   collection_identifier.venue):
-                LOGGER.debug(f'user: {username} is not authorized for {self.__collection_id}')
+                LOGGER.debug(f'user: {auth_info["username"]} is not authorized for {self.__collection_id}')
                 return {
                     'statusCode': 403,
                     'body': json.dumps({

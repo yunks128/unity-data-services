@@ -101,14 +101,14 @@ class CumulusCreateCollectionDapa:
                          'details': validation_result})
             }
 
-        ldap_groups = self.__lambda_utils.get_authorization_info()['ldap_groups']
+        auth_info = self.__lambda_utils.get_authorization_info()
         collection_id = stac_collection.id
         collection_identifier = UdsCollections.decode_identifier(collection_id)
-        LOGGER.debug(f'query for user: {username}')
-        if not self.__authorizer.is_authorized_for_collection(DBConstants.create, collection_id, ldap_groups,
+        LOGGER.debug(f'query for user: {auth_info["username"]}')
+        if not self.__authorizer.is_authorized_for_collection(DBConstants.create, collection_id, auth_info['ldap_groups'],
                                                               collection_identifier.tenant,
                                                               collection_identifier.venue):
-            LOGGER.debug(f'user: {username} is not authorized for {collection_id}')
+            LOGGER.debug(f'user: {auth_info["username"]} is not authorized for {collection_id}')
             return {
                 'statusCode': 403,
                 'body': json.dumps({
