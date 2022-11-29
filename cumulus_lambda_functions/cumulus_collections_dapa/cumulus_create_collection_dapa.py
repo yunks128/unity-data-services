@@ -28,13 +28,15 @@ class CumulusCreateCollectionDapa:
         self.__ingest_sqs_url = os.getenv('CUMULUS_WORKFLOW_SQS_URL')
         self.__workflow_name = os.getenv('CUMULUS_WORKFLOW_NAME', 'CatalogGranule')
         self.__provider_id = os.getenv('UNITY_DEFAULT_PROVIDER', '')
+        self.__es_url = os.getenv('ES_URL')
+        self.__es_port = int(os.getenv('ES_PORT', '443'))
         self.__collection_creation_lambda_name = os.environ.get('COLLECTION_CREATION_LAMBDA_NAME', '').strip()
         self.__lambda_utils = LambdaApiGatewayUtils(self.__event, 10)
         self.__authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory()\
             .get_instance(UDSAuthorizerFactory.cognito,
                           user_pool_id=os.getenv('COGNITO_UESR_POOL_ID'),
-                          es_url=os.getenv('ES_URL'),
-                          es_port=int(os.getenv('ES_PORT', '443'))
+                          es_url=self.__es_url,
+                          es_port=self.__es_port
                           )
 
     def execute_creation(self):
@@ -51,6 +53,15 @@ class CumulusCreateCollectionDapa:
                         'message': creation_result
                     })
                 }
+            uds_collection = UdsCollections(self.__es_url, self.__es_port)
+            time_range = collection_transformer.get_collection_time_range()
+            uds_collection.add_collection(
+                collection_id=collection_transformer.get_collection_id(),
+                start_time=time_range[0],  # TODO convert to timestamp
+                end_time=time_range[1],  # TODO convert to timestamp
+                bbox=collection_transformer.get_collection_bbox(),
+                granules_count=0,
+            )
             LOGGER.debug(f'__provider_id: {self.__provider_id}')
             rule_creation_result = self.__cumulus_collection_query.create_sqs_rules(
                 cumulus_collection_doc,

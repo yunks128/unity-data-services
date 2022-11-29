@@ -180,7 +180,7 @@ class ESMiddleware(ESAbstract):
         if 'sort' not in dsl:
             raise ValueError('missing `sort` in DSL. Make sure sorting is unique')
         index = self.__validate_index(querying_index)
-        targeted_size = dsl['sort'] if 'size' in dsl else -1
+        targeted_size = dsl['size'] if 'size' in dsl else -1
         dsl['size'] = 10000  # replacing with the maximum size to minimize number of scrolls
         params = {
             'index': index,
