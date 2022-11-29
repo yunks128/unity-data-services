@@ -40,6 +40,13 @@ class UdsCollections:
             [bbox[1], bbox[0]],  # min lat, min lon
         ]
         return polygon
+
+    def delete_collection(self, collection_id: str):
+        self.__es.delete_by_query({
+            'query': {'term': {self.collection_id: collection_id}}
+        }, DBConstants.collections_index)
+        return self
+
     def add_collection(self, collection_id: str, start_time: int, end_time: int, bbox: list, granules_count: int=0):
         self.__es.index_one({
             self.collection_id: collection_id,

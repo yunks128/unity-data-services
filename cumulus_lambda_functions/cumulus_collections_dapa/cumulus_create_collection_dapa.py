@@ -54,14 +54,25 @@ class CumulusCreateCollectionDapa:
                     })
                 }
             uds_collection = UdsCollections(self.__es_url, self.__es_port)
-            time_range = collection_transformer.get_collection_time_range()
-            uds_collection.add_collection(
-                collection_id=collection_transformer.get_collection_id(),
-                start_time=time_range[0],  # TODO convert to timestamp
-                end_time=time_range[1],  # TODO convert to timestamp
-                bbox=collection_transformer.get_collection_bbox(),
-                granules_count=0,
-            )
+            try:
+                time_range = collection_transformer.get_collection_time_range()
+                uds_collection.add_collection(
+                    collection_id=collection_transformer.get_collection_id(),
+                    start_time=time_range[0],  # TODO convert to timestamp
+                    end_time=time_range[1],  # TODO convert to timestamp
+                    bbox=collection_transformer.get_collection_bbox(),
+                    granules_count=0,
+                )
+            except Exception as e:
+                LOGGER.exception(f'failed to add collection to Elasticsearch')
+                delete_collection_result = self.__cumulus_collection_query.delete_collection(self.__cumulus_lambda_prefix, cumulus_collection_doc['name'], cumulus_collection_doc['version'])
+                return {
+                    'statusCode': 500,
+                    'body': json.dumps({
+                        'message': f'unable to add collection to Elasticsearch: {str(e)}',
+                        'details': f'collection deletion result: {delete_collection_result}'
+                    })
+                }
             LOGGER.debug(f'__provider_id: {self.__provider_id}')
             rule_creation_result = self.__cumulus_collection_query.create_sqs_rules(
                 cumulus_collection_doc,
@@ -73,6 +84,7 @@ class CumulusCreateCollectionDapa:
             if 'status' not in rule_creation_result:
                 LOGGER.error(f'status not in rule_creation_result. deleting collection: {rule_creation_result}')
                 delete_collection_result = self.__cumulus_collection_query.delete_collection(self.__cumulus_lambda_prefix, cumulus_collection_doc['name'], cumulus_collection_doc['version'])
+                uds_collection.delete_collection(collection_transformer.get_collection_id())
                 return {
                     'statusCode': 500,
                     'body': json.dumps({
