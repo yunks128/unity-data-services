@@ -124,4 +124,4 @@ class UploadGranules:
         }
         LOGGER.debug(f'dapa_body_granules: {dapa_body}')
         dapa_ingest_result = dapa_client.ingest_granules_w_cnm(dapa_body)
-        return dapa_ingest_result
+        return dapa_body
