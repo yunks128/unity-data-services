@@ -4,7 +4,7 @@ from urllib.parse import quote_plus, urlparse, unquote_plus
 
 import pystac
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
-from pystac import Link
+from pystac import Link, Collection
 
 from cumulus_lambda_functions.cumulus_stac.stac_transformer_abstract import StacTransformerAbstract
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
@@ -294,6 +294,22 @@ class CollectionTransformer(StacTransformerAbstract):
 
         self.__output_provider = None
         self.__output_cumulus_collection = None
+        self.__input_dapa_collection: Collection = None
+
+    def get_collection_id(self):
+        if self.__input_dapa_collection is None:
+            raise ValueError(f'pls load and parse __input_dapa_collection via from_stac')
+        return self.__input_dapa_collection.id
+
+    def get_collection_bbox(self):
+        if self.__input_dapa_collection is None:
+            raise ValueError(f'pls load and parse __input_dapa_collection via from_stac')
+        return self.__input_dapa_collection.extent.spatial.bboxes[0]
+
+    def get_collection_time_range(self):
+        if self.__input_dapa_collection is None:
+            raise ValueError(f'pls load and parse __input_dapa_collection via from_stac')
+        return self.__input_dapa_collection.extent.temporal.intervals
 
     @property
     def output_provider(self):
@@ -472,9 +488,9 @@ class CollectionTransformer(StacTransformerAbstract):
         return output_file_object
 
     def from_stac(self, source: dict) -> dict:
-        input_dapa_collection = pystac.Collection.from_dict(source)
-        if not input_dapa_collection.validate():
-            raise ValueError(f'invalid source dapa: {input_dapa_collection}')
+        self.__input_dapa_collection = pystac.Collection.from_dict(source)
+        if not self.__input_dapa_collection.validate():
+            raise ValueError(f'invalid source dapa: {self.__input_dapa_collection}')
         output_collection_cumulus = {
             # "createdAt": 1647992847582,
             "reportToEms": self.__report_to_ems,
@@ -482,18 +498,18 @@ class CollectionTransformer(StacTransformerAbstract):
             # "updatedAt": 1647992847582,
             # "timestamp": 1647992849273
         }
-        summaries = input_dapa_collection.summaries.lists
+        summaries = self.__input_dapa_collection.summaries.lists
         if 'granuleId' in summaries:
             output_collection_cumulus['granuleId'] = summaries['granuleId'][0]
         if 'granuleIdExtraction' in summaries:
             output_collection_cumulus['granuleIdExtraction'] = summaries['granuleIdExtraction'][0]
         if 'process' in summaries:
             output_collection_cumulus['process'] = summaries['process'][0]
-        name_version = input_dapa_collection.id.split('___')
+        name_version = self.__input_dapa_collection.id.split('___')
         output_collection_cumulus['name'] = name_version[0]
         output_collection_cumulus['version'] = name_version[1]
         output_files = []
-        for each_link_obj in input_dapa_collection.links:
+        for each_link_obj in self.__input_dapa_collection.links:
             each_link_obj: Link = each_link_obj
             each_file_obj = self.__convert_from_stac_links(each_link_obj.to_dict())
             if each_link_obj.rel == 'root':
@@ -504,14 +520,14 @@ class CollectionTransformer(StacTransformerAbstract):
             else:
                 output_files.append(each_file_obj)
         output_collection_cumulus['files'] = output_files
-        if len(input_dapa_collection.extent.temporal.intervals) > 0:
-            date_interval = input_dapa_collection.extent.temporal.intervals[0]
+        if len(self.__input_dapa_collection.extent.temporal.intervals) > 0:
+            date_interval = self.__input_dapa_collection.extent.temporal.intervals[0]
             if len(date_interval) == 2 and self.__include_date_range is True:
                 if date_interval[0] is not None:
                     output_collection_cumulus['dateFrom'] = date_interval[0].strftime(TimeUtils.MMDD_FORMAT)
                 if date_interval[1] is not None:
                     output_collection_cumulus['dateTo'] = date_interval[1].strftime(TimeUtils.MMDD_FORMAT)
-        LOGGER.debug(f'input_dapa_collection.providers: {input_dapa_collection.providers}')
-        self.__output_provider = None if input_dapa_collection.providers is None or len(input_dapa_collection.providers) < 1 else input_dapa_collection.providers[0].name
+        LOGGER.debug(f'self.__input_dapa_collection.providers: {self.__input_dapa_collection.providers}')
+        self.__output_provider = None if self.__input_dapa_collection.providers is None or len(self.__input_dapa_collection.providers) < 1 else self.__input_dapa_collection.providers[0].name
         self.__output_cumulus_collection = output_collection_cumulus
         return output_collection_cumulus
