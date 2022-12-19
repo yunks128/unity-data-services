@@ -7,25 +7,28 @@ from cumulus_lambda_functions.cumulus_upload_granules.upload_granules import Upl
 
 class TestLUploadGranules(unittest.TestCase):
     def test_01(self):
-        os.environ['DAPA_API'] = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
+        # os.environ['DAPA_API'] = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
+        os.environ['DAPA_API'] = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev'
         os.environ['USERNAME'] = '/unity/uds/user/wphyo/username'
         os.environ['PASSWORD'] = '/unity/uds/user/wphyo/dwssap'
         os.environ['PASSWORD_TYPE'] = 'PARAM_STORE'
-        os.environ['CLIENT_ID'] = '7a1fglm2d54eoggj13lccivp25'
+        # os.environ['CLIENT_ID'] = '7a1fglm2d54eoggj13lccivp25'
+        os.environ['CLIENT_ID'] = '71g0c73jl77gsqhtlfg2ht388c'
         os.environ['COGNITO_URL'] = 'https://cognito-idp.us-west-2.amazonaws.com'
 
-        os.environ['COLLECTION_ID'] = 'SNDR_SNPP_ATMS_L1A_NGA___1'
+        os.environ['COLLECTION_ID'] = 'NEW_COLLECTION_EXAMPLE_L1B___9'
         os.environ['PROVIDER_ID'] = 'SNPP'
         os.environ['UPLOAD_DIR'] = '/tmp/snpp_upload_test_1'
-        os.environ['STAGING_BUCKET'] = 'am-uds-dev-cumulus-staging'
+        # os.environ['STAGING_BUCKET'] = 'am-uds-dev-cumulus-staging'
+        os.environ['STAGING_BUCKET'] = 'uds-dev-cumulus-staging'
         os.environ['VERIFY_SSL'] = 'false'
         os.environ['DELETE_FILES'] = 'false'
 
         with tempfile.TemporaryDirectory() as tmp_dir_name:
             os.environ['UPLOAD_DIR'] = tmp_dir_name
-            with open(os.path.join(tmp_dir_name, 'SNDR.SNPP.ATMS.L1A.nominal2.02.nc'), 'w') as ff:
+            with open(os.path.join(tmp_dir_name, 'test_file01.nc'), 'w') as ff:
                 ff.write('sample_file')
-            with open(os.path.join(tmp_dir_name, 'SNDR.SNPP.ATMS.L1A.nominal2.02.nc.cas'), 'w') as ff:
+            with open(os.path.join(tmp_dir_name, 'test_file01.nc.cas'), 'w') as ff:
                 ff.write('''<?xml version="1.0" encoding="UTF-8" ?>
 <cas:metadata xmlns:cas="http://oodt.jpl.nasa.gov/1.0/cas">
     <keyval type="scalar">
@@ -121,5 +124,17 @@ class TestLUploadGranules(unittest.TestCase):
         <val>8c3ae101-8f7c-46c8-b5c6-63e7b6d3c8cd</val>
     </keyval>
 </cas:metadata>''')
-            self.assertEqual('REGISTERED', UploadGranules().start().upper().strip(), 'wrong registration result')
+            upload_result = UploadGranules().start()
+            self.assertTrue('features' in upload_result, 'missing features')
+            upload_result = upload_result['features']
+            self.assertEqual(1, len(upload_result), 'wrong length of upload_result features')
+            upload_result = upload_result[0]
+            self.assertTrue('assets' in upload_result, 'missing assets')
+            self.assertTrue('metadata' in upload_result['assets'], 'missing assets#metadata')
+            self.assertTrue('href' in upload_result['assets']['metadata'], 'missing assets#metadata#href')
+            self.assertTrue(upload_result['assets']['metadata']['href'].startswith(f's3://{os.environ["STAGING_BUCKET"]}/'))
+            self.assertTrue('data' in upload_result['assets'], 'missing assets#data')
+            self.assertTrue('href' in upload_result['assets']['data'], 'missing assets#data#href')
+            self.assertTrue(upload_result['assets']['data']['href'].startswith(f's3://{os.environ["STAGING_BUCKET"]}/'))
+            # self.assertEqual('REGISTERED', upload_result.upper().strip(), 'wrong registration result')
         return
