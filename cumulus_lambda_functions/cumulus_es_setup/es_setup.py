@@ -1,7 +1,4 @@
-import json
-import logging
 import os
-from glob import glob
 
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 
@@ -10,7 +7,7 @@ from cumulus_lambda_functions.lib.aws.es_abstract import ESAbstract
 from cumulus_lambda_functions.lib.aws.es_factory import ESFactory
 
 from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
-
+from cumulus_lambda_functions.cumulus_es_setup import es_mappings
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
@@ -25,27 +22,22 @@ class SetupESIndexAlias:
                                                          port=int(os.getenv('ES_PORT', '443'))
                                                          )
 
-    def get_index_mapping(self, index_name: str, index_files: dict):
-        if index_name not in index_files:
-            raise ValueError(f'missing index_name: {index_name} in {index_files}')
-        with open(index_files[index_name], 'r') as ff:
-            index_json = json.loads(ff.read())
+    def get_index_mapping(self, index_name: str):
+        if not hasattr(es_mappings, index_name):
+            raise ValueError(f'missing index_name: {index_name}')
+        index_json = getattr(es_mappings, index_name)
         return index_json
 
     def start(self):
-        current_dir = os.path.dirname(__file__)
-        index_files = glob(os.path.join(current_dir, 'elasticsearch_index', '*.json'))
-        index_files = {os.path.basename(k): k for k in index_files}
-        if 'alias_pointer.json' not in index_files:
-            raise ValueError(f'missing alias_pointer.json in {index_files}')
-        with open(index_files['alias_pointer.json'], 'r') as ff:
-            alias_json = json.loads(ff.read())
+        if not hasattr(es_mappings, 'alias_pointer'):
+            raise ValueError(f'missing alias_pointer')
+        alias_json = getattr(es_mappings, 'alias_pointer')
         alias_json = [k['add'] for k in alias_json['actions']]
         for each_action in alias_json:
             current_index = each_action['index']
             current_alias = each_action['alias']
             LOGGER.debug(f'working on {current_index}')
-            index_json = self.get_index_mapping(current_index, index_files)
+            index_json = self.get_index_mapping(current_index)
             self.__es.create_index(current_index, index_json)
             self.__es.create_alias(current_index, current_alias)
         return self
