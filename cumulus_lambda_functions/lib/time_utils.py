@@ -1,7 +1,7 @@
 import logging
 import calendar
 import time
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from time import mktime
 import re
 
@@ -17,6 +17,27 @@ class TimeUtils:
     MMDD_FORMAT = '%Y-%m-%dT%H:%M:%S'
     GB_1 = 1000000000
     YR_IN_SECOND = 31536000
+
+    def __init__(self):
+        self.__time_obj = datetime.utcnow()
+
+    def parse_from_str(self, timestamp_str: str, fmt='%Y-%m-%dT%H:%M:%S%z', in_ms=False):
+        self.__time_obj = datetime.strptime(timestamp_str, fmt)
+        return self
+
+    def parse_from_unix(self, unix_timestamp, in_ms=False):
+        converting_timestamp = unix_timestamp / 1000 if in_ms is True else unix_timestamp
+        self.__time_obj = datetime.fromtimestamp(converting_timestamp, timezone(timedelta(0, 0, 0, 0)))
+        return self
+
+    def get_datetime_obj(self):
+        return self.__time_obj
+
+    def get_datetime_unix(self, in_ms=False):
+        return int(self.__time_obj.timestamp()) if not in_ms else int(self.__time_obj.timestamp() * 1000)
+
+    def get_datetime_str(self, fmt='%Y-%m-%dT%H:%M:%S %z', in_ms=True):
+        return self.__time_obj.strftime(fmt).replace('0000', '00:00')
     @staticmethod
     def get_current_year():
         return datetime.utcnow().year
