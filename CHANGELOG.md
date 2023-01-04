@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.3] - 2022-12-19
+### Added
+- [#104](https://github.com/unity-sds/unity-data-services/pull/104) added Updated time in collection & item STAC dictionaries
+### Changed
+- [#104](https://github.com/unity-sds/unity-data-services/pull/104) use pystac library objects to create collection and item STAC dictionaries
+
 ## [1.9.3] - 2022-12-19
 ### Added
 - [#103](https://github.com/unity-sds/unity-data-services/pull/103) return a dictionary including HREFs instead of a string REGISTERED
