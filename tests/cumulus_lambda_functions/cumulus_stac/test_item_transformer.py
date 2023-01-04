@@ -108,11 +108,12 @@ class TestItemTransformer(TestCase):
         source = json.loads(source)
         stac_item = ItemTransformer().to_stac(source)
         sample_stac_item = {'stac_version': '1.0.0', 'stac_extensions': [], 'type': 'Feature',
-                            'id': 'P1570515ATMSSCIENCEAAT16032024518500.PDS', 'bbox': [0, 0, 0, 0], 'geometry': {"coordinates": [0, 0], "type": "Point"},
-                            'properties': {'datetime': '1970-01-01T00:27:28.050499079Z',
-                                           'start_datetime': '2016-01-31T18:00:00.009057Z',
-                                           'end_datetime': '2016-01-31T19:59:59.991043Z',
-                                           'created': '2016-02-01T02:45:59.639000Z'},
+                            'id': 'P1570515ATMSSCIENCEAAT16032024518500.PDS', 'bbox': [0.0, 0.0, 0.0, 0.0], 'geometry': {"coordinates": [0.0, 0.0], "type": "Point"},
+                            'properties': {        "start_datetime": "2016-01-31T18:00:00.009057Z",
+        "end_datetime": "2016-01-31T19:59:59.991043Z",
+        "created": "2016-02-01T02:45:59.639000Z",
+        "updated": "2022-03-23T15:48:21.578000Z",
+        "datetime": "2022-03-23T15:48:19.079000Z"},
                             'collection': 'ATMS_SCIENCE_Group___001', 'links': [{"href": ".", "rel": "collection"}], 'assets': {'data': {
                 'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS',
                 'title': 'P1570515ATMSSCIENCEAAT16032024518500.PDS',
