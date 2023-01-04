@@ -310,43 +310,6 @@ class CollectionTransformer(StacTransformerAbstract):
             href_link[0] = bucket
         return f"./collection.json?bucket={href_link[0]}&regex={quote_plus(href_link[1])}"
 
-    def __convert_to_stac_links(self, collection_file_obj: dict, rel_type: str = 'item'):
-        """
-        expected output
-        {
-          "title": "<sampleFileName>",
-          "href": "<bucket>___<regex>"
-          "type": "<type>",
-          "rel": "item"
-        }
-
-        Sample input:
-                {
-                    "bucket": "internal",
-                    "regex": "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}00\\.PDS$",
-                    "sampleFileName": "P1570515ATMSSCIENCEAXT11344000000000.PDS",
-                    "type": "data",
-                    "reportToEms": True
-                }
-        TODO: missing reportToEms
-        :param collection_file_obj:
-        :return: dict
-        """
-        if collection_file_obj is None:
-            return {}
-        stac_link = {
-            'rel': rel_type,
-        }
-        if 'type' in collection_file_obj:
-            stac_link['type'] = collection_file_obj['type']
-        if 'sampleFileName' in collection_file_obj:
-            stac_link['title'] = collection_file_obj['sampleFileName']
-        stac_link['href'] = self.generate_target_link_url(
-            collection_file_obj['regex'] if 'regex' in collection_file_obj else None,
-            collection_file_obj['bucket'] if 'bucket' in collection_file_obj else None,
-        )
-        return stac_link
-
     def __convert_to_stac_link_obj(self, collection_file_obj: dict, rel_type: str = 'item'):
         """
         expected output

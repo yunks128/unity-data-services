@@ -1,5 +1,8 @@
 import json
 
+from pystac import Item, Asset, Link
+from pystac.utils import datetime_to_str
+
 from cumulus_lambda_functions.cumulus_stac.stac_transformer_abstract import StacTransformerAbstract
 from cumulus_lambda_functions.lib.json_validator import JsonValidator
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
@@ -292,6 +295,7 @@ CUMULUS_FILE_SCHEMA = {
 
 class ItemTransformer(StacTransformerAbstract):
     def __init__(self):
+        super().__init__()
         self.__stac_item_schema = json.loads(STAC_ITEM_SCHEMA)
         self.__cumulus_granule_schema = {}
 
@@ -307,33 +311,13 @@ class ItemTransformer(StacTransformerAbstract):
             return 'metadata__data'
         return input_dict['type']
 
-    def __get_assets(self, input_dict):
-        """
-        Sample:
-        {
-            "bucket": "am-uds-dev-cumulus-internal",
-            "key": "ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS",
-            "size": 760,
-            "fileName": "P1570515ATMSSCIENCEAAT16032024518500.PDS",
-            "source": "data/SNPP_ATMS_Level0_T/ATMS_SCIENCE_Group/2016/031//P1570515ATMSSCIENCEAAT16032024518500.PDS",
-            "type": "data"
-        }
-        :param input_dict:
-        :return:
-        """
-        asset_dict = {
-            'href': f"s3://{input_dict['bucket']}/{input_dict['key']}",
-            'title': input_dict['fileName'],
-            'description': input_dict['fileName'],
-            # 'type': '',
-            # 'roles': '',
-        }
-        return asset_dict
-
-    def __get_datetime_from_source(self, source: dict, datetime_key: str):
-        if datetime_key not in source:
-            return '1970-01-01T00:00:00Z'
-        return f"{source[datetime_key]}{'' if source[datetime_key].endswith('Z') else 'Z'}"
+    def __get_asset_obj(self, input_dict):
+        asset = Asset(
+            href=f"s3://{input_dict['bucket']}/{input_dict['key']}",
+            title=input_dict['fileName'],
+            description=input_dict['fileName'],
+        )
+        return asset
 
     def to_stac(self, source: dict) -> dict:
         """
@@ -402,36 +386,28 @@ class ItemTransformer(StacTransformerAbstract):
 
         cumulus_file_validator = JsonValidator(CUMULUS_FILE_SCHEMA)
         validated_files = [k for k in source['files'] if cumulus_file_validator.validate(k) is None]
-        minimum_stac_item = {
-            "stac_version": "1.0.0",
-            "stac_extensions": [],
-            "type": "Feature",
-            "id": source['granuleId'],
-            "bbox": [0, 0, 0, 0, ],
-            "geometry": {
+        stac_item = Item(
+            id=source['granuleId'],
+            bbox=[0.0, 0.0, 0.0, 0.0],
+            properties={
+                # "datetime": f"{TimeUtils.decode_datetime(source['createdAt'], False)}Z",
+                "start_datetime": datetime_to_str(self.get_time_obj(source['beginningDateTime'])),
+                "end_datetime": datetime_to_str(self.get_time_obj(source['endingDateTime'])),
+                "created": datetime_to_str(self.get_time_obj(source['productionDateTime'])),
+                "updated": datetime_to_str(TimeUtils().parse_from_unix(source['updatedAt'], True).get_datetime_obj()),
+            },
+            collection=source['collectionId'],
+            assets={self.__get_asset_name(k): self.__get_asset_obj(k) for k in validated_files},
+            geometry={
                 "type": "Point",
-                "coordinates": [0, 0]
+                "coordinates": [0.0, 0.0]
             },
-            "properties": {
-                "datetime": f"{TimeUtils.decode_datetime(source['createdAt'], False)}Z",
-                "start_datetime": self.__get_datetime_from_source(source, 'beginningDateTime'),
-                "end_datetime": self.__get_datetime_from_source(source, 'endingDateTime'),
-                "created": self.__get_datetime_from_source(source, 'productionDateTime'),
-                "updated": f"{TimeUtils.decode_datetime(source['updatedAt'], False)}Z",
-                # "created": source['processingEndDateTime'],  # TODO
-            },
-            "collection": source['collectionId'],
-            "links": [
-                {
-                    "rel": "collection",
-                    "href": ".",
-                    # "type": "application/json",
-                    # "title": "Simple Example Collection"
-                }
-            ],
-            "assets": {self.__get_asset_name(k): self.__get_assets(k) for k in validated_files}
-        }
-        return minimum_stac_item
+            datetime=TimeUtils().parse_from_unix(source['createdAt'], True).get_datetime_obj(),
+        )
+        stac_item.links = [
+            Link(rel='collection', target='.')
+        ]
+        return stac_item.to_dict(include_self_link=False, transform_hrefs=False)
 
     def from_stac(self, source: dict) -> dict:
         return {}

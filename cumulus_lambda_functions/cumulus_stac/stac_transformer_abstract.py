@@ -14,6 +14,7 @@ class StacTransformerAbstract(ABC):
             '%y-%m-%dT%H:%M:%S%z',
             '%Y-%m-%dT%H:%M:%S.%f%z',
             '%Y-%m-%dT%H:%M:%S%z',
+            '%Y-%m-%dT%H:%M:%S.%f',
         ]
 
     def get_time_obj(self, datetime_str: str):
