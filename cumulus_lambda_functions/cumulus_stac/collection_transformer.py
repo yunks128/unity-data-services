@@ -433,6 +433,7 @@ class CollectionTransformer(StacTransformerAbstract):
             },
             "assets": {},
             "summaries": {
+                "updated": [f"{TimeUtils.decode_datetime(source['createdAt'], False)}Z"],
                 "granuleId": [source['granuleId'] if 'granuleId' in source else ''],
                 "granuleIdExtraction": [source['granuleIdExtraction'] if 'granuleIdExtraction' in source else ''],
                 "process": [source['process'] if 'process' in source else ''],

@@ -417,6 +417,7 @@ class ItemTransformer(StacTransformerAbstract):
                 "start_datetime": self.__get_datetime_from_source(source, 'beginningDateTime'),
                 "end_datetime": self.__get_datetime_from_source(source, 'endingDateTime'),
                 "created": self.__get_datetime_from_source(source, 'productionDateTime'),
+                "updated": f"{TimeUtils.decode_datetime(source['updatedAt'], False)}Z",
                 # "created": source['processingEndDateTime'],  # TODO
             },
             "collection": source['collectionId'],
