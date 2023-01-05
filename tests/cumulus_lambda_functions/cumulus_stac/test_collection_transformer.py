@@ -7,7 +7,7 @@ from cumulus_lambda_functions.cumulus_stac.collection_transformer import STAC_CO
 from cumulus_lambda_functions.lib.json_validator import JsonValidator
 
 
-class TestItemTransformer(TestCase):
+class TestCollectionTransformer(TestCase):
     def test_01(self):
         stac_validator = JsonValidator(json.loads(STAC_COLLECTION_SCHEMA))
         source = {
