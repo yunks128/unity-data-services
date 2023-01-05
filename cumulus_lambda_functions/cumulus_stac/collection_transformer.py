@@ -3,8 +3,10 @@ from datetime import datetime
 from urllib.parse import quote_plus, urlparse, unquote_plus
 
 import pystac
+from pystac.utils import datetime_to_str
+
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
-from pystac import Link, Collection
+from pystac import Link, Collection, Extent, SpatialExtent, TemporalExtent, Summaries
 
 from cumulus_lambda_functions.cumulus_stac.stac_transformer_abstract import StacTransformerAbstract
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
@@ -287,6 +289,7 @@ LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_le
 
 class CollectionTransformer(StacTransformerAbstract):
     def __init__(self, report_to_ems:bool = True, include_date_range=False):
+        super().__init__()
         self.__stac_collection_schema = json.loads(STAC_COLLECTION_SCHEMA)
         self.__cumulus_collection_schema = {}
         self.__report_to_ems = report_to_ems
@@ -323,7 +326,7 @@ class CollectionTransformer(StacTransformerAbstract):
             href_link[0] = bucket
         return f"./collection.json?bucket={href_link[0]}&regex={quote_plus(href_link[1])}"
 
-    def __convert_to_stac_links(self, collection_file_obj: dict, rel_type: str = 'item'):
+    def __convert_to_stac_link_obj(self, collection_file_obj: dict, rel_type: str = 'item'):
         """
         expected output
         {
@@ -345,23 +348,17 @@ class CollectionTransformer(StacTransformerAbstract):
         :param collection_file_obj:
         :return: dict
         """
-        if collection_file_obj is None:
-            return {}
-        stac_link = {
-            'rel': rel_type,
-        }
+        temp_link = Link(target=self.generate_target_link_url(
+                collection_file_obj['regex'] if 'regex' in collection_file_obj else None,
+                collection_file_obj['bucket'] if 'bucket' in collection_file_obj else None,
+            ),
+            rel=rel_type
+            )
         if 'type' in collection_file_obj:
-            stac_link['type'] = collection_file_obj['type']
+            temp_link.media_type = collection_file_obj['type']
         if 'sampleFileName' in collection_file_obj:
-            stac_link['title'] = collection_file_obj['sampleFileName']
-        stac_link['href'] = self.generate_target_link_url(
-            collection_file_obj['regex'] if 'regex' in collection_file_obj else None,
-            collection_file_obj['bucket'] if 'bucket' in collection_file_obj else None,
-        )
-        return stac_link
-
-    # def to_pystac_link_obj(self, input_dict: dict):
-    #     return
+            temp_link.title = collection_file_obj['sampleFileName']
+        return temp_link
 
     def to_stac(self, source: dict) -> dict:
         source_sample = {
@@ -408,60 +405,39 @@ class CollectionTransformer(StacTransformerAbstract):
             "url_path": "{cmrMetadata.Granule.Collection.ShortName}___{cmrMetadata.Granule.Collection.VersionId}",
             "timestamp": 1647992849273
         }
-        # TemporalIntervals([
-        #     datetime.strptime(source['dateFrom'])
-        # ])
-        # stac_collection = pystac.Collection(
-        #     id=f"{source['name']}___{source['version']}",
-        #     description='TODO',
-        #     extent=Extent(
-        #         SpatialExtent([[0, 0, 0, 0]]),
-        #         TemporalExtent([[source['dateFrom'] if 'dateFrom' in source else None,
-        #                          source['dateTo'] if 'dateTo' in source else None]])
-        #     ),
-        #     summaries=Summaries({
-        #         "granuleId": [source['granuleId'] if 'granuleId' in source else ''],
-        #         "granuleIdExtraction": [source['granuleIdExtraction'] if 'granuleIdExtraction' in source else ''],
-        #         "process": [source['process'] if 'process' in source else ''],
-        #         "totalGranules": [source['total_size'] if 'total_size' in source else -1],
-        #     }),
-        # )
-        # stac_collection.get_root_link().target = './collection.json'
-        # stac_collection.add_links([Link.from_dict(k) for k in [self.__convert_to_stac_links(k) for k in source['files']]])
-        stac_collection = {
-            "type": "Collection",
-            "stac_version": "1.0.0",
-            # "stac_extensions": [],
-            "id": f"{source['name']}___{source['version']}",
-            "description": "TODO",
-            "license": "proprietary",
-            # "keywords": [],
-            "providers": [],
-            "extent": {
-                "spatial": {
-                    "bbox": [[0, 0, 0, 0]]
-                },
-                "temporal": {
-                    "interval": [[source['dateFrom'] if 'dateFrom' in source else None,
-                                 source['dateTo'] if 'dateTo' in source else None
-                                  ]]
-                }
-            },
-            "assets": {},
-            "summaries": {
+        temporal_extent = []
+        if 'dateFrom' in source:
+            temporal_extent.append(self.get_time_obj(source['dateFrom']))
+        if 'dateTo' in source:
+            temporal_extent.append(self.get_time_obj(source['dateTo']))
+        stac_collection = Collection(
+            id=f"{source['name']}___{source['version']}",
+            # href=f"https://ideas-api-to-be-hosted/slcp/collections/{input_collection['ShortName']}::{input_collection['VersionId']}",
+            description="TODO",
+            extent=Extent(
+                SpatialExtent([[0.0, 0.0, 0.0, 0.0]]),
+                TemporalExtent([temporal_extent])
+            ),
+            license="proprietary",
+            providers=[],
+            # title=input_collection['LongName'],
+            # keywords=[input_collection['SpatialKeywords']['Keyword']],
+            summaries=Summaries({
+                "updated": [datetime_to_str(TimeUtils().parse_from_unix(source['updatedAt'], True).get_datetime_obj())],
                 "granuleId": [source['granuleId'] if 'granuleId' in source else ''],
                 "granuleIdExtraction": [source['granuleIdExtraction'] if 'granuleIdExtraction' in source else ''],
                 "process": [source['process'] if 'process' in source else ''],
                 "totalGranules": [source['total_size'] if 'total_size' in source else -1],
-            },
-            "links": [self.__convert_to_stac_links({
-                "regex": source['url_path'] if 'url_path' in source else './collection.json',
-                "sampleFileName": source['sampleFileName'],
-                "type": "application/json",
+            }),
+            # assets={}
+        )
+        stac_collection.links = [self.__convert_to_stac_link_obj({
+            "regex": source['url_path'] if 'url_path' in source else './collection.json',
+            "sampleFileName": source['sampleFileName'],
+            "type": "application/json",
 
-            }, 'root')] + [self.__convert_to_stac_links(k) for k in source['files']],
-        }
-        return stac_collection
+        }, 'root')] + [self.__convert_to_stac_link_obj(k) for k in source['files']]
+        return stac_collection.to_dict(include_self_link=False, transform_hrefs=False)
 
     def get_href(self, input_href: str):
         parse_result = urlparse(input_href)
