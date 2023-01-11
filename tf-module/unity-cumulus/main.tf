@@ -187,6 +187,99 @@ resource "aws_lambda_function" "cumulus_es_setup_index_alias" {
   tags = var.tags
 }
 
+resource "aws_lambda_function" "cumulus_auth_list" {
+  filename      = local.lambda_file_name
+  function_name = "${var.prefix}-cumulus_auth_list"
+  role          = var.lambda_processing_role_arn
+  handler       = "cumulus_lambda_functions.cumulus_auth_crud.lambda_function.auth_list"
+  runtime       = "python3.9"
+  timeout       = 300
+
+  environment {
+    variables = {
+      LOG_LEVEL = var.log_level
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
+    }
+  }
+
+  vpc_config {
+    subnet_ids         = var.cumulus_lambda_subnet_ids
+    security_group_ids = local.security_group_ids_set ? var.security_group_ids : [aws_security_group.unity_cumulus_lambda_sg[0].id]
+  }
+  tags = var.tags
+}
+
+resource "aws_lambda_function" "cumulus_auth_add" {
+  filename      = local.lambda_file_name
+  function_name = "${var.prefix}-cumulus_auth_add"
+  role          = var.lambda_processing_role_arn
+  handler       = "cumulus_lambda_functions.cumulus_auth_crud.lambda_function.auth_add"
+  runtime       = "python3.9"
+  timeout       = 300
+
+  environment {
+    variables = {
+      LOG_LEVEL = var.log_level
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
+    }
+  }
+
+  vpc_config {
+    subnet_ids         = var.cumulus_lambda_subnet_ids
+    security_group_ids = local.security_group_ids_set ? var.security_group_ids : [aws_security_group.unity_cumulus_lambda_sg[0].id]
+  }
+  tags = var.tags
+}
+
+resource "aws_lambda_function" "cumulus_auth_update" {
+  filename      = local.lambda_file_name
+  function_name = "${var.prefix}-cumulus_auth_update"
+  role          = var.lambda_processing_role_arn
+  handler       = "cumulus_lambda_functions.cumulus_auth_crud.lambda_function.auth_update"
+  runtime       = "python3.9"
+  timeout       = 300
+
+  environment {
+    variables = {
+      LOG_LEVEL = var.log_level
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
+    }
+  }
+
+  vpc_config {
+    subnet_ids         = var.cumulus_lambda_subnet_ids
+    security_group_ids = local.security_group_ids_set ? var.security_group_ids : [aws_security_group.unity_cumulus_lambda_sg[0].id]
+  }
+  tags = var.tags
+}
+
+resource "aws_lambda_function" "cumulus_auth_delete" {
+  filename      = local.lambda_file_name
+  function_name = "${var.prefix}-cumulus_auth_delete"
+  role          = var.lambda_processing_role_arn
+  handler       = "cumulus_lambda_functions.cumulus_auth_crud.lambda_function.auth_delete"
+  runtime       = "python3.9"
+  timeout       = 300
+
+  environment {
+    variables = {
+      LOG_LEVEL = var.log_level
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
+    }
+  }
+
+  vpc_config {
+    subnet_ids         = var.cumulus_lambda_subnet_ids
+    security_group_ids = local.security_group_ids_set ? var.security_group_ids : [aws_security_group.unity_cumulus_lambda_sg[0].id]
+  }
+  tags = var.tags
+}
+
+####
 resource "aws_lambda_function" "cumulus_collections_creation_dapa_facade" {
   filename      = local.lambda_file_name
   function_name = "${var.prefix}-cumulus_collections_creation_dapa_facade"

@@ -11,6 +11,10 @@ class UDSAuthorizorAbstract(ABC):
         return
 
     @abstractmethod
+    def list_groups(self, tenant: str, venue: str, ldap_group_names: list):
+        return
+
+    @abstractmethod
     def list_authorized_groups_for(self, tenant: str, venue: str):
         return
 
