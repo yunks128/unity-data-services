@@ -74,3 +74,8 @@ variable "uds_es_cluster_instance_type" {
   default = "r5.large.elasticsearch"
   description = "EC2 instance type for Opensearch"
 }
+
+variable "comma_separated_admin_groups" {
+  type = string
+  description = "comma separated cognito groups which will be authorized as ADMIN group"
+}

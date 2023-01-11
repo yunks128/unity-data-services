@@ -163,7 +163,7 @@ resource "aws_lambda_function" "cumulus_collections_creation_dapa" {
   }
   tags = var.tags
 }
-
+####
 resource "aws_lambda_function" "cumulus_es_setup_index_alias" {
   filename      = local.lambda_file_name
   function_name = "${var.prefix}-cumulus_es_setup_index_alias"
@@ -198,6 +198,7 @@ resource "aws_lambda_function" "cumulus_auth_list" {
   environment {
     variables = {
       LOG_LEVEL = var.log_level
+      ADMIN_COMMA_SEP_GROUPS = var.comma_separated_admin_groups
       ES_URL = aws_elasticsearch_domain.uds-es.endpoint
       ES_PORT = 443
     }
@@ -221,6 +222,7 @@ resource "aws_lambda_function" "cumulus_auth_add" {
   environment {
     variables = {
       LOG_LEVEL = var.log_level
+      ADMIN_COMMA_SEP_GROUPS = var.comma_separated_admin_groups
       ES_URL = aws_elasticsearch_domain.uds-es.endpoint
       ES_PORT = 443
     }
@@ -244,6 +246,7 @@ resource "aws_lambda_function" "cumulus_auth_update" {
   environment {
     variables = {
       LOG_LEVEL = var.log_level
+      ADMIN_COMMA_SEP_GROUPS = var.comma_separated_admin_groups
       ES_URL = aws_elasticsearch_domain.uds-es.endpoint
       ES_PORT = 443
     }
@@ -267,6 +270,7 @@ resource "aws_lambda_function" "cumulus_auth_delete" {
   environment {
     variables = {
       LOG_LEVEL = var.log_level
+      ADMIN_COMMA_SEP_GROUPS = var.comma_separated_admin_groups
       ES_URL = aws_elasticsearch_domain.uds-es.endpoint
       ES_PORT = 443
     }
