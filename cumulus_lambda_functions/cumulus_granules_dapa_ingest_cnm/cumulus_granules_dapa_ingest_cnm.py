@@ -2,10 +2,15 @@ import json
 import os
 
 from cumulus_lambda_functions.cumulus_wrapper.query_granules import GranulesQuery
+from cumulus_lambda_functions.lib.authorization.uds_authorizer_abstract import UDSAuthorizorAbstract
+from cumulus_lambda_functions.lib.authorization.uds_authorizer_factory import UDSAuthorizerFactory
 from cumulus_lambda_functions.lib.aws.aws_sns import AwsSns
 from cumulus_lambda_functions.lib.json_validator import JsonValidator
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
+from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
+from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
+from cumulus_lambda_functions.lib.utils.lambda_api_gateway_utils import LambdaApiGatewayUtils
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
@@ -46,11 +51,19 @@ class CumulusGranulesDapaIngestCnm:
         :param event:
         """
         LOGGER.debug(f'event: {event}')
-        if 'SNS_TOPIC_ARN' not in os.environ:
-            raise EnvironmentError('missing key: SNS_TOPIC_ARN')
+        required_env = ['SNS_TOPIC_ARN', 'COGNITO_UESR_POOL_ID', 'ES_URL']
+        if not all([k in os.environ for k in required_env]):
+            raise EnvironmentError(f'one or more missing env: {required_env}')
         self.__event = event
         self.__request_body = {}
         self.__sns_topic_arn = os.getenv('SNS_TOPIC_ARN')
+        self.__lambda_utils = LambdaApiGatewayUtils(self.__event, 10)
+        self.__authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory()\
+            .get_instance(UDSAuthorizerFactory.cognito,
+                          user_pool_id=os.getenv('COGNITO_UESR_POOL_ID'),
+                          es_url=os.getenv('ES_URL'),
+                          es_port=int(os.getenv('ES_PORT', '443'))
+                          )
 
     def __get_json_request_body(self):
         if 'body' not in self.__event:
@@ -156,6 +169,25 @@ Test Input message
         :return:
         """
         self.__get_json_request_body()
+        collection_ids = list(set([k['collection'] for k in self.__request_body['features']]))
+        if len(collection_ids) != 1:
+            return {
+                'statusCode': 500,
+                'body': json.dumps({'message': f'does not allow multiple collections in a single request', 'details': collection_ids})
+            }
+        auth_info = self.__lambda_utils.get_authorization_info()
+        collection_id = collection_ids[0]
+        collection_identifier = UdsCollections.decode_identifier(collection_id)
+        if not self.__authorizer.is_authorized_for_collection(DBConstants.create, collection_id, auth_info['ldap_groups'],
+                                                              collection_identifier.tenant,
+                                                              collection_identifier.venue):
+            LOGGER.debug(f'user: {auth_info["username"]} is not authorized for {collection_id}')
+            return {
+                'statusCode': 403,
+                'body': json.dumps({
+                    'message': 'not authorized to create an action'
+                })
+            }
         error_list = []
         for each_granule in self.__request_body['features']:
             LOGGER.debug(f'executing: {each_granule}')
