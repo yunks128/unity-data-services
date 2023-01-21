@@ -84,9 +84,8 @@ class AuthCrud:
         return len(belonged_admin_groups) > 0
 
     def __load_request_body(self):
-        if 'body' not in self.__event:
-            raise ValueError(f'missing body in {self.__event}')
-        self.__request_body = json.loads(self.__event['body'])
+        if 'body' in self.__event and self.__event['body'] is not None:
+            self.__request_body = json.loads(self.__event['body'])
         return
 
     def list_all_record(self):
