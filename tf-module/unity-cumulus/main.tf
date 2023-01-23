@@ -83,6 +83,8 @@ resource "aws_lambda_function" "cumulus_granules_dapa" {
 
   environment {
     variables = {
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
       CUMULUS_BASE = var.cumulus_base
       CUMULUS_LAMBDA_PREFIX = var.prefix
     }
@@ -105,6 +107,8 @@ resource "aws_lambda_function" "cumulus_collections_dapa" {
 
   environment {
     variables = {
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
       CUMULUS_BASE = var.cumulus_base
       CUMULUS_LAMBDA_PREFIX = var.prefix
     }
@@ -127,6 +131,8 @@ resource "aws_lambda_function" "cumulus_collections_ingest_cnm_dapa" {
 
   environment {
     variables = {
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
       LOG_LEVEL = var.log_level
       SNS_TOPIC_ARN = var.cnm_sns_topic_arn
     }
@@ -149,11 +155,41 @@ resource "aws_lambda_function" "cumulus_collections_creation_dapa" {
 
   environment {
     variables = {
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
       LOG_LEVEL = var.log_level
       CUMULUS_LAMBDA_PREFIX = var.prefix
       CUMULUS_WORKFLOW_SQS_URL = var.workflow_sqs_url
       CUMULUS_WORKFLOW_NAME = "CatalogGranule"
       UNITY_DEFAULT_PROVIDER = var.unity_default_provider
+    }
+  }
+
+  vpc_config {
+    subnet_ids         = var.cumulus_lambda_subnet_ids
+    security_group_ids = local.security_group_ids_set ? var.security_group_ids : [aws_security_group.unity_cumulus_lambda_sg[0].id]
+  }
+  tags = var.tags
+}
+
+resource "aws_lambda_function" "cumulus_collections_creation_dapa_facade" {
+  filename      = local.lambda_file_name
+  function_name = "${var.prefix}-cumulus_collections_creation_dapa_facade"
+  role          = var.lambda_processing_role_arn
+  handler       = "cumulus_lambda_functions.cumulus_collections_dapa.lambda_function.lambda_handler_ingestion"
+  runtime       = "python3.9"
+  timeout       = 300
+
+  environment {
+    variables = {
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
+      LOG_LEVEL = var.log_level
+      CUMULUS_LAMBDA_PREFIX = var.prefix
+      CUMULUS_WORKFLOW_SQS_URL = var.workflow_sqs_url
+      CUMULUS_WORKFLOW_NAME = "CatalogGranule"
+      UNITY_DEFAULT_PROVIDER = var.unity_default_provider
+      COLLECTION_CREATION_LAMBDA_NAME = aws_lambda_function.cumulus_collections_creation_dapa.arn
     }
   }
 
@@ -282,34 +318,7 @@ resource "aws_lambda_function" "cumulus_auth_delete" {
   }
   tags = var.tags
 }
-
 ####
-resource "aws_lambda_function" "cumulus_collections_creation_dapa_facade" {
-  filename      = local.lambda_file_name
-  function_name = "${var.prefix}-cumulus_collections_creation_dapa_facade"
-  role          = var.lambda_processing_role_arn
-  handler       = "cumulus_lambda_functions.cumulus_collections_dapa.lambda_function.lambda_handler_ingestion"
-  runtime       = "python3.9"
-  timeout       = 300
-
-  environment {
-    variables = {
-      LOG_LEVEL = var.log_level
-      CUMULUS_LAMBDA_PREFIX = var.prefix
-      CUMULUS_WORKFLOW_SQS_URL = var.workflow_sqs_url
-      CUMULUS_WORKFLOW_NAME = "CatalogGranule"
-      UNITY_DEFAULT_PROVIDER = var.unity_default_provider
-      COLLECTION_CREATION_LAMBDA_NAME = aws_lambda_function.cumulus_collections_creation_dapa.arn
-    }
-  }
-
-  vpc_config {
-    subnet_ids         = var.cumulus_lambda_subnet_ids
-    security_group_ids = local.security_group_ids_set ? var.security_group_ids : [aws_security_group.unity_cumulus_lambda_sg[0].id]
-  }
-  tags = var.tags
-}
-
 resource "aws_ssm_parameter" "cumulus_collections_dapa_ssm_param" {
   name  = "/unity/unity-ds/api-gateway/integrations/collections-dapa-function-name"
   type  = "String"
