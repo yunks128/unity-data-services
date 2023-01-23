@@ -72,7 +72,6 @@ class AuthCrud:
         self.__es_port = int(os.getenv('ES_PORT', '443'))
         self.__authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory() \
             .get_instance(UDSAuthorizerFactory.cognito,
-                          user_pool_id='NA',
                           es_url=self.__es_url,
                           es_port=self.__es_port
                           )

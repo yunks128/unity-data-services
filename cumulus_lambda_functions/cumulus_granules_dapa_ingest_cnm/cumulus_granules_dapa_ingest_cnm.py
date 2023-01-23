@@ -51,7 +51,7 @@ class CumulusGranulesDapaIngestCnm:
         :param event:
         """
         LOGGER.debug(f'event: {event}')
-        required_env = ['SNS_TOPIC_ARN', 'COGNITO_UESR_POOL_ID', 'ES_URL']
+        required_env = ['SNS_TOPIC_ARN', 'ES_URL']
         if not all([k in os.environ for k in required_env]):
             raise EnvironmentError(f'one or more missing env: {required_env}')
         self.__event = event
@@ -60,7 +60,6 @@ class CumulusGranulesDapaIngestCnm:
         self.__lambda_utils = LambdaApiGatewayUtils(self.__event, 10)
         self.__authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory()\
             .get_instance(UDSAuthorizerFactory.cognito,
-                          user_pool_id=os.getenv('COGNITO_UESR_POOL_ID'),
                           es_url=os.getenv('ES_URL'),
                           es_port=int(os.getenv('ES_PORT', '443'))
                           )

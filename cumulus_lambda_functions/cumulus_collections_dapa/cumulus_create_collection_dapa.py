@@ -18,7 +18,7 @@ LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_le
 
 class CumulusCreateCollectionDapa:
     def __init__(self, event):
-        required_env = ['CUMULUS_LAMBDA_PREFIX', 'CUMULUS_WORKFLOW_SQS_URL', 'COGNITO_UESR_POOL_ID', 'ES_URL']
+        required_env = ['CUMULUS_LAMBDA_PREFIX', 'CUMULUS_WORKFLOW_SQS_URL', 'ES_URL']
         if not all([k in os.environ for k in required_env]):
             raise EnvironmentError(f'one or more missing env: {required_env}')
         self.__event = event
@@ -34,7 +34,6 @@ class CumulusCreateCollectionDapa:
         self.__lambda_utils = LambdaApiGatewayUtils(self.__event, 10)
         self.__authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory()\
             .get_instance(UDSAuthorizerFactory.cognito,
-                          user_pool_id=os.getenv('COGNITO_UESR_POOL_ID'),
                           es_url=self.__es_url,
                           es_port=self.__es_port
                           )
