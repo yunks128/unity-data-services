@@ -24,7 +24,7 @@ class CumulusGranulesDapa:
         :param event:
         """
         LOGGER.info(f'event: {event}')
-        required_env = ['CUMULUS_BASE', 'CUMULUS_LAMBDA_PREFIX', 'COGNITO_UESR_POOL_ID', 'ES_URL']
+        required_env = ['CUMULUS_BASE', 'CUMULUS_LAMBDA_PREFIX', 'ES_URL']
         if not all([k in os.environ for k in required_env]):
             raise EnvironmentError(f'one or more missing env: {required_env}')
 
@@ -49,7 +49,6 @@ class CumulusGranulesDapa:
         self.__lambda_utils = LambdaApiGatewayUtils(self.__event, self.__limit)
         self.__authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory()\
             .get_instance(UDSAuthorizerFactory.cognito,
-                          user_pool_id=os.environ.get('COGNITO_UESR_POOL_ID'),
                           es_url=os.getenv('ES_URL'),
                           es_port=int(os.getenv('ES_PORT', '443'))
                           )

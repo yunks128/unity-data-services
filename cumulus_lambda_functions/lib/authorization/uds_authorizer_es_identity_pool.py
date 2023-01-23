@@ -12,7 +12,7 @@ LOGGER = logging.getLogger(__name__)
 
 class UDSAuthorizorEsIdentityPool(UDSAuthorizorAbstract):
 
-    def __init__(self, user_pool_id: str, es_url: str, es_port=443) -> None:
+    def __init__(self, es_url: str, es_port=443) -> None:
         super().__init__()
         self.__es: ESAbstract = ESFactory().get_instance('AWS',
                                                          index=DBConstants.authorization_index,
