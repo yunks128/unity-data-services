@@ -177,7 +177,7 @@ curl --request POST "$CUMULUS_BASEURL/rules" --header "Authorization: Bearer $cu
         rule_body = {
             'workflow': workflow_name,
             'collection': {
-                'name': new_collection['name'],
+                'name': new_collection['name'].replace(':', '___'),
                 'version': new_collection['version'],
             },
             # 'provider': provider_name,
@@ -199,6 +199,7 @@ curl --request POST "$CUMULUS_BASEURL/rules" --header "Authorization: Bearer $cu
         }
         if provider_name is not None and provider_name != '':
             rule_body['provider'] = provider_name
+        LOGGER.info(f'rule_body: {rule_body}')
         payload = {
             'httpMethod': 'POST',
             'resource': '/{proxy+}',

@@ -87,8 +87,11 @@ class CumulusCollectionsDapa:
             ldap_groups = self.__lambda_utils.get_authorization_info()['ldap_groups']
 
             collection_regexes = self.__authorizer.get_authorized_collections(DBConstants.read, ldap_groups)
+            LOGGER.info(f'collection_regexes: {collection_regexes}')
             authorized_collections = self.__uds_collections.get_collections(collection_regexes)
+            LOGGER.info(f'authorized_collections: {authorized_collections}')
             authorized_collection_ids = [k[DBConstants.collection_id] for k in authorized_collections]
+            LOGGER.info(f'authorized_collection_ids: {authorized_collection_ids}')
             # NOTE: 2022-11-21: only pass collections. not versions
             self.__cumulus.with_collections(authorized_collection_ids)
             cumulus_result = self.__cumulus.query_direct_to_private_api(self.__cumulus_lambda_prefix)

@@ -38,6 +38,7 @@ class TestDapaStac(TestCase):
             "resources": ["urn:nasa:unity:uds_local_test:DEV1:.*"],
             "tenant": "uds_local_test",
             "venue": f"DEV1-{int(datetime.utcnow().timestamp())}",
+            # "venue": f"DEV1",
             "group_name": "Unity_Viewer"
         }
         response = requests.put(url=collection_url, headers={
@@ -59,7 +60,7 @@ class TestDapaStac(TestCase):
         collection_url = f'{os.environ.get("UNITY_URL")}/am-uds-dapa/admin/auth'
         admin_add_body = {
             "tenant": "uds_local_test",
-            "venue": "DEV1-1674626153",
+            "venue": "DEV1-1674680116",
             "group_name": "Unity_Viewer"
         }
         response = requests.delete(url=collection_url, headers={

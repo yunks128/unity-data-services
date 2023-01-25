@@ -2,10 +2,13 @@ import logging
 from collections import namedtuple
 from datetime import datetime
 
+from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
+
 from cumulus_lambda_functions.lib.aws.es_abstract import ESAbstract
 from cumulus_lambda_functions.lib.aws.es_factory import ESFactory
 from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
-LOGGER = logging.getLogger(__name__)
+# LOGGER = logging.getLogger(__name__)
+LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
 CollectionIdentifier = namedtuple('CollectionIdentifier', ['urn', 'nasa', 'project', 'tenant', 'venue', 'id'])
@@ -48,16 +51,23 @@ class UdsCollections:
         return self
 
     def add_collection(self, collection_id: str, start_time: int, end_time: int, bbox: list, granules_count: int=0):
-        self.__es.index_one({
+
+        indexing_dict = {
             self.collection_id: collection_id,
             self.granule_count: granules_count,
             self.start_time: start_time,
             self.end_time: end_time,
-            self.bbox: {
+        }
+        # NOTE: a pint is not a polygon
+        if len(set(bbox)) > 2:  # TODO a line is good enough for polygon?
+            bbox_geoshape = {
                 'type': 'polygon',
                 'coordinates': [self.__bbox_to_polygon(bbox)]
-            },
-        }, collection_id, DBConstants.collections_index)
+            }
+            LOGGER.debug(f'geo-shape: {bbox_geoshape}')
+            indexing_dict[self.bbox] = bbox_geoshape
+
+        self.__es.index_one(indexing_dict, collection_id, DBConstants.collections_index)
         return self
 
     def get_collections(self, collection_regex: list):
