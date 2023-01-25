@@ -17,7 +17,6 @@ class CollectionsQuery(CumulusBase):
     __collection_name = 'name'
     __collection_version = 'version'
 
-
     def __init__(self, cumulus_base: str, cumulus_token: str):
         super().__init__(cumulus_base, cumulus_token)
 
@@ -29,6 +28,10 @@ class CollectionsQuery(CumulusBase):
 
         return self
 
+    def with_collections(self, collection_ids: list):
+        collection_names = [k.split('___')[0] for k in collection_ids]
+        self._conditions.append(f'{self.__collection_name}__in={",".join(collection_names)}')
+        return self
     def get_size(self, private_api_prefix: str):
         query_params = {'field': 'status', 'type': 'collections'}
         main_conditions = {k[0]: k[1] for k in [k1.split('=') for k1 in self._conditions]}
@@ -174,7 +177,7 @@ curl --request POST "$CUMULUS_BASEURL/rules" --header "Authorization: Bearer $cu
         rule_body = {
             'workflow': workflow_name,
             'collection': {
-                'name': new_collection['name'],
+                'name': new_collection['name'].replace(':', '___'),
                 'version': new_collection['version'],
             },
             # 'provider': provider_name,
@@ -196,6 +199,7 @@ curl --request POST "$CUMULUS_BASEURL/rules" --header "Authorization: Bearer $cu
         }
         if provider_name is not None and provider_name != '':
             rule_body['provider'] = provider_name
+        LOGGER.info(f'rule_body: {rule_body}')
         payload = {
             'httpMethod': 'POST',
             'resource': '/{proxy+}',

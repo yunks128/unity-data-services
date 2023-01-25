@@ -54,7 +54,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
             'Authorization': f'Bearer {bearer_token}',
             # 'Content-Type': 'application/json',
         }
-        temp_collection_id = f'CUMULUS_DAPA_UNIT_TEST___{int(datetime.utcnow().timestamp())}'
+        temp_collection_id = f'urn:nasa:unity:uds_local_test:DEV1:CUMULUS_DAPA_UNIT_TEST___{int(datetime.utcnow().timestamp())}'
         dapa_collection = UnityCollectionStac() \
             .with_id(temp_collection_id) \
             .with_graule_id_regex("^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}0$") \
