@@ -54,20 +54,31 @@ class TestCumulusCreateCollectionDapa(TestCase):
             'Authorization': f'Bearer {bearer_token}',
             # 'Content-Type': 'application/json',
         }
-        temp_collection_id = f'CUMULUS_DAPA_UNIT_TEST___{int(datetime.utcnow().timestamp())}'
+        temp_collection_id = f'urn:nasa:unity:uds_local_test:DEV1:CUMULUS_DAPA_UNIT_TEST___{int(datetime.utcnow().timestamp())}'
+        # dapa_collection = UnityCollectionStac() \
+        #     .with_id(temp_collection_id) \
+        #     .with_graule_id_regex("^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}0$") \
+        #     .with_granule_id_extraction_regex("(P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}0).+") \
+        #     .with_title("P1570515ATMSSCIENCEAXT11344000000001.PDS") \
+        #     .with_process('modis') \
+        #     .with_provider('unity')\
+        #     .add_file_type("P1570515ATMSSCIENCEAXT11344000000000.PDS.cmr.xml",
+        #                    "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}00.PDS.cmr.xml$", 'internal', 'metadata', 'item') \
+        #     .add_file_type("P1570515ATMSSCIENCEAXT11344000000001.PDS.xml",
+        #                    "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}01\\.PDS\\.xml$", 'internal', 'metadata', 'item') \
+        #     .add_file_type("P1570515ATMSSCIENCEAXT11344000000000.PDS", "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}00\\.PDS$",
+        #                    'internal', 'data', 'item')
+
         dapa_collection = UnityCollectionStac() \
             .with_id(temp_collection_id) \
-            .with_graule_id_regex("^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}0$") \
-            .with_granule_id_extraction_regex("(P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}0).+") \
-            .with_title("P1570515ATMSSCIENCEAXT11344000000001.PDS") \
-            .with_process('modis') \
-            .with_provider('unity')\
-            .add_file_type("P1570515ATMSSCIENCEAXT11344000000000.PDS.cmr.xml",
-                           "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}00.PDS.cmr.xml$", 'internal', 'metadata', 'item') \
-            .add_file_type("P1570515ATMSSCIENCEAXT11344000000001.PDS.xml",
-                           "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}01\\.PDS\\.xml$", 'internal', 'metadata', 'item') \
-            .add_file_type("P1570515ATMSSCIENCEAXT11344000000000.PDS", "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}00\\.PDS$",
-                           'internal', 'data', 'item')
+            .with_graule_id_regex("^test_file.*$") \
+            .with_granule_id_extraction_regex("(^test_file.*)(\.nc|\.nc\.cas|\.cmr\.xml)") \
+            .with_title("test_file01.nc") \
+            .with_process('snpp.level1') \
+            .with_provider('unity') \
+            .add_file_type("test_file01.cmr.xml", "^test_file.*\\.cmr\\.xml$", 'private', 'metadata', 'item') \
+            .add_file_type("test_file01.nc.cas", "^test_file.*\\.nc\\.cas$", 'protected', 'metadata', 'item') \
+            .add_file_type("test_file01.nc", "^test_file.*\\.nc$", 'protected', 'data', 'item')
         stac_collection = dapa_collection.start()
 
         print(json.dumps(stac_collection))
