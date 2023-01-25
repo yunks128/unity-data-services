@@ -16,7 +16,7 @@ class TestLUploadGranules(unittest.TestCase):
         os.environ['CLIENT_ID'] = '71g0c73jl77gsqhtlfg2ht388c'
         os.environ['COGNITO_URL'] = 'https://cognito-idp.us-west-2.amazonaws.com'
 
-        os.environ['COLLECTION_ID'] = 'NEW_COLLECTION_EXAMPLE_L1B___9'
+        os.environ['COLLECTION_ID'] = 'urn:nasa:unity:uds_local_test:DEV1:CUMULUS_DAPA_UNIT_TEST___1674695854'
         os.environ['PROVIDER_ID'] = 'SNPP'
         os.environ['UPLOAD_DIR'] = '/tmp/snpp_upload_test_1'
         # os.environ['STAGING_BUCKET'] = 'am-uds-dev-cumulus-staging'

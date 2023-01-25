@@ -167,7 +167,14 @@ Test Input message
 }
         :return:
         """
-        self.__get_json_request_body()
+        try:
+            self.__get_json_request_body()
+        except Exception as e:
+            LOGGER.exception('error while getting request body')
+            return {
+                'statusCode': 422,
+                'body': json.dumps({'message': f'error while getting request body: {str(e)}'})
+            }
         collection_ids = list(set([k['collection'] for k in self.__request_body['features']]))
         if len(collection_ids) != 1:
             return {
