@@ -177,11 +177,11 @@ curl --request POST "$CUMULUS_BASEURL/rules" --header "Authorization: Bearer $cu
         rule_body = {
             'workflow': workflow_name,
             'collection': {
-                'name': new_collection['name'].replace(':', '___'),
+                'name': new_collection['name'],
                 'version': new_collection['version'],
             },
             # 'provider': provider_name,
-            'name': f'{new_collection["name"]}___{new_collection["version"]}___rules_sqs',
+            'name': f'{new_collection["name"].replace(":", "___")}___{new_collection["version"]}___rules_sqs',
             'rule': {
                 # 'type': 'onetime',
                 'type': 'sqs',
