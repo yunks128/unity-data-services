@@ -9,6 +9,7 @@ from cumulus_lambda_functions.lib.authorization.uds_authorizer_abstract import U
 from cumulus_lambda_functions.lib.authorization.uds_authorizer_factory import UDSAuthorizerFactory
 from cumulus_lambda_functions.lib.aws.aws_lambda import AwsLambda
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
+from cumulus_lambda_functions.lib.time_utils import TimeUtils
 from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
 from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
 from cumulus_lambda_functions.lib.utils.lambda_api_gateway_utils import LambdaApiGatewayUtils
@@ -57,8 +58,8 @@ class CumulusCreateCollectionDapa:
                 time_range = collection_transformer.get_collection_time_range()
                 uds_collection.add_collection(
                     collection_id=collection_transformer.get_collection_id(),
-                    start_time=time_range[0],  # TODO convert to timestamp
-                    end_time=time_range[1],  # TODO convert to timestamp
+                    start_time=TimeUtils().set_datetime_obj(time_range[0][0]).get_datetime_unix(True),
+                    end_time=TimeUtils().set_datetime_obj(time_range[0][1]).get_datetime_unix(True),
                     bbox=collection_transformer.get_collection_bbox(),
                     granules_count=0,
                 )
