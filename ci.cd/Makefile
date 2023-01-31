@@ -29,7 +29,16 @@ update_lambda_function_4:
 	aws --profile saml-pub lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket am-uds-dev-cumulus-tf-state --function-name arn:aws:lambda:us-west-2:884500545225:function:am-uds-dev-cumulus-cumulus_collections_creation_dapa --publish &>/dev/null
 update_lambda_function_5:
 	aws --profile saml-pub lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket am-uds-dev-cumulus-tf-state --function-name arn:aws:lambda:us-west-2:884500545225:function:am-uds-dev-cumulus-cumulus_collections_creation_dapa_facade --publish &>/dev/null
+update_lambda_function_6:
+	aws --profile saml-pub lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket am-uds-dev-cumulus-tf-state --function-name arn:aws:lambda:us-west-2:884500545225:function:am-uds-dev-cumulus-cumulus_es_setup_index_alias --publish &>/dev/null
+update_lambda_function_auth_list:
+	aws --profile saml-pub lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket am-uds-dev-cumulus-tf-state --function-name arn:aws:lambda:us-west-2:884500545225:function:am-uds-dev-cumulus-cumulus_auth_list --publish &>/dev/null
+update_lambda_function_auth_add:
+	aws --profile saml-pub lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket am-uds-dev-cumulus-tf-state --function-name arn:aws:lambda:us-west-2:884500545225:function:am-uds-dev-cumulus-cumulus_auth_add --publish &>/dev/null
+update_lambda_function_auth_delete:
+	aws --profile saml-pub lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket am-uds-dev-cumulus-tf-state --function-name arn:aws:lambda:us-west-2:884500545225:function:am-uds-dev-cumulus-cumulus_auth_delete --publish &>/dev/null
 
+jpl_cloud_test_1: build_lambda upload_lambda update_lambda_function_1 update_lambda_function_6 update_lambda_function_auth_list update_lambda_function_auth_delete
 
 upload_lambda_mcp_dev:
 	aws s3 cp cumulus_lambda_functions_deployment.zip s3://uds-dev-cumulus-public/unity_cumulus_lambda/
@@ -41,7 +50,14 @@ update_lambda_function_mcp_dev_4:
 	aws lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket uds-dev-cumulus-public --function-name arn:aws:lambda:us-west-2:237868187491:function:uds-dev-cumulus-cumulus_collections_creation_dapa --publish &>/dev/null
 update_lambda_function_mcp_dev_5:
 	aws lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket uds-dev-cumulus-public --function-name arn:aws:lambda:us-west-2:237868187491:function:uds-dev-cumulus-cumulus_collections_creation_dapa_facade --publish &>/dev/null
+update_lambda_function_mcp_dev_auth_list:
+	aws lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket uds-dev-cumulus-public --function-name arn:aws:lambda:us-west-2:237868187491:function:uds-dev-cumulus-cumulus_auth_list --publish &>/dev/null
+update_lambda_function_mcp_dev_auth_add:
+	aws lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket uds-dev-cumulus-public --function-name arn:aws:lambda:us-west-2:237868187491:function:uds-dev-cumulus-cumulus_auth_add --publish &>/dev/null
+update_lambda_function_mcp_dev_auth_delete:
+	aws lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket uds-dev-cumulus-public --function-name arn:aws:lambda:us-west-2:237868187491:function:uds-dev-cumulus-cumulus_auth_delete --publish &>/dev/null
 
-mcp_dev: upload_lambda_mcp_dev update_lambda_function_mcp_dev_1 update_lambda_function_mcp_dev_2 update_lambda_function_mcp_dev_4 update_lambda_function_mcp_dev_5
+
+mcp_dev: build_lambda upload_lambda_mcp_dev update_lambda_function_mcp_dev_1 update_lambda_function_mcp_dev_2 update_lambda_function_mcp_dev_4 update_lambda_function_mcp_dev_5 update_lambda_function_mcp_dev_auth_list update_lambda_function_mcp_dev_auth_add update_lambda_function_mcp_dev_auth_delete
 
 
