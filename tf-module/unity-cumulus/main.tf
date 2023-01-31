@@ -342,3 +342,28 @@ resource "aws_ssm_parameter" "cumulus_granules_dapa_ssm_param" {
   type  = "String"
   value = aws_lambda_function.cumulus_granules_dapa.function_name
 }
+
+
+resource "aws_ssm_parameter" "cumulus_auth_list_ssm_param" {
+  name  = "/unity/unity-ds/api-gateway/integrations/cumulus_auth_list-function-name"
+  type  = "String"
+  value = aws_lambda_function.cumulus_auth_list.function_name
+}
+
+resource "aws_ssm_parameter" "cumulus_auth_add_ssm_param" {
+  name  = "/unity/unity-ds/api-gateway/integrations/cumulus_auth_add-function-name"
+  type  = "String"
+  value = aws_lambda_function.cumulus_auth_add.function_name
+}
+
+resource "aws_ssm_parameter" "cumulus_auth_delete_ssm_param" {
+  name  = "/unity/unity-ds/api-gateway/integrations/cumulus_auth_delete-function-name"
+  type  = "String"
+  value = aws_lambda_function.cumulus_auth_delete.function_name
+}
+
+resource "aws_ssm_parameter" "cumulus_es_setup_index_alias_ssm_param" {
+  name  = "/unity/unity-ds/api-gateway/integrations/cumulus_es_setup_index_alias-function-name"
+  type  = "String"
+  value = aws_lambda_function.cumulus_es_setup_index_alias.function_name
+}
