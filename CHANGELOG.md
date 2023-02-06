@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.0] - 2023-01-23
 ### Breaking
-- [#...](https://github.com/unity-sds/unity-data-services/pull/...) breakup upload and download dockers into search + download & upload + register
+- [#120](https://github.com/unity-sds/unity-data-services/pull/120) breakup upload and download dockers into search + download & upload + catalog
 
 ## [1.10.1] - 2023-01-23
 ### Fixed
