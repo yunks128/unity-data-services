@@ -2,6 +2,7 @@ import logging
 import os
 from sys import argv
 
+from cumulus_lambda_functions.stage_in_out.catalog_granules_factory import CatalogGranulesFactory
 from cumulus_lambda_functions.stage_in_out.download_granules_s3 import DownloadGranulesS3
 from cumulus_lambda_functions.stage_in_out.search_granules_factory import SearchGranulesFactory
 from cumulus_lambda_functions.stage_in_out.upoad_granules_factory import UploadGranulesFactory
@@ -17,6 +18,9 @@ def choose_process():
     if argv[1].strip().upper() == 'UPLOAD':
         logging.info('starting UPLOAD script')
         return UploadGranulesFactory().get_class(os.getenv('GRANULES_UPLOAD_TYPE', 'MISSING_GRANULES_UPLOAD_TYPE')).upload()
+    if argv[1].strip().upper() == 'CATALOG':
+        logging.info('starting CATALOG script')
+        return CatalogGranulesFactory().get_class(os.getenv('GRANULES_CATALOG_TYPE', 'MISSING_GRANULES_CATALOG_TYPE')).catalog()
     raise ValueError(f'invalid argument: {argv}')
 
 
