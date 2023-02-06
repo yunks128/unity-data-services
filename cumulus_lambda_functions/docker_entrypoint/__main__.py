@@ -27,4 +27,4 @@ def choose_process():
 if __name__ == '__main__':
     logging.basicConfig(level=int(os.environ.get('LOG_LEVEL', '10')),
                         format="%(asctime)s [%(levelname)s] [%(name)s::%(lineno)d] %(message)s")
-    choose_process()
+    print(choose_process())

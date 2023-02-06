@@ -1,6 +1,6 @@
 version: "3.7"
 services:
-  cumulus_granules_download:
+  cumulus_granules_upload:
     image: ghcr.io/unity-sds/unity-data-services:1.7.0
     volumes:
       - /tmp/cumulus_granules:/etc/granules
@@ -10,6 +10,8 @@ services:
       AWS_SECRET_ACCESS_KEY: 'dddd'
       AWS_SESSION_TOKEN: 'dddd'
       AWS_REGION: 'us-west-2'
+
+      PYTHONUNBUFFERED: 1
 
       UNITY_BEARER_TOKEN: 'token without the header "Bearer". The alternative is the following group'
 
