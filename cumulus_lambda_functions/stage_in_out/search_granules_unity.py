@@ -42,7 +42,7 @@ class SearchGranulesUnity(SearchGranulesAbstract):
         self.__verify_ssl = os.environ.get(self.VERIFY_SSL_KEY, 'TRUE').strip().upper() == 'TRUE'
         return self
 
-    def search(self, **kwargs) -> list:
+    def search(self, **kwargs) -> str:
         self.__set_props_from_env()
         dapa_client = DapaClient().with_verify_ssl(self.__verify_ssl)
         granules_result = dapa_client.get_granules(self.__collection_id, self.__limit, 0, self.__date_from,
