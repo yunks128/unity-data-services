@@ -1,0 +1,37 @@
+version: "3.7"
+services:
+  cumulus_granules_upload:
+    image: ghcr.io/unity-sds/unity-data-services:1.7.0
+    volumes:
+      - /tmp/cumulus_granules:/etc/granules
+    command: ["UPLOAD"]
+    environment:
+      AWS_ACCESS_KEY_ID: 'dd'
+      AWS_SECRET_ACCESS_KEY: 'dddd'
+      AWS_SESSION_TOKEN: 'dddd'
+      AWS_REGION: 'us-west-2'
+
+      PYTHONUNBUFFERED: 1
+
+      UNITY_BEARER_TOKEN: 'token without the header "Bearer". The alternative is the following group'
+
+      USERNAME: 'plain text | AWS parameter store key | base64 encoded str'
+      PASSWORD: 'plain text | AWS parameter store key | base64 encoded str'
+      PASSWORD_TYPE: 'PLAIN | PARAM_STORE | BASE64'
+      CLIENT_ID: 'ask U-CS. ex: 7a1fglm2d54eoggj13lccivp25'
+      COGNITO_URL: 'ask U-CS. ex: https://cognito-idp.us-west-2.amazonaws.com'
+
+      VERIFY_SSL: 'FALSE'
+      DAPA_API: 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
+      COLLECTION_ID: 'NEW_COLLECTION_EXAMPLE_L1B___9'
+      STAGING_BUCKET: 'uds-test-cumulus-staging'
+      DELETE_FILES: 'FALSE'
+
+      GRANULES_SEARCH_DOMAIN: 'UNITY'
+      GRANULES_UPLOAD_TYPE: 'S3'
+      UPLOAD_DIR: '/etc/snpp_upload_test_1'
+      LOG_LEVEL: '20'
+    networks:
+      - internal
+networks:
+  internal:

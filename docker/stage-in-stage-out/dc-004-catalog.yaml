@@ -1,15 +1,15 @@
 version: "3.7"
 services:
-  cumulus_granules_upload:
-    image: ghcr.io/unity-sds/unity-data-services:1.10.1
-    volumes:
-      - /tmp/snpp_upload_test_1:/etc/snpp_upload_test_1
-    command: ["upload"]
+  cumulus_granules_catalog:
+    image: ghcr.io/unity-sds/unity-data-services:1.7.0
+    command: ["CATALOG"]
     environment:
       AWS_ACCESS_KEY_ID: 'dd'
       AWS_SECRET_ACCESS_KEY: 'dddd'
       AWS_SESSION_TOKEN: 'dddd'
       AWS_REGION: 'us-west-2'
+
+      PYTHONUNBUFFERED: 1
 
       UNITY_BEARER_TOKEN: 'token without the header "Bearer". The alternative is the following group'
 
@@ -19,14 +19,14 @@ services:
       CLIENT_ID: 'ask U-CS. ex: 7a1fglm2d54eoggj13lccivp25'
       COGNITO_URL: 'ask U-CS. ex: https://cognito-idp.us-west-2.amazonaws.com'
 
-      DAPA_API: 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
-      COLLECTION_ID: 'SNDR_SNPP_ATMS_L1A___1'
-      STAGING_BUCKET: 'am-uds-dev-cumulus-staging'
-      UPLOAD_DIR: '/etc/snpp_upload_test_1'
-      PROVIDER_ID: 'SNPP'
       VERIFY_SSL: 'FALSE'
-      DELETE_FILES: 'FALSE'
+      DAPA_API: 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
+
       LOG_LEVEL: '20'
+
+      PROVIDER_ID: 'SNPP'
+      GRANULES_CATALOG_TYPE: 'UNITY'
+      UPLOADED_FILES_JSON: '[{"id": "NEW_COLLECTION_EXAMPLE_L1B___9:test_file01", "collection": "NEW_COLLECTION_EXAMPLE_L1B___9", "assets": {"metadata": {"href": "s3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.cas"}, "data": {"href": "s3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc"}}}]'
     networks:
       - internal
 networks:
