@@ -18,4 +18,5 @@
 
     - There are 3 `PASSWORD_TYPE`: `PLAIN | PARAM_STORE | BASE64`. If missing `PLAIN` is assumed. 
     - `USERNAME` and `PASSWORD` needs to be set accordingly. 
+- sample docker-compose files in stage-in / stage-out in stage-in-stage-out direcotry
         
