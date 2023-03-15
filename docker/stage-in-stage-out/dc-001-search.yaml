@@ -1,10 +1,8 @@
 version: "3.7"
 services:
-  cumulus_granules_download:
+  cumulus_granules_search:
     image: ghcr.io/unity-sds/unity-data-services:1.7.0
-    volumes:
-      - /tmp/cumulus_granules:/etc/granules
-    command: ["download"]
+    command: ["SEARCH"]
     environment:
       AWS_ACCESS_KEY_ID: 'dd'
       AWS_SECRET_ACCESS_KEY: 'dddd'
@@ -21,11 +19,12 @@ services:
 
       DAPA_API: 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
       COLLECTION_ID: 'ATMS_SCIENCE_Group___001'
-      DOWNLOAD_DIR: '/etc/granules'
       LIMITS: '100'
       DATE_FROM: '2016-01-17T00:00:00Z'
       DATE_TO: '2016-01-17T12:00:00Z'
       VERIFY_SSL: 'FALSE'
+
+      GRANULES_SEARCH_DOMAIN: 'UNITY'
       LOG_LEVEL: '20'
     networks:
       - internal

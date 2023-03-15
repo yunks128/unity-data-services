@@ -1,31 +1,34 @@
+import json
+
+from cumulus_lambda_functions.stage_in_out.search_collections_factory import SearchCollectionsFactory
+from cumulus_lambda_functions.stage_in_out.search_granules_factory import SearchGranulesFactory
+from cumulus_lambda_functions.stage_in_out.upload_granules_abstract import UploadGranulesAbstract
 import logging
 import os
 import re
 from collections import defaultdict
 from glob import glob
-from urllib.parse import urlparse, unquote_plus
 
-from cumulus_lambda_functions.cumulus_dapa_client.dapa_client import DapaClient
 from cumulus_lambda_functions.cumulus_stac.collection_transformer import CollectionTransformer
 from cumulus_lambda_functions.lib.aws.aws_s3 import AwsS3
 
 LOGGER = logging.getLogger(__name__)
 
 
-class UploadGranules:
+class UploadGranulesS3(UploadGranulesAbstract):
     COLLECTION_ID_KEY = 'COLLECTION_ID'
-    PROVIDER_ID_KEY = 'PROVIDER_ID'
     UPLOAD_DIR_KEY = 'UPLOAD_DIR'
     STAGING_BUCKET_KEY = 'STAGING_BUCKET'
+    GRANULES_SEARCH_DOMAIN = 'GRANULES_SEARCH_DOMAIN'
 
     VERIFY_SSL_KEY = 'VERIFY_SSL'
     DELETE_FILES_KEY = 'DELETE_FILES'
 
-    def __init__(self):
+    def __init__(self) -> None:
+        super().__init__()
         self.__collection_id = ''
         self.__collection_details = {}
         self.__uploading_granules = []
-        self.__provider_id = ''
         self.__staging_bucket = ''
         self.__upload_dir = '/tmp'
         self.__verify_ssl = True
@@ -34,12 +37,11 @@ class UploadGranules:
         self.__raw_files = []
 
     def __set_props_from_env(self):
-        missing_keys = [k for k in [self.COLLECTION_ID_KEY, self.PROVIDER_ID_KEY, self.UPLOAD_DIR_KEY, self.STAGING_BUCKET_KEY] if k not in os.environ]
+        missing_keys = [k for k in [self.COLLECTION_ID_KEY, self.GRANULES_SEARCH_DOMAIN, self.UPLOAD_DIR_KEY, self.STAGING_BUCKET_KEY] if k not in os.environ]
         if len(missing_keys) > 0:
             raise ValueError(f'missing environment keys: {missing_keys}')
 
         self.__collection_id = os.environ.get(self.COLLECTION_ID_KEY)
-        self.__provider_id = os.environ.get(self.PROVIDER_ID_KEY)
         self.__staging_bucket = os.environ.get(self.STAGING_BUCKET_KEY)
 
         self.__upload_dir = os.environ.get(self.UPLOAD_DIR_KEY)
@@ -91,22 +93,12 @@ class UploadGranules:
             href_dict['href'] = s3_url
         return self
 
-    def start(self):
-        """
-
-        1. recursively get all files from upload dir
-        2. use collection id to get the links
-        3. group files from step-1 into granules
-        4. get granule ID ???
-        5. upload to staging bucket with granuleID as key
-        6. call DAPA endpoint to start the registration to cumulus
-        :return:
-        """
+    def upload(self, **kwargs) -> list:
         self.__set_props_from_env()
         LOGGER.debug(f'listing files recursively in dir: {self.__upload_dir}')
         self.__raw_files = glob(f'{self.__upload_dir}/**/*', recursive=True)
-        dapa_client = DapaClient().with_verify_ssl(self.__verify_ssl)
-        self.__collection_details = dapa_client.get_collection(self.__collection_id)
+        self.__collection_details = SearchCollectionsFactory().get_class(os.getenv('GRANULES_SEARCH_DOMAIN', 'MISSING_GRANULES_SEARCH_DOMAIN')).search()
+        self.__collection_details = json.loads(self.__collection_details)
         on_disk_granules = self.__sort_granules()
         LOGGER.debug(f'on_disk_granules: {on_disk_granules}')
         dapa_body_granules = []
@@ -118,10 +110,4 @@ class UploadGranules:
                 'assets': granule_hrefs,
             })
         LOGGER.debug(f'dapa_body_granules: {dapa_body_granules}')
-        dapa_body = {
-            "provider_id": self.__provider_id,
-            "features": dapa_body_granules
-        }
-        LOGGER.debug(f'dapa_body_granules: {dapa_body}')
-        dapa_ingest_result = dapa_client.ingest_granules_w_cnm(dapa_body)
-        return dapa_body
+        return dapa_body_granules

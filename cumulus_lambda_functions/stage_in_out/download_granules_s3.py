@@ -1,48 +1,31 @@
+from cumulus_lambda_functions.stage_in_out.download_granules_abstract import DownloadGranulesAbstract
 import json
 import logging
 import os
 
-from cumulus_lambda_functions.cumulus_dapa_client.dapa_client import DapaClient
 from cumulus_lambda_functions.lib.aws.aws_s3 import AwsS3
 from cumulus_lambda_functions.lib.utils.file_utils import FileUtils
 
 LOGGER = logging.getLogger(__name__)
 
 
-class DownloadGranules:
-    COLLECTION_ID_KEY = 'COLLECTION_ID'
+class DownloadGranulesS3(DownloadGranulesAbstract):
     DOWNLOAD_DIR_KEY = 'DOWNLOAD_DIR'
+    STAC_JSON = 'STAC_JSON'
 
-    LIMITS_KEY = 'LIMITS'
-    DATE_FROM_KEY = 'DATE_FROM'
-    DATE_TO_KEY = 'DATE_TO'
-    VERIFY_SSL_KEY = 'VERIFY_SSL'
-
-    def __init__(self):
-        self.__collection_id = ''
-        self.__date_from = ''
-        self.__date_to = ''
-        self.__limit = 1000
+    def __init__(self) -> None:
+        super().__init__()
         self.__download_dir = '/tmp'
-        self.__verify_ssl = True
         self.__s3 = AwsS3()
+        self.__granules_json = []
 
     def __set_props_from_env(self):
-        missing_keys = [k for k in [self.COLLECTION_ID_KEY, self.DOWNLOAD_DIR_KEY] if k not in os.environ]
+        missing_keys = [k for k in [self.STAC_JSON, self.DOWNLOAD_DIR_KEY] if k not in os.environ]
         if len(missing_keys) > 0:
             raise ValueError(f'missing environment keys: {missing_keys}')
-
-        self.__collection_id = os.environ.get(self.COLLECTION_ID_KEY)
+        self.__granules_json = json.loads(os.environ.get(self.STAC_JSON))
         self.__download_dir = os.environ.get(self.DOWNLOAD_DIR_KEY)
         self.__download_dir = self.__download_dir[:-1] if self.__download_dir.endswith('/') else self.__download_dir
-        if self.LIMITS_KEY not in os.environ:
-            LOGGER.warning(f'missing {self.LIMITS_KEY}. using default: {self.__limit}')
-        else:
-            self.__limit = int(os.environ.get(self.LIMITS_KEY))
-
-        self.__date_from = os.environ.get(self.DATE_FROM_KEY, '')
-        self.__date_to = os.environ.get(self.DATE_TO_KEY, '')
-        self.__verify_ssl = os.environ.get(self.VERIFY_SSL_KEY, 'TRUE').strip().upper() == 'TRUE'
         return self
 
     def __get_downloading_urls(self, granules_result: list):
@@ -91,13 +74,11 @@ class DownloadGranules:
                 error_log.append(v)
         return error_log
 
-    def start(self):
+    def download(self, **kwargs) -> list:
         self.__set_props_from_env()
         LOGGER.debug(f'creating download dir: {self.__download_dir}')
         FileUtils.mk_dir_p(self.__download_dir)
-        dapa_client = DapaClient().with_verify_ssl(self.__verify_ssl)
-        granules_result = dapa_client.get_granules(self.__collection_id, self.__limit, 0, self.__date_from, self.__date_to)
-        downloading_urls = self.__get_downloading_urls(granules_result)
+        downloading_urls = self.__get_downloading_urls(self.__granules_json)
         error_list = []
         for each in downloading_urls:
             LOGGER.debug(f'working on {each}')
@@ -106,4 +87,4 @@ class DownloadGranules:
         if len(error_list) > 0:
             with open(f'{self.__download_dir}/error.log', 'w') as error_file:
                 error_file.write(json.dumps(error_list, indent=4))
-        return
+        return downloading_urls
