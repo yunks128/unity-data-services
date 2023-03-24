@@ -112,6 +112,7 @@ class GenerateCmr:
         for each_file in self.__input_file_list:
             LOGGER.debug(f'checking file: {each_file}')
             file_key_upper = each_file['key'].upper().strip()
+            LOGGER.debug(f'checking file_key_upper: {file_key_upper} against {self.__file_postfixes}')
             if any([file_key_upper.endswith(k) for k in self.__file_postfixes]):
                 return each_file
         return None
