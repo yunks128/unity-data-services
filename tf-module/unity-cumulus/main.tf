@@ -43,6 +43,7 @@ resource "aws_lambda_function" "snpp_lvl0_generate_cmr" {
   environment {
     variables = {
       LOG_LEVEL = var.log_level
+      FILE_POSTFIX = var.snpp_lvl0_file_postfix
     }
   }
 
