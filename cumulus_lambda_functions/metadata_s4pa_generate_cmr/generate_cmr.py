@@ -7,8 +7,8 @@ from cumulus_lambda_functions.lib.aws.aws_s3 import AwsS3
 from cumulus_lambda_functions.lib.json_validator import JsonValidator
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
-from cumulus_lambda_functions.snpp_lvl0_generate_cmr.echo_metadata import EchoMetadata
-from cumulus_lambda_functions.snpp_lvl0_generate_cmr.pds_metadata import PdsMetadata
+from cumulus_lambda_functions.metadata_s4pa_generate_cmr.echo_metadata import EchoMetadata
+from cumulus_lambda_functions.metadata_s4pa_generate_cmr.pds_metadata import PdsMetadata
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
