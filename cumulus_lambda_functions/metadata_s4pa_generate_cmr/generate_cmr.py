@@ -7,8 +7,8 @@ from cumulus_lambda_functions.lib.aws.aws_s3 import AwsS3
 from cumulus_lambda_functions.lib.json_validator import JsonValidator
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
-from cumulus_lambda_functions.snpp_lvl0_generate_cmr.echo_metadata import EchoMetadata
-from cumulus_lambda_functions.snpp_lvl0_generate_cmr.pds_metadata import PdsMetadata
+from cumulus_lambda_functions.metadata_s4pa_generate_cmr.echo_metadata import EchoMetadata
+from cumulus_lambda_functions.metadata_s4pa_generate_cmr.pds_metadata import PdsMetadata
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
@@ -97,6 +97,8 @@ class GenerateCmr:
         self.__event = event
         self.__s3 = AwsS3()
         self._pds_file_dict = None
+        self.__file_postfixes = os.getenv('FILE_POSTFIX', '1.PDS.XML, NC.XML')
+        self.__file_postfixes = [k.upper().strip() for k in self.__file_postfixes.split(',')]
         self.__input_file_list = []
 
     def __validate_input(self):
@@ -109,7 +111,9 @@ class GenerateCmr:
         self.__input_file_list = self.__event['cma']['event']['meta']['input_granules'][0]['files']
         for each_file in self.__input_file_list:
             LOGGER.debug(f'checking file: {each_file}')
-            if each_file['key'].upper().endswith('1.PDS.XML'):
+            file_key_upper = each_file['key'].upper().strip()
+            LOGGER.debug(f'checking file_key_upper: {file_key_upper} against {self.__file_postfixes}')
+            if any([file_key_upper.endswith(k) for k in self.__file_postfixes]):
                 return each_file
         return None
 

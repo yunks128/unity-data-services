@@ -3,6 +3,10 @@ variable "log_level" {
   default = "20"
   description = "Lambda Log Level. Follow Python3 log level numbers info=20, warning=30, etc..."
 }
+variable "metadata_s4pa_file_postfix" {
+  type = string
+  description = "Comma separated File Postfix for PDS XML metadata files"
+}
 variable "prefix" {
   type = string
 }

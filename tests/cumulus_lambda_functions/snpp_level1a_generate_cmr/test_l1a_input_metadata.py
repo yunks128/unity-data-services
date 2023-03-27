@@ -1,7 +1,7 @@
 import unittest
 import xmltodict
 
-from cumulus_lambda_functions.snpp_level1a_generate_cmr.l1a_input_metadata import L1AInputMetadata
+from cumulus_lambda_functions.metadata_cas_generate_cmr.l1a_input_metadata import L1AInputMetadata
 
 
 class TestL1aInputMetadata(unittest.TestCase):
