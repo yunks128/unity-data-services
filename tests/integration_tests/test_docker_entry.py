@@ -65,6 +65,60 @@ class TestDockerEntry(TestCase):
         self.assertEqual(len(search_result),20, f'wrong length. not unique')
         return
 
+    def test_01_search_part_04(self):
+        """
+        :return:
+        """
+        os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
+        os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
+        os.environ['PASSWORD_TYPE'] = 'PARAM_STORE'
+        os.environ['CLIENT_ID'] = '6ir9qveln397i0inh9pmsabq1'
+        os.environ['COGNITO_URL'] = 'https://cognito-idp.us-west-2.amazonaws.com'
+        os.environ['DAPA_API'] = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test'
+        os.environ['COLLECTION_ID'] = 'L0_SNPP_ATMS_SCIENCE___1'
+        os.environ['LIMITS'] = '347'
+        os.environ['DATE_FROM'] = '1990-01-14T08:00:00Z'
+        os.environ['DATE_TO'] = '2022-01-14T11:59:59Z'
+        os.environ['VERIFY_SSL'] = 'FALSE'
+        os.environ['GRANULES_SEARCH_DOMAIN'] = 'UNITY'
+        if len(argv) > 1:
+            argv.pop(-1)
+        argv.append('SEARCH')
+        search_result = choose_process()
+        search_result = json.loads(search_result)
+        self.assertTrue(isinstance(search_result, list), f'search_result is not list: {search_result}')
+        self.assertEqual(len(search_result), 347, f'wrong length')
+        search_result = set([k['id'] for k in search_result])
+        self.assertEqual(len(search_result), 347, f'wrong length. not unique')
+        return
+
+    def test_01_search_part_03(self):
+        """
+        :return:
+        """
+        os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
+        os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
+        os.environ['PASSWORD_TYPE'] = 'PARAM_STORE'
+        os.environ['CLIENT_ID'] = '6ir9qveln397i0inh9pmsabq1'
+        os.environ['COGNITO_URL'] = 'https://cognito-idp.us-west-2.amazonaws.com'
+        os.environ['DAPA_API'] = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test'
+        os.environ['COLLECTION_ID'] = 'L0_SNPP_ATMS_SCIENCE___1'
+        os.environ['LIMITS'] = '-1'
+        os.environ['DATE_FROM'] = '1990-01-14T08:00:00Z'
+        os.environ['DATE_TO'] = '2022-01-14T11:59:59Z'
+        os.environ['VERIFY_SSL'] = 'FALSE'
+        os.environ['GRANULES_SEARCH_DOMAIN'] = 'UNITY'
+        if len(argv) > 1:
+            argv.pop(-1)
+        argv.append('SEARCH')
+        search_result = choose_process()
+        search_result = json.loads(search_result)
+        self.assertTrue(isinstance(search_result, list), f'search_result is not list: {search_result}')
+        self.assertEqual(len(search_result), 4381, f'wrong length')
+        search_result = set([k['id'] for k in search_result])
+        self.assertEqual(len(search_result), 4381, f'wrong length. not unique')
+        return
+
     def test_01_1_search_cmr(self):
         """
         :return:
@@ -75,10 +129,10 @@ class TestDockerEntry(TestCase):
         os.environ['CLIENT_ID'] = '6ir9qveln397i0inh9pmsabq1'
         os.environ['COGNITO_URL'] = 'https://cognito-idp.us-west-2.amazonaws.com'
         os.environ['DAPA_API'] = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test'
-        os.environ['COLLECTION_ID'] = 'C1649553296-PODAAC'
-        os.environ['LIMITS'] = '100'
-        os.environ['DATE_FROM'] = '2016-01-14T08:00:00Z'
-        os.environ['DATE_TO'] = '2016-01-14T11:59:59Z'
+        os.environ['COLLECTION_ID'] = 'C1666605425-PODAAC'
+        os.environ['LIMITS'] = '2120'
+        os.environ['DATE_FROM'] = '2002-06-01T12:06:00.000Z'
+        os.environ['DATE_TO'] = '2011-10-04T06:51:45.000Z'
         os.environ['VERIFY_SSL'] = 'FALSE'
         os.environ['GRANULES_SEARCH_DOMAIN'] = 'CMR'
         os.environ['CMR_BASE_URL'] = 'https://cmr.earthdata.nasa.gov'
@@ -88,6 +142,7 @@ class TestDockerEntry(TestCase):
         search_result = choose_process()
         search_result = json.loads(search_result)
         self.assertTrue(isinstance(search_result, list), f'search_result is not list: {search_result}')
+        self.assertEqual(len(search_result), 2120, f'wrong length')
         return
 
     def test_02_download(self):

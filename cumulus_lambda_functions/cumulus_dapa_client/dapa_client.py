@@ -72,7 +72,9 @@ class DapaClient:
             results.extend(temp_results)
             if len(temp_results) < page_size:
                 break
-        return results
+        if limit < 0 or limit >= len(results):
+            return results
+        return results[0: limit]
 
     def get_granules(self, collection_id='*', limit=1000, offset=0, date_from='', date_to=''):
         """
