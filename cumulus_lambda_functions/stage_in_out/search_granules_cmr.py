@@ -4,6 +4,7 @@ import os
 
 import requests
 
+from cumulus_lambda_functions.cumulus_stac.stac_utils import StacUtils
 from cumulus_lambda_functions.stage_in_out.search_granules_abstract import SearchGranulesAbstract
 
 LOGGER = logging.getLogger(__name__)
@@ -19,6 +20,8 @@ class SearchGranulesCmr(SearchGranulesAbstract):
     DATE_TO_KEY = 'DATE_TO'
     VERIFY_SSL_KEY = 'VERIFY_SSL'
 
+    FILTER_ONLY_ASSETS = 'FILTER_ONLY_ASSETS'
+
     def __init__(self) -> None:
         super().__init__()
         self.__collection_id = ''
@@ -28,6 +31,7 @@ class SearchGranulesCmr(SearchGranulesAbstract):
         self.__page_size = 2000  # page_size - number of results per page - default is 10, max is 2000
         self.__verify_ssl = True
         self.__cmr_base_url = ''
+        self.__filter_results = True
 
     def __set_props_from_env(self):
         missing_keys = [k for k in [self.COLLECTION_ID_KEY, self.CMR_BASE_URL_KEY] if k not in os.environ]
@@ -46,10 +50,13 @@ class SearchGranulesCmr(SearchGranulesAbstract):
         self.__date_from = os.environ.get(self.DATE_FROM_KEY, '')
         self.__date_to = os.environ.get(self.DATE_TO_KEY, '')
         self.__verify_ssl = os.environ.get(self.VERIFY_SSL_KEY, 'TRUE').strip().upper() == 'TRUE'
+        self.__filter_results = os.environ.get(self.FILTER_ONLY_ASSETS, 'TRUE').strip().upper() == 'TRUE'
         return self
 
-    def __get_single_page(self):
-        return
+    def __get_correct_result_count(self, results):
+        if self.__limit < 0 or self.__limit >= len(results):
+            return results
+        return results[0: self.__limit]
 
     def search(self, **kwargs) -> str:
         """
@@ -92,6 +99,5 @@ class SearchGranulesCmr(SearchGranulesAbstract):
             results.extend(temp_results)
             if len(temp_results) < page_size:
                 break
-        if self.__limit < 0 or self.__limit >= len(results):
-            return json.dumps(results)
-        return json.dumps(results[0: self.__limit])
+        results = self.__get_correct_result_count(results)
+        return json.dumps(StacUtils.reduce_stac_list_to_data_links(results)) if self.__filter_results else json.dumps(results)
