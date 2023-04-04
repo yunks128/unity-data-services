@@ -19,12 +19,12 @@ services:
 
       DAPA_API: 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
       COLLECTION_ID: 'ATMS_SCIENCE_Group___001'
-      LIMITS: '100'
+      LIMITS: '100. -1 to get all granules, but not recommended.'
       DATE_FROM: '2016-01-17T00:00:00Z'
       DATE_TO: '2016-01-17T12:00:00Z'
       VERIFY_SSL: 'FALSE'
 
-      GRANULES_SEARCH_DOMAIN: 'UNITY'
+      GRANULES_SEARCH_DOMAIN: 'UNITY or CMR'
       LOG_LEVEL: '20'
     networks:
       - internal
