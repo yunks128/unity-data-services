@@ -60,6 +60,20 @@ class DapaClient:
             raise RuntimeError(f'unable to find collection in DAPA')
         return collection_details[0]
 
+    def get_all_granules(self, collection_id='*', limit=-1, date_from='', date_to=''):
+        results = []
+        page_size = 100 if limit < 0 or limit > 100 else limit
+        offset = 0
+        while True:
+            if 0 < limit <= len(results):
+                break
+            temp_results = self.get_granules(collection_id, page_size, offset, date_from, date_to)
+            offset += len(temp_results)
+            results.extend(temp_results)
+            if len(temp_results) < page_size:
+                break
+        return results
+
     def get_granules(self, collection_id='*', limit=1000, offset=0, date_from='', date_to=''):
         """
         TODO: pagination. getting only 1st 1k item

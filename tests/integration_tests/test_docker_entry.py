@@ -11,7 +11,34 @@ from cumulus_lambda_functions.docker_entrypoint.__main__ import choose_process
 
 
 class TestDockerEntry(TestCase):
-    def test_01_search(self):
+    def test_01_search_part_01(self):
+        """
+        :return:
+        """
+        os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
+        os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
+        os.environ['PASSWORD_TYPE'] = 'PARAM_STORE'
+        os.environ['CLIENT_ID'] = '6ir9qveln397i0inh9pmsabq1'
+        os.environ['COGNITO_URL'] = 'https://cognito-idp.us-west-2.amazonaws.com'
+        os.environ['DAPA_API'] = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test'
+        os.environ['COLLECTION_ID'] = 'L0_SNPP_ATMS_SCIENCE___1'
+        os.environ['LIMITS'] = '4000'
+        os.environ['DATE_FROM'] = '1990-01-14T08:00:00Z'
+        os.environ['DATE_TO'] = '2022-01-14T11:59:59Z'
+        os.environ['VERIFY_SSL'] = 'FALSE'
+        os.environ['GRANULES_SEARCH_DOMAIN'] = 'UNITY'
+        if len(argv) > 1:
+            argv.pop(-1)
+        argv.append('SEARCH')
+        search_result = choose_process()
+        search_result = json.loads(search_result)
+        self.assertTrue(isinstance(search_result, list), f'search_result is not list: {search_result}')
+        self.assertEqual(len(search_result), 4000, f'wrong length')
+        search_result = set([k['id'] for k in search_result])
+        self.assertEqual(len(search_result),4000, f'wrong length. not unique')
+        return
+
+    def test_01_search_part_02(self):
         """
         :return:
         """
@@ -33,6 +60,9 @@ class TestDockerEntry(TestCase):
         search_result = choose_process()
         search_result = json.loads(search_result)
         self.assertTrue(isinstance(search_result, list), f'search_result is not list: {search_result}')
+        self.assertEqual(len(search_result), 20, f'wrong length')
+        search_result = set([k['id'] for k in search_result])
+        self.assertEqual(len(search_result),20, f'wrong length. not unique')
         return
 
     def test_01_1_search_cmr(self):
