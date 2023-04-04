@@ -45,6 +45,5 @@ class SearchGranulesUnity(SearchGranulesAbstract):
     def search(self, **kwargs) -> str:
         self.__set_props_from_env()
         dapa_client = DapaClient().with_verify_ssl(self.__verify_ssl)
-        granules_result = dapa_client.get_granules(self.__collection_id, self.__limit, 0, self.__date_from,
-                                                   self.__date_to)
-        return json.dumps(granules_result)
+        granules_result_2 = dapa_client.get_all_granules(self.__collection_id, self.__limit, self.__date_from, self.__date_to)
+        return json.dumps(granules_result_2)

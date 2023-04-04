@@ -25,6 +25,7 @@ class SearchGranulesCmr(SearchGranulesAbstract):
         self.__date_from = ''
         self.__date_to = ''
         self.__limit = 1000
+        self.__page_size = 2000  # page_size - number of results per page - default is 10, max is 2000
         self.__verify_ssl = True
         self.__cmr_base_url = ''
 
@@ -47,12 +48,19 @@ class SearchGranulesCmr(SearchGranulesAbstract):
         self.__verify_ssl = os.environ.get(self.VERIFY_SSL_KEY, 'TRUE').strip().upper() == 'TRUE'
         return self
 
+    def __get_single_page(self):
+        return
+
     def search(self, **kwargs) -> str:
         """
   curl 'https://cmr.earthdata.nasa.gov/search/granules.stac' \
   -H 'accept: application/json; profile=stac-catalogue' \
   -H 'content-type: application/x-www-form-urlencoded' \
   --data-raw 'collection_concept_id=C1649553296-PODAAC&page_num=1&page_size=20&temporal[]=2011-08-01T00:00:00,2011-09-01T00:00:00'
+
+        https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html#stac
+        https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html#query-parameters
+
         :param kwargs:
         :return:
         """
@@ -61,17 +69,29 @@ class SearchGranulesCmr(SearchGranulesAbstract):
             'accept': 'application/json; profile=stac-catalogue',
             'Content-Type': 'application/x-www-form-urlencoded',
         }
-        request_body = {
-            'collection_concept_id': self.__collection_id,
-            'page_num': '1',
-            'page_size': str(self.__limit),
-            'temporal[]': f'{self.__date_from},{self.__date_to}'
-        }
-        cmr_granules_url = f'{self.__cmr_base_url}search/granules.stac'
-        response = requests.post(url=cmr_granules_url, headers=header, verify=self.__verify_ssl,
-                                 data=request_body)
-        if response.status_code > 400:
-            raise RuntimeError(
-                f'Cognito ends in error. status_code: {response.status_code}. url: {cmr_granules_url}. details: {response.text}')
-        response = json.loads(response.content.decode('utf-8'))
-        return json.dumps(response['features'])
+        results = []
+        page_size = self.__page_size if self.__limit < 0 or self.__limit > self.__page_size else self.__limit
+        page_num = 1
+        while True:
+            if 0 < self.__limit <= len(results):
+                break
+            request_body = {
+                'collection_concept_id': self.__collection_id,
+                'page_num': str(page_num),
+                'page_size': str(page_size),
+                # 'temporal[]': f'{self.__date_from},{self.__date_to}'
+            }
+            cmr_granules_url = f'{self.__cmr_base_url}search/granules.stac'
+            response = requests.post(url=cmr_granules_url, headers=header, verify=self.__verify_ssl,
+                                     data=request_body)
+            if response.status_code > 400:
+                raise RuntimeError(
+                    f'Cognito ends in error. status_code: {response.status_code}. url: {cmr_granules_url}. details: {response.text}')
+            temp_results = json.loads(response.content.decode('utf-8'))['features']
+            page_num += 1
+            results.extend(temp_results)
+            if len(temp_results) < page_size:
+                break
+        if self.__limit < 0 or self.__limit >= len(results):
+            return json.dumps(results)
+        return json.dumps(results[0: self.__limit])
