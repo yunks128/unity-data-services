@@ -409,5 +409,5 @@ class ItemTransformer(StacTransformerAbstract):
         ]
         return stac_item.to_dict(include_self_link=False, transform_hrefs=False)
 
-    def from_stac(self, source: dict) -> dict:
-        return {}
+    def from_stac(self, source: dict) -> Item:
+        return Item.from_dict(source)
