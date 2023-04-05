@@ -2,8 +2,8 @@ import unittest
 
 import xmltodict
 
-from cumulus_lambda_functions.snpp_lvl0_generate_cmr.echo_metadata import EchoMetadata
-from cumulus_lambda_functions.snpp_lvl0_generate_cmr.pds_metadata import PdsMetadata
+from cumulus_lambda_functions.metadata_s4pa_generate_cmr.echo_metadata import EchoMetadata
+from cumulus_lambda_functions.metadata_s4pa_generate_cmr.pds_metadata import PdsMetadata
 
 
 class TestEchoMetadata(unittest.TestCase):
