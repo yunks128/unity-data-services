@@ -4,6 +4,7 @@ import os
 
 import requests
 
+from cumulus_lambda_functions.cumulus_stac.stac_utils import StacUtils
 from cumulus_lambda_functions.stage_in_out.search_granules_abstract import SearchGranulesAbstract
 
 LOGGER = logging.getLogger(__name__)
@@ -19,14 +20,18 @@ class SearchGranulesCmr(SearchGranulesAbstract):
     DATE_TO_KEY = 'DATE_TO'
     VERIFY_SSL_KEY = 'VERIFY_SSL'
 
+    FILTER_ONLY_ASSETS = 'FILTER_ONLY_ASSETS'
+
     def __init__(self) -> None:
         super().__init__()
         self.__collection_id = ''
         self.__date_from = ''
         self.__date_to = ''
         self.__limit = 1000
+        self.__page_size = 2000  # page_size - number of results per page - default is 10, max is 2000
         self.__verify_ssl = True
         self.__cmr_base_url = ''
+        self.__filter_results = True
 
     def __set_props_from_env(self):
         missing_keys = [k for k in [self.COLLECTION_ID_KEY, self.CMR_BASE_URL_KEY] if k not in os.environ]
@@ -45,7 +50,13 @@ class SearchGranulesCmr(SearchGranulesAbstract):
         self.__date_from = os.environ.get(self.DATE_FROM_KEY, '')
         self.__date_to = os.environ.get(self.DATE_TO_KEY, '')
         self.__verify_ssl = os.environ.get(self.VERIFY_SSL_KEY, 'TRUE').strip().upper() == 'TRUE'
+        self.__filter_results = os.environ.get(self.FILTER_ONLY_ASSETS, 'TRUE').strip().upper() == 'TRUE'
         return self
+
+    def __get_correct_result_count(self, results):
+        if self.__limit < 0 or self.__limit >= len(results):
+            return results
+        return results[0: self.__limit]
 
     def search(self, **kwargs) -> str:
         """
@@ -53,6 +64,10 @@ class SearchGranulesCmr(SearchGranulesAbstract):
   -H 'accept: application/json; profile=stac-catalogue' \
   -H 'content-type: application/x-www-form-urlencoded' \
   --data-raw 'collection_concept_id=C1649553296-PODAAC&page_num=1&page_size=20&temporal[]=2011-08-01T00:00:00,2011-09-01T00:00:00'
+
+        https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html#stac
+        https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html#query-parameters
+
         :param kwargs:
         :return:
         """
@@ -61,17 +76,28 @@ class SearchGranulesCmr(SearchGranulesAbstract):
             'accept': 'application/json; profile=stac-catalogue',
             'Content-Type': 'application/x-www-form-urlencoded',
         }
-        request_body = {
-            'collection_concept_id': self.__collection_id,
-            'page_num': '1',
-            'page_size': str(self.__limit),
-            'temporal[]': f'{self.__date_from},{self.__date_to}'
-        }
-        cmr_granules_url = f'{self.__cmr_base_url}search/granules.stac'
-        response = requests.post(url=cmr_granules_url, headers=header, verify=self.__verify_ssl,
-                                 data=request_body)
-        if response.status_code > 400:
-            raise RuntimeError(
-                f'Cognito ends in error. status_code: {response.status_code}. url: {cmr_granules_url}. details: {response.text}')
-        response = json.loads(response.content.decode('utf-8'))
-        return json.dumps(response['features'])
+        results = []
+        page_size = self.__page_size if self.__limit < 0 or self.__limit > self.__page_size else self.__limit
+        page_num = 1
+        while True:
+            if 0 < self.__limit <= len(results):
+                break
+            request_body = {
+                'collection_concept_id': self.__collection_id,
+                'page_num': str(page_num),
+                'page_size': str(page_size),
+                # 'temporal[]': f'{self.__date_from},{self.__date_to}'
+            }
+            cmr_granules_url = f'{self.__cmr_base_url}search/granules.stac'
+            response = requests.post(url=cmr_granules_url, headers=header, verify=self.__verify_ssl,
+                                     data=request_body)
+            if response.status_code > 400:
+                raise RuntimeError(
+                    f'Cognito ends in error. status_code: {response.status_code}. url: {cmr_granules_url}. details: {response.text}')
+            temp_results = json.loads(response.content.decode('utf-8'))['features']
+            page_num += 1
+            results.extend(temp_results)
+            if len(temp_results) < page_size:
+                break
+        results = self.__get_correct_result_count(results)
+        return json.dumps(StacUtils.reduce_stac_list_to_data_links(results)) if self.__filter_results else json.dumps(results)
