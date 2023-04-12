@@ -8,6 +8,7 @@ from unittest import TestCase
 from cumulus_lambda_functions.lib.constants import Constants
 
 from cumulus_lambda_functions.docker_entrypoint.__main__ import choose_process
+from cumulus_lambda_functions.lib.utils.file_utils import FileUtils
 
 
 class TestDockerEntry(TestCase):
@@ -218,6 +219,29 @@ class TestDockerEntry(TestCase):
             download_result = choose_process()
             self.assertTrue(isinstance(download_result, list), f'download_result is not list: {download_result}')
             self.assertEqual(sum([len(k) for k in download_result]), len(glob(os.path.join(tmp_dir_name, '*'))), f'downloaded file does not match')
+            error_file = os.path.join(tmp_dir_name, 'error.log')
+            if FileUtils.file_exist(error_file):
+                self.assertTrue(False, f'some downloads failed. error.log exists. {FileUtils.read_json(error_file)}')
+        return
+
+    def test_02_download__from_file(self):
+        granule_json = [{'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.01.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.01.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.01.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.08.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.08.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.08.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.06.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.06.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.06.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.18.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.18.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.18.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.04.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.04.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.04.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.16.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.16.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.16.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.17.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.17.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.17.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.10.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.10.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.10.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.14.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.14.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.14.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.12.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.12.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.09.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.09.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.09.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.20.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.20.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.20.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.15.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.15.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.15.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.07.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.07.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.07.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.19.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.19.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.19.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.03.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.03.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.03.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.11.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.11.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.11.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.05.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.05.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.05.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.13.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.13.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.13.nc'}}}, {'assets': {'data': {'href': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.02.nc', 'title': 'SNDR.SNPP.ATMS.L1A.nominal2.02.nc', 'description': 'SNDR.SNPP.ATMS.L1A.nominal2.02.nc'}}}]
+        if len(argv) > 1:
+            argv.pop(-1)
+        argv.append('DOWNLOAD')
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            granule_json_file = os.path.join(tmp_dir_name, 'input_file.json')
+            downloading_dir = os.path.join(tmp_dir_name, 'downloading_dir')
+            FileUtils.mk_dir_p(downloading_dir)
+            FileUtils.write_json(granule_json_file, granule_json)
+            os.environ['STAC_JSON'] = granule_json_file
+            os.environ['DOWNLOAD_DIR'] = downloading_dir
+            download_result = choose_process()
+            self.assertTrue(isinstance(download_result, list), f'download_result is not list: {download_result}')
+            self.assertEqual(sum([len(k) for k in download_result]), len(glob(os.path.join(downloading_dir, '*'))), f'downloaded file does not match')
+            error_file = os.path.join(downloading_dir, 'error.log')
+            if FileUtils.file_exist(error_file):
+                self.assertTrue(False, f'some downloads failed. error.log exists. {FileUtils.read_json(error_file)}')
         return
 
     def test_03_upload(self):
