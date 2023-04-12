@@ -19,11 +19,25 @@ class DownloadGranulesS3(DownloadGranulesAbstract):
         self.__s3 = AwsS3()
         self.__granules_json = []
 
+    def __retrieve_stac_json(self):
+        raw_stac_json = os.environ.get(self.STAC_JSON)
+        try:
+            self.__granules_json = json.loads(raw_stac_json)
+            return self
+        except:
+            LOGGER.debug(f'raw_stac_json is not STAC_JSON: {raw_stac_json}. trying to see if file exists')
+        if not FileUtils.file_exist(raw_stac_json):
+            raise ValueError(f'missing file or not JSON: {raw_stac_json}')
+        self.__granules_json = FileUtils.read_json(raw_stac_json)
+        if self.__granules_json is None:
+            raise ValueError(f'{raw_stac_json} is not JSON')
+        return self
+
     def __set_props_from_env(self):
         missing_keys = [k for k in [self.STAC_JSON, self.DOWNLOAD_DIR_KEY] if k not in os.environ]
         if len(missing_keys) > 0:
             raise ValueError(f'missing environment keys: {missing_keys}')
-        self.__granules_json = json.loads(os.environ.get(self.STAC_JSON))
+        self.__retrieve_stac_json()
         self.__download_dir = os.environ.get(self.DOWNLOAD_DIR_KEY)
         self.__download_dir = self.__download_dir[:-1] if self.__download_dir.endswith('/') else self.__download_dir
         return self
