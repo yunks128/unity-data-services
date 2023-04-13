@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.0] - 2023-01-23
+### Added
+- [#134](https://github.com/unity-sds/unity-data-services/pull/134) feat: add option to parse downloading stac from file
+
+## [3.2.0] - 2023-01-23
+### Added
+- [#131](https://github.com/unity-sds/unity-data-services/pull/131) granules query pagination 
+
+## [3.1.0] - 2023-01-23
+### Added
+- [#126](https://github.com/unity-sds/unity-data-services/pull/126) reduce pystac length by keeping only data asset
+
+## [3.0.0] - 2023-03-27
+### Breaking
+- [#124](https://github.com/unity-sds/unity-data-services/pull/124) configurable file postfixes for PDS metadata extraction + rename function names which will break previous terraforms
+
 ## [2.0.0] - 2023-01-23
 ### Breaking
 - [#120](https://github.com/unity-sds/unity-data-services/pull/120) breakup upload and download dockers into search + download & upload + catalog

@@ -33,16 +33,17 @@ data "aws_iam_policy_document" "lambda_assume_role_policy" {
   }
 }
 
-resource "aws_lambda_function" "snpp_lvl0_generate_cmr" {
+resource "aws_lambda_function" "metadata_s4pa_generate_cmr" {
   filename      = local.lambda_file_name
-  function_name = "${var.prefix}-snpp_lvl0_generate_cmr"
+  function_name = "${var.prefix}-metadata_s4pa_generate_cmr"
   role          = var.lambda_processing_role_arn
-  handler       = "cumulus_lambda_functions.snpp_lvl0_generate_cmr.lambda_function.lambda_handler"
+  handler       = "cumulus_lambda_functions.metadata_s4pa_generate_cmr.lambda_function.lambda_handler"
   runtime       = "python3.9"
   timeout       = 300
   environment {
     variables = {
       LOG_LEVEL = var.log_level
+      FILE_POSTFIX = var.metadata_s4pa_file_postfix
     }
   }
 
@@ -53,11 +54,11 @@ resource "aws_lambda_function" "snpp_lvl0_generate_cmr" {
   tags = var.tags
 }
 
-resource "aws_lambda_function" "snpp_lvl1_generate_cmr" {
+resource "aws_lambda_function" "metadata_cas_generate_cmr" {
   filename      = local.lambda_file_name
-  function_name = "${var.prefix}-snpp_lvl1_generate_cmr"
+  function_name = "${var.prefix}-metadata_cas_generate_cmr"
   role          = var.lambda_processing_role_arn
-  handler       = "cumulus_lambda_functions.snpp_level1a_generate_cmr.lambda_function.lambda_handler"
+  handler       = "cumulus_lambda_functions.metadata_cas_generate_cmr.lambda_function.lambda_handler"
   runtime       = "python3.9"
   timeout       = 300
   environment {
