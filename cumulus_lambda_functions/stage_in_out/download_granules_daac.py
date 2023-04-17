@@ -70,13 +70,14 @@ class DownloadGranulesDAAC(DownloadGranulesAbstract):
         """
         error_log = []
         headers = {
-            'Authorization': f'Bearer ${self.__edl_token}'
+            'Authorization': f'Bearer {self.__edl_token}'
         }
         for k, v in assets.items():
             try:
                 LOGGER.debug(f'downloading: {v["href"]}')
-                print(v["href"])
                 r = requests.get(v['href'], headers=headers, allow_redirects=True)
+                if r.status_code >= 400:
+                    raise RuntimeError(f'wrong response status: {r.status_code}. details: {r.content}')
                 with open(os.path.join(self.__download_dir, os.path.basename(v["href"])), 'wb') as fd:
                     fd.write(r.content)
             except Exception as e:
