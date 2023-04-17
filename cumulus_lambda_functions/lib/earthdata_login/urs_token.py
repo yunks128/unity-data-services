@@ -87,7 +87,7 @@ class URSToken(object):
         jar = CookieJar()
         processor = request.HTTPCookieProcessor(jar)
         opener = request.build_opener(auth, processor)
-        opener.addheaders = [('User-agent', 'podaac-subscriber-' + __version__)]
+        opener.addheaders = [('User-agent', 'unity-downloader- ' + __version__)]
         request.install_opener(opener)
 
     def delete_token(self, token: str) -> bool:
