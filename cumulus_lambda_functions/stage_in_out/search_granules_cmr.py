@@ -86,12 +86,12 @@ class SearchGranulesCmr(SearchGranulesAbstract):
                 'collection_concept_id': self.__collection_id,
                 'page_num': str(page_num),
                 'page_size': str(page_size),
-                # 'temporal[]': f'{self.__date_from},{self.__date_to}'
+                'temporal[]': f'{self.__date_from},{self.__date_to}'
             }
             cmr_granules_url = f'{self.__cmr_base_url}search/granules.stac'
             response = requests.post(url=cmr_granules_url, headers=header, verify=self.__verify_ssl,
                                      data=request_body)
-            if response.status_code > 400:
+            if response.status_code >= 400:
                 raise RuntimeError(
                     f'Cognito ends in error. status_code: {response.status_code}. url: {cmr_granules_url}. details: {response.text}')
             temp_results = json.loads(response.content.decode('utf-8'))['features']
