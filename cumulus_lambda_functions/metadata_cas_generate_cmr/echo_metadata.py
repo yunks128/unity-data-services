@@ -73,7 +73,7 @@ sampleEcho10Granule = {
 """
 from copy import deepcopy
 
-from cumulus_lambda_functions.snpp_level1a_generate_cmr.l1a_input_metadata import L1AInputMetadata
+from cumulus_lambda_functions.metadata_cas_generate_cmr.l1a_input_metadata import L1AInputMetadata
 
 SAMPLE_METADATA = {
     "GranuleUR": "MYD13Q1.A2017297.h19v10.006.2017313221202",

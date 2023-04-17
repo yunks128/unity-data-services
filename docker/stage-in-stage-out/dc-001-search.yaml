@@ -26,6 +26,7 @@ services:
       FILTER_ONLY_ASSETS: 'TRUE'
 
       GRANULES_SEARCH_DOMAIN: 'UNITY or CMR'
+      CMR_BASE_URL: 'https://cmr.earthdata.nasa.gov'
       LOG_LEVEL: '20'
     networks:
       - internal
