@@ -75,9 +75,10 @@ class DownloadGranulesDAAC(DownloadGranulesAbstract):
         for k, v in assets.items():
             try:
                 LOGGER.debug(f'downloading: {v["href"]}')
-                r = requests.get(v['href'], headers=headers, allow_redirects=True)
+                r = requests.get(v['href'], headers=headers)
                 if r.status_code >= 400:
                     raise RuntimeError(f'wrong response status: {r.status_code}. details: {r.content}')
+                # TODO. how to correctly check redirecting to login page
                 with open(os.path.join(self.__download_dir, os.path.basename(v["href"])), 'wb') as fd:
                     fd.write(r.content)
             except Exception as e:

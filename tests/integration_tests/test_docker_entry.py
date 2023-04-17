@@ -256,6 +256,7 @@ class TestDockerEntry(TestCase):
             argv.pop(-1)
         argv.append('DOWNLOAD')
         with tempfile.TemporaryDirectory() as tmp_dir_name:
+            # TODO this is downloading a login page HTML
             os.environ['DOWNLOAD_DIR'] = tmp_dir_name
             download_result = choose_process()
             self.assertTrue(isinstance(download_result, list), f'download_result is not list: {download_result}')
