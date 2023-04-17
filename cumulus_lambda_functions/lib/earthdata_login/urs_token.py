@@ -58,6 +58,9 @@ class URSToken(object):
         try:
             headers: Dict = {'Accept': 'application/json'}  # noqa E501
             resp = requests.get(url + "/tokens", headers=headers, auth=HTTPBasicAuth(self.__username, self.__dwssap))
+            if resp.status_code >= 400:
+                LOGGER.error(f'error response: {resp.status_code}. details: {resp.content}')
+                return tokens
             response_content = json.loads(resp.content)
 
             for x in response_content:
