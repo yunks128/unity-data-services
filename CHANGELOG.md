@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.6.1] - 2023-04-24
 ### Changed
-- [#142](https://github.com/unity-sds/unity-data-services/pull/142) fix: downloaded stac to return local absolute path
+- [#144](https://github.com/unity-sds/unity-data-services/pull/144) fix: downloaded stac to return local absolute path
 
 ## [3.6.0] - 2023-04-24
 ### Added
