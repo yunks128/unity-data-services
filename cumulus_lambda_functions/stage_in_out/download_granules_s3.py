@@ -58,25 +58,30 @@ class DownloadGranulesS3(DownloadGranulesAbstract):
         :return:
         """
         error_log = []
+        local_item = {}
         for k, v in assets.items():
+            local_item[k] = v
             try:
                 LOGGER.debug(f'downloading: {v["href"]}')
-                self.__s3.set_s3_url(v['href']).download(self._download_dir)
+                local_file_path = self.__s3.set_s3_url(v['href']).download(self._download_dir)
+                local_item[k]['href'] = local_file_path
             except Exception as e:
                 LOGGER.exception(f'failed to download {v}')
-                v['cause'] = str(e)
+                local_item[k]['description'] = f'download failed. {str(e)}'
                 error_log.append(v)
-        return error_log
+        return local_item, error_log
 
     def download(self, **kwargs) -> list:
         self.__set_props_from_env()
         downloading_urls = self.__get_downloading_urls(self._granules_json)
         error_list = []
+        local_items = []
         for each in downloading_urls:
             LOGGER.debug(f'working on {each}')
-            current_error_list = self.__download_one_granule(each)
+            local_item, current_error_list = self.__download_one_granule(each)
+            local_items.append({'assets': local_item})
             error_list.extend(current_error_list)
         if len(error_list) > 0:
             with open(f'{self._download_dir}/error.log', 'w') as error_file:
                 error_file.write(json.dumps(error_list, indent=4))
-        return downloading_urls
+        return local_items
