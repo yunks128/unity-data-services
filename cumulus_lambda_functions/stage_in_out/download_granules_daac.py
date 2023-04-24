@@ -6,30 +6,21 @@ import json
 import logging
 import os
 
-from cumulus_lambda_functions.lib.aws.aws_s3 import AwsS3
-from cumulus_lambda_functions.lib.utils.file_utils import FileUtils
-
 LOGGER = logging.getLogger(__name__)
 
 
 class DownloadGranulesDAAC(DownloadGranulesAbstract):
-    DOWNLOAD_DIR_KEY = 'DOWNLOAD_DIR'
-    STAC_JSON = 'STAC_JSON'
 
     def __init__(self) -> None:
         super().__init__()
-        self.__download_dir = '/tmp'
-        self.__s3 = AwsS3()
-        self.__granules_json = []
         self.__edl_token = None
 
     def __set_props_from_env(self):
         missing_keys = [k for k in [self.STAC_JSON, self.DOWNLOAD_DIR_KEY] if k not in os.environ]
         if len(missing_keys) > 0:
             raise ValueError(f'missing environment keys: {missing_keys}')
-        self.__granules_json = json.loads(os.environ.get(self.STAC_JSON))
-        self.__download_dir = os.environ.get(self.DOWNLOAD_DIR_KEY)
-        self.__download_dir = self.__download_dir[:-1] if self.__download_dir.endswith('/') else self.__download_dir
+        self._retrieve_stac_json()
+        self._setup_download_dir()
         self.__edl_token = URSTokenRetriever().start()
         return self
 
@@ -79,7 +70,7 @@ class DownloadGranulesDAAC(DownloadGranulesAbstract):
                 if r.status_code >= 400:
                     raise RuntimeError(f'wrong response status: {r.status_code}. details: {r.content}')
                 # TODO. how to correctly check redirecting to login page
-                with open(os.path.join(self.__download_dir, os.path.basename(v["href"])), 'wb') as fd:
+                with open(os.path.join(self._download_dir, os.path.basename(v["href"])), 'wb') as fd:
                     fd.write(r.content)
             except Exception as e:
                 LOGGER.exception(f'failed to download {v}')
@@ -89,15 +80,14 @@ class DownloadGranulesDAAC(DownloadGranulesAbstract):
 
     def download(self, **kwargs) -> list:
         self.__set_props_from_env()
-        LOGGER.debug(f'creating download dir: {self.__download_dir}')
-        FileUtils.mk_dir_p(self.__download_dir)
-        downloading_urls = self.__get_downloading_urls(self.__granules_json)
+        LOGGER.debug(f'creating download dir: {self._download_dir}')
+        downloading_urls = self.__get_downloading_urls(self._granules_json)
         error_list = []
         for each in downloading_urls:
             LOGGER.debug(f'working on {each}')
             current_error_list = self.__download_one_granule(each)
             error_list.extend(current_error_list)
         if len(error_list) > 0:
-            with open(f'{self.__download_dir}/error.log', 'w') as error_file:
+            with open(f'{self._download_dir}/error.log', 'w') as error_file:
                 error_file.write(json.dumps(error_list, indent=4))
         return downloading_urls
