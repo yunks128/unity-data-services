@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - [#138](https://github.com/unity-sds/unity-data-services/pull/138) feat: Checkout stage with STAC catalog json
 
+## [3.4.0] - 2023-04-17
+### Changed
+- [#132](https://github.com/unity-sds/unity-data-services/pull/132) feat: add DAAC download logic
+
 ## [3.3.1] - 2023-04-13
 ### Changed
 - [#136](https://github.com/unity-sds/unity-data-services/pull/136) fix: uncomment temporal in CMR granules search

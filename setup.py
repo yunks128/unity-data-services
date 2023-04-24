@@ -4,6 +4,7 @@ install_requires = [
     'pystac', 'jsonschema',
     'fastjsonschema',
     'xmltodict',
+    'tenacity',
     'requests'
 ]
 
