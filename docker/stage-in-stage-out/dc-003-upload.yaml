@@ -28,8 +28,9 @@ services:
       DELETE_FILES: 'FALSE'
 
       GRANULES_SEARCH_DOMAIN: 'UNITY'
-      GRANULES_UPLOAD_TYPE: 'S3'
-      UPLOAD_DIR: '/etc/snpp_upload_test_1'
+      GRANULES_UPLOAD_TYPE: 'S3 or CATALOG_S3'
+      UPLOAD_DIR: '/etc/snpp_upload_test_1. or empty string'
+      CATALOG_FILE: 'empty string or /path/to/stac/catalog file'
       LOG_LEVEL: '20'
     networks:
       - internal
