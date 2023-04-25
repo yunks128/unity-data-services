@@ -2,7 +2,7 @@ import unittest
 
 import xmltodict
 
-from cumulus_lambda_functions.metadata_s4pa_generate_cmr.echo_metadata import EchoMetadata
+from cumulus_lambda_functions.lib.metadata_extraction.echo_metadata import EchoMetadata
 from cumulus_lambda_functions.metadata_s4pa_generate_cmr.pds_metadata import PdsMetadata
 
 
@@ -294,8 +294,10 @@ GROUPTYPE = MASTERGROUP
 END_GROUP = INVENTORYMETADATA
 END</ProducersMetaData>
 </S4PAGranuleMetaDataFile>        '''
-        pds_metadata = PdsMetadata(xmltodict.parse(input_str)).load()
-        echo_metadata = EchoMetadata(pds_metadata).load().echo_metadata
+        granule_metadata_props = PdsMetadata(xmltodict.parse(input_str)).load()
+        self.assertEqual(granule_metadata_props.granule_id, 'P1570515ATMSSCIENCEAXT11349120000000.PDS', 'wrong granule_id')
+
+        echo_metadata = EchoMetadata(granule_metadata_props).load().echo_metadata
         self.assertTrue('Granule' in echo_metadata, 'missing Granule')
         echo_granule = echo_metadata['Granule']
         self.assertTrue('InsertTime' in echo_granule, 'missing InsertTime')
