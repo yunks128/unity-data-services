@@ -73,7 +73,7 @@ sampleEcho10Granule = {
 """
 from copy import deepcopy
 
-from cumulus_lambda_functions.metadata_s4pa_generate_cmr.pds_metadata import PdsMetadata
+from cumulus_lambda_functions.lib.metadata_extraction.granule_metadata_props import GranuleMetadataProps
 
 SAMPLE_METADATA = {
     "GranuleUR": "MYD13Q1.A2017297.h19v10.006.2017313221202",
@@ -141,8 +141,8 @@ SAMPLE_METADATA = {
 
 
 class EchoMetadata:
-    def __init__(self, pds_metadata: PdsMetadata):
-        self.__pds_metadata = pds_metadata
+    def __init__(self, granules_metadata_props: GranuleMetadataProps):
+        self.__granules_metadata_props = granules_metadata_props
         self.__echo_metadata = deepcopy(SAMPLE_METADATA)
 
     @property
@@ -160,22 +160,24 @@ class EchoMetadata:
 
     def load(self):
         incomplete_metadata = {
-            'GranuleUR': self.__pds_metadata.granule_id,
-            'InsertTime': self.__pds_metadata.insert_dt,
+            'GranuleUR': self.__granules_metadata_props.granule_id,
+            # 'InsertTime': '',  # conditionally add it after dict creation
             # 'LastUpdate': 'TODO',
             'Collection': {
-                'ShortName': self.__pds_metadata.collection_name,
-                'VersionId': self.__pds_metadata.collection_version,
+                'ShortName': self.__granules_metadata_props.collection_name,
+                'VersionId': self.__granules_metadata_props.collection_version,
             },
             'DataGranule': {
-                'ProductionDateTime': self.__pds_metadata.prod_dt,
+                'ProductionDateTime': self.__granules_metadata_props.prod_dt,
             },
             'Temporal': {
                 'RangeDateTime': {
-                    'BeginningDateTime': self.__pds_metadata.beginning_dt,
-                    'EndingDateTime': self.__pds_metadata.ending_dt,
+                    'BeginningDateTime': self.__granules_metadata_props.beginning_dt,
+                    'EndingDateTime': self.__granules_metadata_props.ending_dt,
                 }
             }
         }
+        if self.__granules_metadata_props.insert_dt is not None:
+            incomplete_metadata['InsertTime'] = self.__granules_metadata_props.insert_dt
         self.__echo_metadata.update(incomplete_metadata)
         return self
