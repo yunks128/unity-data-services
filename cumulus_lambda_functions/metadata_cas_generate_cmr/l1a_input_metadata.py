@@ -1,8 +1,6 @@
-import json
-
 from cumulus_lambda_functions.lib.json_validator import JsonValidator
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
-
+from cumulus_lambda_functions.lib.metadata_extraction.granule_metadata_props import GranuleMetadataProps
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 L1A_INPUT_METADATA_SCHEMA = {
@@ -43,66 +41,10 @@ class L1AInputMetadata:
         """
         :param input_l1a_metadata: str - XML string
         """
+        self.__granule_metadata_props = GranuleMetadataProps()
         self.__input_l1a_metadata = input_l1a_metadata
         self.__l1a_metadata_dict = {}
         self.__mandatory_keys = ['EndDateTime', 'ProductName', 'ProductionDateTime', 'StartDateTime']
-
-        self.__beginning_dt = None
-        self.__ending_dt = None
-        self.__prod_dt = None
-        self.__prod_name = None
-
-    @property
-    def beginning_dt(self):
-        return self.__beginning_dt
-
-    @beginning_dt.setter
-    def beginning_dt(self, val):
-        """
-        :param val:
-        :return: None
-        """
-        self.__beginning_dt = val
-        return
-
-    @property
-    def ending_dt(self):
-        return self.__ending_dt
-
-    @ending_dt.setter
-    def ending_dt(self, val):
-        """
-        :param val:
-        :return: None
-        """
-        self.__ending_dt = val
-        return
-
-    @property
-    def prod_dt(self):
-        return self.__prod_dt
-
-    @prod_dt.setter
-    def prod_dt(self, val):
-        """
-        :param val:
-        :return: None
-        """
-        self.__prod_dt = val
-        return
-
-    @property
-    def prod_name(self):
-        return self.__prod_name
-
-    @prod_name.setter
-    def prod_name(self, val):
-        """
-        :param val:
-        :return: None
-        """
-        self.__prod_name = val
-        return
 
     def __validate_pds_metadata(self):
         result = JsonValidator(L1A_INPUT_METADATA_SCHEMA).validate(self.__input_l1a_metadata)
@@ -120,8 +62,8 @@ class L1AInputMetadata:
     def load(self):
         self.__validate_pds_metadata()
         self.__load_to_dict()
-        self.beginning_dt = self.__l1a_metadata_dict['StartDateTime']
-        self.ending_dt = self.__l1a_metadata_dict['EndDateTime']
-        self.prod_dt = self.__l1a_metadata_dict['ProductionDateTime']
-        self.prod_name = self.__l1a_metadata_dict['ProductName']
-        return self
+        self.__granule_metadata_props.beginning_dt = self.__l1a_metadata_dict['StartDateTime']
+        self.__granule_metadata_props.ending_dt = self.__l1a_metadata_dict['EndDateTime']
+        self.__granule_metadata_props.prod_dt = self.__l1a_metadata_dict['ProductionDateTime']
+        # self.__granule_metadata_props.prod_name = self.__l1a_metadata_dict['ProductName']  # NOT in used at this moment.
+        return self.__granule_metadata_props
