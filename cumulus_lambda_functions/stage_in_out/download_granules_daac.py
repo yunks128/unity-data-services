@@ -63,31 +63,37 @@ class DownloadGranulesDAAC(DownloadGranulesAbstract):
         headers = {
             'Authorization': f'Bearer {self.__edl_token}'
         }
+        local_item = {}
         for k, v in assets.items():
+            local_item[k] = v
             try:
                 LOGGER.debug(f'downloading: {v["href"]}')
                 r = requests.get(v['href'], headers=headers)
                 if r.status_code >= 400:
                     raise RuntimeError(f'wrong response status: {r.status_code}. details: {r.content}')
                 # TODO. how to correctly check redirecting to login page
-                with open(os.path.join(self._download_dir, os.path.basename(v["href"])), 'wb') as fd:
+                local_file_path = os.path.join(self._download_dir, os.path.basename(v["href"]))
+                with open(local_file_path, 'wb') as fd:
                     fd.write(r.content)
+                local_item[k]['href'] = local_file_path
             except Exception as e:
                 LOGGER.exception(f'failed to download {v}')
-                v['cause'] = str(e)
+                local_item[k]['description'] = f'download failed. {str(e)}'
                 error_log.append(v)
-        return error_log
+        return local_item, error_log
 
     def download(self, **kwargs) -> list:
         self.__set_props_from_env()
         LOGGER.debug(f'creating download dir: {self._download_dir}')
         downloading_urls = self.__get_downloading_urls(self._granules_json)
         error_list = []
+        local_items = []
         for each in downloading_urls:
             LOGGER.debug(f'working on {each}')
-            current_error_list = self.__download_one_granule(each)
+            local_item, current_error_list = self.__download_one_granule(each)
             error_list.extend(current_error_list)
+            local_items.append({'assets': local_item})
         if len(error_list) > 0:
             with open(f'{self._download_dir}/error.log', 'w') as error_file:
                 error_file.write(json.dumps(error_list, indent=4))
-        return downloading_urls
+        return local_items
