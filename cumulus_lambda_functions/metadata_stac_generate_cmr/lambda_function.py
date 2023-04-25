@@ -1,7 +1,7 @@
 import json
 
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
-from cumulus_lambda_functions.metadata_s4pa_generate_cmr.generate_cmr import GenerateCmr
+from cumulus_lambda_functions.metadata_stac_generate_cmr.generate_cmr import GenerateCmr
 
 
 def lambda_handler(event, context):
