@@ -7,8 +7,8 @@ import xmltodict
 from cumulus_lambda_functions.lib.aws.aws_s3 import AwsS3
 from cumulus_lambda_functions.lib.json_validator import JsonValidator
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
+from cumulus_lambda_functions.lib.metadata_extraction.echo_metadata import EchoMetadata
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
-from cumulus_lambda_functions.metadata_cas_generate_cmr.echo_metadata import EchoMetadata
 from cumulus_lambda_functions.metadata_cas_generate_cmr.l1a_input_metadata import L1AInputMetadata
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
@@ -349,13 +349,13 @@ class GenerateCmr:
         """
         self.__validate_input()
         LOGGER.error(f'input: {self.__event}')
-        pds_metadata = L1AInputMetadata(xmltodict.parse(self.__read_pds_metadata_file())).load()
-        granule_id = self.__event['cma']['event']['meta']['input_granules'][0]['granuleId']
-        collection_name = self.__event['cma']['event']['meta']['collection']['name']
-        collection_version = self.__event['cma']['event']['meta']['collection']['version']
-        echo_metadata = EchoMetadata(pds_metadata, granule_id, collection_name, collection_version).load().echo_metadata
+        granule_metadata_props = L1AInputMetadata(xmltodict.parse(self.__read_pds_metadata_file())).load()
+        granule_metadata_props.granule_id = self.__event['cma']['event']['meta']['input_granules'][0]['granuleId']
+        granule_metadata_props.collection_name = self.__event['cma']['event']['meta']['collection']['name']
+        granule_metadata_props.collection_version = self.__event['cma']['event']['meta']['collection']['version']
+        echo_metadata = EchoMetadata(granule_metadata_props).load().echo_metadata
         echo_metadata_xml_str = xmltodict.unparse(echo_metadata, pretty=True)
-        self.__s3.target_key = os.path.join(os.path.dirname(self.__s3.target_key), f'{granule_id}.cmr.xml')
+        self.__s3.target_key = os.path.join(os.path.dirname(self.__s3.target_key), f'{granule_metadata_props.granule_id}.cmr.xml')
         self.__s3.upload_bytes(echo_metadata_xml_str.encode())
         echo_metadata_md5 = hashlib.md5(echo_metadata_xml_str.encode()).hexdigest()
         returning_dict = deepcopy(self.__event['cma']['event'])
@@ -403,9 +403,9 @@ class GenerateCmr:
         returning_dict['payload'] = {
                 "granules": [
                     {
-                        "granuleId": granule_id,
-                        "dataType": collection_name,
-                        "version": collection_version,
+                        "granuleId": granule_metadata_props.granule_id,
+                        "dataType": granule_metadata_props.collection_name,
+                        "version": granule_metadata_props.collection_version,
                         "files": self.__input_file_list + [self.__generate_output_dict(echo_metadata_md5)],
                         # "files": self.__input_file_list,
                         "sync_granule_duration": 20302,
