@@ -224,6 +224,10 @@ class TestDockerEntry(TestCase):
             download_result = choose_process()
             self.assertTrue(isinstance(download_result, list), f'download_result is not list: {download_result}')
             self.assertEqual(sum([len(k) for k in download_result]), len(glob(os.path.join(tmp_dir_name, '*'))), f'downloaded file does not match')
+            self.assertTrue('assets' in download_result[0], f'no assets in download_result: {download_result}')
+            for each_granule in zip(granule_json, download_result):
+                remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
+                self.assertEqual(each_granule[1]['assets']['data']['href'], os.path.join(tmp_dir_name, remote_filename), f"mismatched: {each_granule[0]['assets']['data']['href']}")
         return
 
     def test_02_download__daac(self):
@@ -245,6 +249,11 @@ class TestDockerEntry(TestCase):
             error_file = os.path.join(tmp_dir_name, 'error.log')
             if FileUtils.file_exist(error_file):
                 self.assertTrue(False, f'some downloads failed. error.log exists. {FileUtils.read_json(error_file)}')
+            self.assertTrue('assets' in download_result[0], f'no assets in download_result: {download_result}')
+            for each_granule in zip(granule_json, download_result):
+                remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
+                self.assertEqual(each_granule[1]['assets']['data']['href'], os.path.join(tmp_dir_name, remote_filename),
+                                 f"mismatched: {each_granule[0]['assets']['data']['href']}")
         return
 
     def test_02_download__daac__from_file(self):
@@ -271,6 +280,11 @@ class TestDockerEntry(TestCase):
             error_file = os.path.join(downloading_dir, 'error.log')
             if FileUtils.file_exist(error_file):
                 self.assertTrue(False, f'some downloads failed. error.log exists. {FileUtils.read_json(error_file)}')
+            self.assertTrue('assets' in download_result[0], f'no assets in download_result: {download_result}')
+            for each_granule in zip(granule_json, download_result):
+                remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
+                self.assertEqual(each_granule[1]['assets']['data']['href'], os.path.join(downloading_dir, remote_filename),
+                                 f"mismatched: {each_granule[0]['assets']['data']['href']}")
         return
 
     def test_02_download__daac_error(self):
@@ -314,6 +328,11 @@ class TestDockerEntry(TestCase):
             error_file = os.path.join(downloading_dir, 'error.log')
             if FileUtils.file_exist(error_file):
                 self.assertTrue(False, f'some downloads failed. error.log exists. {FileUtils.read_json(error_file)}')
+            self.assertTrue('assets' in download_result[0], f'no assets in download_result: {download_result}')
+            for each_granule in zip(granule_json, download_result):
+                remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
+                self.assertEqual(each_granule[1]['assets']['data']['href'], os.path.join(downloading_dir, remote_filename),
+                                 f"mismatched: {each_granule[0]['assets']['data']['href']}")
         return
 
     def test_03_upload(self):
