@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from pystac import Item, Asset
 
-from cumulus_lambda_functions.lib.metadata_extraction.stac_input_metadata import StacInputMetadata
+from cumulus_lambda_functions.metadata_stac_generate_cmr.stac_input_metadata import StacInputMetadata
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
 
 
