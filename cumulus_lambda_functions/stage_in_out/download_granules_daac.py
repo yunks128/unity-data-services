@@ -1,48 +1,27 @@
+import requests
+
+from cumulus_lambda_functions.lib.earthdata_login.urs_token_retriever import URSTokenRetriever
+from cumulus_lambda_functions.stage_in_out.download_granules_abstract import DownloadGranulesAbstract
 import json
 import logging
 import os
 
-from cumulus_lambda_functions.cumulus_dapa_client.dapa_client import DapaClient
-from cumulus_lambda_functions.lib.aws.aws_s3 import AwsS3
-from cumulus_lambda_functions.lib.utils.file_utils import FileUtils
-
 LOGGER = logging.getLogger(__name__)
 
 
-class DownloadGranules:
-    COLLECTION_ID_KEY = 'COLLECTION_ID'
-    DOWNLOAD_DIR_KEY = 'DOWNLOAD_DIR'
+class DownloadGranulesDAAC(DownloadGranulesAbstract):
 
-    LIMITS_KEY = 'LIMITS'
-    DATE_FROM_KEY = 'DATE_FROM'
-    DATE_TO_KEY = 'DATE_TO'
-    VERIFY_SSL_KEY = 'VERIFY_SSL'
-
-    def __init__(self):
-        self.__collection_id = ''
-        self.__date_from = ''
-        self.__date_to = ''
-        self.__limit = 1000
-        self.__download_dir = '/tmp'
-        self.__verify_ssl = True
-        self.__s3 = AwsS3()
+    def __init__(self) -> None:
+        super().__init__()
+        self.__edl_token = None
 
     def __set_props_from_env(self):
-        missing_keys = [k for k in [self.COLLECTION_ID_KEY, self.DOWNLOAD_DIR_KEY] if k not in os.environ]
+        missing_keys = [k for k in [self.STAC_JSON, self.DOWNLOAD_DIR_KEY] if k not in os.environ]
         if len(missing_keys) > 0:
             raise ValueError(f'missing environment keys: {missing_keys}')
-
-        self.__collection_id = os.environ.get(self.COLLECTION_ID_KEY)
-        self.__download_dir = os.environ.get(self.DOWNLOAD_DIR_KEY)
-        self.__download_dir = self.__download_dir[:-1] if self.__download_dir.endswith('/') else self.__download_dir
-        if self.LIMITS_KEY not in os.environ:
-            LOGGER.warning(f'missing {self.LIMITS_KEY}. using default: {self.__limit}')
-        else:
-            self.__limit = int(os.environ.get(self.LIMITS_KEY))
-
-        self.__date_from = os.environ.get(self.DATE_FROM_KEY, '')
-        self.__date_to = os.environ.get(self.DATE_TO_KEY, '')
-        self.__verify_ssl = os.environ.get(self.VERIFY_SSL_KEY, 'TRUE').strip().upper() == 'TRUE'
+        self._retrieve_stac_json()
+        self._setup_download_dir()
+        self.__edl_token = URSTokenRetriever().start()
         return self
 
     def __get_downloading_urls(self, granules_result: list):
@@ -81,29 +60,40 @@ class DownloadGranules:
         :return:
         """
         error_log = []
+        headers = {
+            'Authorization': f'Bearer {self.__edl_token}'
+        }
+        local_item = {}
         for k, v in assets.items():
+            local_item[k] = v
             try:
                 LOGGER.debug(f'downloading: {v["href"]}')
-                self.__s3.set_s3_url(v['href']).download(self.__download_dir)
+                r = requests.get(v['href'], headers=headers)
+                if r.status_code >= 400:
+                    raise RuntimeError(f'wrong response status: {r.status_code}. details: {r.content}')
+                # TODO. how to correctly check redirecting to login page
+                local_file_path = os.path.join(self._download_dir, os.path.basename(v["href"]))
+                with open(local_file_path, 'wb') as fd:
+                    fd.write(r.content)
+                local_item[k]['href'] = local_file_path
             except Exception as e:
                 LOGGER.exception(f'failed to download {v}')
-                v['cause'] = str(e)
+                local_item[k]['description'] = f'download failed. {str(e)}'
                 error_log.append(v)
-        return error_log
+        return local_item, error_log
 
-    def start(self):
+    def download(self, **kwargs) -> list:
         self.__set_props_from_env()
-        LOGGER.debug(f'creating download dir: {self.__download_dir}')
-        FileUtils.mk_dir_p(self.__download_dir)
-        dapa_client = DapaClient().with_verify_ssl(self.__verify_ssl)
-        granules_result = dapa_client.get_granules(self.__collection_id, self.__limit, 0, self.__date_from, self.__date_to)
-        downloading_urls = self.__get_downloading_urls(granules_result)
+        LOGGER.debug(f'creating download dir: {self._download_dir}')
+        downloading_urls = self.__get_downloading_urls(self._granules_json)
         error_list = []
+        local_items = []
         for each in downloading_urls:
             LOGGER.debug(f'working on {each}')
-            current_error_list = self.__download_one_granule(each)
+            local_item, current_error_list = self.__download_one_granule(each)
             error_list.extend(current_error_list)
+            local_items.append({'assets': local_item})
         if len(error_list) > 0:
-            with open(f'{self.__download_dir}/error.log', 'w') as error_file:
+            with open(f'{self._download_dir}/error.log', 'w') as error_file:
                 error_file.write(json.dumps(error_list, indent=4))
-        return
+        return local_items
