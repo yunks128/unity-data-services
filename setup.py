@@ -7,6 +7,8 @@ install_requires = [
     'requests===2.27.1',
     'elasticsearch===7.13.4',
     'requests_aws4auth',
+    'tenacity',
+    'requests'
 ]
 
 flask_requires = [
@@ -19,7 +21,7 @@ extra_requires = ['botocore', 'boto3',]
 
 setup(
     name="cumulus_lambda_functions",
-    version="1.10.1",
+    version="3.6.1",
     packages=find_packages(),
     install_requires=install_requires,
     tests_require=['mock', 'nose', 'sphinx', 'sphinx_rtd_theme', 'coverage', 'pystac', 'python-dotenv', 'jsonschema'],

@@ -1,15 +1,17 @@
 version: "3.7"
 services:
   cumulus_granules_upload:
-    image: ghcr.io/unity-sds/unity-data-services:1.10.1
+    image: ghcr.io/unity-sds/unity-data-services:1.7.0
     volumes:
-      - /tmp/snpp_upload_test_1:/etc/snpp_upload_test_1
-    command: ["upload"]
+      - /tmp/cumulus_granules:/etc/granules
+    command: ["UPLOAD"]
     environment:
       AWS_ACCESS_KEY_ID: 'dd'
       AWS_SECRET_ACCESS_KEY: 'dddd'
       AWS_SESSION_TOKEN: 'dddd'
       AWS_REGION: 'us-west-2'
+
+      PYTHONUNBUFFERED: 1
 
       UNITY_BEARER_TOKEN: 'token without the header "Bearer". The alternative is the following group'
 
@@ -19,13 +21,16 @@ services:
       CLIENT_ID: 'ask U-CS. ex: 7a1fglm2d54eoggj13lccivp25'
       COGNITO_URL: 'ask U-CS. ex: https://cognito-idp.us-west-2.amazonaws.com'
 
-      DAPA_API: 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
-      COLLECTION_ID: 'SNDR_SNPP_ATMS_L1A___1'
-      STAGING_BUCKET: 'am-uds-dev-cumulus-staging'
-      UPLOAD_DIR: '/etc/snpp_upload_test_1'
-      PROVIDER_ID: 'SNPP'
       VERIFY_SSL: 'FALSE'
+      DAPA_API: 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
+      COLLECTION_ID: 'NEW_COLLECTION_EXAMPLE_L1B___9'
+      STAGING_BUCKET: 'uds-test-cumulus-staging'
       DELETE_FILES: 'FALSE'
+
+      GRANULES_SEARCH_DOMAIN: 'UNITY'
+      GRANULES_UPLOAD_TYPE: 'S3 or CATALOG_S3'
+      UPLOAD_DIR: '/etc/snpp_upload_test_1. or empty string'
+      CATALOG_FILE: 'empty string or /path/to/stac/catalog file'
       LOG_LEVEL: '20'
     networks:
       - internal
