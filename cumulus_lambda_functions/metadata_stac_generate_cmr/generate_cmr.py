@@ -1,3 +1,4 @@
+import json
 import os
 from copy import deepcopy
 
@@ -9,6 +10,7 @@ from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGen
 from cumulus_lambda_functions.lib.metadata_extraction.echo_metadata import EchoMetadata
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
 from cumulus_lambda_functions.metadata_s4pa_generate_cmr.pds_metadata import PdsMetadata
+from cumulus_lambda_functions.metadata_stac_generate_cmr.stac_input_metadata import StacInputMetadata
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
@@ -97,7 +99,7 @@ class GenerateCmr:
         self.__event = event
         self.__s3 = AwsS3()
         self._pds_file_dict = None
-        self.__file_postfixes = os.getenv('FILE_POSTFIX', '1.PDS.XML, NC.XML')
+        self.__file_postfixes = os.getenv('FILE_POSTFIX', 'STAC.JSON')
         self.__file_postfixes = [k.upper().strip() for k in self.__file_postfixes.split(',')]
         self.__input_file_list = []
 
@@ -128,10 +130,10 @@ class GenerateCmr:
     def start(self):
         self.__validate_input()
         LOGGER.error(f'input: {self.__event}')
-        pds_metadata = PdsMetadata(xmltodict.parse(self.__read_pds_metadata_file())).load()
-        echo_metadata = EchoMetadata(pds_metadata).load().echo_metadata
+        granules_metadata_props = StacInputMetadata(json.loads(self.__read_pds_metadata_file())).start()
+        echo_metadata = EchoMetadata(granules_metadata_props).load().echo_metadata
         echo_metadata_xml_str = xmltodict.unparse(echo_metadata, pretty=True)
-        self.__s3.target_key = os.path.join(os.path.dirname(self.__s3.target_key), f'{pds_metadata.granule_id}.cmr.xml')
+        self.__s3.target_key = os.path.join(os.path.dirname(self.__s3.target_key), f'{granules_metadata_props.granule_id}.cmr.xml')
         self.__s3.upload_bytes(echo_metadata_xml_str.encode())
 
         # put payload
@@ -190,8 +192,8 @@ class GenerateCmr:
                 "granules": [
                     {
                         "granuleId": self.__event['cma']['event']['meta']['input_granules'][0]['granuleId'],
-                        "dataType": pds_metadata.collection_name,
-                        "version": f'{pds_metadata.collection_version}',
+                        "dataType": granules_metadata_props.collection_name,
+                        "version": f'{granules_metadata_props.collection_version}',
                         "files": self.__input_file_list + [{
                                 "key": self.__s3.target_key,
                                 "fileName": os.path.basename(self.__s3.target_key),
