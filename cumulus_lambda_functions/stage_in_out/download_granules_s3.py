@@ -4,6 +4,7 @@ import logging
 import os
 
 from cumulus_lambda_functions.lib.aws.aws_s3 import AwsS3
+from cumulus_lambda_functions.stage_in_out.stage_in_out_utils import StageInOutUtils
 
 LOGGER = logging.getLogger(__name__)
 
@@ -84,4 +85,5 @@ class DownloadGranulesS3(DownloadGranulesAbstract):
         if len(error_list) > 0:
             with open(f'{self._download_dir}/error.log', 'w') as error_file:
                 error_file.write(json.dumps(error_list, indent=4))
+        StageInOutUtils.write_output_to_file(local_items)
         return local_items

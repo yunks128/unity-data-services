@@ -4,7 +4,6 @@ from sys import argv
 
 from cumulus_lambda_functions.stage_in_out.catalog_granules_factory import CatalogGranulesFactory
 from cumulus_lambda_functions.stage_in_out.download_granules_factory import DownloadGranulesFactory
-from cumulus_lambda_functions.stage_in_out.download_granules_s3 import DownloadGranulesS3
 from cumulus_lambda_functions.stage_in_out.search_granules_factory import SearchGranulesFactory
 from cumulus_lambda_functions.stage_in_out.upoad_granules_factory import UploadGranulesFactory
 

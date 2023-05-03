@@ -2,6 +2,7 @@ import json
 
 from cumulus_lambda_functions.stage_in_out.search_collections_factory import SearchCollectionsFactory
 from cumulus_lambda_functions.stage_in_out.search_granules_factory import SearchGranulesFactory
+from cumulus_lambda_functions.stage_in_out.stage_in_out_utils import StageInOutUtils
 from cumulus_lambda_functions.stage_in_out.upload_granules_abstract import UploadGranulesAbstract
 import logging
 import os
@@ -110,4 +111,5 @@ class UploadGranulesS3(UploadGranulesAbstract):
                 'assets': granule_hrefs,
             })
         LOGGER.debug(f'dapa_body_granules: {dapa_body_granules}')
+        StageInOutUtils.write_output_to_file(dapa_body_granules)
         return dapa_body_granules
