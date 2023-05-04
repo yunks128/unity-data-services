@@ -13,3 +13,10 @@ class TestStageInOutUtils(TestCase):
             StageInOutUtils.write_output_to_file({'test1': True})
             self.assertTrue(FileUtils.file_exist(os.environ.get(StageInOutUtils.OUTPUT_FILE)))
         return
+
+    def test_02(self):
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            os.environ[StageInOutUtils.OUTPUT_FILE] = os.path.join(tmp_dir_name, 'output.json')
+            StageInOutUtils.write_output_to_file({'test1': True})
+            self.assertTrue(FileUtils.file_exist(os.environ.get(StageInOutUtils.OUTPUT_FILE)))
+        return

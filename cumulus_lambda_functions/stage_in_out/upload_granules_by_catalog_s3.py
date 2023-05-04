@@ -2,7 +2,6 @@ import json
 
 from cumulus_lambda_functions.cumulus_stac.granules_catalog import GranulesCatalog
 from cumulus_lambda_functions.stage_in_out.search_collections_factory import SearchCollectionsFactory
-from cumulus_lambda_functions.stage_in_out.stage_in_out_utils import StageInOutUtils
 from cumulus_lambda_functions.stage_in_out.upload_granules_abstract import UploadGranulesAbstract
 import logging
 import os
@@ -93,5 +92,4 @@ class UploadGranulesByCatalogS3(UploadGranulesAbstract):
         if len(errors) > 0:
             LOGGER.error(f'some errors while uploading granules: {errors}')
         LOGGER.debug(f'dapa_body_granules: {dapa_body_granules}')
-        StageInOutUtils.write_output_to_file(dapa_body_granules)
         return dapa_body_granules

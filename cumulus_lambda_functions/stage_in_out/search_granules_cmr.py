@@ -6,7 +6,6 @@ import requests
 
 from cumulus_lambda_functions.cumulus_stac.stac_utils import StacUtils
 from cumulus_lambda_functions.stage_in_out.search_granules_abstract import SearchGranulesAbstract
-from cumulus_lambda_functions.stage_in_out.stage_in_out_utils import StageInOutUtils
 
 LOGGER = logging.getLogger(__name__)
 
@@ -102,5 +101,4 @@ class SearchGranulesCmr(SearchGranulesAbstract):
                 break
         results = self.__get_correct_result_count(results)
         results = StacUtils.reduce_stac_list_to_data_links(results) if self.__filter_results else results
-        StageInOutUtils.write_output_to_file(results)
         return json.dumps(results)
