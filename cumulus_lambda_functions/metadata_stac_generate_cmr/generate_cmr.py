@@ -130,7 +130,7 @@ class GenerateCmr:
 
     def __get_pds_metadata_file(self):
         self.__input_file_list = self.__event['cma']['event']['meta']['input_granules'][0]['files']
-        pds_metadata_file = None
+        stac_metadata_file = None
         for each_file in self.__input_file_list:
             if 'fileName' not in each_file and 'name' in each_file:  # add fileName if there is only name
                 each_file['fileName'] = each_file['name']
@@ -142,8 +142,8 @@ class GenerateCmr:
             file_key_upper = each_file['key'].upper().strip()
             LOGGER.debug(f'checking file_key_upper: {file_key_upper} against {self.__file_postfixes}')
             if any([file_key_upper.endswith(k) for k in self.__file_postfixes]):
-                return each_file
-        return pds_metadata_file
+                stac_metadata_file = each_file
+        return stac_metadata_file
 
     def __read_pds_metadata_file(self):
         self._pds_file_dict = self.__get_pds_metadata_file()
