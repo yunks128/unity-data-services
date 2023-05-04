@@ -14,5 +14,7 @@ class StageInOutUtils:
         if StageInOutUtils.OUTPUT_FILE not in os.environ:
             LOGGER.debug(f'Not writing output to file due to missing {StageInOutUtils.OUTPUT_FILE} in ENV')
             return
-        FileUtils.write_json(os.environ.get(StageInOutUtils.OUTPUT_FILE), output_json)
+        output_filepath = os.environ.get(StageInOutUtils.OUTPUT_FILE)
+        FileUtils.mk_dir_p(os.path.dirname(output_filepath))
+        FileUtils.write_json(output_filepath, output_json)
         return
