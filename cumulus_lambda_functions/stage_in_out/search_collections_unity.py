@@ -4,7 +4,6 @@ import os
 
 from cumulus_lambda_functions.cumulus_dapa_client.dapa_client import DapaClient
 from cumulus_lambda_functions.stage_in_out.search_collections_abstract import SearchCollectionsAbstract
-from cumulus_lambda_functions.stage_in_out.stage_in_out_utils import StageInOutUtils
 
 LOGGER = logging.getLogger(__name__)
 
@@ -46,5 +45,4 @@ class SearchCollectionsUnity(SearchCollectionsAbstract):
         self.__set_props_from_env()
         dapa_client = DapaClient().with_verify_ssl(self.__verify_ssl)
         collections_result = dapa_client.get_collection(self.__collection_id)
-        StageInOutUtils.write_output_to_file(collections_result)
         return json.dumps(collections_result)

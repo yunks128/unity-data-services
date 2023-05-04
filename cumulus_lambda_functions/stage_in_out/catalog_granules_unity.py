@@ -4,7 +4,6 @@ import json
 import logging
 import os
 
-from cumulus_lambda_functions.stage_in_out.stage_in_out_utils import StageInOutUtils
 
 LOGGER = logging.getLogger(__name__)
 
@@ -38,5 +37,4 @@ class CatalogGranulesUnity(CatalogGranulesAbstract):
         dapa_client = DapaClient().with_verify_ssl(self.__verify_ssl)
         LOGGER.debug(f'dapa_body_granules: {dapa_body}')
         dapa_ingest_result = dapa_client.ingest_granules_w_cnm(dapa_body)
-        StageInOutUtils.write_output_to_file(dapa_ingest_result)
         return dapa_ingest_result
