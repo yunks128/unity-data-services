@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - [#149](https://github.com/unity-sds/unity-data-services/pull/149) feat: writing output content to a file if ENV is provided
 
+## [3.7.1] - 2023-05-04
+### Changed
+- [#148](https://github.com/unity-sds/unity-data-services/pull/148) fix: use cas structure to generate metadata for stac
+
 ## [3.7.0] - 2023-04-25
 ### Added
 - [#146](https://github.com/unity-sds/unity-data-services/pull/146) feat: Stac metadata extraction 
