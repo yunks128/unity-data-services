@@ -4,7 +4,6 @@ import os
 
 from cumulus_lambda_functions.cumulus_dapa_client.dapa_client import DapaClient
 from cumulus_lambda_functions.cumulus_stac.stac_utils import StacUtils
-from cumulus_lambda_functions.lib.utils.file_utils import FileUtils
 from cumulus_lambda_functions.stage_in_out.search_granules_abstract import SearchGranulesAbstract
 
 LOGGER = logging.getLogger(__name__)
@@ -51,4 +50,5 @@ class SearchGranulesUnity(SearchGranulesAbstract):
         self.__set_props_from_env()
         dapa_client = DapaClient().with_verify_ssl(self.__verify_ssl)
         granules_result = dapa_client.get_all_granules(self.__collection_id, self.__limit, self.__date_from, self.__date_to)
-        return json.dumps(StacUtils.reduce_stac_list_to_data_links(granules_result)) if self.__filter_results else json.dumps(granules_result)
+        granules_result = StacUtils.reduce_stac_list_to_data_links(granules_result) if self.__filter_results else granules_result
+        return json.dumps(granules_result)
