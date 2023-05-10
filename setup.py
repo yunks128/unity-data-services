@@ -1,14 +1,13 @@
 from setuptools import find_packages, setup
 
 install_requires = [
+    'elasticsearch===7.13.4',
+    'requests_aws4auth',
+    'requests===2.30.0',
     'pystac', 'jsonschema',
     'fastjsonschema',
     'xmltodict',
-    'requests===2.30.0',
-    'elasticsearch===7.13.4',
-    'requests_aws4auth',
     'tenacity',
-    'requests'
 ]
 
 flask_requires = [
