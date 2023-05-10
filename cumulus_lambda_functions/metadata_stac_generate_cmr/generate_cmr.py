@@ -1,4 +1,5 @@
 import hashlib
+import json
 import os
 from copy import deepcopy
 
@@ -9,7 +10,7 @@ from cumulus_lambda_functions.lib.json_validator import JsonValidator
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from cumulus_lambda_functions.lib.metadata_extraction.echo_metadata import EchoMetadata
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
-from cumulus_lambda_functions.metadata_cas_generate_cmr.l1a_input_metadata import L1AInputMetadata
+from cumulus_lambda_functions.metadata_stac_generate_cmr.stac_input_metadata import StacInputMetadata
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
@@ -117,6 +118,8 @@ class GenerateCmr:
         self.__event = event
         self.__s3 = AwsS3()
         self._pds_file_dict = None
+        self.__file_postfixes = os.getenv('FILE_POSTFIX', 'STAC.JSON')
+        self.__file_postfixes = [k.upper().strip() for k in self.__file_postfixes.split(',')]
         self.__input_file_list = []
 
     def __validate_input(self):
@@ -127,7 +130,7 @@ class GenerateCmr:
 
     def __get_pds_metadata_file(self):
         self.__input_file_list = self.__event['cma']['event']['meta']['input_granules'][0]['files']
-        pds_metadata_file = None
+        stac_metadata_file = None
         for each_file in self.__input_file_list:
             if 'fileName' not in each_file and 'name' in each_file:  # add fileName if there is only name
                 each_file['fileName'] = each_file['name']
@@ -136,9 +139,11 @@ class GenerateCmr:
                 each_file['bucket'] = s3_bucket
                 each_file['key'] = s3_key
             LOGGER.debug(f'checking file: {each_file}')
-            if each_file['key'].upper().endswith('.NC.CAS'):
-                pds_metadata_file = each_file
-        return pds_metadata_file
+            file_key_upper = each_file['key'].upper().strip()
+            LOGGER.debug(f'checking file_key_upper: {file_key_upper} against {self.__file_postfixes}')
+            if any([file_key_upper.endswith(k) for k in self.__file_postfixes]):
+                stac_metadata_file = each_file
+        return stac_metadata_file
 
     def __read_pds_metadata_file(self):
         self._pds_file_dict = self.__get_pds_metadata_file()
@@ -349,13 +354,10 @@ class GenerateCmr:
         """
         self.__validate_input()
         LOGGER.error(f'input: {self.__event}')
-        granule_metadata_props = L1AInputMetadata(xmltodict.parse(self.__read_pds_metadata_file())).load()
-        granule_metadata_props.granule_id = self.__event['cma']['event']['meta']['input_granules'][0]['granuleId']
-        granule_metadata_props.collection_name = self.__event['cma']['event']['meta']['collection']['name']
-        granule_metadata_props.collection_version = self.__event['cma']['event']['meta']['collection']['version']
-        echo_metadata = EchoMetadata(granule_metadata_props).load().echo_metadata
+        granules_metadata_props = StacInputMetadata(json.loads(self.__read_pds_metadata_file())).start()
+        echo_metadata = EchoMetadata(granules_metadata_props).load().echo_metadata
         echo_metadata_xml_str = xmltodict.unparse(echo_metadata, pretty=True)
-        self.__s3.target_key = os.path.join(os.path.dirname(self.__s3.target_key), f'{granule_metadata_props.granule_id}.cmr.xml')
+        self.__s3.target_key = os.path.join(os.path.dirname(self.__s3.target_key), f'{granules_metadata_props.granule_id}.cmr.xml')
         self.__s3.upload_bytes(echo_metadata_xml_str.encode())
         echo_metadata_md5 = hashlib.md5(echo_metadata_xml_str.encode()).hexdigest()
         returning_dict = deepcopy(self.__event['cma']['event'])
@@ -403,9 +405,9 @@ class GenerateCmr:
         returning_dict['payload'] = {
                 "granules": [
                     {
-                        "granuleId": granule_metadata_props.granule_id,
-                        "dataType": granule_metadata_props.collection_name,
-                        "version": granule_metadata_props.collection_version,
+                        "granuleId": self.__event['cma']['event']['meta']['input_granules'][0]['granuleId'],
+                        "dataType": granules_metadata_props.collection_name,
+                        "version": f'{granules_metadata_props.collection_version}',
                         "files": self.__input_file_list + [self.__generate_output_dict(echo_metadata_md5)],
                         # "files": self.__input_file_list,
                         "sync_granule_duration": 20302,

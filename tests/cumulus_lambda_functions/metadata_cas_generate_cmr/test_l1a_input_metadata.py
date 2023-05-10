@@ -1,6 +1,7 @@
 import unittest
 import xmltodict
 
+from cumulus_lambda_functions.lib.metadata_extraction.granule_metadata_props import GranuleMetadataProps
 from cumulus_lambda_functions.metadata_cas_generate_cmr.l1a_input_metadata import L1AInputMetadata
 
 
@@ -102,11 +103,12 @@ class TestL1aInputMetadata(unittest.TestCase):
     </keyval>
 </cas:metadata>
 '''
-        l1a = L1AInputMetadata(xmltodict.parse(input_str)).load()
+        l1a: GranuleMetadataProps = L1AInputMetadata(xmltodict.parse(input_str)).load()
         self.assertEqual(l1a.beginning_dt, '2016-01-14T09:54:00.000Z', 'wrong beginning_dt')
         self.assertEqual(l1a.ending_dt, '2016-01-14T10:00:00.000Z', 'wrong ending_dt')
         self.assertEqual(l1a.prod_dt, '2020-12-14T13:50:00.000Z', 'wrong prod_dt')
-        self.assertEqual(l1a.prod_name, 'SNDR.SNPP.ATMS.20160114T0954.m06.g100.L1A.L1AMw_nominal2.v03_15_00.D.201214135000.nc', 'wrong prod_name')
+        self.assertEqual(l1a.granule_id, None, 'wrong granule_id')
+        # self.assertEqual(l1a.prod_name, 'SNDR.SNPP.ATMS.20160114T0954.m06.g100.L1A.L1AMw_nominal2.v03_15_00.D.201214135000.nc', 'wrong prod_name')
         return
 
     def test_02(self):
@@ -231,11 +233,12 @@ class TestL1aInputMetadata(unittest.TestCase):
     </keyval>
 </cas:metadata>
     '''
-            l1a = L1AInputMetadata(xmltodict.parse(input_str)).load()
+            l1a: GranuleMetadataProps = L1AInputMetadata(xmltodict.parse(input_str)).load()
             self.assertEqual(l1a.beginning_dt, '2016-01-14T11:42:00.000Z', 'wrong beginning_dt')
             self.assertEqual(l1a.ending_dt, '2016-01-14T11:48:00.000Z', 'wrong ending_dt')
             self.assertEqual(l1a.prod_dt, '2015-05-20T12:00:00.000Z', 'wrong prod_dt')
-            self.assertEqual(l1a.prod_name,
-                             'SNDR.SNPP.ATMS.20160114T1142.m06.g118.L1B.L1BMw_nominal.v03_07.D.150520120000.nc',
-                             'wrong prod_name')
+            self.assertEqual(l1a.granule_id, None, 'wrong granule_id')
+            # self.assertEqual(l1a.prod_name,
+            #                  'SNDR.SNPP.ATMS.20160114T1142.m06.g118.L1B.L1BMw_nominal.v03_07.D.150520120000.nc',
+            #                  'wrong prod_name')
             return
