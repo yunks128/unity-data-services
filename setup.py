@@ -4,7 +4,7 @@ install_requires = [
     'pystac', 'jsonschema',
     'fastjsonschema',
     'xmltodict',
-    'requests===2.27.1',
+    'requests===2.30.0',
     'elasticsearch===7.13.4',
     'requests_aws4auth',
     'tenacity',
