@@ -1,7 +1,6 @@
 import json
 
 from cumulus_lambda_functions.stage_in_out.search_collections_factory import SearchCollectionsFactory
-from cumulus_lambda_functions.stage_in_out.search_granules_factory import SearchGranulesFactory
 from cumulus_lambda_functions.stage_in_out.upload_granules_abstract import UploadGranulesAbstract
 import logging
 import os

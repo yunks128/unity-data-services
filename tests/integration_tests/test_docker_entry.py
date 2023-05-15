@@ -35,12 +35,16 @@ class TestDockerEntry(TestCase):
         if len(argv) > 1:
             argv.pop(-1)
         argv.append('SEARCH')
-        search_result = choose_process()
-        search_result = json.loads(search_result)
-        self.assertTrue(isinstance(search_result, list), f'search_result is not list: {search_result}')
-        self.assertEqual(len(search_result), 4000, f'wrong length')
-        search_result = set([k['id'] for k in search_result])
-        self.assertEqual(len(search_result),4000, f'wrong length. not unique')
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
+            search_result_str = choose_process()
+            search_result = json.loads(search_result_str)
+            self.assertTrue(isinstance(search_result, list), f'search_result is not list: {search_result}')
+            self.assertEqual(len(search_result), 4000, f'wrong length')
+            search_result = set([k['id'] for k in search_result])
+            self.assertEqual(len(search_result),4000, f'wrong length. not unique')
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
+            self.assertEqual(sorted(json.dumps(FileUtils.read_json(os.environ['OUTPUT_FILE']))), sorted(search_result_str), f'not identical result')
         return
 
     def test_01_search_part_02(self):
@@ -220,6 +224,7 @@ class TestDockerEntry(TestCase):
             argv.pop(-1)
         argv.append('DOWNLOAD')
         with tempfile.TemporaryDirectory() as tmp_dir_name:
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
             os.environ['DOWNLOAD_DIR'] = tmp_dir_name
             download_result = choose_process()
             self.assertTrue(isinstance(download_result, list), f'download_result is not list: {download_result}')
@@ -228,6 +233,7 @@ class TestDockerEntry(TestCase):
             for each_granule in zip(granule_json, download_result):
                 remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
                 self.assertEqual(each_granule[1]['assets']['data']['href'], os.path.join(tmp_dir_name, remote_filename), f"mismatched: {each_granule[0]['assets']['data']['href']}")
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
 
     def test_02_download__daac(self):
@@ -242,6 +248,7 @@ class TestDockerEntry(TestCase):
             argv.pop(-1)
         argv.append('DOWNLOAD')
         with tempfile.TemporaryDirectory() as tmp_dir_name:
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
             os.environ['DOWNLOAD_DIR'] = tmp_dir_name
             download_result = choose_process()
             self.assertTrue(isinstance(download_result, list), f'download_result is not list: {download_result}')
@@ -254,6 +261,7 @@ class TestDockerEntry(TestCase):
                 remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
                 self.assertEqual(each_granule[1]['assets']['data']['href'], os.path.join(tmp_dir_name, remote_filename),
                                  f"mismatched: {each_granule[0]['assets']['data']['href']}")
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
 
     def test_02_download__daac__from_file(self):
@@ -268,6 +276,7 @@ class TestDockerEntry(TestCase):
             argv.pop(-1)
         argv.append('DOWNLOAD')
         with tempfile.TemporaryDirectory() as tmp_dir_name:
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
             granule_json_file = os.path.join(tmp_dir_name, 'input_file.json')
             downloading_dir = os.path.join(tmp_dir_name, 'downloading_dir')
             FileUtils.mk_dir_p(downloading_dir)
@@ -285,6 +294,7 @@ class TestDockerEntry(TestCase):
                 remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
                 self.assertEqual(each_granule[1]['assets']['data']['href'], os.path.join(downloading_dir, remote_filename),
                                  f"mismatched: {each_granule[0]['assets']['data']['href']}")
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
 
     def test_02_download__daac_error(self):
@@ -299,6 +309,7 @@ class TestDockerEntry(TestCase):
             argv.pop(-1)
         argv.append('DOWNLOAD')
         with tempfile.TemporaryDirectory() as tmp_dir_name:
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
             # TODO this is downloading a login page HTML
             os.environ['DOWNLOAD_DIR'] = tmp_dir_name
             download_result = choose_process()
@@ -307,6 +318,7 @@ class TestDockerEntry(TestCase):
             error_file = os.path.join(tmp_dir_name, 'error.log')
             if FileUtils.file_exist(error_file):
                 self.assertTrue(False, f'some downloads failed. error.log exists. {FileUtils.read_json(error_file)}')
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
 
     def test_02_download__from_file(self):
@@ -316,6 +328,7 @@ class TestDockerEntry(TestCase):
         argv.append('DOWNLOAD')
         os.environ['GRANULES_DOWNLOAD_TYPE'] = 'S3'
         with tempfile.TemporaryDirectory() as tmp_dir_name:
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
             granule_json_file = os.path.join(tmp_dir_name, 'input_file.json')
             downloading_dir = os.path.join(tmp_dir_name, 'downloading_dir')
             FileUtils.mk_dir_p(downloading_dir)
@@ -333,6 +346,7 @@ class TestDockerEntry(TestCase):
                 remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
                 self.assertEqual(each_granule[1]['assets']['data']['href'], os.path.join(downloading_dir, remote_filename),
                                  f"mismatched: {each_granule[0]['assets']['data']['href']}")
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
 
     def test_03_upload(self):
@@ -354,6 +368,7 @@ class TestDockerEntry(TestCase):
         argv.append('UPLOAD')
 
         with tempfile.TemporaryDirectory() as tmp_dir_name:
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
             os.environ['UPLOAD_DIR'] = tmp_dir_name
             with open(os.path.join(tmp_dir_name, 'test_file01.nc'), 'w') as ff:
                 ff.write('sample_file')
@@ -465,6 +480,7 @@ class TestDockerEntry(TestCase):
             self.assertTrue('data' in upload_result['assets'], 'missing assets#data')
             self.assertTrue('href' in upload_result['assets']['data'], 'missing assets#data#href')
             self.assertTrue(upload_result['assets']['data']['href'].startswith(f's3://{os.environ["STAGING_BUCKET"]}/'))
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
 
     def test_03_upload_catalog(self):
@@ -487,6 +503,7 @@ class TestDockerEntry(TestCase):
         argv.append('UPLOAD')
 
         with tempfile.TemporaryDirectory() as tmp_dir_name:
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
             os.environ['UPLOAD_DIR'] = ''  # not needed
             os.environ['CATALOG_FILE'] = os.path.join(tmp_dir_name, 'catalog.json')
             with open(os.path.join(tmp_dir_name, 'test_file01.nc'), 'w') as ff:
@@ -629,6 +646,7 @@ class TestDockerEntry(TestCase):
             self.assertTrue('data' in upload_result['assets'], 'missing assets#data')
             self.assertTrue('href' in upload_result['assets']['data'], 'missing assets#data#href')
             self.assertTrue(upload_result['assets']['data']['href'].startswith(f's3://{os.environ["STAGING_BUCKET"]}/'))
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
 
     def test_04_catalog(self):
@@ -646,6 +664,9 @@ class TestDockerEntry(TestCase):
         if len(argv) > 1:
             argv.pop(-1)
         argv.append('CATALOG')
-        catalog_result = choose_process()
-        self.assertEqual('registered', catalog_result, 'wrong status')
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
+            catalog_result = choose_process()
+            self.assertEqual('registered', catalog_result, 'wrong status')
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return

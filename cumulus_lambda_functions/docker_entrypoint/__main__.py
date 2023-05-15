@@ -4,24 +4,32 @@ from sys import argv
 
 from cumulus_lambda_functions.stage_in_out.catalog_granules_factory import CatalogGranulesFactory
 from cumulus_lambda_functions.stage_in_out.download_granules_factory import DownloadGranulesFactory
-from cumulus_lambda_functions.stage_in_out.download_granules_s3 import DownloadGranulesS3
 from cumulus_lambda_functions.stage_in_out.search_granules_factory import SearchGranulesFactory
+from cumulus_lambda_functions.stage_in_out.stage_in_out_utils import StageInOutUtils
 from cumulus_lambda_functions.stage_in_out.upoad_granules_factory import UploadGranulesFactory
 
 
 def choose_process():
     if argv[1].strip().upper() == 'SEARCH':
         logging.info('starting SEARCH script')
-        return SearchGranulesFactory().get_class(os.getenv('GRANULES_SEARCH_DOMAIN', 'MISSING_GRANULES_SEARCH_DOMAIN')).search()
+        result_str = SearchGranulesFactory().get_class(os.getenv('GRANULES_SEARCH_DOMAIN', 'MISSING_GRANULES_SEARCH_DOMAIN')).search()
+        StageInOutUtils.write_output_to_file(result_str)
+        return result_str
     if argv[1].strip().upper() == 'DOWNLOAD':
         logging.info('starting DOWNLOAD script')
-        return DownloadGranulesFactory().get_class(os.getenv('GRANULES_DOWNLOAD_TYPE', 'MISSING_GRANULES_DOWNLOAD_TYPE')).download()
+        result_str = DownloadGranulesFactory().get_class(os.getenv('GRANULES_DOWNLOAD_TYPE', 'MISSING_GRANULES_DOWNLOAD_TYPE')).download()
+        StageInOutUtils.write_output_to_file(result_str)
+        return result_str
     if argv[1].strip().upper() == 'UPLOAD':
         logging.info('starting UPLOAD script')
-        return UploadGranulesFactory().get_class(os.getenv('GRANULES_UPLOAD_TYPE', 'MISSING_GRANULES_UPLOAD_TYPE')).upload()
+        result_str = UploadGranulesFactory().get_class(os.getenv('GRANULES_UPLOAD_TYPE', 'MISSING_GRANULES_UPLOAD_TYPE')).upload()
+        StageInOutUtils.write_output_to_file(result_str)
+        return result_str
     if argv[1].strip().upper() == 'CATALOG':
         logging.info('starting CATALOG script')
-        return CatalogGranulesFactory().get_class(os.getenv('GRANULES_CATALOG_TYPE', 'MISSING_GRANULES_CATALOG_TYPE')).catalog()
+        result_str = CatalogGranulesFactory().get_class(os.getenv('GRANULES_CATALOG_TYPE', 'MISSING_GRANULES_CATALOG_TYPE')).catalog()
+        StageInOutUtils.write_output_to_file(result_str)
+        return result_str
     raise ValueError(f'invalid argument: {argv}')
 
 
