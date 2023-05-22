@@ -9,7 +9,6 @@ LOGGER = logging.getLogger(__name__)
 
 class CatalogGranulesUnity(CatalogGranulesAbstract):
     PROVIDER_ID_KEY = 'PROVIDER_ID'
-    UPLOADED_FILES_JSON = 'UPLOADED_FILES_JSON'
     VERIFY_SSL_KEY = 'VERIFY_SSL'
 
     def __init__(self) -> None:
