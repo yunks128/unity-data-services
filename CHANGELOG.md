@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.8.1] - 2023-05-22
+### Added
+- [#152](https://github.com/unity-sds/unity-data-services/pull/152) fix: allow catalog stage input from file
+
 ## [3.8.0] - 2023-05-04
 ### Added
 - [#149](https://github.com/unity-sds/unity-data-services/pull/149) feat: writing output content to a file if ENV is provided
