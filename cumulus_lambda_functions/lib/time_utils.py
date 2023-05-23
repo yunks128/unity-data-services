@@ -37,7 +37,10 @@ class TimeUtils:
         return int(self.__time_obj.timestamp()) if not in_ms else int(self.__time_obj.timestamp() * 1000)
 
     def get_datetime_str(self, fmt='%Y-%m-%dT%H:%M:%S %z', in_ms=True):
-        return self.__time_obj.strftime(fmt).replace('0000', '00:00')
+        dt_str = self.__time_obj.strftime(fmt)
+        dt_str = dt_str.replace('0000', '00:00') if fmt.endswith(' %z') else dt_str
+        return dt_str
+
     @staticmethod
     def get_current_year():
         return datetime.utcnow().year
