@@ -40,7 +40,5 @@ resource "aws_elasticsearch_domain" "uds-es" {
       es_resource: "arn:aws:es:${var.aws_region}:${var.account_id}:domain/${var.prefix}-es/*"
     }
   )
-  tags = {
-//    Domain = "TestDomain"
-  }
+  tags = var.tags
 }
