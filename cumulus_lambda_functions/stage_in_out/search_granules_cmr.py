@@ -100,4 +100,5 @@ class SearchGranulesCmr(SearchGranulesAbstract):
             if len(temp_results) < page_size:
                 break
         results = self.__get_correct_result_count(results)
-        return json.dumps(StacUtils.reduce_stac_list_to_data_links(results)) if self.__filter_results else json.dumps(results)
+        results = StacUtils.reduce_stac_list_to_data_links(results) if self.__filter_results else results
+        return json.dumps(results)
