@@ -670,3 +670,27 @@ class TestDockerEntry(TestCase):
             self.assertEqual('registered', catalog_result, 'wrong status')
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
+
+    def test_04_catalog_from_file(self):
+        upload_result = [{'id': 'NEW_COLLECTION_EXAMPLE_L1B___9:test_file01', 'collection': 'NEW_COLLECTION_EXAMPLE_L1B___9', 'assets': {'metadata': {'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.cas'}, 'data': {'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc'}}}]
+        os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
+        os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
+        os.environ['PASSWORD_TYPE'] = 'PARAM_STORE'
+        os.environ['CLIENT_ID'] = '6ir9qveln397i0inh9pmsabq1'
+        os.environ['COGNITO_URL'] = 'https://cognito-idp.us-west-2.amazonaws.com'
+        os.environ['DAPA_API'] = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test'
+        os.environ['VERIFY_SSL'] = 'FALSE'
+        os.environ['PROVIDER_ID'] = 'SNPP'
+        os.environ['GRANULES_CATALOG_TYPE'] = 'UNITY'
+        if len(argv) > 1:
+            argv.pop(-1)
+        argv.append('CATALOG')
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            input_file_path = os.path.join(tmp_dir_name, 'uploaded_files.json')
+            FileUtils.write_json(input_file_path, upload_result)
+            os.environ['UPLOADED_FILES_JSON'] = input_file_path
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
+            catalog_result = choose_process()
+            self.assertEqual('registered', catalog_result, 'wrong status')
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
+        return
