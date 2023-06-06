@@ -34,7 +34,7 @@ class TestStacInputMetadata(TestCase):
         self.assertEqual(granule_metadata_props.granule_id, stac_item.id, f'wrong granule id')
         self.assertEqual(granule_metadata_props.collection_name, stac_item.collection_id.split('___')[0], f'wrong collection_name')
         self.assertEqual(granule_metadata_props.collection_version, stac_item.collection_id.split('___')[1], f'wrong collection_version')
-        self.assertEqual(granule_metadata_props.prod_dt, TimeUtils().parse_from_unix(stac_item.datetime.timestamp()).get_datetime_str(), f'wrong prod_dt')
+        self.assertEqual(granule_metadata_props.prod_dt, TimeUtils().parse_from_unix(stac_item.datetime.timestamp()).get_datetime_str(fmt='%Y-%m-%dT%H:%M:%S.%fZ'), f'wrong prod_dt')
         self.assertEqual(granule_metadata_props.beginning_dt, stac_item.properties['start_datetime'], f'wrong prod_dt')
         self.assertEqual(granule_metadata_props.ending_dt, stac_item.properties['end_datetime'], f'wrong prod_dt')
         return
@@ -46,7 +46,7 @@ class TestStacInputMetadata(TestCase):
                              "coordinates": [0.0, 0.0]
                          },
                          bbox=[0.0, 0.0, 0.0, 0.0],
-                         datetime=TimeUtils().parse_from_unix(9876543210, True).get_datetime_obj(),
+                         datetime=TimeUtils().parse_from_unix(11210045, True).get_datetime_obj(),
                          properties={
                              "start_datetime": "2016-01-31T18:00:00.009057Z",
                              "end_datetime": "2016-01-31T19:59:59.991043Z",
@@ -66,7 +66,7 @@ class TestStacInputMetadata(TestCase):
         self.assertEqual(granule_metadata_props.granule_id, stac_item.id, f'wrong granule id')
         self.assertEqual(granule_metadata_props.collection_name, 'sample_collection_23', f'wrong collection_name')
         self.assertEqual(granule_metadata_props.collection_version, '', f'wrong collection_version')
-        self.assertEqual(granule_metadata_props.prod_dt, TimeUtils().parse_from_unix(stac_item.datetime.timestamp()).get_datetime_str(), f'wrong prod_dt')
+        self.assertEqual(granule_metadata_props.prod_dt, TimeUtils().parse_from_unix(stac_item.datetime.timestamp()).get_datetime_str(fmt='%Y-%m-%dT%H:%M:%S.%fZ'), f'wrong prod_dt')
         self.assertEqual(granule_metadata_props.beginning_dt, stac_item.properties['start_datetime'], f'wrong prod_dt')
         self.assertEqual(granule_metadata_props.ending_dt, stac_item.properties['end_datetime'], f'wrong prod_dt')
         return
