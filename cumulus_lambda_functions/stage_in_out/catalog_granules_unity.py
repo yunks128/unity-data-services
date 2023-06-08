@@ -41,15 +41,11 @@ class CatalogGranulesUnity(CatalogGranulesAbstract):
         status_checker = CatalogingGranulesStatusChecker(self._uploaded_files_json[0]['collection'],
                                                          extracted_ids,
                                                          TimeUtils().get_datetime_obj().timestamp(),
-                                                         30,
+                                                         30,  # TODO they come from setting
                                                          10)
         status_result = status_checker.verify_n_times()
-        registered_granules = dapa_client.get_granules(collection_id=self._uploaded_files_json[0]['collection'], filters={
-            'in': {
-                'value': {'property': 'id'},
-                'list': extracted_ids
-            }
-        })
-
-        print(registered_granules)
-        return dapa_ingest_result
+        response_json = {
+            'ingestion_request_result': dapa_ingest_result,
+            'status_result': status_result
+        }
+        return response_json
