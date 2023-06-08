@@ -15,11 +15,22 @@ class GranulesQuery(CumulusBase):
     __ending_time_key = 'endingDateTime'
     __beginning_time_key = 'beginningDateTime'
     __collection_id_key = 'collectionId'
+    __granules_id = 'granuleId'
 
     def __init__(self, cumulus_base: str, cumulus_token: str):
         super().__init__(cumulus_base, cumulus_token)
         self._conditions.append('status=completed')
+        self._item_transformer = ItemTransformer()
 
+    def with_filter(self, filter_key, filter_values: list):
+        if len(filter_values) < 1:
+            return self
+        if filter_key not in self._item_transformer.STAC_2_CUMULUS_KEYS_MAP:
+            LOGGER.error(f'unknown key in STAC_2_CUMULUS_KEYS_MAP: {filter_key} ')
+            return self
+        filter_key = self._item_transformer.STAC_2_CUMULUS_KEYS_MAP[filter_key]
+        self._conditions.append(f'{filter_key}__in={",".join(filter_values)}')
+        return self
 
     def with_collection_id(self, collection_id: str):
         self._conditions.append(f'{self.__collection_id_key}={collection_id}')
@@ -88,7 +99,7 @@ class GranulesQuery(CumulusBase):
             'httpMethod': 'GET',
             'resource': '/{proxy+}',
             'path': f'/{self.__granules_key}',
-            'queryStringParameters': {k[0]: k[1] for k in [k1.split('=') for k1 in self._conditions]},
+            'queryStringParameters': {**{k[0]: k[1] for k in [k1.split('=') for k1 in self._conditions]}},
             # 'queryStringParameters': {'limit': '30'},
             'headers': {
                 'Content-Type': 'application/json',
