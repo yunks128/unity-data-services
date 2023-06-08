@@ -12,11 +12,15 @@ LOGGER = logging.getLogger(__name__)
 class CatalogGranulesUnity(CatalogGranulesAbstract):
     PROVIDER_ID_KEY = 'PROVIDER_ID'
     VERIFY_SSL_KEY = 'VERIFY_SSL'
+    DELAY_SECOND = 'DELAY_SECOND'
+    REPEAT_TIMES = 'REPEAT_TIMES'
 
     def __init__(self) -> None:
         super().__init__()
         self.__provider_id = ''
         self.__verify_ssl = True
+        self.__delaying_second = 30
+        self.__repeating_times = 5
 
     def __set_props_from_env(self):
         missing_keys = [k for k in [self.UPLOADED_FILES_JSON, self.PROVIDER_ID_KEY] if k not in os.environ]
@@ -24,6 +28,9 @@ class CatalogGranulesUnity(CatalogGranulesAbstract):
             raise ValueError(f'missing environment keys: {missing_keys}')
         self._retrieve_stac_json()
         self.__provider_id = os.environ.get(self.PROVIDER_ID_KEY)
+        self.__verify_ssl = os.environ.get(self.VERIFY_SSL_KEY, 'TRUE').strip().upper() == 'TRUE'
+        self.__delaying_second = int(os.environ.get(self.DELAY_SECOND, '30'))
+        self.__repeating_times = int(os.environ.get(self.REPEAT_TIMES, '30'))
         self.__verify_ssl = os.environ.get(self.VERIFY_SSL_KEY, 'TRUE').strip().upper() == 'TRUE'
         return self
 
@@ -41,11 +48,12 @@ class CatalogGranulesUnity(CatalogGranulesAbstract):
         status_checker = CatalogingGranulesStatusChecker(self._uploaded_files_json[0]['collection'],
                                                          extracted_ids,
                                                          TimeUtils().get_datetime_obj().timestamp(),
-                                                         30,  # TODO they come from setting
-                                                         10)
+                                                         self.__delaying_second,
+                                                         self.__repeating_times,
+                                                         self.__verify_ssl)
         status_result = status_checker.verify_n_times()
         response_json = {
-            'ingestion_request_result': dapa_ingest_result,
+            'cataloging_request_status': dapa_ingest_result,
             'status_result': status_result
         }
         return response_json

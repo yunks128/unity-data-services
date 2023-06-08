@@ -33,6 +33,7 @@ class CatalogingGranulesStatusChecker:
         LOGGER.debug(f'comparison queried v. expected: {len(self.__registered_granules)} v. {len(self.__granules_ids)}')
         missing_granules = [k for k in self.__granules_ids if k not in self.__registered_granules]
         return {
+            'cataloged': len(missing_granules) < 1,
             'missing_granules': missing_granules,
             'registered_granules': [v.to_dict(include_self_link=False, transform_hrefs=False) for v in self.__registered_granules.values()]
         }
