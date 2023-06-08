@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.9.0] - 2023-06-08
 ### Added
-- [#15x](https://github.com/unity-sds/unity-data-services/pull/15x) feat: added filter keyword in granules endpoint + repeatedly checking with time boundary for cataloging result
+- [#156](https://github.com/unity-sds/unity-data-services/pull/156) feat: added filter keyword in granules endpoint + repeatedly checking with time boundary for cataloging result
 
 
 ## [3.8.2] - 2023-05-23
