@@ -34,7 +34,7 @@ class CatalogingGranulesStatusChecker:
         missing_granules = [k for k in self.__granules_ids if k not in self.__registered_granules]
         return {
             'missing_granules': missing_granules,
-            'registered_granules': [v.to_dict(include_self_link=False, transform_hrefs=False) for v in self.__registered_granules]
+            'registered_granules': [v.to_dict(include_self_link=False, transform_hrefs=False) for v in self.__registered_granules.values()]
         }
 
     def verify_n_times(self):
@@ -46,7 +46,7 @@ class CatalogingGranulesStatusChecker:
             time.sleep(self.__delay)
             verify_result = self.verify_one_time()
             LOGGER.debug(f'time {i} verification result: {verify_result}')
-            if len(verify_result['missing_granules']) > 0:
+            if len(verify_result['missing_granules']) < 1:
                 return verify_result
         return verify_result
 
