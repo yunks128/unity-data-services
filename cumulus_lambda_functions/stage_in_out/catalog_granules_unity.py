@@ -1,8 +1,10 @@
 from cumulus_lambda_functions.cumulus_dapa_client.dapa_client import DapaClient
+from cumulus_lambda_functions.lib.time_utils import TimeUtils
 from cumulus_lambda_functions.stage_in_out.catalog_granules_abstract import CatalogGranulesAbstract
 import logging
 import os
 
+from cumulus_lambda_functions.stage_in_out.cataloging_granules_status_checker import CatalogingGranulesStatusChecker
 
 LOGGER = logging.getLogger(__name__)
 
@@ -34,4 +36,20 @@ class CatalogGranulesUnity(CatalogGranulesAbstract):
         dapa_client = DapaClient().with_verify_ssl(self.__verify_ssl)
         LOGGER.debug(f'dapa_body_granules: {dapa_body}')
         dapa_ingest_result = dapa_client.ingest_granules_w_cnm(dapa_body)
+        extracted_ids = [k['id'] for k in self._uploaded_files_json]
+        LOGGER.debug(f'checking following IDs: {extracted_ids}')
+        status_checker = CatalogingGranulesStatusChecker(self._uploaded_files_json[0]['collection'],
+                                                         extracted_ids,
+                                                         TimeUtils().get_datetime_obj().timestamp(),
+                                                         30,
+                                                         10)
+        status_result = status_checker.verify_n_times()
+        registered_granules = dapa_client.get_granules(collection_id=self._uploaded_files_json[0]['collection'], filters={
+            'in': {
+                'value': {'property': 'id'},
+                'list': extracted_ids
+            }
+        })
+
+        print(registered_granules)
         return dapa_ingest_result
