@@ -349,6 +349,80 @@ class TestDockerEntry(TestCase):
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
 
+    def test_02_download__from_http(self):
+        granule_json = [
+  {
+    "assets": {
+      "data": {
+        "href": "https://raw.githubusercontent.com/unity-sds/unity-data-services/develop/README.md",
+        "title": "SNDR.SNPP.ATMS.L1A.nominal2.01.nc",
+        "description": "SNDR.SNPP.ATMS.L1A.nominal2.01.nc"
+      }
+    }
+  },
+  {
+    "assets": {
+      "data": {
+        "href": "https://raw.githubusercontent.com/unity-sds/unity-data-services/develop/CHANGELOG.md",
+        "title": "SNDR.SNPP.ATMS.L1A.nominal2.08.nc",
+        "description": "SNDR.SNPP.ATMS.L1A.nominal2.08.nc"
+      }
+    }
+  },
+  {
+    "assets": {
+      "data": {
+        "href": "https://raw.githubusercontent.com/unity-sds/unity-data-services/develop/CODE_OF_CONDUCT.md",
+        "title": "SNDR.SNPP.ATMS.L1A.nominal2.06.nc",
+        "description": "SNDR.SNPP.ATMS.L1A.nominal2.06.nc"
+      }
+    }
+  },
+  {
+    "assets": {
+      "data": {
+        "href": "https://raw.githubusercontent.com/unity-sds/unity-data-services/develop/CONTRIBUTING.md",
+        "title": "SNDR.SNPP.ATMS.L1A.nominal2.18.nc",
+        "description": "SNDR.SNPP.ATMS.L1A.nominal2.18.nc"
+      }
+    }
+  },
+  {
+    "assets": {
+      "data": {
+        "href": "https://raw.githubusercontent.com/unity-sds/unity-data-services/develop/LICENSE",
+        "title": "SNDR.SNPP.ATMS.L1A.nominal2.04.nc",
+        "description": "SNDR.SNPP.ATMS.L1A.nominal2.04.nc"
+      }
+    }
+  }
+]
+        if len(argv) > 1:
+            argv.pop(-1)
+        argv.append('DOWNLOAD')
+        os.environ['GRANULES_DOWNLOAD_TYPE'] = 'HTTP'
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
+            granule_json_file = os.path.join(tmp_dir_name, 'input_file.json')
+            downloading_dir = os.path.join(tmp_dir_name, 'downloading_dir')
+            FileUtils.mk_dir_p(downloading_dir)
+            FileUtils.write_json(granule_json_file, granule_json)
+            os.environ['STAC_JSON'] = granule_json_file
+            os.environ['DOWNLOAD_DIR'] = downloading_dir
+            download_result = choose_process()
+            self.assertTrue(isinstance(download_result, list), f'download_result is not list: {download_result}')
+            self.assertEqual(sum([len(k) for k in download_result]), len(glob(os.path.join(downloading_dir, '*'))), f'downloaded file does not match')
+            error_file = os.path.join(downloading_dir, 'error.log')
+            if FileUtils.file_exist(error_file):
+                self.assertTrue(False, f'some downloads failed. error.log exists. {FileUtils.read_json(error_file)}')
+            self.assertTrue('assets' in download_result[0], f'no assets in download_result: {download_result}')
+            for each_granule in zip(granule_json, download_result):
+                remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
+                self.assertEqual(each_granule[1]['assets']['data']['href'], os.path.join(downloading_dir, remote_filename),
+                                 f"mismatched: {each_granule[0]['assets']['data']['href']}")
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
+        return
+
     def test_03_upload(self):
         os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
         os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
