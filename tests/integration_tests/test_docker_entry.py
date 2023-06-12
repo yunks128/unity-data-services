@@ -5,7 +5,7 @@ from glob import glob
 from sys import argv
 from unittest import TestCase
 
-from pystac import Item, Asset, Catalog, Link
+from pystac import Item, Asset, Catalog, Link, ItemCollection
 
 from cumulus_lambda_functions.lib.constants import Constants
 
@@ -30,7 +30,6 @@ class TestDockerEntry(TestCase):
         os.environ['DATE_FROM'] = '1990-01-14T08:00:00Z'
         os.environ['DATE_TO'] = '2022-01-14T11:59:59Z'
         os.environ['VERIFY_SSL'] = 'FALSE'
-        os.environ['FILTER_ONLY_ASSETS'] = 'FALSE'
         os.environ['GRANULES_SEARCH_DOMAIN'] = 'UNITY'
         if len(argv) > 1:
             argv.pop(-1)
@@ -39,9 +38,11 @@ class TestDockerEntry(TestCase):
             os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
             search_result_str = choose_process()
             search_result = json.loads(search_result_str)
-            self.assertTrue(isinstance(search_result, list), f'search_result is not list: {search_result}')
-            self.assertEqual(len(search_result), 4000, f'wrong length')
-            search_result = set([k['id'] for k in search_result])
+            self.assertTrue('type' in search_result, f'missing type in search_result')
+            item_collections = ItemCollection.from_dict(search_result)
+            # self.assertTrue(isinstance(search_result, list), f'search_result is not list: {search_result}')
+            self.assertEqual(len(item_collections.items), 4000, f'wrong length')
+            search_result = set([k.id for k in item_collections.items])
             self.assertEqual(len(search_result),4000, f'wrong length. not unique')
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
             self.assertEqual(sorted(json.dumps(FileUtils.read_json(os.environ['OUTPUT_FILE']))), sorted(search_result_str), f'not identical result')
@@ -62,16 +63,17 @@ class TestDockerEntry(TestCase):
         os.environ['DATE_FROM'] = '2016-01-14T08:00:00Z'
         os.environ['DATE_TO'] = '2016-01-14T11:59:59Z'
         os.environ['VERIFY_SSL'] = 'FALSE'
-        os.environ['FILTER_ONLY_ASSETS'] = 'FALSE'
         os.environ['GRANULES_SEARCH_DOMAIN'] = 'UNITY'
         if len(argv) > 1:
             argv.pop(-1)
         argv.append('SEARCH')
         search_result = choose_process()
         search_result = json.loads(search_result)
-        self.assertTrue(isinstance(search_result, list), f'search_result is not list: {search_result}')
-        self.assertEqual(len(search_result), 20, f'wrong length')
-        search_result = set([k['id'] for k in search_result])
+        self.assertTrue('type' in search_result, f'missing type in search_result')
+        item_collections = ItemCollection.from_dict(search_result)
+        # self.assertTrue(isinstance(search_result, list), f'search_result is not list: {search_result}')
+        self.assertEqual(len(item_collections.items), 20, f'wrong length')
+        search_result = set([k.id for k in item_collections.items])
         self.assertEqual(len(search_result),20, f'wrong length. not unique')
         return
 
@@ -90,16 +92,17 @@ class TestDockerEntry(TestCase):
         os.environ['DATE_FROM'] = '1990-01-14T08:00:00Z'
         os.environ['DATE_TO'] = '2022-01-14T11:59:59Z'
         os.environ['VERIFY_SSL'] = 'FALSE'
-        os.environ['FILTER_ONLY_ASSETS'] = 'FALSE'
         os.environ['GRANULES_SEARCH_DOMAIN'] = 'UNITY'
         if len(argv) > 1:
             argv.pop(-1)
         argv.append('SEARCH')
         search_result = choose_process()
         search_result = json.loads(search_result)
-        self.assertTrue(isinstance(search_result, list), f'search_result is not list: {search_result}')
-        self.assertEqual(len(search_result), 4381, f'wrong length')
-        search_result = set([k['id'] for k in search_result])
+        self.assertTrue('type' in search_result, f'missing type in search_result')
+        item_collections = ItemCollection.from_dict(search_result)
+        # self.assertTrue(isinstance(search_result, list), f'search_result is not list: {search_result}')
+        self.assertEqual(len(item_collections.items), 4381, f'wrong length')
+        search_result = set([k.id for k in item_collections.items])
         self.assertEqual(len(search_result), 4381, f'wrong length. not unique')
         return
 
@@ -118,16 +121,16 @@ class TestDockerEntry(TestCase):
         os.environ['DATE_FROM'] = '1990-01-14T08:00:00Z'
         os.environ['DATE_TO'] = '2022-01-14T11:59:59Z'
         os.environ['VERIFY_SSL'] = 'FALSE'
-        os.environ['FILTER_ONLY_ASSETS'] = 'FALSE'
         os.environ['GRANULES_SEARCH_DOMAIN'] = 'UNITY'
         if len(argv) > 1:
             argv.pop(-1)
         argv.append('SEARCH')
         search_result = choose_process()
         search_result = json.loads(search_result)
-        self.assertTrue(isinstance(search_result, list), f'search_result is not list: {search_result}')
-        self.assertEqual(len(search_result), 347, f'wrong length')
-        search_result = set([k['id'] for k in search_result])
+        self.assertTrue('type' in search_result, f'missing type in search_result')
+        item_collections = ItemCollection.from_dict(search_result)
+        self.assertEqual(len(item_collections.items), 347, f'wrong length')
+        search_result = set([k.id for k in item_collections.items])
         self.assertEqual(len(search_result), 347, f'wrong length. not unique')
         return
 
@@ -146,16 +149,15 @@ class TestDockerEntry(TestCase):
         os.environ['DATE_FROM'] = '1990-01-14T08:00:00Z'
         os.environ['DATE_TO'] = '2022-01-14T11:59:59Z'
         os.environ['VERIFY_SSL'] = 'FALSE'
-        os.environ['FILTER_ONLY_ASSETS'] = 'TRUE'
         os.environ['GRANULES_SEARCH_DOMAIN'] = 'UNITY'
         if len(argv) > 1:
             argv.pop(-1)
         argv.append('SEARCH')
         search_result = choose_process()
         search_result = json.loads(search_result)
-        self.assertTrue(isinstance(search_result, list), f'search_result is not list: {search_result}')
-        self.assertEqual(len(search_result), 37, f'wrong length')
-        self.assertTrue('id' not in search_result[0], 'not filtered')
+        self.assertTrue('type' in search_result, f'missing type in search_result')
+        item_collections = ItemCollection.from_dict(search_result)
+        self.assertEqual(len(item_collections.items), 37, f'wrong length')
         return
 
     def test_01_1_search_cmr_part_01(self):
@@ -168,21 +170,21 @@ class TestDockerEntry(TestCase):
         os.environ['CLIENT_ID'] = '6ir9qveln397i0inh9pmsabq1'
         os.environ['COGNITO_URL'] = 'https://cognito-idp.us-west-2.amazonaws.com'
         os.environ['DAPA_API'] = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test'
-        os.environ['COLLECTION_ID'] = 'C1666605425-PODAAC'
+        os.environ['COLLECTION_ID'] = 'C1996881146-POCLOUD'  # 'C1666605425-PODAAC'  # C1996881146-POCLOUD
         os.environ['LIMITS'] = '2120'
         os.environ['DATE_FROM'] = '2002-06-01T12:06:00.000Z'
         os.environ['DATE_TO'] = '2011-10-04T06:51:45.000Z'
         os.environ['VERIFY_SSL'] = 'FALSE'
         os.environ['GRANULES_SEARCH_DOMAIN'] = 'CMR'
-        os.environ['FILTER_ONLY_ASSETS'] = 'FALSE'
         os.environ['CMR_BASE_URL'] = 'https://cmr.earthdata.nasa.gov'
         if len(argv) > 1:
             argv.pop(-1)
         argv.append('SEARCH')
         search_result = choose_process()
         search_result = json.loads(search_result)
-        self.assertTrue(isinstance(search_result, list), f'search_result is not list: {search_result}')
-        self.assertEqual(len(search_result), 2120, f'wrong length')
+        self.assertTrue('type' in search_result, f'missing type in search_result')
+        item_collections = ItemCollection.from_dict(search_result)
+        self.assertEqual(len(item_collections.items), 2120, f'wrong length')
         return
 
     def test_01_1_search_cmr_part_02(self):
@@ -195,13 +197,12 @@ class TestDockerEntry(TestCase):
         os.environ['CLIENT_ID'] = '6ir9qveln397i0inh9pmsabq1'
         os.environ['COGNITO_URL'] = 'https://cognito-idp.us-west-2.amazonaws.com'
         os.environ['DAPA_API'] = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test'
-        os.environ['COLLECTION_ID'] = 'C1666605425-PODAAC'
+        os.environ['COLLECTION_ID'] = 'C1996881146-POCLOUD'  # 'C1666605425-PODAAC'  # C1996881146-POCLOUD
         os.environ['LIMITS'] = '23'
         os.environ['DATE_FROM'] = '2002-06-01T12:06:00.000Z'
         os.environ['DATE_TO'] = '2011-10-04T06:51:45.000Z'
         os.environ['VERIFY_SSL'] = 'FALSE'
         os.environ['GRANULES_SEARCH_DOMAIN'] = 'CMR'
-        os.environ['FILTER_ONLY_ASSETS'] = 'TRUE'
         os.environ['CMR_BASE_URL'] = 'https://cmr.earthdata.nasa.gov'
         if len(argv) > 1:
             argv.pop(-1)
@@ -209,10 +210,9 @@ class TestDockerEntry(TestCase):
         search_result = choose_process()
         search_result = json.loads(search_result)
         print(json.dumps(search_result))
-        self.assertTrue(isinstance(search_result, list), f'search_result is not list: {search_result}')
-        self.assertEqual(len(search_result), 23, f'wrong length')
-        self.assertTrue('id' not in search_result[0], 'not filtered')
-        self.assertTrue('assets' in search_result[0], 'not filtered')
+        self.assertTrue('type' in search_result, f'missing type in search_result')
+        item_collections = ItemCollection.from_dict(search_result)
+        self.assertEqual(len(item_collections.items), 23, f'wrong length')
         return
 
     def test_02_download(self):

@@ -23,7 +23,6 @@ services:
       DATE_FROM: '2016-01-17T00:00:00Z'
       DATE_TO: '2016-01-17T12:00:00Z'
       VERIFY_SSL: 'FALSE'
-      FILTER_ONLY_ASSETS: 'TRUE'
 
       GRANULES_SEARCH_DOMAIN: 'UNITY or CMR'
       CMR_BASE_URL: 'https://cmr.earthdata.nasa.gov'
