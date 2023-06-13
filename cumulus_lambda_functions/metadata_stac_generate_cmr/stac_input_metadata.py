@@ -114,7 +114,7 @@ class StacInputMetadata:
         collection_id_split = stac_item.collection_id.split('___')
         granule_metadata_props.collection_name = collection_id_split[0]
         granule_metadata_props.collection_version = stac_item.collection_id.split('___')[1] if len(collection_id_split) > 1 else ''
-        granule_metadata_props.prod_dt = TimeUtils().parse_from_unix(stac_item.datetime.timestamp()).get_datetime_str()
+        granule_metadata_props.prod_dt = TimeUtils().parse_from_unix(stac_item.datetime.timestamp()).get_datetime_str(fmt='%Y-%m-%dT%H:%M:%S.%fZ')
         granule_metadata_props.beginning_dt = stac_item.properties['start_datetime'] if stac_item.properties['start_datetime'] else TimeUtils().parse_from_unix(0).get_datetime_str()
         granule_metadata_props.ending_dt = stac_item.properties['end_datetime'] if stac_item.properties['end_datetime'] else TimeUtils().parse_from_unix(0).get_datetime_str()
         return granule_metadata_props
