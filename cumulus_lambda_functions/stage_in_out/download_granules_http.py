@@ -24,10 +24,10 @@ class DownloadGranulesHttp(DownloadGranulesAbstract):
         return self
 
     def _download_one_item(self, downloading_url):
-        downloading_response = requests.get(v['href'])
+        downloading_response = requests.get(downloading_url)
         downloading_response.raise_for_status()
         downloading_response.raw.decode_content = True
-        local_file_path = os.path.join(self._download_dir, os.path.basename(v["href"]))
+        local_file_path = os.path.join(self._download_dir, os.path.basename(downloading_url))
         with open(local_file_path, 'wb') as f:
             shutil.copyfileobj(downloading_response.raw, f)
         return local_file_path
