@@ -265,12 +265,476 @@ class TestDockerEntry(TestCase):
         return
 
     def test_02_download__daac__from_file(self):
-        granule_json = [{'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160101120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160101120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160102120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160102120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160103120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160103120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160104120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160104120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160105120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160105120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160106120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160106120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160107120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160107120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160108120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160108120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160109120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160109120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160110120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160110120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160111120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160111120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160112120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160112120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160113120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160113120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160114120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160114120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160115120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160115120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160116120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160116120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160117120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160117120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160118120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160118120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160119120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160119120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}, {'assets': {'data': {'href': 'https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/CMC0.1deg-CMC-L4-GLOB-v3.0/20160120120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc', 'title': 'Download 20160120120000-CMC-L4_GHRSST-SSTfnd-CMC0.1deg-GLOB-v02.0-fv03.0.nc'}}}]
+        granule_json = '''{
+    "type": "FeatureCollection",
+    "stac_version": "1.0.0",
+    "numberMatched": 3413,
+    "numberReturned": 23,
+    "links": [
+        {
+            "rel": "self",
+            "href": "https://cmr.earthdata.nasa.gov:443/search/granules.stac?collection_concept_id=C1996881146-POCLOUD&page_size=23&temporal%5B%5D=2002-06-01T12%3A06%3A00.000Z%2C2011-10-04T06%3A51%3A45.000Z&page_num=1"
+        },
+        {
+            "rel": "root",
+            "href": "https://cmr.earthdata.nasa.gov:443/search/"
+        },
+        {
+            "rel": "next",
+            "body": {
+                "collection_concept_id": "C1996881146-POCLOUD",
+                "page_num": "2",
+                "page_size": "23",
+                "temporal": [
+                    "2002-06-01T12:06:00.000Z,2011-10-04T06:51:45.000Z"
+                ],
+                "temporal[]": "2002-06-01T12:06:00.000Z,2011-10-04T06:51:45.000Z"
+            },
+            "method": "POST",
+            "merge": true,
+            "href": "https://cmr.earthdata.nasa.gov:443/search/granules.stac"
+        }
+    ],
+    "context": {
+        "returned": 23,
+        "limit": 1000000,
+        "matched": 3413
+    },
+    "features": [
+        {
+            "properties": {
+                "datetime": "2002-05-31T21:00:00.000Z",
+                "start_datetime": "2002-05-31T21:00:00.000Z",
+                "end_datetime": "2002-06-01T21:00:00.000Z"
+            },
+            "bbox": [
+                -180.0,
+                -90.0,
+                180.0,
+                90.0
+            ],
+            "assets": {
+                "metadata": {
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.xml",
+                    "type": "application/xml"
+                },
+                "opendap": {
+                    "title": "OPeNDAP request URL",
+                    "href": "https://opendap.earthdata.nasa.gov/providers/POCLOUD/collections/GHRSST%20Level%204%20MUR%20Global%20Foundation%20Sea%20Surface%20Temperature%20Analysis%20(v4.1)/granules/20020601090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1"
+                },
+                "data": {
+                    "title": "Download 20020601090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1.nc",
+                    "href": "https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/MUR-JPL-L4-GLOB-v4.1/20020601090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1.nc"
+                }
+            },
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -180.0,
+                            -90.0
+                        ],
+                        [
+                            180.0,
+                            -90.0
+                        ],
+                        [
+                            180.0,
+                            90.0
+                        ],
+                        [
+                            -180.0,
+                            90.0
+                        ],
+                        [
+                            -180.0,
+                            -90.0
+                        ]
+                    ]
+                ]
+            },
+            "stac_extensions": [],
+            "id": "G2030963432-POCLOUD",
+            "stac_version": "1.0.0",
+            "collection": "C1996881146-POCLOUD",
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"
+                },
+                {
+                    "rel": "parent",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"
+                },
+                {
+                    "rel": "collection",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"
+                },
+                {
+                    "rel": "root",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/"
+                },
+                {
+                    "rel": "via",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"
+                },
+                {
+                    "rel": "via",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"
+                }
+            ]
+        },
+        {
+            "properties": {
+                "datetime": "2002-06-01T21:00:00.000Z",
+                "start_datetime": "2002-06-01T21:00:00.000Z",
+                "end_datetime": "2002-06-02T21:00:00.000Z"
+            },
+            "bbox": [
+                -180.0,
+                -90.0,
+                180.0,
+                90.0
+            ],
+            "assets": {
+                "metadata": {
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2028106835-POCLOUD.xml",
+                    "type": "application/xml"
+                },
+                "opendap": {
+                    "title": "OPeNDAP request URL",
+                    "href": "https://opendap.earthdata.nasa.gov/providers/POCLOUD/collections/GHRSST%20Level%204%20MUR%20Global%20Foundation%20Sea%20Surface%20Temperature%20Analysis%20(v4.1)/granules/20020602090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1"
+                },
+                "data": {
+                    "title": "Download 20020602090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1.nc",
+                    "href": "https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/MUR-JPL-L4-GLOB-v4.1/20020602090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1.nc"
+                }
+            },
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -180.0,
+                            -90.0
+                        ],
+                        [
+                            180.0,
+                            -90.0
+                        ],
+                        [
+                            180.0,
+                            90.0
+                        ],
+                        [
+                            -180.0,
+                            90.0
+                        ],
+                        [
+                            -180.0,
+                            -90.0
+                        ]
+                    ]
+                ]
+            },
+            "stac_extensions": [],
+            "id": "G2028106835-POCLOUD",
+            "stac_version": "1.0.0",
+            "collection": "C1996881146-POCLOUD",
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2028106835-POCLOUD.stac"
+                },
+                {
+                    "rel": "parent",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"
+                },
+                {
+                    "rel": "collection",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"
+                },
+                {
+                    "rel": "root",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/"
+                },
+                {
+                    "rel": "via",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2028106835-POCLOUD.json"
+                },
+                {
+                    "rel": "via",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2028106835-POCLOUD.umm_json"
+                }
+            ]
+        },
+        {
+            "properties": {
+                "datetime": "2002-06-02T21:00:00.000Z",
+                "start_datetime": "2002-06-02T21:00:00.000Z",
+                "end_datetime": "2002-06-03T21:00:00.000Z"
+            },
+            "bbox": [
+                -180.0,
+                -90.0,
+                180.0,
+                90.0
+            ],
+            "assets": {
+                "metadata": {
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2028106890-POCLOUD.xml",
+                    "type": "application/xml"
+                },
+                "opendap": {
+                    "title": "OPeNDAP request URL",
+                    "href": "https://opendap.earthdata.nasa.gov/providers/POCLOUD/collections/GHRSST%20Level%204%20MUR%20Global%20Foundation%20Sea%20Surface%20Temperature%20Analysis%20(v4.1)/granules/20020603090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1"
+                },
+                "data": {
+                    "title": "Download 20020603090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1.nc",
+                    "href": "https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/MUR-JPL-L4-GLOB-v4.1/20020603090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1.nc"
+                }
+            },
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -180.0,
+                            -90.0
+                        ],
+                        [
+                            180.0,
+                            -90.0
+                        ],
+                        [
+                            180.0,
+                            90.0
+                        ],
+                        [
+                            -180.0,
+                            90.0
+                        ],
+                        [
+                            -180.0,
+                            -90.0
+                        ]
+                    ]
+                ]
+            },
+            "stac_extensions": [],
+            "id": "G2028106890-POCLOUD",
+            "stac_version": "1.0.0",
+            "collection": "C1996881146-POCLOUD",
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2028106890-POCLOUD.stac"
+                },
+                {
+                    "rel": "parent",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"
+                },
+                {
+                    "rel": "collection",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"
+                },
+                {
+                    "rel": "root",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/"
+                },
+                {
+                    "rel": "via",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2028106890-POCLOUD.json"
+                },
+                {
+                    "rel": "via",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2028106890-POCLOUD.umm_json"
+                }
+            ]
+        },
+        {
+            "properties": {
+                "datetime": "2002-06-03T21:00:00.000Z",
+                "start_datetime": "2002-06-03T21:00:00.000Z",
+                "end_datetime": "2002-06-04T21:00:00.000Z"
+            },
+            "bbox": [
+                -180.0,
+                -90.0,
+                180.0,
+                90.0
+            ],
+            "assets": {
+                "metadata": {
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2028106962-POCLOUD.xml",
+                    "type": "application/xml"
+                },
+                "opendap": {
+                    "title": "OPeNDAP request URL",
+                    "href": "https://opendap.earthdata.nasa.gov/providers/POCLOUD/collections/GHRSST%20Level%204%20MUR%20Global%20Foundation%20Sea%20Surface%20Temperature%20Analysis%20(v4.1)/granules/20020604090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1"
+                },
+                "data": {
+                    "title": "Download 20020604090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1.nc",
+                    "href": "https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/MUR-JPL-L4-GLOB-v4.1/20020604090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1.nc"
+                }
+            },
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -180.0,
+                            -90.0
+                        ],
+                        [
+                            180.0,
+                            -90.0
+                        ],
+                        [
+                            180.0,
+                            90.0
+                        ],
+                        [
+                            -180.0,
+                            90.0
+                        ],
+                        [
+                            -180.0,
+                            -90.0
+                        ]
+                    ]
+                ]
+            },
+            "stac_extensions": [],
+            "id": "G2028106962-POCLOUD",
+            "stac_version": "1.0.0",
+            "collection": "C1996881146-POCLOUD",
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2028106962-POCLOUD.stac"
+                },
+                {
+                    "rel": "parent",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"
+                },
+                {
+                    "rel": "collection",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"
+                },
+                {
+                    "rel": "root",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/"
+                },
+                {
+                    "rel": "via",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2028106962-POCLOUD.json"
+                },
+                {
+                    "rel": "via",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2028106962-POCLOUD.umm_json"
+                }
+            ]
+        },
+        {
+            "properties": {
+                "datetime": "2002-06-04T21:00:00.000Z",
+                "start_datetime": "2002-06-04T21:00:00.000Z",
+                "end_datetime": "2002-06-05T21:00:00.000Z"
+            },
+            "bbox": [
+                -180.0,
+                -90.0,
+                180.0,
+                90.0
+            ],
+            "assets": {
+                "metadata": {
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2028106862-POCLOUD.xml",
+                    "type": "application/xml"
+                },
+                "opendap": {
+                    "title": "OPeNDAP request URL",
+                    "href": "https://opendap.earthdata.nasa.gov/providers/POCLOUD/collections/GHRSST%20Level%204%20MUR%20Global%20Foundation%20Sea%20Surface%20Temperature%20Analysis%20(v4.1)/granules/20020605090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1"
+                },
+                "data": {
+                    "title": "Download 20020605090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1.nc",
+                    "href": "https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/MUR-JPL-L4-GLOB-v4.1/20020605090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1.nc"
+                }
+            },
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -180.0,
+                            -90.0
+                        ],
+                        [
+                            180.0,
+                            -90.0
+                        ],
+                        [
+                            180.0,
+                            90.0
+                        ],
+                        [
+                            -180.0,
+                            90.0
+                        ],
+                        [
+                            -180.0,
+                            -90.0
+                        ]
+                    ]
+                ]
+            },
+            "stac_extensions": [],
+            "id": "G2028106862-POCLOUD",
+            "stac_version": "1.0.0",
+            "collection": "C1996881146-POCLOUD",
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2028106862-POCLOUD.stac"
+                },
+                {
+                    "rel": "parent",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"
+                },
+                {
+                    "rel": "collection",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"
+                },
+                {
+                    "rel": "root",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/"
+                },
+                {
+                    "rel": "via",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2028106862-POCLOUD.json"
+                },
+                {
+                    "rel": "via",
+                    "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2028106862-POCLOUD.umm_json"
+                }
+            ]
+        }
+    ]
+}'''
+        granule_json = json.loads(granule_json)
         os.environ[Constants.EDL_USERNAME] = '/unity/uds/user/wphyo/edl_username'
         os.environ[Constants.EDL_PASSWORD] = '/unity/uds/user/wphyo/edl_dwssap'
         os.environ[Constants.EDL_PASSWORD_TYPE] = Constants.PARAM_STORE
         os.environ[Constants.EDL_BASE_URL] = 'urs.earthdata.nasa.gov'
         os.environ['GRANULES_DOWNLOAD_TYPE'] = 'DAAC'
+        os.environ['DOWNLOADING_KEYS'] = 'metadata'
 
         if len(argv) > 1:
             argv.pop(-1)
@@ -284,16 +748,17 @@ class TestDockerEntry(TestCase):
             os.environ['STAC_JSON'] = granule_json_file
             os.environ['DOWNLOAD_DIR'] = downloading_dir
             download_result = choose_process()
-            self.assertTrue(isinstance(download_result, list), f'download_result is not list: {download_result}')
-            self.assertEqual(sum([len(k) for k in download_result]), len(glob(os.path.join(downloading_dir, '*'))), f'downloaded file does not match')
+            self.assertTrue('features' in download_result, f'missing features in download_result')
+            self.assertEqual(len(download_result['features']) + 1, len(glob(os.path.join(downloading_dir, '*'))), f'downloaded file does not match')
             error_file = os.path.join(downloading_dir, 'error.log')
             if FileUtils.file_exist(error_file):
                 self.assertTrue(False, f'some downloads failed. error.log exists. {FileUtils.read_json(error_file)}')
+            download_result = download_result['features']
             self.assertTrue('assets' in download_result[0], f'no assets in download_result: {download_result}')
-            for each_granule in zip(granule_json, download_result):
-                remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
-                self.assertEqual(each_granule[1]['assets']['data']['href'], os.path.join(downloading_dir, remote_filename),
-                                 f"mismatched: {each_granule[0]['assets']['data']['href']}")
+            for each_granule in zip(granule_json['features'], download_result):
+                remote_filename = os.path.basename(each_granule[0]['assets']['metadata']['href'])
+                self.assertEqual(each_granule[1]['assets']['metadata']['href'], os.path.join('.', remote_filename),
+                                 f"mismatched: {each_granule[0]['assets']['metadata']['href']}")
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
 
