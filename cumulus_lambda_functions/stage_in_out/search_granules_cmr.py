@@ -20,8 +20,6 @@ class SearchGranulesCmr(SearchGranulesAbstract):
     DATE_TO_KEY = 'DATE_TO'
     VERIFY_SSL_KEY = 'VERIFY_SSL'
 
-    FILTER_ONLY_ASSETS = 'FILTER_ONLY_ASSETS'
-
     def __init__(self) -> None:
         super().__init__()
         self.__collection_id = ''
@@ -31,7 +29,6 @@ class SearchGranulesCmr(SearchGranulesAbstract):
         self.__page_size = 2000  # page_size - number of results per page - default is 10, max is 2000
         self.__verify_ssl = True
         self.__cmr_base_url = ''
-        self.__filter_results = True
 
     def __set_props_from_env(self):
         missing_keys = [k for k in [self.COLLECTION_ID_KEY, self.CMR_BASE_URL_KEY] if k not in os.environ]
@@ -50,7 +47,6 @@ class SearchGranulesCmr(SearchGranulesAbstract):
         self.__date_from = os.environ.get(self.DATE_FROM_KEY, '')
         self.__date_to = os.environ.get(self.DATE_TO_KEY, '')
         self.__verify_ssl = os.environ.get(self.VERIFY_SSL_KEY, 'TRUE').strip().upper() == 'TRUE'
-        self.__filter_results = os.environ.get(self.FILTER_ONLY_ASSETS, 'TRUE').strip().upper() == 'TRUE'
         return self
 
     def __get_correct_result_count(self, results):
@@ -79,6 +75,7 @@ class SearchGranulesCmr(SearchGranulesAbstract):
         results = []
         page_size = self.__page_size if self.__limit < 0 or self.__limit > self.__page_size else self.__limit
         page_num = 1
+        items_collection_shell = None
         while True:
             if 0 < self.__limit <= len(results):
                 break
@@ -94,11 +91,14 @@ class SearchGranulesCmr(SearchGranulesAbstract):
             if response.status_code >= 400:
                 raise RuntimeError(
                     f'Cognito ends in error. status_code: {response.status_code}. url: {cmr_granules_url}. details: {response.text}')
-            temp_results = json.loads(response.content.decode('utf-8'))['features']
+            temp_results = json.loads(response.content.decode('utf-8'))
+            if items_collection_shell is None:
+                items_collection_shell = temp_results
+            temp_results = temp_results.pop('features')
             page_num += 1
             results.extend(temp_results)
             if len(temp_results) < page_size:
                 break
         results = self.__get_correct_result_count(results)
-        results = StacUtils.reduce_stac_list_to_data_links(results) if self.__filter_results else results
-        return json.dumps(results)
+        items_collection_shell['features'] = results
+        return json.dumps(items_collection_shell)
