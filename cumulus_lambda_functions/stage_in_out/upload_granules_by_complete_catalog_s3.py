@@ -1,5 +1,7 @@
 import json
 
+from pystac import ItemCollection, Item
+
 from cumulus_lambda_functions.cumulus_stac.granules_catalog import GranulesCatalog
 from cumulus_lambda_functions.stage_in_out.search_collections_factory import SearchCollectionsFactory
 from cumulus_lambda_functions.stage_in_out.upload_granules_abstract import UploadGranulesAbstract
@@ -40,7 +42,7 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
         self.__delete_files = os.environ.get(self.DELETE_FILES_KEY, 'FALSE').strip().upper() == 'TRUE'
         return self
 
-    def upload(self, **kwargs) -> list:
+    def upload(self, **kwargs) -> dict:
         self.__set_props_from_env()
         child_links = self.__gc.get_child_link_hrefs(os.environ.get(self.CATALOG_FILE))
         errors = []
@@ -70,11 +72,9 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
                 if uploading_current_granule_stac is not None:  # upload metadata file again
                     self.__s3.set_s3_url(uploading_current_granule_stac)
                     self.__s3.upload_bytes(json.dumps(current_granule_stac.to_dict(False, False)).encode())
-                dapa_body_granules.append({
-                    'id': f'{self.__collection_id}:{current_granule_id}',
-                    'collection': self.__collection_id,
-                    'assets': {k: v.to_dict() for k, v in current_granule_stac.assets.items()},
-                })
+                current_granule_stac.id = f'{self.__collection_id}:{current_granule_id}'
+                dapa_body_granules.append(current_granule_stac.to_dict(False, False))
+                uploaded_item_collections = ItemCollection(items=dapa_body_granules)
             except Exception as e:
                 LOGGER.exception(f'error while processing: {each_child}')
                 errors.append({'href': each_child, 'error': str(e)})
@@ -82,4 +82,4 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
         if len(errors) > 0:
             LOGGER.error(f'some errors while uploading granules: {errors}')
         LOGGER.debug(f'dapa_body_granules: {dapa_body_granules}')
-        return dapa_body_granules
+        return uploaded_item_collections.to_dict(False)

@@ -842,8 +842,9 @@ class TestDockerEntry(TestCase):
 
             upload_result = choose_process()
             print(upload_result)
-            self.assertEqual(1, len(upload_result), 'wrong length of upload_result features')
-            upload_result = upload_result[0]
+            self.assertTrue('features' in upload_result, 'missing features')
+            self.assertEqual(1, len(upload_result['features']), 'wrong length of upload_result features')
+            upload_result = upload_result['features'][0]
             self.assertTrue('assets' in upload_result, 'missing assets')
             self.assertTrue('metadata__cas' in upload_result['assets'], 'missing assets#metadata__cas')
             self.assertTrue('href' in upload_result['assets']['metadata__cas'], 'missing assets#metadata__cas#href')
@@ -853,6 +854,29 @@ class TestDockerEntry(TestCase):
             self.assertTrue('href' in upload_result['assets']['data'], 'missing assets#data#href')
             self.assertTrue(upload_result['assets']['data']['href'].startswith(f's3://{os.environ["STAGING_BUCKET"]}/'))
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
+            """
+            Example output: 
+            {
+                'type': 'FeatureCollection', 
+                'features': [{
+                    'type': 'Feature', 
+                    'stac_version': '1.0.0', 
+                    'id': 'NEW_COLLECTION_EXAMPLE_L1B___9:test_file01',
+                    'properties': {'start_datetime': '2016-01-31T18:00:00.009057Z',
+                                'end_datetime': '2016-01-31T19:59:59.991043Z', 'created': '2016-02-01T02:45:59.639000Z',
+                                'updated': '2022-03-23T15:48:21.578000Z', 'datetime': '1970-01-01T00:00:00Z'},
+                    'geometry': {'type': 'Point', 'coordinates': [0.0, 0.0]}, 'links': [], 
+                    'assets': {'data': {
+                        'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc',
+                        'title': 'main data'}, 'metadata__cas': {
+                        'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.cas',
+                        'title': 'metadata cas'}, 'metadata__stac': {
+                        'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.stac.json',
+                        'title': 'metadata stac'}}, 
+                    'bbox': [0.0, 0.0, 0.0, 0.0], 
+                    'stac_extensions': [],
+                    'collection': 'NEW_COLLECTION_EXAMPLE_L1B___9'}]}
+            """
         return
 
     def test_04_catalog(self):
