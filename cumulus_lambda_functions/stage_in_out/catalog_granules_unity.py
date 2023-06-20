@@ -27,6 +27,8 @@ class CatalogGranulesUnity(CatalogGranulesAbstract):
 
     def catalog(self, **kwargs):
         self.__set_props_from_env()
+        if isinstance(self._uploaded_files_json, dict) and 'features' in self._uploaded_files_json:
+            self._uploaded_files_json = self._uploaded_files_json['features']
         dapa_body = {
             "provider_id": self.__provider_id,
             "features": self._uploaded_files_json

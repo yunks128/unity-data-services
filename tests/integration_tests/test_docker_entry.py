@@ -688,11 +688,6 @@ class TestDockerEntry(TestCase):
         return
 
     def test_03_upload_complete_catalog(self):
-        os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
-        os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
-        os.environ['PASSWORD_TYPE'] = 'PARAM_STORE'
-        os.environ['CLIENT_ID'] = '6ir9qveln397i0inh9pmsabq1'
-        os.environ['COGNITO_URL'] = 'https://cognito-idp.us-west-2.amazonaws.com'
         os.environ['VERIFY_SSL'] = 'FALSE'
 
         os.environ['COLLECTION_ID'] = 'NEW_COLLECTION_EXAMPLE_L1B___9'
@@ -903,6 +898,30 @@ class TestDockerEntry(TestCase):
 
     def test_04_catalog_from_file(self):
         upload_result = [{'id': 'NEW_COLLECTION_EXAMPLE_L1B___9:test_file01', 'collection': 'NEW_COLLECTION_EXAMPLE_L1B___9', 'assets': {'metadata': {'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.cas'}, 'data': {'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc'}}}]
+        os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
+        os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
+        os.environ['PASSWORD_TYPE'] = 'PARAM_STORE'
+        os.environ['CLIENT_ID'] = '6ir9qveln397i0inh9pmsabq1'
+        os.environ['COGNITO_URL'] = 'https://cognito-idp.us-west-2.amazonaws.com'
+        os.environ['DAPA_API'] = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test'
+        os.environ['VERIFY_SSL'] = 'FALSE'
+        os.environ['PROVIDER_ID'] = 'SNPP'
+        os.environ['GRANULES_CATALOG_TYPE'] = 'UNITY'
+        if len(argv) > 1:
+            argv.pop(-1)
+        argv.append('CATALOG')
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            input_file_path = os.path.join(tmp_dir_name, 'uploaded_files.json')
+            FileUtils.write_json(input_file_path, upload_result)
+            os.environ['UPLOADED_FILES_JSON'] = input_file_path
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
+            catalog_result = choose_process()
+            self.assertEqual('registered', catalog_result, 'wrong status')
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
+        return
+
+    def test_04_catalog_from_file_item_collection(self):
+        upload_result = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'stac_version': '1.0.0', 'id': 'NEW_COLLECTION_EXAMPLE_L1B___9:test_file01', 'properties': {'start_datetime': '2016-01-31T18:00:00.009057Z', 'end_datetime': '2016-01-31T19:59:59.991043Z', 'created': '2016-02-01T02:45:59.639000Z', 'updated': '2022-03-23T15:48:21.578000Z', 'datetime': '1970-01-01T00:00:00Z'}, 'geometry': {'type': 'Point', 'coordinates': [0.0, 0.0]}, 'links': [], 'assets': {'data': {'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc', 'title': 'main data'}, 'metadata__cas': {'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.cas', 'title': 'metadata cas'}, 'metadata__stac': {'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.stac.json', 'title': 'metadata stac'}}, 'bbox': [0.0, 0.0, 0.0, 0.0], 'stac_extensions': [], 'collection': 'NEW_COLLECTION_EXAMPLE_L1B___9'}]}
         os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
         os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
         os.environ['PASSWORD_TYPE'] = 'PARAM_STORE'

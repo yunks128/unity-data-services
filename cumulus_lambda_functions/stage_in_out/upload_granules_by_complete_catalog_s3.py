@@ -74,12 +74,11 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
                     self.__s3.upload_bytes(json.dumps(current_granule_stac.to_dict(False, False)).encode())
                 current_granule_stac.id = f'{self.__collection_id}:{current_granule_id}'
                 dapa_body_granules.append(current_granule_stac.to_dict(False, False))
-                uploaded_item_collections = ItemCollection(items=dapa_body_granules)
             except Exception as e:
                 LOGGER.exception(f'error while processing: {each_child}')
                 errors.append({'href': each_child, 'error': str(e)})
-
         if len(errors) > 0:
             LOGGER.error(f'some errors while uploading granules: {errors}')
         LOGGER.debug(f'dapa_body_granules: {dapa_body_granules}')
+        uploaded_item_collections = ItemCollection(items=dapa_body_granules)
         return uploaded_item_collections.to_dict(False)
