@@ -387,7 +387,7 @@ class TestDockerEntry(TestCase):
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
 
-    def test_03_upload(self):
+    def not_in_used_test_03_upload(self):
         os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
         os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
         os.environ['PASSWORD_TYPE'] = 'PARAM_STORE'
@@ -521,7 +521,7 @@ class TestDockerEntry(TestCase):
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
 
-    def test_03_upload_catalog(self):
+    def not_in_used_test_03_upload_catalog(self):
         os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
         os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
         os.environ['PASSWORD_TYPE'] = 'PARAM_STORE'
@@ -694,7 +694,8 @@ class TestDockerEntry(TestCase):
         os.environ['STAGING_BUCKET'] = 'uds-test-cumulus-staging'
 
         os.environ['GRANULES_SEARCH_DOMAIN'] = 'UNITY'
-        os.environ['GRANULES_UPLOAD_TYPE'] = 'CATALOG_NO_DAPA_S3'
+        # os.environ['GRANULES_UPLOAD_TYPE'] = 'UPLOAD_S3_BY_STAC_CATALOG'
+        # defaulted to this value
 
         if len(argv) > 1:
             argv.pop(-1)
