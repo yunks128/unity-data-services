@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.0.1] - 2023-06-21
 ### Added
-- [#164](https://github.com/unity-sds/unity-data-services/pull/164) fix: convert all outputs into json str
+- [#165](https://github.com/unity-sds/unity-data-services/pull/165) fix: convert all outputs into json str
 
 ## [5.0.0] - 2023-06-13
 ### Added
