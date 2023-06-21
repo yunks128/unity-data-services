@@ -1,3 +1,5 @@
+import json
+
 from cumulus_lambda_functions.cumulus_dapa_client.dapa_client import DapaClient
 from cumulus_lambda_functions.stage_in_out.catalog_granules_abstract import CatalogGranulesAbstract
 import logging
@@ -36,4 +38,4 @@ class CatalogGranulesUnity(CatalogGranulesAbstract):
         dapa_client = DapaClient().with_verify_ssl(self.__verify_ssl)
         LOGGER.debug(f'dapa_body_granules: {dapa_body}')
         dapa_ingest_result = dapa_client.ingest_granules_w_cnm(dapa_body)
-        return dapa_ingest_result
+        return json.dumps(dapa_ingest_result)

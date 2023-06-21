@@ -64,7 +64,7 @@ class DownloadGranulesAbstract(ABC):
         self._granules_json = ItemCollection.from_dict(json_stac)
         return self
     
-    def download(self, **kwargs) -> dict:
+    def download(self, **kwargs) -> str:
         self._set_props_from_env()
         LOGGER.debug(f'creating download dir: {self._download_dir}')
         if len(self._granules_json.items) < 1:
@@ -88,4 +88,4 @@ class DownloadGranulesAbstract(ABC):
         if len(error_list) > 0:
             with open(f'{self._download_dir}/error.log', 'w') as error_file:
                 error_file.write(json.dumps(error_list, indent=4))
-        return granules_json_dict
+        return json.dumps(granules_json_dict)
