@@ -908,6 +908,8 @@ class TestDockerEntry(TestCase):
         os.environ['VERIFY_SSL'] = 'FALSE'
         os.environ['PROVIDER_ID'] = 'SNPP'
         os.environ['GRANULES_CATALOG_TYPE'] = 'UNITY'
+        os.environ['DELAY_SECOND'] = '35'
+        os.environ['REPEAT_TIMES'] = '3'
         if len(argv) > 1:
             argv.pop(-1)
         argv.append('CATALOG')
@@ -917,8 +919,19 @@ class TestDockerEntry(TestCase):
             os.environ['UPLOADED_FILES_JSON'] = input_file_path
             os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
             catalog_result = choose_process()
-            self.assertEqual('registered', catalog_result, 'wrong status')
+            self.assertTrue('cataloging_request_status' in catalog_result, f'missing cataloging_request_status')
+            self.assertTrue('status_result' in catalog_result, f'missing status_result')
+            self.assertEqual(catalog_result['cataloging_request_status'], 'registered', f'mismatched cataloging_request_status value')
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
+
+            status_result = catalog_result['status_result']
+
+            self.assertTrue('cataloged' in status_result, f'missing cataloged')
+            self.assertTrue('missing_granules' in status_result, f'missing missing_granules')
+            self.assertTrue('registered_granules' in status_result, f'missing registered_granules')
+            self.assertTrue(isinstance(status_result['cataloged'], bool), f'cataloged is not boolean: {status_result["cataloged"]}')
+            # Example result: {'cataloging_request_status': 'registered', 'status_result': {'cataloged': False, 'missing_granules': ['NEW_COLLECTION_EXAMPLE_L1B___9:test_file01'], 'registered_granules': []}}
+
         return
 
     def test_04_catalog_from_file_item_collection(self):
