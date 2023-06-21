@@ -22,7 +22,7 @@ def choose_process():
         return result_str
     if argv[1].strip().upper() == 'UPLOAD':
         logging.info('starting UPLOAD script')
-        result_str = UploadGranulesFactory().get_class(os.getenv('GRANULES_UPLOAD_TYPE', 'MISSING_GRANULES_UPLOAD_TYPE')).upload()
+        result_str = UploadGranulesFactory().get_class(os.getenv('GRANULES_UPLOAD_TYPE', UploadGranulesFactory.UPLOAD_S3_BY_STAC_CATALOG)).upload()
         StageInOutUtils.write_output_to_file(result_str)
         return result_str
     if argv[1].strip().upper() == 'CATALOG':
