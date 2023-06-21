@@ -42,7 +42,7 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
         self.__delete_files = os.environ.get(self.DELETE_FILES_KEY, 'FALSE').strip().upper() == 'TRUE'
         return self
 
-    def upload(self, **kwargs) -> dict:
+    def upload(self, **kwargs) -> str:
         self.__set_props_from_env()
         child_links = self.__gc.get_child_link_hrefs(os.environ.get(self.CATALOG_FILE))
         errors = []
@@ -81,4 +81,4 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
             LOGGER.error(f'some errors while uploading granules: {errors}')
         LOGGER.debug(f'dapa_body_granules: {dapa_body_granules}')
         uploaded_item_collections = ItemCollection(items=dapa_body_granules)
-        return uploaded_item_collections.to_dict(False)
+        return json.dumps(uploaded_item_collections.to_dict(False))
