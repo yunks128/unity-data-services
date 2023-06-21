@@ -5,10 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.9.0] - 2023-06-08
+## [5.1.0] - 2023-06-08
 ### Added
 - [#156](https://github.com/unity-sds/unity-data-services/pull/156) feat: added filter keyword in granules endpoint + repeatedly checking with time boundary for cataloging result
 
+## [5.0.0] - 2023-06-13
+### Added
+- [#163](https://github.com/unity-sds/unity-data-services/pull/163) breaking: new upload implementation for complete catalog (no connection to DAPA)
+
+## [4.0.0] - 2023-06-13
+### Changed
+- [#161](https://github.com/unity-sds/unity-data-services/pull/161) breaking: search to return feature-collection. download to read feature-collection + return localized feature-collection w/ relative paths
 
 ## [3.8.2] - 2023-05-23
 ### Added

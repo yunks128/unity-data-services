@@ -64,17 +64,23 @@ class DapaClient:
         results = []
         page_size = 100 if limit < 0 or limit > 100 else limit
         offset = 0
+        items_collection_shell = None
         while True:
             if 0 < limit <= len(results):
                 break
             temp_results = self.get_granules(collection_id, page_size, offset, date_from, date_to)
+            if items_collection_shell is None:
+                items_collection_shell: dict = temp_results
+            temp_results = temp_results.pop('features')
             offset += len(temp_results)
             results.extend(temp_results)
             if len(temp_results) < page_size:
                 break
         if limit < 0 or limit >= len(results):
-            return results
-        return results[0: limit]
+            items_collection_shell['features'] = results
+            return items_collection_shell
+        items_collection_shell['features'] = results[0: limit]
+        return items_collection_shell
 
     def get_granules(self, collection_id='*', limit=1000, offset=0, date_from='', date_to='', filters=None):
         """
@@ -102,7 +108,7 @@ class DapaClient:
         granules_result = json.loads(response.text)
         if 'features' not in granules_result:
             raise RuntimeError(f'missing features in response. invalid response: response: {granules_result}')
-        return granules_result['features']
+        return granules_result
 
     def ingest_granules_w_cnm(self, cnm_ingest_body: dict) -> str:
         dapa_ingest_cnm_api = f'{self.__dapa_base_api}/am-uds-dapa/collections/'
