@@ -20,7 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.0.0] - 2023-06-13
 ### Changed
 - [#161](https://github.com/unity-sds/unity-data-services/pull/161) breaking: search to return feature-collection. download to read feature-collection + return localized feature-collection w/ relative paths
+<<<<<<< HEAD
 >>>>>>> a5733ee4f0b1cf54ec7f1b3fa735ff9b16a4f202
+=======
+>>>>>>> fa3f82e3f711e0300d5300c786312e47c7533584
 
 ## [3.8.2] - 2023-05-23
 ### Added
