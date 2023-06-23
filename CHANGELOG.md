@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.1.0] - 2023-06-08
+### Added
+- [#156](https://github.com/unity-sds/unity-data-services/pull/156) feat: added filter keyword in granules endpoint + repeatedly checking with time boundary for cataloging result
+
 ## [5.0.1] - 2023-06-21
 ### Added
 - [#165](https://github.com/unity-sds/unity-data-services/pull/165) fix: convert all outputs into json str
@@ -16,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.0.0] - 2023-06-13
 ### Changed
 - [#161](https://github.com/unity-sds/unity-data-services/pull/161) breaking: search to return feature-collection. download to read feature-collection + return localized feature-collection w/ relative paths
+<<<<<<< HEAD
+>>>>>>> a5733ee4f0b1cf54ec7f1b3fa735ff9b16a4f202
+=======
+>>>>>>> fa3f82e3f711e0300d5300c786312e47c7533584
 
 ## [3.8.2] - 2023-05-23
 ### Added
