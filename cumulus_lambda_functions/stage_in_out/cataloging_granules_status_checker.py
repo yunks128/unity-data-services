@@ -26,7 +26,7 @@ class CatalogingGranulesStatusChecker:
                                                                   }
                                                               })
         LOGGER.debug(f'raw registered_granules: {registered_granules}')
-        registered_granules = [ItemTransformer().from_stac(k) for k in registered_granules]
+        registered_granules = [ItemTransformer().from_stac(k) for k in registered_granules['features']]
         self.__registered_granules = {k.id: k for k in registered_granules if
                                k.datetime.timestamp() >= self.__threshold_datetime}
         LOGGER.debug(f'registered_granules after filtering: {[k for k in self.__registered_granules.keys()]}')
