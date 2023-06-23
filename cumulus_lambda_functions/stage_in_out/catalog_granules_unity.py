@@ -1,3 +1,5 @@
+import json
+
 from cumulus_lambda_functions.cumulus_dapa_client.dapa_client import DapaClient
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
 from cumulus_lambda_functions.stage_in_out.catalog_granules_abstract import CatalogGranulesAbstract
@@ -36,6 +38,8 @@ class CatalogGranulesUnity(CatalogGranulesAbstract):
 
     def catalog(self, **kwargs):
         self.__set_props_from_env()
+        if isinstance(self._uploaded_files_json, dict) and 'features' in self._uploaded_files_json:
+            self._uploaded_files_json = self._uploaded_files_json['features']
         dapa_body = {
             "provider_id": self.__provider_id,
             "features": self._uploaded_files_json
@@ -56,4 +60,4 @@ class CatalogGranulesUnity(CatalogGranulesAbstract):
             'cataloging_request_status': dapa_ingest_result,
             'status_result': status_result
         }
-        return response_json
+        return json.dumps(response_json)
