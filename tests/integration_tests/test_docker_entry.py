@@ -43,7 +43,7 @@ class TestDockerEntry(TestCase):
             # self.assertTrue(isinstance(search_result, list), f'search_result is not list: {search_result}')
             self.assertEqual(len(item_collections.items), 4000, f'wrong length')
             search_result = set([k.id for k in item_collections.items])
-            self.assertEqual(len(search_result),4000, f'wrong length. not unique')
+            self.assertEqual(len(search_result), 4000, f'wrong length. not unique')
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
             self.assertEqual(sorted(json.dumps(FileUtils.read_json(os.environ['OUTPUT_FILE']))), sorted(search_result_str), f'not identical result')
         return
@@ -226,7 +226,8 @@ class TestDockerEntry(TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir_name:
             os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
             os.environ['DOWNLOAD_DIR'] = tmp_dir_name
-            download_result = choose_process()
+            download_result_str = choose_process()
+            download_result = json.loads(download_result_str)
             self.assertTrue('features' in download_result, f'missing features in download_result')
             self.assertEqual(len(download_result['features']) + 2, len(glob(os.path.join(tmp_dir_name, '*'))), f'downloaded file does not match')
             error_file = os.path.join(tmp_dir_name, 'error.log')
@@ -256,7 +257,8 @@ class TestDockerEntry(TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir_name:
             os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
             os.environ['DOWNLOAD_DIR'] = tmp_dir_name
-            download_result = choose_process()
+            download_result_str = choose_process()
+            download_result = json.loads(download_result_str)
             self.assertTrue('features' in download_result, f'missing features in download_result')
             self.assertEqual(len(download_result['features']) + 2, len(glob(os.path.join(tmp_dir_name, '*'))), f'downloaded file does not match')
             error_file = os.path.join(tmp_dir_name, 'error.log')
@@ -291,7 +293,8 @@ class TestDockerEntry(TestCase):
             FileUtils.write_json(granule_json_file, granule_json)
             os.environ['STAC_JSON'] = granule_json_file
             os.environ['DOWNLOAD_DIR'] = downloading_dir
-            download_result = choose_process()
+            download_result_str = choose_process()
+            download_result = json.loads(download_result_str)
             self.assertTrue('features' in download_result, f'missing features in download_result')
             self.assertEqual(len(download_result['features']) + 1, len(glob(os.path.join(downloading_dir, '*'))), f'downloaded file does not match')
             error_file = os.path.join(downloading_dir, 'error.log')
@@ -320,7 +323,8 @@ class TestDockerEntry(TestCase):
             os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
             # TODO this is downloading a login page HTML
             os.environ['DOWNLOAD_DIR'] = tmp_dir_name
-            download_result = choose_process()
+            download_result_str = choose_process()
+            download_result = json.loads(download_result_str)
             self.assertTrue(isinstance(download_result, list), f'download_result is not list: {download_result}')
             self.assertEqual(sum([len(k) for k in download_result]), len(glob(os.path.join(tmp_dir_name, '*'))), f'downloaded file does not match')
             error_file = os.path.join(tmp_dir_name, 'error.log')
@@ -344,7 +348,8 @@ class TestDockerEntry(TestCase):
             FileUtils.write_json(granule_json_file, granule_json)
             os.environ['STAC_JSON'] = granule_json_file
             os.environ['DOWNLOAD_DIR'] = downloading_dir
-            download_result = choose_process()
+            download_result_str = choose_process()
+            download_result = json.loads(download_result_str)
             self.assertTrue('features' in download_result, f'missing features in download_result')
             self.assertEqual(len(download_result['features']) + 1, len(glob(os.path.join(downloading_dir, '*'))), f'downloaded file does not match')
             error_file = os.path.join(downloading_dir, 'error.log')
@@ -373,7 +378,8 @@ class TestDockerEntry(TestCase):
             FileUtils.write_json(granule_json_file, granule_json)
             os.environ['STAC_JSON'] = granule_json_file
             os.environ['DOWNLOAD_DIR'] = downloading_dir
-            download_result = choose_process()
+            download_result_str = choose_process()
+            download_result = json.loads(download_result_str)
             self.assertTrue('features' in download_result, f'missing features in download_result')
             self.assertEqual(len(download_result['features']) + 1, len(glob(os.path.join(downloading_dir, '*'))), f'downloaded file does not match')
             error_file = os.path.join(tmp_dir_name, 'error.log')
@@ -836,7 +842,8 @@ class TestDockerEntry(TestCase):
             with open(os.environ['CATALOG_FILE'], 'w') as ff:
                 ff.write(json.dumps(catalog.to_dict(False, False)))
 
-            upload_result = choose_process()
+            upload_result_str = choose_process()
+            upload_result = json.loads(upload_result_str)
             print(upload_result)
             self.assertTrue('features' in upload_result, 'missing features')
             self.assertEqual(1, len(upload_result['features']), 'wrong length of upload_result features')
@@ -892,7 +899,8 @@ class TestDockerEntry(TestCase):
         argv.append('CATALOG')
         with tempfile.TemporaryDirectory() as tmp_dir_name:
             os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
-            catalog_result = choose_process()
+            catalog_result_str = choose_process()
+            catalog_result = json.loads(catalog_result_str)
             self.assertEqual('registered', catalog_result, 'wrong status')
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
@@ -919,6 +927,7 @@ class TestDockerEntry(TestCase):
             os.environ['UPLOADED_FILES_JSON'] = input_file_path
             os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
             catalog_result = choose_process()
+            catalog_result = json.loads(catalog_result_str)
             self.assertTrue('cataloging_request_status' in catalog_result, f'missing cataloging_request_status')
             self.assertTrue('status_result' in catalog_result, f'missing status_result')
             self.assertEqual(catalog_result['cataloging_request_status'], 'registered', f'mismatched cataloging_request_status value')
@@ -953,7 +962,8 @@ class TestDockerEntry(TestCase):
             FileUtils.write_json(input_file_path, upload_result)
             os.environ['UPLOADED_FILES_JSON'] = input_file_path
             os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
-            catalog_result = choose_process()
+            catalog_result_str = choose_process()
+            catalog_result = json.loads(catalog_result_str)
             self.assertEqual('registered', catalog_result, 'wrong status')
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return

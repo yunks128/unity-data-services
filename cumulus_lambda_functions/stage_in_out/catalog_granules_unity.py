@@ -1,3 +1,5 @@
+import json
+
 from cumulus_lambda_functions.cumulus_dapa_client.dapa_client import DapaClient
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
 from cumulus_lambda_functions.stage_in_out.catalog_granules_abstract import CatalogGranulesAbstract
@@ -58,4 +60,4 @@ class CatalogGranulesUnity(CatalogGranulesAbstract):
             'cataloging_request_status': dapa_ingest_result,
             'status_result': status_result
         }
-        return response_json
+        return json.dumps(response_json)
