@@ -27,6 +27,10 @@ services:
       PROVIDER_ID: 'SNPP'
       GRANULES_CATALOG_TYPE: 'UNITY'
       UPLOADED_FILES_JSON: '[{"id": "NEW_COLLECTION_EXAMPLE_L1B___9:test_file01", "collection": "NEW_COLLECTION_EXAMPLE_L1B___9", "assets": {"metadata": {"href": "s3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.cas"}, "data": {"href": "s3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc"}}}]'
+
+      DELAY_SECOND: '45'
+      REPEAT_TIMES: '5'
+
     networks:
       - internal
 networks:
