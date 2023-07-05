@@ -1,4 +1,4 @@
-from lsmd.processing_jobs.job_manager_abstract import JobManagerAbstract, JobManagerProps
+from cumulus_lambda_functions.lib.processing_jobs.job_manager_abstract import JobManagerAbstract, JobManagerProps
 
 
 class JobManagerMemory(JobManagerAbstract):

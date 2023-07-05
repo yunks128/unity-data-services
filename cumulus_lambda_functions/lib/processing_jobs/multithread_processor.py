@@ -1,5 +1,7 @@
 import logging
 import time
+import multiprocessing
+multiprocessing.set_start_method("fork")
 from multiprocessing import Process, Queue, Lock, cpu_count
 from random import randint
 
