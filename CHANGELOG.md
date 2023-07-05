@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.1.0] - 2023-07-05
 ### Added
-- [#167](https://github.com/unity-sds/unity-data-services/pull/167) feat: parallelize download
+- [#169](https://github.com/unity-sds/unity-data-services/pull/169) feat: parallelize download
 
 
 ## [5.0.1] - 2023-06-21
