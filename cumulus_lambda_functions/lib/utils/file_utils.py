@@ -88,6 +88,8 @@ class FileUtils:
 
     @staticmethod
     def read_json(path):
+        if not os.path.exists(path):
+            raise IOError('{} does not exist'.format(path))
         with open(path, 'r') as ff:
             try:
                 return json.loads(ff.read())
@@ -101,5 +103,4 @@ class FileUtils:
         with open(file_path, 'a' if append else 'w') as ff:
             json_str = json.dumps(json_obj, indent=4) if prettify else json.dumps(json_obj)
             ff.write(json_str)
-            pass
         return
