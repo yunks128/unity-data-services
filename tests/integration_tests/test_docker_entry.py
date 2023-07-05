@@ -377,6 +377,7 @@ class TestDockerEntry(TestCase):
             argv.pop(-1)
         argv.append('DOWNLOAD')
         os.environ['GRANULES_DOWNLOAD_TYPE'] = 'HTTP'
+        os.environ['PARALLEL_COUNT'] = '3'
         with tempfile.TemporaryDirectory() as tmp_dir_name:
             os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
             granule_json_file = os.path.join(tmp_dir_name, 'input_file.json')

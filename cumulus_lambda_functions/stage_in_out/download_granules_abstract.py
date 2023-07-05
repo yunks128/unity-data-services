@@ -53,12 +53,14 @@ class DownloadGranulesAbstract(ABC):
     STAC_JSON = 'STAC_JSON'
     DOWNLOAD_DIR_KEY = 'DOWNLOAD_DIR'
     DOWNLOADING_KEYS = 'DOWNLOADING_KEYS'
+    PARALLEL_COUNT = 'PARALLEL_COUNT'
 
     def __init__(self) -> None:
         super().__init__()
         self._granules_json: ItemCollection = {}
         self._download_dir = '/tmp'
         self._downloading_keys = set([k.strip() for k in os.environ.get(self.DOWNLOADING_KEYS, 'data').strip().split(',')])
+        self._parallel_count = int(os.environ.get(self.PARALLEL_COUNT, '-1'))
 
     @abstractmethod
     def _set_props_from_env(self):
@@ -107,7 +109,7 @@ class DownloadGranulesAbstract(ABC):
             job_manager_props.memory_job_dict[each_item.id] = each_item
 
         # https://www.infoworld.com/article/3542595/6-python-libraries-for-parallel-processing.html
-        multithread_processor_props = MultiThreadProcessorProps()
+        multithread_processor_props = MultiThreadProcessorProps(self._parallel_count)
         multithread_processor_props.job_manager = JobManagerMemory(job_manager_props)
         multithread_processor_props.job_executor = DownloadItemExecutor(self._downloading_keys, self._download_one_item, local_items, error_list)
         multithread_processor = MultiThreadProcessor(multithread_processor_props)
