@@ -2,6 +2,7 @@ import json
 import os
 
 from cumulus_lambda_functions.cumulus_wrapper.query_granules import GranulesQuery
+from cumulus_lambda_functions.lib.json_validator import JsonValidator
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from cumulus_lambda_functions.lib.utils.lambda_api_gateway_utils import LambdaApiGatewayUtils
 
@@ -15,7 +16,8 @@ class CumulusGranulesDapa:
 'path': '/collections/observation/items',
 'httpMethod': 'GET',
 'headers': {'Authorization': ' Bearer asdfafweaw'}, 'multiValueHeaders': {'Authorization': [' Bearer asdfafweaw']},
-'queryStringParameters': {'datetime': 'asfa;lsfdjafal', 'bbox': '12,12,12,3', 'limit': '12'}, 'multiValueQueryStringParameters': {'datetime': ['asfa;lsfdjafal'], 'bbox': ['12,12,12,3'], 'limit': ['12']}, 'pathParameters': None, 'stageVariables': None, 'requestContext': {'resourceId': 'hgdxj6', 'resourcePath': '/collections/observation/items', 'httpMethod': 'GET', 'extendedRequestId': 'SSEa6F80PHcF3xg=', 'requestTime': '17/May/2022:18:20:40 +0000', 'path': '/collections/observation/items', 'accountId': '884500545225', 'protocol': 'HTTP/1.1', 'stage': 'test-invoke-stage', 'domainPrefix': 'testPrefix', 'requestTimeEpoch': 1652811640832, 'requestId': '703f404d-cb95-43d3-8f48-523e5b1860e4', 'identity': {'cognitoIdentityPoolId': None, 'cognitoIdentityId': None, 'apiKey': 'test-invoke-api-key', 'principalOrgId': None, 'cognitoAuthenticationType': None, 'userArn': 'arn:aws:sts::884500545225:assumed-role/power_user/wai.phyo@jpl.nasa.gov', 'apiKeyId': 'test-invoke-api-key-id', 'userAgent': 'aws-internal/3 aws-sdk-java/1.12.201 Linux/5.4.181-109.354.amzn2int.x86_64 OpenJDK_64-Bit_Server_VM/25.322-b06 java/1.8.0_322 vendor/Oracle_Corporation cfg/retry-mode/standard', 'accountId': '884500545225', 'caller': 'AROAJZL4DI6MUSHCBBHGM:wai.phyo@jpl.nasa.gov', 'sourceIp': 'test-invoke-source-ip', 'accessKey': 'ASIA434CXH3EV56T6AS5', 'cognitoAuthenticationProvider': None, 'user': 'AROAJZL4DI6MUSHCBBHGM:wai.phyo@jpl.nasa.gov'}, 'domainName': 'testPrefix.testDomainName', 'apiId': 'gwaxi7ijl4'}, 'body': None, 'isBase64Encoded': False}
+'queryStringParameters': {'datetime': 'asfa;lsfdjafal', 'bbox': '12,12,12,3', 'limit': '12'},
+'multiValueQueryStringParameters': {'datetime': ['asfa;lsfdjafal'], 'bbox': ['12,12,12,3'], 'limit': ['12']}, 'pathParameters': None, 'stageVariables': None, 'requestContext': {'resourceId': 'hgdxj6', 'resourcePath': '/collections/observation/items', 'httpMethod': 'GET', 'extendedRequestId': 'SSEa6F80PHcF3xg=', 'requestTime': '17/May/2022:18:20:40 +0000', 'path': '/collections/observation/items', 'accountId': '884500545225', 'protocol': 'HTTP/1.1', 'stage': 'test-invoke-stage', 'domainPrefix': 'testPrefix', 'requestTimeEpoch': 1652811640832, 'requestId': '703f404d-cb95-43d3-8f48-523e5b1860e4', 'identity': {'cognitoIdentityPoolId': None, 'cognitoIdentityId': None, 'apiKey': 'test-invoke-api-key', 'principalOrgId': None, 'cognitoAuthenticationType': None, 'userArn': 'arn:aws:sts::884500545225:assumed-role/power_user/wai.phyo@jpl.nasa.gov', 'apiKeyId': 'test-invoke-api-key-id', 'userAgent': 'aws-internal/3 aws-sdk-java/1.12.201 Linux/5.4.181-109.354.amzn2int.x86_64 OpenJDK_64-Bit_Server_VM/25.322-b06 java/1.8.0_322 vendor/Oracle_Corporation cfg/retry-mode/standard', 'accountId': '884500545225', 'caller': 'AROAJZL4DI6MUSHCBBHGM:wai.phyo@jpl.nasa.gov', 'sourceIp': 'test-invoke-source-ip', 'accessKey': 'ASIA434CXH3EV56T6AS5', 'cognitoAuthenticationProvider': None, 'user': 'AROAJZL4DI6MUSHCBBHGM:wai.phyo@jpl.nasa.gov'}, 'domainName': 'testPrefix.testDomainName', 'apiId': 'gwaxi7ijl4'}, 'body': None, 'isBase64Encoded': False}
 
         :param event:
         """
@@ -40,6 +42,72 @@ class CumulusGranulesDapa:
         self.__cumulus.with_page_number(self.__page_number)
         self.__get_time_range()
         self.__get_collection_id()
+        self.__get_filter()
+
+    def __get_filter(self):
+        """
+        https://portal.ogc.org/files/96288#rc_filter
+
+        { "eq": [ { "property": "city" }, "Toronto" ] }
+
+        {
+          "like": [
+            { "property": "name" },
+            "Smith."
+          ],
+          "singleChar": ".",
+          "nocase": true
+        }
+
+        {
+  "in": {
+     "value": { "property": "cityName" },
+     "list": [ "Toronto", "Franfurt", "Tokyo", "New York" ],
+     "nocase": false
+  }
+}
+        :return:
+        """
+        if 'filter' not in self.__event:
+            return self
+        filter_event = json.loads(self.__event['filter'])
+        if 'in' not in filter_event:
+            return self
+        schema = {
+            "type": {
+                "required": ["in"],
+                "properties": {
+                    "in": {
+                        "type": "object",
+                        "required": ["value", "list"],
+                        "properties": {
+                            "value": {
+                                "type": "object",
+                                "required": ["property"],
+                                "properties": {
+                                    "property": {"type": "string"}
+                                }
+                            },
+                            "list": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        filter_event_validator_result = JsonValidator(schema).validate(filter_event)
+        if filter_event_validator_result is not None:
+            LOGGER.error(f'invalid event: {filter_event_validator_result}. event: {filter_event}')
+            return self
+        search_key = filter_event['in']['value']['property']
+        search_values = filter_event['in']['value']['list']
+        self.__cumulus.with_filter(search_key, search_values)
+        return self
 
     def __get_collection_id(self):
         if 'pathParameters' not in self.__event:
