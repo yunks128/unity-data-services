@@ -82,7 +82,7 @@ class DapaClient:
         items_collection_shell['features'] = results[0: limit]
         return items_collection_shell
 
-    def get_granules(self, collection_id='*', limit=1000, offset=0, date_from='', date_to=''):
+    def get_granules(self, collection_id='*', limit=1000, offset=0, date_from='', date_to='', filters=None):
         """
         TODO: pagination. getting only 1st 1k item
         :param collection_id:
@@ -95,6 +95,8 @@ class DapaClient:
         dapa_granules_api = f'{self.__dapa_base_api}/am-uds-dapa/collections/{collection_id}/items?limit={limit}&offset={offset}'
         if date_from != '' or date_to != '':
             dapa_granules_api = f"{dapa_granules_api}&datetime={date_from if date_from != '' else '..'}/{date_to if date_to != '' else '..'}"
+        if filter is not None:
+            dapa_granules_api = f'{dapa_granules_api}&filter={json.dumps(filters)}'
         LOGGER.debug(f'dapa_granules_api: {dapa_granules_api}')
         LOGGER.debug(f'getting granules for: {dapa_granules_api}')
         self.__get_token()
