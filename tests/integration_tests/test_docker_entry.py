@@ -311,6 +311,934 @@ class TestDockerEntry(TestCase):
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
 
+    def test_02_download__daac_502__from_file(self):
+        granule_json = '''{
+  "type": "FeatureCollection",
+  "stac_version": "1.0.0",
+  "numberMatched": 242,
+  "numberReturned": 10,
+  "links": [
+    {
+      "rel": "self",
+      "href": "https://cmr.earthdata.nasa.gov:443/search/granules.stac?collection_concept_id=C2011289787-GES_DISC&page_size=10&temporal%5B%5D=2021-02-01T00%3A00%3A00Z%2C2021-02-02T00%3A00%3A00Z&page_num=1"
+    },
+    {
+      "rel": "root",
+      "href": "https://cmr.earthdata.nasa.gov:443/search/"
+    },
+    {
+      "rel": "next",
+      "body": {
+        "collection_concept_id": "C2011289787-GES_DISC",
+        "page_num": "2",
+        "page_size": "10",
+        "temporal": [
+          "2021-02-01T00:00:00Z,2021-02-02T00:00:00Z"
+        ],
+        "temporal[]": "2021-02-01T00:00:00Z,2021-02-02T00:00:00Z"
+      },
+      "method": "POST",
+      "merge": true,
+      "href": "https://cmr.earthdata.nasa.gov:443/search/granules.stac"
+    }
+  ],
+  "context": {
+    "returned": 10,
+    "limit": 1000000,
+    "matched": 242
+  },
+  "features": [
+    {
+      "properties": {
+        "datetime": "2021-01-31T23:54:00.000Z",
+        "start_datetime": "2021-01-31T23:54:00.000Z",
+        "end_datetime": "2021-02-01T00:00:00.000Z"
+      },
+      "bbox": [
+        -164.22,
+        -59.19,
+        -127.42,
+        -34.4
+      ],
+      "assets": {
+        "metadata": {
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327589-GES_DISC.xml",
+          "type": "application/xml"
+        },
+        "opendap": {
+          "title": "The OPENDAP location for the granule. (GET DATA : OPENDAP DATA)",
+          "href": "https://sounder.gesdisc.eosdis.nasa.gov/opendap/CHIRP/SNDR13CHRP1.2/2021/031/SNDR.SS1330.CHIRP.20210131T2354.m06.g240.L1_J1.std.v02_48.G.200408101645.nc",
+          "type": "application/x-netcdf"
+        },
+        "data": {
+          "title": "Download SNDR.SS1330.CHIRP.20210131T2354.m06.g240.L1_J1.std.v02_48.G.200408101645.nc",
+          "href": "https://data.gesdisc.earthdata.nasa.gov/data/CHIRP/SNDR13CHRP1.2/2021/031/SNDR.SS1330.CHIRP.20210131T2354.m06.g240.L1_J1.std.v02_48.G.200408101645.nc"
+        }
+      },
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -127.42,
+              -53.49
+            ],
+            [
+              -140.59,
+              -34.4
+            ],
+            [
+              -164.22,
+              -38.4
+            ],
+            [
+              -161.84,
+              -59.19
+            ],
+            [
+              -127.42,
+              -53.49
+            ]
+          ]
+        ]
+      },
+      "stac_extensions": [],
+      "id": "G2031327589-GES_DISC",
+      "stac_version": "1.0.0",
+      "collection": "C2011289787-GES_DISC",
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327589-GES_DISC.stac"
+        },
+        {
+          "rel": "parent",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "collection",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "root",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327589-GES_DISC.json"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327589-GES_DISC.umm_json"
+        }
+      ]
+    },
+    {
+      "properties": {
+        "datetime": "2021-02-01T00:00:00.000Z",
+        "start_datetime": "2021-02-01T00:00:00.000Z",
+        "end_datetime": "2021-02-01T00:06:00.000Z"
+      },
+      "bbox": [
+        -167.61,
+        -38.28,
+        -140.62,
+        -14.06
+      ],
+      "assets": {
+        "metadata": {
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327600-GES_DISC.xml",
+          "type": "application/xml"
+        },
+        "opendap": {
+          "title": "The OPENDAP location for the granule. (GET DATA : OPENDAP DATA)",
+          "href": "https://sounder.gesdisc.eosdis.nasa.gov/opendap/CHIRP/SNDR13CHRP1.2/2021/032/SNDR.SS1330.CHIRP.20210201T0000.m06.g001.L1_J1.std.v02_48.G.200408101657.nc",
+          "type": "application/x-netcdf"
+        },
+        "data": {
+          "title": "Download SNDR.SS1330.CHIRP.20210201T0000.m06.g001.L1_J1.std.v02_48.G.200408101657.nc",
+          "href": "https://data.gesdisc.earthdata.nasa.gov/data/CHIRP/SNDR13CHRP1.2/2021/032/SNDR.SS1330.CHIRP.20210201T0000.m06.g001.L1_J1.std.v02_48.G.200408101657.nc"
+        }
+      },
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -140.62,
+              -34.28
+            ],
+            [
+              -147.98,
+              -14.06
+            ],
+            [
+              -167.61,
+              -17.44
+            ],
+            [
+              -164.31,
+              -38.28
+            ],
+            [
+              -140.62,
+              -34.28
+            ]
+          ]
+        ]
+      },
+      "stac_extensions": [],
+      "id": "G2031327600-GES_DISC",
+      "stac_version": "1.0.0",
+      "collection": "C2011289787-GES_DISC",
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327600-GES_DISC.stac"
+        },
+        {
+          "rel": "parent",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "collection",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "root",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327600-GES_DISC.json"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327600-GES_DISC.umm_json"
+        }
+      ]
+    },
+    {
+      "properties": {
+        "datetime": "2021-02-01T00:06:00.000Z",
+        "start_datetime": "2021-02-01T00:06:00.000Z",
+        "end_datetime": "2021-02-01T00:12:00.000Z"
+      },
+      "bbox": [
+        -171.93,
+        -17.31,
+        -148.0,
+        6.74
+      ],
+      "assets": {
+        "metadata": {
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327624-GES_DISC.xml",
+          "type": "application/xml"
+        },
+        "opendap": {
+          "title": "The OPENDAP location for the granule. (GET DATA : OPENDAP DATA)",
+          "href": "https://sounder.gesdisc.eosdis.nasa.gov/opendap/CHIRP/SNDR13CHRP1.2/2021/032/SNDR.SS1330.CHIRP.20210201T0006.m06.g002.L1_J1.std.v02_48.G.200408101655.nc",
+          "type": "application/x-netcdf"
+        },
+        "data": {
+          "title": "Download SNDR.SS1330.CHIRP.20210201T0006.m06.g002.L1_J1.std.v02_48.G.200408101655.nc",
+          "href": "https://data.gesdisc.earthdata.nasa.gov/data/CHIRP/SNDR13CHRP1.2/2021/032/SNDR.SS1330.CHIRP.20210201T0006.m06.g002.L1_J1.std.v02_48.G.200408101655.nc"
+        }
+      },
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -148.0,
+              -13.93
+            ],
+            [
+              -153.06,
+              6.74
+            ],
+            [
+              -171.93,
+              3.48
+            ],
+            [
+              -167.7,
+              -17.31
+            ],
+            [
+              -148.0,
+              -13.93
+            ]
+          ]
+        ]
+      },
+      "stac_extensions": [],
+      "id": "G2031327624-GES_DISC",
+      "stac_version": "1.0.0",
+      "collection": "C2011289787-GES_DISC",
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327624-GES_DISC.stac"
+        },
+        {
+          "rel": "parent",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "collection",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "root",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327624-GES_DISC.json"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327624-GES_DISC.umm_json"
+        }
+      ]
+    },
+    {
+      "properties": {
+        "datetime": "2021-02-01T00:12:00.000Z",
+        "start_datetime": "2021-02-01T00:12:00.000Z",
+        "end_datetime": "2021-02-01T00:18:00.000Z"
+      },
+      "bbox": [
+        -177.83,
+        3.6,
+        -153.07,
+        27.71
+      ],
+      "assets": {
+        "metadata": {
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327611-GES_DISC.xml",
+          "type": "application/xml"
+        },
+        "opendap": {
+          "title": "The OPENDAP location for the granule. (GET DATA : OPENDAP DATA)",
+          "href": "https://sounder.gesdisc.eosdis.nasa.gov/opendap/CHIRP/SNDR13CHRP1.2/2021/032/SNDR.SS1330.CHIRP.20210201T0012.m06.g003.L1_J1.std.v02_48.G.200408101705.nc",
+          "type": "application/x-netcdf"
+        },
+        "data": {
+          "title": "Download SNDR.SS1330.CHIRP.20210201T0012.m06.g003.L1_J1.std.v02_48.G.200408101705.nc",
+          "href": "https://data.gesdisc.earthdata.nasa.gov/data/CHIRP/SNDR13CHRP1.2/2021/032/SNDR.SS1330.CHIRP.20210201T0012.m06.g003.L1_J1.std.v02_48.G.200408101705.nc"
+        }
+      },
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -153.07,
+              6.87
+            ],
+            [
+              -156.97,
+              27.71
+            ],
+            [
+              -177.83,
+              24.15
+            ],
+            [
+              -172.02,
+              3.6
+            ],
+            [
+              -153.07,
+              6.87
+            ]
+          ]
+        ]
+      },
+      "stac_extensions": [],
+      "id": "G2031327611-GES_DISC",
+      "stac_version": "1.0.0",
+      "collection": "C2011289787-GES_DISC",
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327611-GES_DISC.stac"
+        },
+        {
+          "rel": "parent",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "collection",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "root",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327611-GES_DISC.json"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327611-GES_DISC.umm_json"
+        }
+      ]
+    },
+    {
+      "properties": {
+        "datetime": "2021-02-01T00:18:00.000Z",
+        "start_datetime": "2021-02-01T00:18:00.000Z",
+        "end_datetime": "2021-02-01T00:24:00.000Z"
+      },
+      "bbox": [
+        172.75,
+        24.27,
+        -156.97,
+        48.71
+      ],
+      "assets": {
+        "metadata": {
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327811-GES_DISC.xml",
+          "type": "application/xml"
+        },
+        "opendap": {
+          "title": "The OPENDAP location for the granule. (GET DATA : OPENDAP DATA)",
+          "href": "https://sounder.gesdisc.eosdis.nasa.gov/opendap/CHIRP/SNDR13CHRP1.2/2021/032/SNDR.SS1330.CHIRP.20210201T0018.m06.g004.L1_J1.std.v02_48.G.200408101716.nc",
+          "type": "application/x-netcdf"
+        },
+        "data": {
+          "title": "Download SNDR.SS1330.CHIRP.20210201T0018.m06.g004.L1_J1.std.v02_48.G.200408101716.nc",
+          "href": "https://data.gesdisc.earthdata.nasa.gov/data/CHIRP/SNDR13CHRP1.2/2021/032/SNDR.SS1330.CHIRP.20210201T0018.m06.g004.L1_J1.std.v02_48.G.200408101716.nc"
+        }
+      },
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -156.97,
+              27.84
+            ],
+            [
+              -160.07,
+              48.71
+            ],
+            [
+              172.75,
+              44.19
+            ],
+            [
+              -177.94,
+              24.27
+            ],
+            [
+              -156.97,
+              27.84
+            ]
+          ]
+        ]
+      },
+      "stac_extensions": [],
+      "id": "G2031327811-GES_DISC",
+      "stac_version": "1.0.0",
+      "collection": "C2011289787-GES_DISC",
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327811-GES_DISC.stac"
+        },
+        {
+          "rel": "parent",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "collection",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "root",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327811-GES_DISC.json"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327811-GES_DISC.umm_json"
+        }
+      ]
+    },
+    {
+      "properties": {
+        "datetime": "2021-02-01T00:24:00.000Z",
+        "start_datetime": "2021-02-01T00:24:00.000Z",
+        "end_datetime": "2021-02-01T00:30:00.000Z"
+      },
+      "bbox": [
+        152.97,
+        44.29,
+        -160.05,
+        69.67
+      ],
+      "assets": {
+        "metadata": {
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327763-GES_DISC.xml",
+          "type": "application/xml"
+        },
+        "opendap": {
+          "title": "The OPENDAP location for the granule. (GET DATA : OPENDAP DATA)",
+          "href": "https://sounder.gesdisc.eosdis.nasa.gov/opendap/CHIRP/SNDR13CHRP1.2/2021/032/SNDR.SS1330.CHIRP.20210201T0024.m06.g005.L1_J1.std.v02_48.G.200408101749.nc",
+          "type": "application/x-netcdf"
+        },
+        "data": {
+          "title": "Download SNDR.SS1330.CHIRP.20210201T0024.m06.g005.L1_J1.std.v02_48.G.200408101749.nc",
+          "href": "https://data.gesdisc.earthdata.nasa.gov/data/CHIRP/SNDR13CHRP1.2/2021/032/SNDR.SS1330.CHIRP.20210201T0024.m06.g005.L1_J1.std.v02_48.G.200408101749.nc"
+        }
+      },
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -160.05,
+              48.84
+            ],
+            [
+              -161.92,
+              69.67
+            ],
+            [
+              152.97,
+              62.28
+            ],
+            [
+              172.6,
+              44.29
+            ],
+            [
+              -160.05,
+              48.84
+            ]
+          ]
+        ]
+      },
+      "stac_extensions": [],
+      "id": "G2031327763-GES_DISC",
+      "stac_version": "1.0.0",
+      "collection": "C2011289787-GES_DISC",
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327763-GES_DISC.stac"
+        },
+        {
+          "rel": "parent",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "collection",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "root",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327763-GES_DISC.json"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327763-GES_DISC.umm_json"
+        }
+      ]
+    },
+    {
+      "properties": {
+        "datetime": "2021-02-01T00:30:00.000Z",
+        "start_datetime": "2021-02-01T00:30:00.000Z",
+        "end_datetime": "2021-02-01T00:36:00.000Z"
+      },
+      "bbox": [
+        -180.0,
+        62.35,
+        180.0,
+        90.0
+      ],
+      "assets": {
+        "metadata": {
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327782-GES_DISC.xml",
+          "type": "application/xml"
+        },
+        "opendap": {
+          "title": "The OPENDAP location for the granule. (GET DATA : OPENDAP DATA)",
+          "href": "https://sounder.gesdisc.eosdis.nasa.gov/opendap/CHIRP/SNDR13CHRP1.2/2021/032/SNDR.SS1330.CHIRP.20210201T0030.m06.g006.L1_J1.std.v02_48.G.200408101747.nc",
+          "type": "application/x-netcdf"
+        },
+        "data": {
+          "title": "Download SNDR.SS1330.CHIRP.20210201T0030.m06.g006.L1_J1.std.v02_48.G.200408101747.nc",
+          "href": "https://data.gesdisc.earthdata.nasa.gov/data/CHIRP/SNDR13CHRP1.2/2021/032/SNDR.SS1330.CHIRP.20210201T0030.m06.g006.L1_J1.std.v02_48.G.200408101747.nc"
+        }
+      },
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -161.83,
+              69.79
+            ],
+            [
+              -45.22,
+              88.83
+            ],
+            [
+              101.33,
+              71.69
+            ],
+            [
+              152.69,
+              62.35
+            ],
+            [
+              -161.83,
+              69.79
+            ]
+          ]
+        ]
+      },
+      "stac_extensions": [],
+      "id": "G2031327782-GES_DISC",
+      "stac_version": "1.0.0",
+      "collection": "C2011289787-GES_DISC",
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327782-GES_DISC.stac"
+        },
+        {
+          "rel": "parent",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "collection",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "root",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327782-GES_DISC.json"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327782-GES_DISC.umm_json"
+        }
+      ]
+    },
+    {
+      "properties": {
+        "datetime": "2021-02-01T00:36:00.000Z",
+        "start_datetime": "2021-02-01T00:36:00.000Z",
+        "end_datetime": "2021-02-01T00:42:00.000Z"
+      },
+      "bbox": [
+        -41.63,
+        61.83,
+        100.91,
+        89.26695841076085
+      ],
+      "assets": {
+        "metadata": {
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327806-GES_DISC.xml",
+          "type": "application/xml"
+        },
+        "opendap": {
+          "title": "The OPENDAP location for the granule. (GET DATA : OPENDAP DATA)",
+          "href": "https://sounder.gesdisc.eosdis.nasa.gov/opendap/CHIRP/SNDR13CHRP1.2/2021/032/SNDR.SS1330.CHIRP.20210201T0036.m06.g007.L1_J1.std.v02_48.G.200408101747.nc",
+          "type": "application/x-netcdf"
+        },
+        "data": {
+          "title": "Download SNDR.SS1330.CHIRP.20210201T0036.m06.g007.L1_J1.std.v02_48.G.200408101747.nc",
+          "href": "https://data.gesdisc.earthdata.nasa.gov/data/CHIRP/SNDR13CHRP1.2/2021/032/SNDR.SS1330.CHIRP.20210201T0036.m06.g007.L1_J1.std.v02_48.G.200408101747.nc"
+        }
+      },
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -41.63,
+              88.73
+            ],
+            [
+              6.42,
+              68.41
+            ],
+            [
+              50.76,
+              61.83
+            ],
+            [
+              100.91,
+              71.65
+            ],
+            [
+              -41.63,
+              88.73
+            ]
+          ]
+        ]
+      },
+      "stac_extensions": [],
+      "id": "G2031327806-GES_DISC",
+      "stac_version": "1.0.0",
+      "collection": "C2011289787-GES_DISC",
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327806-GES_DISC.stac"
+        },
+        {
+          "rel": "parent",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "collection",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "root",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327806-GES_DISC.json"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327806-GES_DISC.umm_json"
+        }
+      ]
+    },
+    {
+      "properties": {
+        "datetime": "2021-02-01T00:42:00.000Z",
+        "start_datetime": "2021-02-01T00:42:00.000Z",
+        "end_datetime": "2021-02-01T00:48:00.000Z"
+      },
+      "bbox": [
+        4.45,
+        43.65,
+        50.62,
+        68.30202151196218
+      ],
+      "assets": {
+        "metadata": {
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327773-GES_DISC.xml",
+          "type": "application/xml"
+        },
+        "opendap": {
+          "title": "The OPENDAP location for the granule. (GET DATA : OPENDAP DATA)",
+          "href": "https://sounder.gesdisc.eosdis.nasa.gov/opendap/CHIRP/SNDR13CHRP1.2/2021/032/SNDR.SS1330.CHIRP.20210201T0042.m06.g008.L1_J1.std.v02_48.G.200408101807.nc",
+          "type": "application/x-netcdf"
+        },
+        "data": {
+          "title": "Download SNDR.SS1330.CHIRP.20210201T0042.m06.g008.L1_J1.std.v02_48.G.200408101807.nc",
+          "href": "https://data.gesdisc.earthdata.nasa.gov/data/CHIRP/SNDR13CHRP1.2/2021/032/SNDR.SS1330.CHIRP.20210201T0042.m06.g008.L1_J1.std.v02_48.G.200408101807.nc"
+        }
+      },
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              6.29,
+              68.29
+            ],
+            [
+              4.45,
+              47.46
+            ],
+            [
+              31.46,
+              43.65
+            ],
+            [
+              50.62,
+              61.71
+            ],
+            [
+              6.29,
+              68.29
+            ]
+          ]
+        ]
+      },
+      "stac_extensions": [],
+      "id": "G2031327773-GES_DISC",
+      "stac_version": "1.0.0",
+      "collection": "C2011289787-GES_DISC",
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327773-GES_DISC.stac"
+        },
+        {
+          "rel": "parent",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "collection",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "root",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327773-GES_DISC.json"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327773-GES_DISC.umm_json"
+        }
+      ]
+    },
+    {
+      "properties": {
+        "datetime": "2021-02-01T00:48:00.000Z",
+        "start_datetime": "2021-02-01T00:48:00.000Z",
+        "end_datetime": "2021-02-01T00:54:00.000Z"
+      },
+      "bbox": [
+        1.29,
+        23.6,
+        31.41,
+        47.33
+      ],
+      "assets": {
+        "metadata": {
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327751-GES_DISC.xml",
+          "type": "application/xml"
+        },
+        "opendap": {
+          "title": "The OPENDAP location for the granule. (GET DATA : OPENDAP DATA)",
+          "href": "https://sounder.gesdisc.eosdis.nasa.gov/opendap/CHIRP/SNDR13CHRP1.2/2021/032/SNDR.SS1330.CHIRP.20210201T0048.m06.g009.L1_J1.std.v02_48.G.200408101736.nc",
+          "type": "application/x-netcdf"
+        },
+        "data": {
+          "title": "Download SNDR.SS1330.CHIRP.20210201T0048.m06.g009.L1_J1.std.v02_48.G.200408101736.nc",
+          "href": "https://data.gesdisc.earthdata.nasa.gov/data/CHIRP/SNDR13CHRP1.2/2021/032/SNDR.SS1330.CHIRP.20210201T0048.m06.g009.L1_J1.std.v02_48.G.200408101736.nc"
+        }
+      },
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              4.35,
+              47.33
+            ],
+            [
+              1.29,
+              26.46
+            ],
+            [
+              22.18,
+              23.6
+            ],
+            [
+              31.41,
+              43.52
+            ],
+            [
+              4.35,
+              47.33
+            ]
+          ]
+        ]
+      },
+      "stac_extensions": [],
+      "id": "G2031327751-GES_DISC",
+      "stac_version": "1.0.0",
+      "collection": "C2011289787-GES_DISC",
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327751-GES_DISC.stac"
+        },
+        {
+          "rel": "parent",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "collection",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C2011289787-GES_DISC.stac"
+        },
+        {
+          "rel": "root",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327751-GES_DISC.json"
+        },
+        {
+          "rel": "via",
+          "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2031327751-GES_DISC.umm_json"
+        }
+      ]
+    }
+  ]
+}'''
+        granule_json = json.loads(granule_json)
+        os.environ[Constants.EDL_USERNAME] = '/unity/uds/user/wphyo/edl_username'
+        os.environ[Constants.EDL_PASSWORD] = '/unity/uds/user/wphyo/edl_dwssap'
+        os.environ[Constants.EDL_PASSWORD_TYPE] = Constants.PARAM_STORE
+        os.environ[Constants.EDL_BASE_URL] = 'urs.earthdata.nasa.gov'
+        os.environ['GRANULES_DOWNLOAD_TYPE'] = 'DAAC'
+        os.environ['DOWNLOADING_KEYS'] = 'data'
+
+        if len(argv) > 1:
+            argv.pop(-1)
+        argv.append('DOWNLOAD')
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
+            granule_json_file = os.path.join(tmp_dir_name, 'input_file.json')
+            downloading_dir = os.path.join(tmp_dir_name, 'downloading_dir')
+            FileUtils.mk_dir_p(downloading_dir)
+            FileUtils.write_json(granule_json_file, granule_json)
+            os.environ['STAC_JSON'] = granule_json_file
+            os.environ['DOWNLOAD_DIR'] = downloading_dir
+            download_result_str = choose_process()
+            download_result = json.loads(download_result_str)
+            self.assertTrue('features' in download_result, f'missing features in download_result')
+            error_file = os.path.join(downloading_dir, 'error.log')
+            if FileUtils.file_exist(error_file):
+                self.assertTrue(False, f'some downloads failed. error.log exists. {FileUtils.read_json(error_file)}')
+            self.assertEqual(len(download_result['features']) + 1, len(glob(os.path.join(downloading_dir, '*'))), f'downloaded file does not match')
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
+        return
+
     def test_02_download__daac_error(self):  # TODO update this later
         granule_json = '{"type": "FeatureCollection", "stac_version": "1.0.0", "numberMatched": 3413, "numberReturned": 23, "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/granules.stac?collection_concept_id=C1996881146-POCLOUD&page_size=23&temporal%5B%5D=2002-06-01T12%3A06%3A00.000Z%2C2011-10-04T06%3A51%3A45.000Z&page_num=1"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "next", "body": {"collection_concept_id": "C1996881146-POCLOUD", "page_num": "2", "page_size": "23", "temporal": ["2002-06-01T12:06:00.000Z,2011-10-04T06:51:45.000Z"], "temporal[]": "2002-06-01T12:06:00.000Z,2011-10-04T06:51:45.000Z"}, "method": "POST", "merge": true, "href": "https://cmr.earthdata.nasa.gov:443/search/granules.stac"}], "context": {"returned": 23, "limit": 1000000, "matched": 3413}, "features": [{"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/152/20020601161248-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00414.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/152/20020601172624-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00415.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/152/20020601190536-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00416.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/152/20020601204344-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00417.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/152/20020601222152-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00418.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602000000-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00419.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602013912-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00420.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602031720-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00421.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602045528-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00422.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602063440-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00423.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602081248-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00424.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602095056-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00425.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602112904-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00426.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602130816-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00427.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602144624-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00428.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602162432-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00429.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602180240-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00430.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602194152-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00431.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602212000-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00432.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602225808-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00433.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/154/20020603003616-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00434.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/154/20020603021528-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00435.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}, {"properties": {"datetime": "2002-05-31T21:00:00.000Z", "start_datetime": "2002-05-31T21:00:00.000Z", "end_datetime": "2002-06-01T21:00:00.000Z"}, "bbox": [-180.0, -90.0, 180.0, 90.0], "assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/154/20020603035336-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00436.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}, "type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-180.0, -90.0], [180.0, -90.0], [180.0, 90.0], [-180.0, 90.0], [-180.0, -90.0]]]}, "stac_extensions": [], "id": "G2030963432-POCLOUD", "stac_version": "1.0.0", "collection": "C1996881146-POCLOUD", "links": [{"rel": "self", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.stac"}, {"rel": "parent", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "collection", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/C1996881146-POCLOUD.stac"}, {"rel": "root", "href": "https://cmr.earthdata.nasa.gov:443/search/"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.json"}, {"rel": "via", "href": "https://cmr.earthdata.nasa.gov:443/search/concepts/G2030963432-POCLOUD.umm_json"}]}]}'
         # granule_json = [{"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/152/20020601161248-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00414.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/152/20020601172624-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00415.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/152/20020601190536-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00416.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/152/20020601204344-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00417.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/152/20020601222152-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00418.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602000000-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00419.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602013912-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00420.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602031720-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00421.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602045528-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00422.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602063440-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00423.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602081248-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00424.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602095056-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00425.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602112904-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00426.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602130816-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00427.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602144624-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00428.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602162432-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00429.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602180240-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00430.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602194152-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00431.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602212000-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00432.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/153/20020602225808-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00433.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/154/20020603003616-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00434.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/154/20020603021528-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00435.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}, {"assets": {"data": {"href": "https://podaac-tools.jpl.nasa.gov/drive/files/allData/ghrsst/data/GDS2/L2P/AMSRE/REMSS/v7/2002/154/20020603035336-REMSS-L2P_GHRSST-SSTsubskin-AMSRE-l2b_v07a_r00436.dat-v02.0-fv01.0.nc", "title": "The HTTP location for the granule."}}}]

@@ -1,3 +1,5 @@
+import time
+
 import requests
 
 from cumulus_lambda_functions.lib.earthdata_login.urs_token_retriever import URSTokenRetriever
@@ -30,6 +32,11 @@ class DownloadGranulesDAAC(DownloadGranulesAbstract):
             'Authorization': f'Bearer {self.__edl_token}'
         }
         r = requests.get(downloading_url, headers=headers)
+        download_count = 1
+        while r.status_code in [502, 404] and download_count < 5:
+            time.sleep(30)
+            r = requests.get(downloading_url, headers=headers)
+            download_count += 1
         r.raise_for_status()
         local_file_path = os.path.join(self._download_dir, os.path.basename(downloading_url))
         with open(local_file_path, 'wb') as fd:
