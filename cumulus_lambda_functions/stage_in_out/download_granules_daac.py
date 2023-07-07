@@ -17,6 +17,8 @@ class DownloadGranulesDAAC(DownloadGranulesAbstract):
     def __init__(self) -> None:
         super().__init__()
         self.__edl_token = None
+        self.__retry_wait_time_sec = int(os.environ.get('DOWNLOAD_RETRY_WAIT_TIME', '30'))
+        self.__retry_times = int(os.environ.get('DOWNLOAD_RETRY_TIMES', '5'))
 
     def _set_props_from_env(self):
         missing_keys = [k for k in [self.STAC_JSON, self.DOWNLOAD_DIR_KEY] if k not in os.environ]
@@ -33,8 +35,9 @@ class DownloadGranulesDAAC(DownloadGranulesAbstract):
         }
         r = requests.get(downloading_url, headers=headers)
         download_count = 1
-        while r.status_code in [502, 404] and download_count < 5:
-            time.sleep(30)
+        while r.status_code in [502, 504] and download_count < self.__retry_times:
+            LOGGER.error(f'502 or 504 while downloading {downloading_url}. attempt: {download_count}')
+            time.sleep(self.__retry_wait_time_sec)
             r = requests.get(downloading_url, headers=headers)
             download_count += 1
         r.raise_for_status()
