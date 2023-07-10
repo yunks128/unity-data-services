@@ -1,12 +1,8 @@
 class UploadGranulesFactory:
-    S3 = 'S3'
-    CATALOG_S3 = 'CATALOG_S3'
+    UPLOAD_S3_BY_STAC_CATALOG = 'UPLOAD_S3_BY_STAC_CATALOG'
 
     def get_class(self, upload_type):
-        if upload_type == UploadGranulesFactory.S3:
-            from cumulus_lambda_functions.stage_in_out.upload_granules_s3 import UploadGranulesS3
-            return UploadGranulesS3()
-        if upload_type == UploadGranulesFactory.CATALOG_S3:
-            from cumulus_lambda_functions.stage_in_out.upload_granules_by_catalog_s3 import UploadGranulesByCatalogS3
-            return UploadGranulesByCatalogS3()
+        if upload_type == UploadGranulesFactory.UPLOAD_S3_BY_STAC_CATALOG:
+            from cumulus_lambda_functions.stage_in_out.upload_granules_by_complete_catalog_s3 import UploadGranulesByCompleteCatalogS3
+            return UploadGranulesByCompleteCatalogS3()
         raise ValueError(f'unknown search_type: {upload_type}')
