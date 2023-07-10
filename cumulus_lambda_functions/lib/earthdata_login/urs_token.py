@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 from http.cookiejar import CookieJar
 from typing import Dict
 from urllib import request
@@ -7,11 +8,39 @@ from urllib import request
 import requests
 from requests.auth import HTTPBasicAuth
 from tenacity import retry, retry_if_result, stop_after_attempt, wait_random_exponential
+
 LOGGER = logging.getLogger(__name__)
 
+def some_func(args):
+    print(f'args: {args}')
+    return ''
 
 class URSToken(object):
-    def __init__(self, username: str, dwssap: str, edl_base_url: str = None) -> None:
+    DNS_ERROR_TXT = 'Name-Resolution-Error'
+    """
+    Traceback (most recent call last):
+ File "/usr/local/lib/python3.9/site-packages/urllib3/connection.py", line 174, in _new_conn
+  conn = connection.create_connection(
+ File "/usr/local/lib/python3.9/site-packages/urllib3/util/connection.py", line 72, in create_connection
+  for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+ File "/usr/local/lib/python3.9/socket.py", line 954, in getaddrinfo
+  for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno -3] Temporary failure in name resolution
+During handling of the above exception, another exception occurred:
+Traceback (most recent call last):
+ File "/usr/local/lib/python3.9/site-packages/urllib3/connectionpool.py", line 714, in urlopen
+  httplib_response = self._make_request(
+ File "/usr/local/lib/python3.9/site-packages/urllib3/connectionpool.py", line 403, in _make_request
+  self._validate_conn(conn)
+ File "/usr/local/lib/python3.9/site-packages/urllib3/connectionpool.py", line 1053, in _validate_conn
+  conn.connect()
+ File "/usr/local/lib/python3.9/site-packages/urllib3/connection.py", line 363, in connect
+  self.sock = conn = self._new_conn()
+ File "/usr/local/lib/python3.9/site-packages/urllib3/connection.py", line 186, in _new_conn
+  raise NewConnectionError(
+urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPSConnection object at 0x7f111cbc54f0>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution
+    """
+    def __init__(self, username: str, dwssap: str, edl_base_url: str = None, wait_time = 30, retry_times = 5) -> None:
         super().__init__()
         self.__default_edl_base_url = 'https://urs.earthdata.nasa.gov/'
         self.__username = username
@@ -22,11 +51,14 @@ class URSToken(object):
         if not self.__edl_base_url.startswith('http'):
             self.__edl_base_url = f'https://{self.__edl_base_url}'
         self.__token = None
+        self.__wait_time = wait_time
+        self.__retry_times = retry_times
+
 
     @retry(wait=wait_random_exponential(multiplier=1, max=60),
            stop=stop_after_attempt(3),
            reraise=True,
-           retry=(retry_if_result(lambda x: x == ''))
+           retry=(retry_if_result(some_func))
            )
     def create_token(self, url: str) -> str:
         token: str = ''
@@ -47,10 +79,11 @@ class URSToken(object):
 
         # Add better error handling there
         # Max tokens
-        # Wrong Username/Passsword
+        # Wrong Username/Password
         # Other
-        except:  # noqa E722
+        except Exception as e:  # noqa E722
             LOGGER.warning("Error getting the token - check user name and password", exc_info=True)
+            raise RuntimeError(str(e))
         return token
 
     def list_tokens(self, url: str):
@@ -66,7 +99,7 @@ class URSToken(object):
             for x in response_content:
                 tokens.append(x['access_token'])
 
-        except:  # noqa E722
+        except Exception as e:  # noqa E722
             LOGGER.warning("Error getting the token - check user name and password", exc_info=True)
         return tokens
 
@@ -107,10 +140,25 @@ class URSToken(object):
             LOGGER.warning("Error deleting the token", exc_info=True)
         return False
 
+    def __get_token_once(self):
+        try:
+            token_url = f'{self.__edl_base_url}api/users'
+            tokens = self.list_tokens(token_url)
+            if len(tokens) == 0:
+                return self.create_token(token_url)
+        except Exception as conn_err:
+            if 'Temporary failure in name resolution' in str(conn_err):
+                return self.DNS_ERROR_TXT
+            raise conn_err
+        return tokens[0]
+
     def get_token(self) -> str:
-        token_url = f'{self.__edl_base_url}api/users'
-        tokens = self.list_tokens(token_url)
-        if len(tokens) == 0:
-            return self.create_token(token_url)
-        else:
-            return tokens[0]
+        token = self.__get_token_once()
+        retry_count = 0
+        while token == self.DNS_ERROR_TXT and retry_count < self.__retry_times:
+            LOGGER.error(f'{self.DNS_ERROR_TXT} for URS Token. attempt: {retry_count}')
+            time.sleep(self.__wait_time)
+            token = self.__get_token_once()
+            retry_count += 1
+        return token
+
