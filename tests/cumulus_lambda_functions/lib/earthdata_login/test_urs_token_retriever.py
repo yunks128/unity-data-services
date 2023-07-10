@@ -12,7 +12,7 @@ class TestURSTokenRetriever(TestCase):
         # os.environ[Constants.USERNAME] = 'usps_username'
         # os.environ[Constants.PASSWORD] = 'usps_password'
         os.environ[Constants.EDL_PASSWORD_TYPE] = Constants.PARAM_STORE
-        os.environ[Constants.EDL_BASE_URL] = 'urs.earthdata.nasa.gov'
+        os.environ[Constants.EDL_BASE_URL] = 'urs1.earthdata.nasa.gov'
         result = URSTokenRetriever().start()
         self.assertTrue(len(result) > 0, 'empty token')
         return
