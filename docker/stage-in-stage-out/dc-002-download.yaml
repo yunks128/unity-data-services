@@ -20,6 +20,9 @@ services:
 
       PARALLEL_COUNT: 'int. Ex: 10. can be defaulted to -1 which will create the same number of parallelism as CPU count'
 
+      DOWNLOAD_RETRY_WAIT_TIME: '30'
+      DOWNLOAD_RETRY_TIMES: '5'
+
       EDL_USERNAME: '/unity/uds/user/wphyo/edl_username'
       EDL_PASSWORD: '/unity/uds/user/wphyo/edl_dwssap'
       EDL_PASSWORD_TYPE: 'PARAM_STORE'

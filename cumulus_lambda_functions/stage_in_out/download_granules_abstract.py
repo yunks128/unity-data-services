@@ -131,5 +131,5 @@ class DownloadGranulesAbstract(ABC):
         LOGGER.debug(f'writing errors if any')
         if len(error_list_list) > 0:
             with open(f'{self._download_dir}/error.log', 'w') as error_file:
-                error_file.write(json.dumps(error_list, indent=4))
+                error_file.write(json.dumps(error_list_list, indent=4))
         return json.dumps(granules_json_dict)
