@@ -16,6 +16,7 @@
 import hashlib
 import json
 import os
+import re
 import zlib
 from functools import partial
 from pathlib import Path
@@ -28,6 +29,14 @@ class FileUtils:
         if os.path.exists(file_path) and os.path.isfile(file_path):
             os.remove(file_path)
         return
+
+    @staticmethod
+    def is_relative_path(file_path):
+        regex = re.compile('^([A-Za-z0-9-]+)://.+$', re.IGNORECASE)
+        current_granule_id = re.findall(regex, file_path)
+        if len(current_granule_id) > 0:
+            return False
+        return not os.path.isabs(file_path)
 
     @staticmethod
     def mk_dir_p(dir_path):
@@ -79,6 +88,8 @@ class FileUtils:
 
     @staticmethod
     def read_json(path):
+        if not os.path.exists(path):
+            raise IOError('{} does not exist'.format(path))
         with open(path, 'r') as ff:
             try:
                 return json.loads(ff.read())
@@ -92,5 +103,4 @@ class FileUtils:
         with open(file_path, 'a' if append else 'w') as ff:
             json_str = json.dumps(json_obj, indent=4) if prettify else json.dumps(json_obj)
             ff.write(json_str)
-            pass
         return

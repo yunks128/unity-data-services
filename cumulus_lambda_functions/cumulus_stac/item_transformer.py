@@ -298,6 +298,15 @@ class ItemTransformer(StacTransformerAbstract):
         super().__init__()
         self.__stac_item_schema = json.loads(STAC_ITEM_SCHEMA)
         self.__cumulus_granule_schema = {}
+        self.CUMULUS_2_STAC_KEYS_MAP = {
+            'beginningDateTime': 'start_datetime',
+            'endingDateTime': 'end_datetime',
+            'productionDateTime': 'created',
+            'updatedAt': 'updated',
+            'granuleId': 'id',
+            'collectionId': 'collection',
+        }
+        self.STAC_2_CUMULUS_KEYS_MAP = {v: k for k, v in self.CUMULUS_2_STAC_KEYS_MAP.items()}
 
     def __get_asset_name(self, input_dict):
         if input_dict['type'] == 'data':
@@ -380,6 +389,7 @@ class ItemTransformer(StacTransformerAbstract):
         :param source:
         :return:
         """
+
         validation_result = JsonValidator(self.__cumulus_granule_schema).validate(source)
         if validation_result is not None:
             raise ValueError(f'invalid cumulus granule json: {validation_result}')
