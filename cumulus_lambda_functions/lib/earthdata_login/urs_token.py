@@ -11,10 +11,6 @@ from tenacity import retry, retry_if_result, stop_after_attempt, wait_random_exp
 
 LOGGER = logging.getLogger(__name__)
 
-def some_func(args):
-    print(f'args: {args}')
-    return ''
-
 class URSToken(object):
     DNS_ERROR_TXT = 'Name-Resolution-Error'
     """
@@ -58,7 +54,7 @@ urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPSConnection objec
     @retry(wait=wait_random_exponential(multiplier=1, max=60),
            stop=stop_after_attempt(3),
            reraise=True,
-           retry=(retry_if_result(some_func))
+           retry=(retry_if_result(lambda x: x == ''))
            )
     def create_token(self, url: str) -> str:
         token: str = ''
