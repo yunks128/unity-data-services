@@ -5,7 +5,11 @@ install_requires = [
     'fastjsonschema',
     'xmltodict',
     'tenacity',
-    'requests'
+    'fastapi',
+    'mangum',
+    'uvicorn',
+    'requests',
+    'python-dotenv'
 ]
 
 flask_requires = [
