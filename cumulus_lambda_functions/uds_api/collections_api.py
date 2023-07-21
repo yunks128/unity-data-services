@@ -35,7 +35,7 @@ async def ingest_cnm_dapa(request: Request, new_cnm_body: CnmRequestBody):
 async def create_new_collection(request: Request, new_collection: dict, response: Response):
     try:
         # new_collection = request.body()
-        creation_result = CollectionDapaCreation(new_collection).start('NA')
+        creation_result = CollectionDapaCreation(new_collection).start(request.url)
     except Exception as e:
         LOGGER.exception('failed during ingest_cnm_dapa')
         raise HTTPException(status_code=500, detail=str(e))
