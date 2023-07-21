@@ -7,12 +7,12 @@ from cumulus_lambda_functions.lib.utils.file_utils import FileUtils
 
 class GranulesCatalog:
 
-    def get_child_link_hrefs(self, catalog_file_path: str):
+    def get_child_link_hrefs(self, catalog_file_path: str, rel_name: str = 'item'):
         if not FileUtils.file_exist(catalog_file_path):
             raise ValueError(f'missing file: {catalog_file_path}')
         catalog = FileUtils.read_json(catalog_file_path)
         catalog = Catalog.from_dict(catalog)
-        child_links = [k.href for k in catalog.get_links(rel='child')]
+        child_links = [k.href for k in catalog.get_links(rel=rel_name)]
         catalog_dir = os.path.dirname(catalog_file_path)
         new_child_links = []
         for each_link in child_links:
