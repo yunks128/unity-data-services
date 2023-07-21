@@ -1775,7 +1775,8 @@ class TestDockerEntry(TestCase):
                 id='NA',
                 description='NA')
             catalog.set_self_href(os.environ['CATALOG_FILE'])
-            catalog.add_link(Link('child', os.path.join('some_granules', 'test_file01.nc.stac.json'), 'application/json'))
+            catalog.add_link(Link('item', os.path.join('some_granules', 'test_file01.nc.stac.json'), 'application/json'))
+            print(json.dumps(catalog.to_dict(False, False)))
             with open(os.environ['CATALOG_FILE'], 'w') as ff:
                 ff.write(json.dumps(catalog.to_dict(False, False)))
 
