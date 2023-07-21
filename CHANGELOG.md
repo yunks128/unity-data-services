@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.2.2] - 2023-07-21
 ### Changed
-- [#182](https://github.com/unity-sds/unity-data-services/pull/182) fix: Update stage out task to read STAC items from STAC catalog
+- [#188](https://github.com/unity-sds/unity-data-services/pull/188) fix: Update stage out task to read STAC items from STAC catalog
 
 
 # [Unity Release 23.2] - 2023-07-20
