@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.2] - 2023-07-21
+### Changed
+- [#188](https://github.com/unity-sds/unity-data-services/pull/188) fix: Update stage out task to read STAC items from STAC catalog
+
+
+# [Unity Release 23.2] - 2023-07-20
+
+### Repository Tags
+- [unity-data-services](https://github.com/unity-sds/unity-data-services/) : [5.2.1](https://github.com/unity-sds/unity-data-services/releases/tag/v5.2.1)
+
+### Added
+- [#119](https://github.com/unity-sds/unity-data-services/issues/119) Update data download task to allow staging data from DAAC HTTPS to local work directory
+- [#123](https://github.com/unity-sds/unity-data-services/issues/123) Update metadata reader to parse metadata from CHIRP xml files
+- [#157](https://github.com/unity-sds/unity-data-services/issues/157) Update stage-in to support HTTP/HTTPS download that doesn't require EDL
+- [#170](https://github.com/unity-sds/unity-data-services/issues/170) Parallelize data download in stage in task
+### Changed
+- [#125](https://github.com/unity-sds/unity-data-services/issues/125) Update metadata parser/transformer names to reflect metadata format instead of data processing level
+- [#128](https://github.com/unity-sds/unity-data-services/issues/128) UDS search docker image to perform CMR search + pagination 
+- [#129](https://github.com/unity-sds/unity-data-services/issues/129) UDS search docker image to perform UDS search + pagination
+- [#130](https://github.com/unity-sds/unity-data-services/issues/130) Update stage out (upload data to S3) to read catalog.json 
+- [#133](https://github.com/unity-sds/unity-data-services/issues/133) Update stage in task to take as input STAC input file
+- [#141](https://github.com/unity-sds/unity-data-services/issues/141) Update stage in to modify input STAC JSON to point to local urls
+- [#147](https://github.com/unity-sds/unity-data-services/issues/147) UDS tasks to support optional output file parameter
+- [#151](https://github.com/unity-sds/unity-data-services/issues/151) Update catalog task to take stac input file
+- [#155](https://github.com/unity-sds/unity-data-services/issues/155) Update UDS catalog task to wait for granules to be registered 
+- [#158](https://github.com/unity-sds/unity-data-services/issues/158) Update stage in task to use relative path for href in STAC 
+- [#159](https://github.com/unity-sds/unity-data-services/issues/159) Update stage out task to not require integration with UDS DAPA
+- [#160](https://github.com/unity-sds/unity-data-services/issues/160) Update stage in to require FeatureCollection STAC as input and only download specific assets
+### Fixed
+- [#167](https://github.com/unity-sds/unity-data-services/issues/167) Add retry logic for temporary failure in name resolution in Earth Data Login
+- [#181](https://github.com/unity-sds/unity-data-services/issues/181) Update stage in task to auto retry upon 502 errors
+
 ## [5.2.1] - 2023-07-10
 ### Added
 - [#182](https://github.com/unity-sds/unity-data-services/pull/182) fix: Retry if Download Error in DAAC
