@@ -61,7 +61,9 @@ class TestCumulusCreateCollectionDapa(TestCase):
             .with_granule_id_extraction_regex("(P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}0).+") \
             .with_title("P1570515ATMSSCIENCEAXT11344000000001.PDS") \
             .with_process('modis') \
-            .with_provider('unity')\
+            .with_provider('unity') \
+            .add_file_type("P1570515ATMSSCIENCEAXT11344000000001.PDS",
+                           "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}01.PDS$", 'internal', 'metadata', 'root') \
             .add_file_type("P1570515ATMSSCIENCEAXT11344000000000.PDS.cmr.xml",
                            "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}00.PDS.cmr.xml$", 'internal', 'metadata', 'item') \
             .add_file_type("P1570515ATMSSCIENCEAXT11344000000001.PDS.xml",
@@ -70,7 +72,6 @@ class TestCumulusCreateCollectionDapa(TestCase):
                            'internal', 'data', 'item')
         print(dapa_collection)
         stac_collection = dapa_collection.start()
-
         print(json.dumps(stac_collection))
         query_result = requests.post(url=post_url,
                                     headers=headers,
