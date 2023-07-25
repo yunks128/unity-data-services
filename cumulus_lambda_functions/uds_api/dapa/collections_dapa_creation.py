@@ -59,7 +59,7 @@ class CollectionDapaCreation:
                 return {
                     'statusCode': 500,
                     'body': {
-                        'message': {rule_creation_result},
+                        'message': rule_creation_result,
                         'details': f'collection deletion result: {delete_collection_result}'
                     }
                 }
