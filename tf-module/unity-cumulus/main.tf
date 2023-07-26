@@ -267,8 +267,8 @@ resource "aws_ssm_parameter" "cumulus_granules_dapa_ssm_param" {
 }
 // To be deleted
 
-resource "aws_ssm_parameter" "uds_api" {
+resource "aws_ssm_parameter" "uds_api_1" {
   name  = "/unity/unity-ds/api-gateway/integrations/${var.prefix}-uds_api_1-function-name"
   type  = "String"
-  value = aws_lambda_function.uds_api.function_name
+  value = aws_lambda_function.uds_api_1.function_name
 }
