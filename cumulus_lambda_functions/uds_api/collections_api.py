@@ -2,7 +2,6 @@ import logging
 from typing import Union
 
 from fastapi import APIRouter, HTTPException, Request, Response
-from pydantic import BaseModel
 
 from cumulus_lambda_functions.uds_api.dapa.collections_dapa_cnm import CnmRequestBody, CollectionsDapaCnm
 from cumulus_lambda_functions.uds_api.dapa.collections_dapa_creation import CollectionDapaCreation
