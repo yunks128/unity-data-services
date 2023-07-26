@@ -96,9 +96,9 @@ resource "aws_lambda_function" "metadata_stac_generate_cmr" {
   tags = var.tags
 }
 
-resource "aws_lambda_function" "uds_api" {
+resource "aws_lambda_function" "uds_api_1" {
   filename      = local.lambda_file_name
-  function_name = "${var.prefix}-uds_api"
+  function_name = "${var.prefix}-uds_api_1"
   role          = var.lambda_processing_role_arn
   handler       = "cumulus_lambda_functions.uds_api.web_service.handler"
   runtime       = "python3.9"
@@ -112,7 +112,7 @@ resource "aws_lambda_function" "uds_api" {
       CUMULUS_WORKFLOW_SQS_URL = var.workflow_sqs_url
       CUMULUS_WORKFLOW_NAME = "CatalogGranule"
       UNITY_DEFAULT_PROVIDER = var.unity_default_provider
-      COLLECTION_CREATION_LAMBDA_NAME = "arn:aws:lambda:${var.aws_region}:${local.account_id}:function:${var.prefix}-uds_api"
+      COLLECTION_CREATION_LAMBDA_NAME = "arn:aws:lambda:${var.aws_region}:${local.account_id}:function:${var.prefix}-uds_api_1"
       SNS_TOPIC_ARN = var.cnm_sns_topic_arn
       UNITY_DEFAULT_PROVIDER = var.unity_default_provider
   }
@@ -268,7 +268,7 @@ resource "aws_ssm_parameter" "cumulus_granules_dapa_ssm_param" {
 // To be deleted
 
 resource "aws_ssm_parameter" "uds_api" {
-  name  = "/unity/unity-ds/api-gateway/integrations/${var.prefix}-uds_api-function-name"
+  name  = "/unity/unity-ds/api-gateway/integrations/${var.prefix}-uds_api_1-function-name"
   type  = "String"
   value = aws_lambda_function.uds_api.function_name
 }
