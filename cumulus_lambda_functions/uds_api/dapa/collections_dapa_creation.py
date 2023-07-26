@@ -11,7 +11,6 @@ from cumulus_lambda_functions.cumulus_stac.collection_transformer import Collect
 from cumulus_lambda_functions.lib.aws.aws_lambda import AwsLambda
 
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
-from pydantic import BaseModel
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
@@ -93,6 +92,8 @@ class CollectionDapaCreation:
         actual_path = current_url.path
         actual_path = actual_path if actual_path.endswith('/') else f'{actual_path}/'
         actual_path = f'{actual_path}actual'
+        LOGGER.info(f'sanity_check')
+
         actual_event = {
             'resource': actual_path,
             'path': actual_path,
