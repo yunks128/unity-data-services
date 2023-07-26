@@ -130,7 +130,7 @@ class CollectionDapaCreation:
             'body': json.dumps(self.__request_body),
             'isBase64Encoded': False
         }
-        LOGGER.debug(f'actual_event: {actual_event}')
+        LOGGER.info(f'actual_event: {actual_event}')
         response = AwsLambda().invoke_function(
             function_name=self.__collection_creation_lambda_name,
             payload=actual_event,
