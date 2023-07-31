@@ -63,8 +63,10 @@ async def create_new_collection_real(request: Request, new_collection: dict):
 
 @router.get("")
 @router.get("/")
+@router.get("/{collection_id}")
+@router.get("/{collection_id}/")
 async def query_collections(request: Request, collection_id: Union[str, None] = None, limit: Union[int, None] = 10, offset: Union[int, None] = 0, ):
-    LOGGER.debug(f'starting query_collections')
+    LOGGER.debug(f'starting query_collections: {collection_id}')
     try:
         pagination_links = PaginationLinksGenerator(request).generate_pagination_links()
         collections_dapa_query = CollectionDapaQuery(collection_id, limit, offset, pagination_links)
