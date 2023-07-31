@@ -38,6 +38,28 @@ class TestCumulusCreateCollectionDapa(TestCase):
         self.assertEqual(200, creation['statusCode'], f'wrong statusCode: {creation}')
         return
 
+    def test_get(self):
+        os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
+        os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
+        os.environ[Constants.PASSWORD_TYPE] = Constants.PARAM_STORE
+        # os.environ[Constants.CLIENT_ID] = '7a1fglm2d54eoggj13lccivp25'  # JPL Cloud
+        os.environ[Constants.CLIENT_ID] = '71g0c73jl77gsqhtlfg2ht388c'  # MCP Dev
+
+        os.environ[Constants.COGNITO_URL] = 'https://cognito-idp.us-west-2.amazonaws.com'
+        bearer_token = CognitoTokenRetriever().start()
+        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
+        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # JPL Cloud
+        post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # MCP Dev
+        headers = {
+            'Authorization': f'Bearer {bearer_token}',
+        }
+
+        query_result = requests.get(url=post_url,
+                                    headers=headers,
+                                    )
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        return
+
     def test_02(self):
         os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
         os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
@@ -49,10 +71,10 @@ class TestCumulusCreateCollectionDapa(TestCase):
         bearer_token = CognitoTokenRetriever().start()
         post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
         post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # JPL Cloud
-        post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # MCP Dev
+        post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections'  # MCP Dev
         headers = {
             'Authorization': f'Bearer {bearer_token}',
-            # 'Content-Type': 'application/json',
+            'Content-Type': 'application/json',
         }
         temp_collection_id = f'CUMULUS_DAPA_UNIT_TEST___{int(datetime.utcnow().timestamp())}'
         dapa_collection = UnityCollectionStac() \
@@ -61,15 +83,17 @@ class TestCumulusCreateCollectionDapa(TestCase):
             .with_granule_id_extraction_regex("(P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}0).+") \
             .with_title("P1570515ATMSSCIENCEAXT11344000000001.PDS") \
             .with_process('modis') \
-            .with_provider('unity')\
+            .with_provider('unity') \
+            .add_file_type("P1570515ATMSSCIENCEAXT11344000000001.PDS",
+                           "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}01.PDS$", 'internal', 'metadata', 'root') \
             .add_file_type("P1570515ATMSSCIENCEAXT11344000000000.PDS.cmr.xml",
                            "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}00.PDS.cmr.xml$", 'internal', 'metadata', 'item') \
             .add_file_type("P1570515ATMSSCIENCEAXT11344000000001.PDS.xml",
                            "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}01\\.PDS\\.xml$", 'internal', 'metadata', 'item') \
             .add_file_type("P1570515ATMSSCIENCEAXT11344000000000.PDS", "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}00\\.PDS$",
                            'internal', 'data', 'item')
+        print(dapa_collection)
         stac_collection = dapa_collection.start()
-
         print(json.dumps(stac_collection))
         query_result = requests.post(url=post_url,
                                     headers=headers,
@@ -77,7 +101,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
                                     )
         self.assertEqual(query_result.status_code, 202, f'wrong status code. {query_result.text}')
         sleep(60)
-        collection_created_result = requests.get(url=f'{post_url}{temp_collection_id}', headers=headers)
+        collection_created_result = requests.get(url=f'{post_url}/{temp_collection_id}', headers=headers)
         self.assertEqual(collection_created_result.status_code, 200, f'wrong status code. {collection_created_result.text}')
         collection_created_result = json.loads(collection_created_result.text)
         self.assertTrue('features' in collection_created_result, f'features not in collection_created_result: {collection_created_result}')
