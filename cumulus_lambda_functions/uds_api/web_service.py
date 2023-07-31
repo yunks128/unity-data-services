@@ -30,6 +30,7 @@ async def root(request: Request):
 class MyMangum(Mangum):
 
     def __call__(self, event: LambdaEvent, context: LambdaContext) -> dict:
+        LOGGER.warn(f'it is not even here?: {event} ')
         try:
             chosen_handler = self.infer(event, context)
             LOGGER.info(f'{type(chosen_handler)}')
