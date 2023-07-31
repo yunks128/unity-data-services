@@ -38,6 +38,28 @@ class TestCumulusCreateCollectionDapa(TestCase):
         self.assertEqual(200, creation['statusCode'], f'wrong statusCode: {creation}')
         return
 
+    def test_get(self):
+        os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
+        os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
+        os.environ[Constants.PASSWORD_TYPE] = Constants.PARAM_STORE
+        # os.environ[Constants.CLIENT_ID] = '7a1fglm2d54eoggj13lccivp25'  # JPL Cloud
+        os.environ[Constants.CLIENT_ID] = '71g0c73jl77gsqhtlfg2ht388c'  # MCP Dev
+
+        os.environ[Constants.COGNITO_URL] = 'https://cognito-idp.us-west-2.amazonaws.com'
+        bearer_token = CognitoTokenRetriever().start()
+        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
+        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # JPL Cloud
+        post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # MCP Dev
+        headers = {
+            'Authorization': f'Bearer {bearer_token}',
+        }
+
+        query_result = requests.get(url=post_url,
+                                    headers=headers,
+                                    )
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        return
+
     def test_02(self):
         os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
         os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
@@ -49,10 +71,10 @@ class TestCumulusCreateCollectionDapa(TestCase):
         bearer_token = CognitoTokenRetriever().start()
         post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
         post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # JPL Cloud
-        post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # MCP Dev
+        post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections'  # MCP Dev
         headers = {
-            'Authorization': f'Bearer {bearer_token}',
-            # 'Content-Type': 'application/json',
+            'Authorization': f'Bearer eyJraWQiOiJsWmw3XC9yYXFVTVRaTHBVMnJ3bm1paXZKSCtpVFlONngxSUhQNndZaU03RT0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI4MjJiNmQwYy05MDU0LTRjNDMtYTkwZS04YjU5YjI2MTZiMzUiLCJjb2duaXRvOmdyb3VwcyI6WyJVbml0eV9WaWV3ZXIiLCJVbml0eV9BZG1pbiJdLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtd2VzdC0yLmFtYXpvbmF3cy5jb21cL3VzLXdlc3QtMl95YU93M3lqMHoiLCJjbGllbnRfaWQiOiI3MWcwYzczamw3N2dzcWh0bGZnMmh0Mzg4YyIsIm9yaWdpbl9qdGkiOiI2NDQ3NGU2Mi1hNDQxLTQyOTctYjFiMC1iMWQ4N2YxZjBkMTUiLCJldmVudF9pZCI6Ijg2NzMxMzliLWQ4YzgtNDI0Zi1hM2QzLWE0NWY1OGJiZGI4ZCIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4iLCJhdXRoX3RpbWUiOjE2OTAzOTc2NjQsImV4cCI6MTY5MDQwMTI2NCwiaWF0IjoxNjkwMzk3NjY0LCJqdGkiOiIzZDFhZTQ3My1iNmEyLTQ5YzctYWZhNy0wMzE2MGQwOGE0ZmMiLCJ1c2VybmFtZSI6IndwaHlvIn0.FokPAexC8G1Ivpbh9jHIq7CEYYeHmeMg-Qt8EavcuH6NYXaQvyNZZ9DpHGJIJXhTyEXexVkYgGIZBcKz7Vm2jFMfOsMbjcVkUMwgeO7iDsCcg6iGSZvkWd0TK5eFCWCzi8vdq5oZ62zqvU4QmPd4eDF5zBTjmSRZ_8m4ufUy1z9bHVdI6NGK8yCqAUil3Ek6cEhaV8bjSdhaRCJPHMOT-UYSKDm4ZJ1Q6xqr-tnmc5ZyUslolIcTwZk5MXFOFB125RSaGRg7aoiXg5K175w7vZxmOnrJ7v365Y7jfYacSVuvcAwY7HMWVCOFmFvnluEdX4FaKTVTsOGGaknPE5tn7g',
+            'Content-Type': 'application/json',
         }
         temp_collection_id = f'CUMULUS_DAPA_UNIT_TEST___{int(datetime.utcnow().timestamp())}'
         dapa_collection = UnityCollectionStac() \
@@ -61,15 +83,17 @@ class TestCumulusCreateCollectionDapa(TestCase):
             .with_granule_id_extraction_regex("(P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}0).+") \
             .with_title("P1570515ATMSSCIENCEAXT11344000000001.PDS") \
             .with_process('modis') \
-            .with_provider('unity')\
+            .with_provider('unity') \
+            .add_file_type("P1570515ATMSSCIENCEAXT11344000000001.PDS",
+                           "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}01.PDS$", 'internal', 'metadata', 'root') \
             .add_file_type("P1570515ATMSSCIENCEAXT11344000000000.PDS.cmr.xml",
                            "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}00.PDS.cmr.xml$", 'internal', 'metadata', 'item') \
             .add_file_type("P1570515ATMSSCIENCEAXT11344000000001.PDS.xml",
                            "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}01\\.PDS\\.xml$", 'internal', 'metadata', 'item') \
             .add_file_type("P1570515ATMSSCIENCEAXT11344000000000.PDS", "^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}00\\.PDS$",
                            'internal', 'data', 'item')
+        print(dapa_collection)
         stac_collection = dapa_collection.start()
-
         print(json.dumps(stac_collection))
         query_result = requests.post(url=post_url,
                                     headers=headers,
