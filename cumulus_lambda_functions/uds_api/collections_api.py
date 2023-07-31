@@ -1,6 +1,6 @@
-import logging
 from typing import Union
 
+from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from fastapi import APIRouter, HTTPException, Request, Response
 
 from cumulus_lambda_functions.uds_api.dapa.collections_dapa_cnm import CnmRequestBody, CollectionsDapaCnm
@@ -9,7 +9,7 @@ from cumulus_lambda_functions.uds_api.dapa.collections_dapa_query import Collect
 from cumulus_lambda_functions.uds_api.dapa.pagination_links_generator import PaginationLinksGenerator
 from cumulus_lambda_functions.uds_api.web_service_constants import WebServiceConstants
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 router = APIRouter(
     prefix=f'/{WebServiceConstants.COLLECTIONS}',
