@@ -90,7 +90,7 @@ class CollectionDapaCreation:
                          'details': validation_result}
             }
         actual_path = current_url.path
-        actual_path = actual_path if actual_path.endswith('/') else f'{actual_path}/'
+        actual_path = actual_path if actual_path.endswith('/') else f'{actual_path}'
         actual_path = f'{actual_path}actual'
         LOGGER.info(f'sanity_check')
 

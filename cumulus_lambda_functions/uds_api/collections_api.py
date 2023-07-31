@@ -18,6 +18,7 @@ router = APIRouter(
 )
 
 @router.put("")
+@router.put("/")
 async def ingest_cnm_dapa(request: Request, new_cnm_body: CnmRequestBody):
     try:
         collections_dapa_cnm = CollectionsDapaCnm(new_cnm_body.model_dump())
@@ -31,6 +32,7 @@ async def ingest_cnm_dapa(request: Request, new_cnm_body: CnmRequestBody):
 
 
 @router.post("")
+@router.post("/")
 async def create_new_collection(request: Request, new_collection: dict, response: Response):
     try:
         # new_collection = request.body()
@@ -55,7 +57,9 @@ async def create_new_collection(request: Request, new_collection: dict):
         return creation_result['body'], creation_result['statusCode']
     raise HTTPException(status_code=creation_result['statusCode'], detail=creation_result['body'])
 
+
 @router.get("")
+@router.get("/")
 async def query_collections(request: Request, collection_id: Union[str, None] = None, limit: Union[int, None] = 10, offset: Union[int, None] = 0, ):
     try:
         pagination_links = PaginationLinksGenerator(request).generate_pagination_links()
