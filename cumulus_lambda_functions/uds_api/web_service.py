@@ -52,7 +52,7 @@ class MyMangum(Mangum):
             raise e
 
 # to make it work with Amazon Lambda, we create a handler object
-handler = MyMangum(app=app)
+handler = Mangum(app=app)
 
 if __name__ == '__main__':
     uvicorn.run("web_service:app", port=8005, log_level="info", reload=True)
