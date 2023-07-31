@@ -20,6 +20,7 @@ LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_le
 class CumulusCreateCollectionDapa:
     def __init__(self, event):
         required_env = ['CUMULUS_LAMBDA_PREFIX', 'CUMULUS_WORKFLOW_SQS_URL', 'ES_URL']
+        print(event)
         if not all([k in os.environ for k in required_env]):
             raise EnvironmentError(f'one or more missing env: {required_env}')
         self.__event = event
