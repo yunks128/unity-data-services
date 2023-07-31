@@ -116,6 +116,9 @@ resource "aws_lambda_function" "uds_api_1" {
       SNS_TOPIC_ARN = var.cnm_sns_topic_arn
       UNITY_DEFAULT_PROVIDER = var.unity_default_provider
       DAPA_API_PREIFX_KEY = var.dapa_api_prefix
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
+      ADMIN_COMMA_SEP_GROUPS = var.comma_separated_admin_groups
     }
   }
 
