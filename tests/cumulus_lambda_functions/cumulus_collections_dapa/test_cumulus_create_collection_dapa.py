@@ -44,12 +44,14 @@ class TestCumulusCreateCollectionDapa(TestCase):
         os.environ[Constants.PASSWORD_TYPE] = Constants.PARAM_STORE
         # os.environ[Constants.CLIENT_ID] = '7a1fglm2d54eoggj13lccivp25'  # JPL Cloud
         os.environ[Constants.CLIENT_ID] = '71g0c73jl77gsqhtlfg2ht388c'  # MCP Dev
+        # os.environ[Constants.CLIENT_ID] = '6ir9qveln397i0inh9pmsabq1'  # MCP Test
 
         os.environ[Constants.COGNITO_URL] = 'https://cognito-idp.us-west-2.amazonaws.com'
         bearer_token = CognitoTokenRetriever().start()
         post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
         post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # JPL Cloud
         post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # MCP Dev
+        # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/'  # MCP Dev
         headers = {
             'Authorization': f'Bearer {bearer_token}',
         }
@@ -101,7 +103,8 @@ class TestCumulusCreateCollectionDapa(TestCase):
                                     )
         self.assertEqual(query_result.status_code, 202, f'wrong status code. {query_result.text}')
         sleep(60)
-        collection_created_result = requests.get(url=f'{post_url}/{temp_collection_id}', headers=headers)
+        post_url = post_url if post_url.endswith('/') else f'{post_url}/'
+        collection_created_result = requests.get(url=f'{post_url}{temp_collection_id}', headers=headers)
         self.assertEqual(collection_created_result.status_code, 200, f'wrong status code. {collection_created_result.text}')
         collection_created_result = json.loads(collection_created_result.text)
         self.assertTrue('features' in collection_created_result, f'features not in collection_created_result: {collection_created_result}')
