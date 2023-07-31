@@ -47,9 +47,9 @@ update_lambda_function_mcp_dev_7:
 	aws lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket uds-dev-cumulus-public --function-name arn:aws:lambda:us-west-2:237868187491:function:uds-dev-cumulus-metadata_stac_generate_cmr --publish &>/dev/null
 
 update_lambda_function_mcp_dev_uds_api:
-	aws lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket uds-dev-cumulus-public --function-name arn:aws:lambda:us-west-2:237868187491:function:uds-dev-cumulus-uds_api --publish &>/dev/null
+	aws lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket uds-dev-cumulus-public --function-name arn:aws:lambda:us-west-2:237868187491:function:uds-dev-cumulus-uds_api_1 --publish &>/dev/null
 
-
+mcp_dev_fastapi: upload_lambda_mcp_dev update_lambda_function_mcp_dev_uds_api
 mcp_dev: upload_lambda_mcp_dev update_lambda_function_mcp_dev_1 update_lambda_function_mcp_dev_2 update_lambda_function_mcp_dev_4 update_lambda_function_mcp_dev_5
 
 
