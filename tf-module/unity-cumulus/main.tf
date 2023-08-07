@@ -116,6 +116,9 @@ resource "aws_lambda_function" "uds_api_1" {
       SNS_TOPIC_ARN = var.cnm_sns_topic_arn
       UNITY_DEFAULT_PROVIDER = var.unity_default_provider
       DAPA_API_PREIFX_KEY = var.dapa_api_prefix
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
+      ADMIN_COMMA_SEP_GROUPS = var.comma_separated_admin_groups
     }
   }
 
@@ -137,6 +140,8 @@ resource "aws_lambda_function" "cumulus_granules_dapa" {
 
   environment {
     variables = {
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
       CUMULUS_BASE = var.cumulus_base
       CUMULUS_LAMBDA_PREFIX = var.prefix
     }
@@ -159,6 +164,8 @@ resource "aws_lambda_function" "cumulus_collections_dapa" {
 
   environment {
     variables = {
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
       CUMULUS_BASE = var.cumulus_base
       CUMULUS_LAMBDA_PREFIX = var.prefix
     }
@@ -181,6 +188,8 @@ resource "aws_lambda_function" "cumulus_collections_ingest_cnm_dapa" {
 
   environment {
     variables = {
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
       LOG_LEVEL = var.log_level
       SNS_TOPIC_ARN = var.cnm_sns_topic_arn
     }
@@ -203,6 +212,8 @@ resource "aws_lambda_function" "cumulus_collections_creation_dapa" {
 
   environment {
     variables = {
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
       LOG_LEVEL = var.log_level
       CUMULUS_LAMBDA_PREFIX = var.prefix
       CUMULUS_WORKFLOW_SQS_URL = var.workflow_sqs_url
@@ -228,6 +239,8 @@ resource "aws_lambda_function" "cumulus_collections_creation_dapa_facade" {
 
   environment {
     variables = {
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
       LOG_LEVEL = var.log_level
       CUMULUS_LAMBDA_PREFIX = var.prefix
       CUMULUS_WORKFLOW_SQS_URL = var.workflow_sqs_url
@@ -243,28 +256,180 @@ resource "aws_lambda_function" "cumulus_collections_creation_dapa_facade" {
   }
   tags = var.tags
 }
+####
+resource "aws_lambda_function" "cumulus_es_setup_index_alias" {
+  filename      = local.lambda_file_name
+  function_name = "${var.prefix}-cumulus_es_setup_index_alias"
+  role          = var.lambda_processing_role_arn
+  handler       = "cumulus_lambda_functions.cumulus_es_setup.lambda_function.lambda_handler"
+  runtime       = "python3.9"
+  timeout       = 300
+
+  environment {
+    variables = {
+      LOG_LEVEL = var.log_level
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
+    }
+  }
+
+  vpc_config {
+    subnet_ids         = var.cumulus_lambda_subnet_ids
+    security_group_ids = local.security_group_ids_set ? var.security_group_ids : [aws_security_group.unity_cumulus_lambda_sg[0].id]
+  }
+  tags = var.tags
+}
+
+resource "aws_lambda_function" "cumulus_auth_list" {
+  filename      = local.lambda_file_name
+  function_name = "${var.prefix}-cumulus_auth_list"
+  role          = var.lambda_processing_role_arn
+  handler       = "cumulus_lambda_functions.cumulus_auth_crud.lambda_function.auth_list"
+  runtime       = "python3.9"
+  timeout       = 300
+
+  environment {
+    variables = {
+      LOG_LEVEL = var.log_level
+      ADMIN_COMMA_SEP_GROUPS = var.comma_separated_admin_groups
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
+    }
+  }
+
+  vpc_config {
+    subnet_ids         = var.cumulus_lambda_subnet_ids
+    security_group_ids = local.security_group_ids_set ? var.security_group_ids : [aws_security_group.unity_cumulus_lambda_sg[0].id]
+  }
+  tags = var.tags
+}
+
+resource "aws_lambda_function" "cumulus_auth_add" {
+  filename      = local.lambda_file_name
+  function_name = "${var.prefix}-cumulus_auth_add"
+  role          = var.lambda_processing_role_arn
+  handler       = "cumulus_lambda_functions.cumulus_auth_crud.lambda_function.auth_add"
+  runtime       = "python3.9"
+  timeout       = 300
+
+  environment {
+    variables = {
+      LOG_LEVEL = var.log_level
+      ADMIN_COMMA_SEP_GROUPS = var.comma_separated_admin_groups
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
+    }
+  }
+
+  vpc_config {
+    subnet_ids         = var.cumulus_lambda_subnet_ids
+    security_group_ids = local.security_group_ids_set ? var.security_group_ids : [aws_security_group.unity_cumulus_lambda_sg[0].id]
+  }
+  tags = var.tags
+}
+
+resource "aws_lambda_function" "cumulus_auth_update" {
+  filename      = local.lambda_file_name
+  function_name = "${var.prefix}-cumulus_auth_update"
+  role          = var.lambda_processing_role_arn
+  handler       = "cumulus_lambda_functions.cumulus_auth_crud.lambda_function.auth_update"
+  runtime       = "python3.9"
+  timeout       = 300
+
+  environment {
+    variables = {
+      LOG_LEVEL = var.log_level
+      ADMIN_COMMA_SEP_GROUPS = var.comma_separated_admin_groups
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
+    }
+  }
+
+  vpc_config {
+    subnet_ids         = var.cumulus_lambda_subnet_ids
+    security_group_ids = local.security_group_ids_set ? var.security_group_ids : [aws_security_group.unity_cumulus_lambda_sg[0].id]
+  }
+  tags = var.tags
+}
+
+resource "aws_lambda_function" "cumulus_auth_delete" {
+  filename      = local.lambda_file_name
+  function_name = "${var.prefix}-cumulus_auth_delete"
+  role          = var.lambda_processing_role_arn
+  handler       = "cumulus_lambda_functions.cumulus_auth_crud.lambda_function.auth_delete"
+  runtime       = "python3.9"
+  timeout       = 300
+
+  environment {
+    variables = {
+      LOG_LEVEL = var.log_level
+      ADMIN_COMMA_SEP_GROUPS = var.comma_separated_admin_groups
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
+    }
+  }
+
+  vpc_config {
+    subnet_ids         = var.cumulus_lambda_subnet_ids
+    security_group_ids = local.security_group_ids_set ? var.security_group_ids : [aws_security_group.unity_cumulus_lambda_sg[0].id]
+  }
+  tags = var.tags
+}
+####
 resource "aws_ssm_parameter" "cumulus_collections_dapa_ssm_param" {
   name  = "/unity/unity-ds/api-gateway/integrations/collections-dapa-function-name"
   type  = "String"
   value = aws_lambda_function.cumulus_collections_dapa.function_name
+  tags = var.tags
 }
 
 resource "aws_ssm_parameter" "cumulus_collections_create_dapa_ssm_param" {
   name  = "/unity/unity-ds/api-gateway/integrations/collections-create-dapa-function-name"
   type  = "String"
   value = aws_lambda_function.cumulus_collections_creation_dapa_facade.function_name
+  tags = var.tags
 }
 
 resource "aws_ssm_parameter" "cumulus_collections_ingest_dapa_ssm_param" {
   name  = "/unity/unity-ds/api-gateway/integrations/collections-ingest-dapa-function-name"
   type  = "String"
   value = aws_lambda_function.cumulus_collections_ingest_cnm_dapa.function_name
+  tags = var.tags
 }
 
 resource "aws_ssm_parameter" "cumulus_granules_dapa_ssm_param" {
   name  = "/unity/unity-ds/api-gateway/integrations/granules-dapa-function-name"
   type  = "String"
   value = aws_lambda_function.cumulus_granules_dapa.function_name
+  tags = var.tags
+}
+
+resource "aws_ssm_parameter" "cumulus_auth_list_ssm_param" {
+  name  = "/unity/unity-ds/api-gateway/integrations/cumulus_auth_list-function-name"
+  type  = "String"
+  value = aws_lambda_function.cumulus_auth_list.function_name
+  tags = var.tags
+}
+
+resource "aws_ssm_parameter" "cumulus_auth_add_ssm_param" {
+  name  = "/unity/unity-ds/api-gateway/integrations/cumulus_auth_add-function-name"
+  type  = "String"
+  value = aws_lambda_function.cumulus_auth_add.function_name
+  tags = var.tags
+}
+
+resource "aws_ssm_parameter" "cumulus_auth_delete_ssm_param" {
+  name  = "/unity/unity-ds/api-gateway/integrations/cumulus_auth_delete-function-name"
+  type  = "String"
+  value = aws_lambda_function.cumulus_auth_delete.function_name
+  tags = var.tags
+}
+
+resource "aws_ssm_parameter" "cumulus_es_setup_index_alias_ssm_param" {
+  name  = "/unity/unity-ds/api-gateway/integrations/cumulus_es_setup_index_alias-function-name"
+  type  = "String"
+  value = aws_lambda_function.cumulus_es_setup_index_alias.function_name
+  tags = var.tags
 }
 // To be deleted
 
