@@ -70,6 +70,4 @@ class UnityCollectionStac:
                                      )
         stac_collection.add_links(self.__files)
         new_collection = stac_collection.to_dict(include_self_link=False)
-        if 'links' in new_collection and len(new_collection['links']) > 0 and new_collection['links'][0]['rel'] == 'root':
-            new_collection['links'][0]['href'] = './collection.json'
         return new_collection
