@@ -11,6 +11,10 @@ from cumulus_lambda_functions.cumulus_stac.collection_transformer import Collect
 from cumulus_lambda_functions.lib.aws.aws_lambda import AwsLambda
 
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
+<<<<<<< HEAD
+from pydantic import BaseModel
+=======
+>>>>>>> 99727833edb9d0b408108b34b15b8532ccc7af9a
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
@@ -58,7 +62,11 @@ class CollectionDapaCreation:
                 return {
                     'statusCode': 500,
                     'body': {
+<<<<<<< HEAD
+                        'message': {rule_creation_result},
+=======
                         'message': rule_creation_result,
+>>>>>>> 99727833edb9d0b408108b34b15b8532ccc7af9a
                         'details': f'collection deletion result: {delete_collection_result}'
                     }
                 }
@@ -92,12 +100,19 @@ class CollectionDapaCreation:
         actual_path = current_url.path
         actual_path = actual_path if actual_path.endswith('/') else f'{actual_path}/'
         actual_path = f'{actual_path}actual'
+<<<<<<< HEAD
+        actual_event = {
+            'resource': actual_path,
+            'path': actual_path,
+            'httpMethod': 'PUT',
+=======
         LOGGER.info(f'sanity_check')
 
         actual_event = {
             'resource': actual_path,
             'path': actual_path,
             'httpMethod': 'POST',
+>>>>>>> 99727833edb9d0b408108b34b15b8532ccc7af9a
             'headers': {
                 'Accept': '*/*', 'Accept-Encoding': 'gzip, deflate', 'Authorization': 'Bearer xxx',
                 'Host': current_url.hostname, 'User-Agent': 'python-requests/2.28.2',
@@ -114,6 +129,14 @@ class CollectionDapaCreation:
             'pathParameters': {},
             'stageVariables': None,
             'requestContext': {
+<<<<<<< HEAD
+                'resourceId': 'fa3sd2', 'authorizer': {'principalId': 'user', 'integrationLatency': 1418},
+                'resourcePath': actual_path, 'httpMethod': 'PUT',
+                'extendedRequestId': 'HoY2rE3uvHcFhog=', 'requestTime': '06/Jul/2023:07:34:40 +0000',
+                'path': actual_path, 'accountId': '428002334974',
+                'protocol': 'HTTP/1.1', 'stage': 'test', 'domainPrefix': '58nbcawrvb', 'requestTimeEpoch': 1688628880802,
+                'requestId': '1b7326b9-7f63-4bda-bb47-fb23244c5ae0',
+=======
                 'resourceId': '',
                 'authorizer': {'principalId': '', 'integrationLatency': 0},
                 'resourcePath': actual_path, 'httpMethod': 'POST',
@@ -121,6 +144,7 @@ class CollectionDapaCreation:
                 'path': actual_path, 'accountId': '',
                 'protocol': 'HTTP/1.1', 'stage': '', 'domainPrefix': '', 'requestTimeEpoch': 0,
                 'requestId': '',
+>>>>>>> 99727833edb9d0b408108b34b15b8532ccc7af9a
                 'identity': {
                     'cognitoIdentityPoolId': None, 'accountId': None, 'cognitoIdentityId': None, 'caller': None,
                     'sourceIp': '127.0.0.1', 'principalOrgId': None, 'accessKey': None, 'cognitoAuthenticationType': None,
@@ -128,10 +152,16 @@ class CollectionDapaCreation:
                 },
                 'domainName': current_url.hostname, 'apiId': ''
             },
+<<<<<<< HEAD
+            'body': self.__request_body,
+            'isBase64Encoded': False
+        }
+=======
             'body': json.dumps(self.__request_body),
             'isBase64Encoded': False
         }
         LOGGER.info(f'actual_event: {actual_event}')
+>>>>>>> 99727833edb9d0b408108b34b15b8532ccc7af9a
         response = AwsLambda().invoke_function(
             function_name=self.__collection_creation_lambda_name,
             payload=actual_event,
