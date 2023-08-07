@@ -404,7 +404,6 @@ resource "aws_ssm_parameter" "cumulus_granules_dapa_ssm_param" {
   tags = var.tags
 }
 
-
 resource "aws_ssm_parameter" "cumulus_auth_list_ssm_param" {
   name  = "/unity/unity-ds/api-gateway/integrations/cumulus_auth_list-function-name"
   type  = "String"
