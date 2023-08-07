@@ -20,10 +20,12 @@ class TestDapaStac(TestCase):
             .with_verify_ssl(False) \
             .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(),
                    base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
-        es_setup_url = f'{os.environ.get("UNITY_URL")}/am-uds-dapa/admin/system/es_setup/'
+        es_setup_url = f'{os.environ.get("UNITY_URL")}/sbx-uds-dapa/admin/system/es_setup/'
         s = requests.session()
         s.trust_env = False
         response = s.put(url=es_setup_url, headers={'Authorization': f'Bearer {cognito_login.token}'}, verify=False)
+        self.assertEqual(response.status_code, 200, f'wrong status code: {response.text}')
+
         return
 
     def test_list_admin_list_01(self):
@@ -33,7 +35,7 @@ class TestDapaStac(TestCase):
             .with_cognito_url(os.environ.get('COGNITO_URL', ''))\
             .with_verify_ssl(False)\
             .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(), base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
-        collection_url = f'{os.environ.get("UNITY_URL")}/am-uds-dapa/admin/auth'
+        collection_url = f'{os.environ.get("UNITY_URL")}/sbx-uds-dapa/admin/auth'
         s = requests.session()
         s.trust_env = False
         response = s.get(url=collection_url, headers={'Authorization': f'Bearer {cognito_login.token}'}, verify=False)
@@ -49,7 +51,7 @@ class TestDapaStac(TestCase):
             .with_cognito_url(os.environ.get('COGNITO_URL', ''))\
             .with_verify_ssl(False)\
             .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(), base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
-        collection_url = f'{os.environ.get("UNITY_URL")}/am-uds-dapa/admin/auth'
+        collection_url = f'{os.environ.get("UNITY_URL")}/sbx-uds-dapa/admin/auth'
         admin_add_body = {
             "actions": ["READ", "CREATE"],
             "resources": ["urn:nasa:unity:uds_local_test:DEV1:.*"],
