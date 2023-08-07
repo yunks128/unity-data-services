@@ -5,7 +5,11 @@ install_requires = [
     'fastjsonschema',
     'xmltodict',
     'tenacity',
-    'requests'
+    'fastapi',
+    'mangum',
+    'uvicorn',
+    'requests',
+    'python-dotenv'
 ]
 
 flask_requires = [
@@ -18,7 +22,7 @@ extra_requires = ['botocore', 'boto3',]
 
 setup(
     name="cumulus_lambda_functions",
-    version="5.2.2",
+    version="5.2.3",
     packages=find_packages(),
     install_requires=install_requires,
     tests_require=['mock', 'nose', 'sphinx', 'sphinx_rtd_theme', 'coverage', 'pystac', 'python-dotenv', 'jsonschema'],
