@@ -19,7 +19,7 @@ router = APIRouter(
 async def delete_auth_mapping(request: Request, delete_body: AuthDeleteModel):
     LOGGER.debug(f'started delete_auth_mapping')
     auth_info = FastApiUtils.get_authorization_info(request)
-    auth_crud = AuthCrud(auth_info, delete_body)
+    auth_crud = AuthCrud(auth_info, delete_body.model_dump())
     is_admin_result = auth_crud.is_admin()
     if is_admin_result['statusCode'] != 200:
         raise HTTPException(status_code=is_admin_result['statusCode'], detail=is_admin_result['body'])
@@ -33,7 +33,7 @@ async def delete_auth_mapping(request: Request, delete_body: AuthDeleteModel):
 async def add_auth_mapping(request: Request, new_body: AuthAddModel):
     LOGGER.debug(f'started add_auth_mapping')
     auth_info = FastApiUtils.get_authorization_info(request)
-    auth_crud = AuthCrud(auth_info, new_body)
+    auth_crud = AuthCrud(auth_info, new_body.model_dump())
     is_admin_result = auth_crud.is_admin()
     if is_admin_result['statusCode'] != 200:
         raise HTTPException(status_code=is_admin_result['statusCode'], detail=is_admin_result['body'])
@@ -47,7 +47,7 @@ async def add_auth_mapping(request: Request, new_body: AuthAddModel):
 async def update_auth_mapping(request: Request, update_body: AuthAddModel):
     LOGGER.debug(f'started update_auth_mapping')
     auth_info = FastApiUtils.get_authorization_info(request)
-    auth_crud = AuthCrud(auth_info, update_body)
+    auth_crud = AuthCrud(auth_info, update_body.model_dump())
     is_admin_result = auth_crud.is_admin()
     if is_admin_result['statusCode'] != 200:
         raise HTTPException(status_code=is_admin_result['statusCode'], detail=is_admin_result['body'])
