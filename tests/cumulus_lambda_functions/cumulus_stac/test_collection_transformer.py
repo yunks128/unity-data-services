@@ -84,7 +84,10 @@ class TestCollectionTransformer(TestCase):
         }
         converted_stac = CollectionTransformer(include_date_range=True).to_stac(source)
         self.assertEqual(None, stac_validator.validate(converted_stac), f'invalid stac format: {stac_validator}')
+        if 'providers' not in converted_stac:
+            converted_stac['providers'] = []
         converted_stac['providers'].append({'name': 'Test123'})
+        print(converted_stac)
         transformer = CollectionTransformer(include_date_range=True)
         converted_cumulus = transformer.from_stac(converted_stac)
         for k, v in source.items():
