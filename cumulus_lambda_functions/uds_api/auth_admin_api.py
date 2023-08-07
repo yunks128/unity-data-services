@@ -9,7 +9,7 @@ from fastapi import APIRouter, HTTPException, Request, Response
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 router = APIRouter(
-    prefix=f'/{WebServiceConstants.ADMIN}',
+    prefix=f'/{WebServiceConstants.ADMIN}/auth',
     tags=["Admin Records CRUD"],
     responses={404: {"description": "Not found"}},
 )
