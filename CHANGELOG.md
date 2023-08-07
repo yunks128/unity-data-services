@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.2.3] - 2023-08-07
 ### Changed
-- [#191](https://github.com/unity-sds/unity-data-services/pull/191) fix: add collection folder in s3 upload
+- [#193](https://github.com/unity-sds/unity-data-services/pull/193) fix: add collection folder in s3 upload
 
 ## [5.2.2] - 2023-07-21
 ### Changed
