@@ -377,56 +377,56 @@ resource "aws_lambda_function" "cumulus_auth_delete" {
 }
 ####
 resource "aws_ssm_parameter" "cumulus_collections_dapa_ssm_param" {
-  name  = "/unity/unity-ds/api-gateway/integrations/collections-dapa-function-name"
+  name  = "/unity/unity-ds/api-gateway/integrations/${var.prefix}-collections-dapa-function-name"
   type  = "String"
   value = aws_lambda_function.cumulus_collections_dapa.function_name
   tags = var.tags
 }
 
 resource "aws_ssm_parameter" "cumulus_collections_create_dapa_ssm_param" {
-  name  = "/unity/unity-ds/api-gateway/integrations/collections-create-dapa-function-name"
+  name  = "/unity/unity-ds/api-gateway/integrations/${var.prefix}-collections-create-dapa-function-name"
   type  = "String"
   value = aws_lambda_function.cumulus_collections_creation_dapa_facade.function_name
   tags = var.tags
 }
 
 resource "aws_ssm_parameter" "cumulus_collections_ingest_dapa_ssm_param" {
-  name  = "/unity/unity-ds/api-gateway/integrations/collections-ingest-dapa-function-name"
+  name  = "/unity/unity-ds/api-gateway/integrations/${var.prefix}-collections-ingest-dapa-function-name"
   type  = "String"
   value = aws_lambda_function.cumulus_collections_ingest_cnm_dapa.function_name
   tags = var.tags
 }
 
 resource "aws_ssm_parameter" "cumulus_granules_dapa_ssm_param" {
-  name  = "/unity/unity-ds/api-gateway/integrations/granules-dapa-function-name"
+  name  = "/unity/unity-ds/api-gateway/integrations/${var.prefix}-granules-dapa-function-name"
   type  = "String"
   value = aws_lambda_function.cumulus_granules_dapa.function_name
   tags = var.tags
 }
 
 resource "aws_ssm_parameter" "cumulus_auth_list_ssm_param" {
-  name  = "/unity/unity-ds/api-gateway/integrations/cumulus_auth_list-function-name"
+  name  = "/unity/unity-ds/api-gateway/integrations/${var.prefix}-cumulus_auth_list-function-name"
   type  = "String"
   value = aws_lambda_function.cumulus_auth_list.function_name
   tags = var.tags
 }
 
 resource "aws_ssm_parameter" "cumulus_auth_add_ssm_param" {
-  name  = "/unity/unity-ds/api-gateway/integrations/cumulus_auth_add-function-name"
+  name  = "/unity/unity-ds/api-gateway/integrations/${var.prefix}-cumulus_auth_add-function-name"
   type  = "String"
   value = aws_lambda_function.cumulus_auth_add.function_name
   tags = var.tags
 }
 
 resource "aws_ssm_parameter" "cumulus_auth_delete_ssm_param" {
-  name  = "/unity/unity-ds/api-gateway/integrations/cumulus_auth_delete-function-name"
+  name  = "/unity/unity-ds/api-gateway/integrations/${var.prefix}-cumulus_auth_delete-function-name"
   type  = "String"
   value = aws_lambda_function.cumulus_auth_delete.function_name
   tags = var.tags
 }
 
 resource "aws_ssm_parameter" "cumulus_es_setup_index_alias_ssm_param" {
-  name  = "/unity/unity-ds/api-gateway/integrations/cumulus_es_setup_index_alias-function-name"
+  name  = "/unity/unity-ds/api-gateway/integrations/${var.prefix}-cumulus_es_setup_index_alias-function-name"
   type  = "String"
   value = aws_lambda_function.cumulus_es_setup_index_alias.function_name
   tags = var.tags
