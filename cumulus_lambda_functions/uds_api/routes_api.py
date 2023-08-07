@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from cumulus_lambda_functions.uds_api import collections_api, granules_api, auth_admin_api, system_admin_api
+from cumulus_lambda_functions.uds_api import collections_api, granules_api
 
 # from ideas_api.src.endpoints import job_endpoints
 # from ideas_api.src.endpoints import process_endpoints
