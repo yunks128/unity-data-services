@@ -11,6 +11,21 @@ from cumulus_lambda_functions.lib.cognito_login.cognito_login import CognitoLogi
 
 
 class TestDapaStac(TestCase):
+
+    def test_setup_es(self):
+        load_dotenv()
+        cognito_login = CognitoLogin() \
+            .with_client_id(os.environ.get('CLIENT_ID', '')) \
+            .with_cognito_url(os.environ.get('COGNITO_URL', '')) \
+            .with_verify_ssl(False) \
+            .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(),
+                   base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
+        es_setup_url = f'{os.environ.get("UNITY_URL")}/am-uds-dapa/admin/system/es_setup/'
+        s = requests.session()
+        s.trust_env = False
+        response = s.put(url=es_setup_url, headers={'Authorization': f'Bearer {cognito_login.token}'}, verify=False)
+        return
+
     def test_list_admin_list_01(self):
         load_dotenv()
         cognito_login = CognitoLogin()\
@@ -19,7 +34,9 @@ class TestDapaStac(TestCase):
             .with_verify_ssl(False)\
             .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(), base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
         collection_url = f'{os.environ.get("UNITY_URL")}/am-uds-dapa/admin/auth'
-        response = requests.get(url=collection_url, headers={'Authorization': f'Bearer {cognito_login.token}'}, verify=False)
+        s = requests.session()
+        s.trust_env = False
+        response = s.get(url=collection_url, headers={'Authorization': f'Bearer {cognito_login.token}'}, verify=False)
         self.assertEqual(response.status_code, 200, f'wrong status code: {response.text}')
         response_json = json.loads(response.content.decode())
         print(json.dumps(response_json, indent=4))

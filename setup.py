@@ -4,7 +4,7 @@ install_requires = [
     'elasticsearch===7.13.4',
     'urllib3===1.26.11',
     'requests_aws4auth',
-    'requests===2.30.0',
+    'requests===2.31.0',
     'pystac', 'jsonschema',
     'fastjsonschema',
     'xmltodict',
