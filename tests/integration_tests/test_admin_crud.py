@@ -78,13 +78,15 @@ class TestDapaStac(TestCase):
             .with_cognito_url(os.environ.get('COGNITO_URL', ''))\
             .with_verify_ssl(False)\
             .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(), base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
-        collection_url = f'{os.environ.get("UNITY_URL")}/am-uds-dapa/admin/auth'
+        collection_url = f'{os.environ.get("UNITY_URL")}/sbx-uds-dapa/admin/auth'
         admin_add_body = {
             "tenant": "uds_local_test",
             "venue": "DEV1-1674680116",
             "group_name": "Unity_Viewer"
         }
-        response = requests.delete(url=collection_url, headers={
+        s = requests.session()
+        s.trust_env = False
+        response = s.delete(url=collection_url, headers={
             'Authorization': f'Bearer {cognito_login.token}',
             'Content-Type': 'application/json',
         }, verify=False, data=json.dumps(admin_add_body))
