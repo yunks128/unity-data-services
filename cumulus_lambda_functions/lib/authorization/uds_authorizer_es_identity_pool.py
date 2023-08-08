@@ -142,7 +142,7 @@ class UDSAuthorizorEsIdentityPool(UDSAuthorizorAbstract):
         authorized_collection_map = [item for sublist in authorized_collection_map for item in sublist]
         for each_collection_regex in authorized_collection_map:
             LOGGER.debug(f'comparing regex: {each_collection_regex} vs {collection_id}')
-            version_regex = re.compile(each_collection_regex)
+            version_regex = re.compile(each_collection_regex, re.IGNORECASE)
             if version_regex.match(collection_id):
                 return True
         return False
