@@ -35,7 +35,7 @@ class TestDapaStac(TestCase):
             .with_cognito_url(os.environ.get('COGNITO_URL', ''))\
             .with_verify_ssl(False)\
             .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(), base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
-        collection_url = f'{os.environ.get("UNITY_URL")}/am-uds-dapa/collections/*/items'
+        collection_url = f'{os.environ.get("UNITY_URL")}/am-uds-dapa/collections/SNDR_SNPP_ATMS_L1A___1/items'
         response = requests.get(url=collection_url, headers={'Authorization': f'Bearer {cognito_login.token}'}, verify=False)
         self.assertEqual(response.status_code, 200, f'wrong status code: {response.text}')
         response_json = json.loads(response.content.decode())
