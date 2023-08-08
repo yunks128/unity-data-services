@@ -14,6 +14,7 @@ from cumulus_lambda_functions.lib.constants import Constants
 
 class TestCumulusCreateCollectionDapa(TestCase):
 
+
     def test_collections_get(self):
         os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
         os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
@@ -36,6 +37,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
                                     headers=headers,
                                     )
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        print(query_result.text)
         return
 
     def test_granules_get(self):
@@ -49,8 +51,8 @@ class TestCumulusCreateCollectionDapa(TestCase):
         os.environ[Constants.COGNITO_URL] = 'https://cognito-idp.us-west-2.amazonaws.com'
         bearer_token = CognitoTokenRetriever().start()
         post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
-        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/L0_SNPP_ATMS_SCIENCE___1/items/'  # JPL Cloud
-        post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/L0_SNPP_ATMS_SCIENCE___1/items/'  # MCP Dev
+        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/URN:NASA:UNITY:MAIN_PROJECT:DEV:NEW_COLLECTION_EXAMPLE_L1B___9/items/'  # JPL Cloud
+        post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/collections/URN:NASA:UNITY:MAIN_PROJECT:DEV:NEW_COLLECTION_EXAMPLE_L1B___9/items/'  # MCP Dev
         # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/L0_SNPP_ATMS_SCIENCE___1/items/'  # MCP Dev
         headers = {
             'Authorization': f'Bearer {bearer_token}',
@@ -60,6 +62,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
                                     headers=headers,
                                     )
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        print(query_result.text)
         return
 
     def test_create_new_collection(self):
@@ -78,7 +81,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
             'Authorization': f'Bearer {bearer_token}',
             'Content-Type': 'application/json',
         }
-        temp_collection_id = f'CUMULUS_DAPA_UNIT_TEST___{int(datetime.utcnow().timestamp())}'
+        temp_collection_id = f'URN:NASA:UNITY:MAIN_PROJECT:DEV:CUMULUS_DAPA_UNIT_TEST___{int(datetime.utcnow().timestamp())}'
         dapa_collection = UnityCollectionStac() \
             .with_id(temp_collection_id) \
             .with_graule_id_regex("^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}0$") \
@@ -153,4 +156,46 @@ class TestCumulusCreateCollectionDapa(TestCase):
                                     )
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
         return
+
+    def test_cnm_403(self):
+        os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
+        os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
+        os.environ[Constants.PASSWORD_TYPE] = Constants.PARAM_STORE
+        # os.environ[Constants.CLIENT_ID] = '7a1fglm2d54eoggj13lccivp25'  # JPL Cloud
+        os.environ[Constants.CLIENT_ID] = '71g0c73jl77gsqhtlfg2ht388c'  # MCP Dev
+        # os.environ[Constants.CLIENT_ID] = '6ir9qveln397i0inh9pmsabq1'  # MCP Test
+
+        os.environ[Constants.COGNITO_URL] = 'https://cognito-idp.us-west-2.amazonaws.com'
+        bearer_token = CognitoTokenRetriever().start()
+        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
+        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # JPL Cloud
+        post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/collections/'  # MCP Dev
+        # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/'  # MCP Dev
+        headers = {
+            'Authorization': f'Bearer {bearer_token}',
+            'Content-Type': 'application/json',
+        }
+        stac_collection = {
+            "provider_id": 'unity',
+            "features": [
+            {'type': 'Feature', 'stac_version': '1.0.0', 'id': 'URN:NASA:UNITY:MAIN_PROJECT:DEV403:NEW_COLLECTION_EXAMPLE_L1B___9:test_file01',
+             'properties': {'start_datetime': '2016-01-31T18:00:00.009057Z', 'end_datetime': '2016-01-31T19:59:59.991043Z',
+                            'created': '2016-02-01T02:45:59.639000Z', 'updated': '2022-03-23T15:48:21.578000Z',
+                            'datetime': '1970-01-01T00:00:00Z'}, 'geometry': {'type': 'Point', 'coordinates': [0.0, 0.0]},
+             'links': [], 'assets': {
+                'data': {'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc',
+                         'title': 'main data'}, 'metadata__cas': {
+                    'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.cas',
+                    'title': 'metadata cas'}, 'metadata__stac': {
+                    'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.stac.json',
+                    'title': 'metadata stac'}}, 'bbox': [0.0, 0.0, 0.0, 0.0], 'stac_extensions': [],
+             'collection': 'URN:NASA:UNITY:MAIN_PROJECT:DEV403:NEW_COLLECTION_EXAMPLE_L1B___9'}]
+        }
+        query_result = requests.put(url=post_url,
+                                    headers=headers,
+                                    json=stac_collection,
+                                    )
+        self.assertEqual(query_result.status_code, 403, f'wrong status code. {query_result.text}')
+        return
+
 
