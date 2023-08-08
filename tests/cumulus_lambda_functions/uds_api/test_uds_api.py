@@ -123,7 +123,6 @@ class TestCumulusCreateCollectionDapa(TestCase):
 
         os.environ[Constants.COGNITO_URL] = 'https://cognito-idp.us-west-2.amazonaws.com'
         bearer_token = CognitoTokenRetriever().start()
-        print(bearer_token)
         post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
         post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # JPL Cloud
         post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/collections/'  # MCP Dev
