@@ -129,7 +129,7 @@ class CollectionDapaCreation:
                 'X-Amzn-Trace-Id': 'Root=1-64a66e90-6fa8b7a64449014639d4f5b4', 'X-Forwarded-For': '44.236.15.58',
                 'X-Forwarded-Port': '443', 'X-Forwarded-Proto': 'https'},
             'multiValueHeaders': {
-                'Accept': ['*/*'], 'Accept-Encoding': ['gzip, deflate'], 'Authorization': ['Bearer xxx'],
+                'Accept': ['*/*'], 'Accept-Encoding': ['gzip, deflate'], 'Authorization': [bearer_token],
                 'Host': [current_url.hostname], 'User-Agent': ['python-requests/2.28.2'],
                 'X-Amzn-Trace-Id': ['Root=1-64a66e90-6fa8b7a64449014639d4f5b4'],
                 'X-Forwarded-For': ['127.0.0.1'], 'X-Forwarded-Port': ['443'], 'X-Forwarded-Proto': ['https']
