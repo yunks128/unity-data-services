@@ -132,7 +132,9 @@ class UDSAuthorizorEsIdentityPool(UDSAuthorizorAbstract):
                 }
             }
         }
+        LOGGER.debug(f'authorization_dsl: {authorization_dsl}')
         authorized_collection_map = self.__es.query(authorization_dsl)
+        LOGGER.debug(f'authorized_collection_map: {authorized_collection_map}')
         authorized_collection_map = [k['_source'][DBConstants.resource_key] for k in authorized_collection_map['hits']['hits']]
         authorized_collection_map = [item for sublist in authorized_collection_map for item in sublist]
         for each_collection_regex in authorized_collection_map:
