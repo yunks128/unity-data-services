@@ -93,7 +93,9 @@ async def create_new_collection(request: Request, new_collection: dict, response
         }))
     try:
         # new_collection = request.body()
-        creation_result = CollectionDapaCreation(new_collection).start(request.url)
+        bearer_token = request.headers.get('Authorization', '')
+        LOGGER.debug(f'create_new_collection--bearer_token: {bearer_token}')
+        creation_result = CollectionDapaCreation(new_collection).start(request.url, bearer_token)
     except Exception as e:
         LOGGER.exception('failed during ingest_cnm_dapa')
         raise HTTPException(status_code=500, detail=str(e))
