@@ -18,7 +18,10 @@ class CollectionDapaQuery:
         self.__cumulus = CollectionsQuery('https://na/dev', 'NA')
         self.__cumulus.with_limit(limit)
         if collection_id is not None:
-            self.__cumulus.with_collection_id(collection_id)
+            if isinstance(collection_id, str):
+                self.__cumulus.with_collection_id(collection_id)
+            else:
+                self.__cumulus.with_collections(collection_id)
         self.__cumulus.with_page_number(page_number)
 
     def __get_size(self):
