@@ -38,7 +38,7 @@ async def ingest_cnm_dapa(request: Request, new_cnm_body: CnmRequestBody):
         raise HTTPException(status_code=500, detail=json.dumps({
             'message': 'missing collection_id in request_body["features"][0]["collection"]'
         }))
-    collection_id = new_cnm_body['features'][0]['collection']
+    collection_id = collection_id['features'][0]['collection']
     collection_id = collection_id.split('___')[0]  # split id, version and only keeping id. TODO need this?
     authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory() \
         .get_instance(UDSAuthorizerFactory.cognito,
