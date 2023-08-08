@@ -1,4 +1,16 @@
+import json
+import os
 from typing import Union
+
+from cumulus_lambda_functions.uds_api.fast_api_utils import FastApiUtils
+
+from cumulus_lambda_functions.lib.authorization.uds_authorizer_abstract import UDSAuthorizorAbstract
+
+from cumulus_lambda_functions.lib.authorization.uds_authorizer_factory import UDSAuthorizerFactory
+
+from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
+
+from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
 
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 
@@ -20,6 +32,22 @@ router = APIRouter(
 @router.get("/{collection_id}/items")
 @router.get("/{collection_id}/items/")
 async def get_granules_dapa(request: Request, collection_id: str, limit: Union[int, None] = 10, offset: Union[int, None] = 0, datetime: Union[str, None] = None, filter_input: Union[str, None] = None):
+    authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory() \
+        .get_instance(UDSAuthorizerFactory.cognito,
+                      es_url=os.getenv('ES_URL'),
+                      es_port=int(os.getenv('ES_PORT', '443'))
+                      )
+    auth_info = FastApiUtils.get_authorization_info(request)
+    collection_identifier = UdsCollections.decode_identifier(collection_id)
+    if not authorizer.is_authorized_for_collection(DBConstants.read, collection_id,
+                                                   auth_info['ldap_groups'],
+                                                   collection_identifier.tenant,
+                                                   collection_identifier.venue):
+        LOGGER.debug(f'user: {auth_info["username"]} is not authorized for {collection_id}')
+        raise HTTPException(status_code=403, detail=json.dumps({
+            'message': 'not authorized to execute this action'
+        }))
+
     try:
         pagination_links = PaginationLinksGenerator(request).generate_pagination_links()
         granules_dapa_query = GranulesDapaQuery(collection_id, limit, offset, datetime, filter_input, pagination_links)
