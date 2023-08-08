@@ -60,7 +60,9 @@ class TestDapaStac(TestCase):
             # "venue": f"DEV1",
             "group_name": "Unity_Viewer"
         }
-        response = requests.put(url=collection_url, headers={
+        s = requests.session()
+        s.trust_env = False
+        response = s.put(url=collection_url, headers={
             'Authorization': f'Bearer {cognito_login.token}',
             'Content-Type': 'application/json',
         }, verify=False, data=json.dumps(admin_add_body))

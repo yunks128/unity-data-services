@@ -31,7 +31,7 @@ async def delete_auth_mapping(request: Request, delete_body: AuthDeleteModel):
 @router.put("")
 @router.put("/")
 async def add_auth_mapping(request: Request, new_body: AuthAddModel):
-    LOGGER.debug(f'started add_auth_mapping')
+    LOGGER.debug(f'started add_auth_mapping. {new_body.model_dump()}')
     auth_info = FastApiUtils.get_authorization_info(request)
     auth_crud = AuthCrud(auth_info, new_body.model_dump())
     is_admin_result = auth_crud.is_admin()
