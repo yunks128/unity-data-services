@@ -26,7 +26,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
         bearer_token = CognitoTokenRetriever().start()
         post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
         post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # JPL Cloud
-        post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # MCP Dev
+        post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/collections/'  # MCP Dev
         # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/'  # MCP Dev
         headers = {
             'Authorization': f'Bearer {bearer_token}',
@@ -125,7 +125,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
         bearer_token = CognitoTokenRetriever().start()
         post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
         post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # JPL Cloud
-        post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # MCP Dev
+        post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/collections/'  # MCP Dev
         # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/'  # MCP Dev
         headers = {
             'Authorization': f'Bearer {bearer_token}',
@@ -134,7 +134,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
         stac_collection = {
             "provider_id": 'unity',
             "features": [
-            {'type': 'Feature', 'stac_version': '1.0.0', 'id': 'NEW_COLLECTION_EXAMPLE_L1B___9:test_file01',
+            {'type': 'Feature', 'stac_version': '1.0.0', 'id': 'URN:NASA:UNITY:MAIN_PROJECT:DEV:NEW_COLLECTION_EXAMPLE_L1B___9:test_file01',
              'properties': {'start_datetime': '2016-01-31T18:00:00.009057Z', 'end_datetime': '2016-01-31T19:59:59.991043Z',
                             'created': '2016-02-01T02:45:59.639000Z', 'updated': '2022-03-23T15:48:21.578000Z',
                             'datetime': '1970-01-01T00:00:00Z'}, 'geometry': {'type': 'Point', 'coordinates': [0.0, 0.0]},
@@ -145,7 +145,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
                     'title': 'metadata cas'}, 'metadata__stac': {
                     'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.stac.json',
                     'title': 'metadata stac'}}, 'bbox': [0.0, 0.0, 0.0, 0.0], 'stac_extensions': [],
-             'collection': 'NEW_COLLECTION_EXAMPLE_L1B___9'}]
+             'collection': 'URN:NASA:UNITY:MAIN_PROJECT:DEV:NEW_COLLECTION_EXAMPLE_L1B___9'}]
         }
         query_result = requests.put(url=post_url,
                                     headers=headers,
