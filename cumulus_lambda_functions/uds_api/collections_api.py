@@ -1,8 +1,7 @@
-import logging
 from typing import Union
 
+from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from fastapi import APIRouter, HTTPException, Request, Response
-from pydantic import BaseModel
 
 from cumulus_lambda_functions.uds_api.dapa.collections_dapa_cnm import CnmRequestBody, CollectionsDapaCnm
 from cumulus_lambda_functions.uds_api.dapa.collections_dapa_creation import CollectionDapaCreation
@@ -10,7 +9,7 @@ from cumulus_lambda_functions.uds_api.dapa.collections_dapa_query import Collect
 from cumulus_lambda_functions.uds_api.dapa.pagination_links_generator import PaginationLinksGenerator
 from cumulus_lambda_functions.uds_api.web_service_constants import WebServiceConstants
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 router = APIRouter(
     prefix=f'/{WebServiceConstants.COLLECTIONS}',
@@ -19,7 +18,9 @@ router = APIRouter(
 )
 
 @router.put("")
+@router.put("/")
 async def ingest_cnm_dapa(request: Request, new_cnm_body: CnmRequestBody):
+    LOGGER.debug(f'starting ingest_cnm_dapa')
     try:
         collections_dapa_cnm = CollectionsDapaCnm(new_cnm_body.model_dump())
         cnm_result = collections_dapa_cnm.start()
@@ -32,7 +33,9 @@ async def ingest_cnm_dapa(request: Request, new_cnm_body: CnmRequestBody):
 
 
 @router.post("")
+@router.post("/")
 async def create_new_collection(request: Request, new_collection: dict, response: Response):
+    LOGGER.debug(f'starting create_new_collection')
     try:
         # new_collection = request.body()
         creation_result = CollectionDapaCreation(new_collection).start(request.url)
@@ -46,7 +49,8 @@ async def create_new_collection(request: Request, new_collection: dict, response
 
 
 @router.post("/actual")
-async def create_new_collection(request: Request, new_collection: dict):
+async def create_new_collection_real(request: Request, new_collection: dict):
+    LOGGER.debug(f'starting create_new_collection_real')
     try:
         creation_result = CollectionDapaCreation(new_collection).create()
     except Exception as e:
@@ -56,8 +60,13 @@ async def create_new_collection(request: Request, new_collection: dict):
         return creation_result['body'], creation_result['statusCode']
     raise HTTPException(status_code=creation_result['statusCode'], detail=creation_result['body'])
 
+
 @router.get("")
+@router.get("/")
+@router.get("/{collection_id}")
+@router.get("/{collection_id}/")
 async def query_collections(request: Request, collection_id: Union[str, None] = None, limit: Union[int, None] = 10, offset: Union[int, None] = 0, ):
+    LOGGER.debug(f'starting query_collections: {collection_id}')
     try:
         pagination_links = PaginationLinksGenerator(request).generate_pagination_links()
         collections_dapa_query = CollectionDapaQuery(collection_id, limit, offset, pagination_links)

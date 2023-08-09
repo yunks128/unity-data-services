@@ -11,7 +11,6 @@ from cumulus_lambda_functions.cumulus_stac.collection_transformer import Collect
 from cumulus_lambda_functions.lib.aws.aws_lambda import AwsLambda
 
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
-from pydantic import BaseModel
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
@@ -59,7 +58,7 @@ class CollectionDapaCreation:
                 return {
                     'statusCode': 500,
                     'body': {
-                        'message': {rule_creation_result},
+                        'message': rule_creation_result,
                         'details': f'collection deletion result: {delete_collection_result}'
                     }
                 }
@@ -93,10 +92,12 @@ class CollectionDapaCreation:
         actual_path = current_url.path
         actual_path = actual_path if actual_path.endswith('/') else f'{actual_path}/'
         actual_path = f'{actual_path}actual'
+        LOGGER.info(f'sanity_check')
+
         actual_event = {
             'resource': actual_path,
             'path': actual_path,
-            'httpMethod': 'PUT',
+            'httpMethod': 'POST',
             'headers': {
                 'Accept': '*/*', 'Accept-Encoding': 'gzip, deflate', 'Authorization': 'Bearer xxx',
                 'Host': current_url.hostname, 'User-Agent': 'python-requests/2.28.2',
@@ -113,12 +114,13 @@ class CollectionDapaCreation:
             'pathParameters': {},
             'stageVariables': None,
             'requestContext': {
-                'resourceId': 'fa3sd2', 'authorizer': {'principalId': 'user', 'integrationLatency': 1418},
-                'resourcePath': actual_path, 'httpMethod': 'PUT',
-                'extendedRequestId': 'HoY2rE3uvHcFhog=', 'requestTime': '06/Jul/2023:07:34:40 +0000',
-                'path': actual_path, 'accountId': '428002334974',
-                'protocol': 'HTTP/1.1', 'stage': 'test', 'domainPrefix': '58nbcawrvb', 'requestTimeEpoch': 1688628880802,
-                'requestId': '1b7326b9-7f63-4bda-bb47-fb23244c5ae0',
+                'resourceId': '',
+                'authorizer': {'principalId': '', 'integrationLatency': 0},
+                'resourcePath': actual_path, 'httpMethod': 'POST',
+                'extendedRequestId': '', 'requestTime': '',
+                'path': actual_path, 'accountId': '',
+                'protocol': 'HTTP/1.1', 'stage': '', 'domainPrefix': '', 'requestTimeEpoch': 0,
+                'requestId': '',
                 'identity': {
                     'cognitoIdentityPoolId': None, 'accountId': None, 'cognitoIdentityId': None, 'caller': None,
                     'sourceIp': '127.0.0.1', 'principalOrgId': None, 'accessKey': None, 'cognitoAuthenticationType': None,
@@ -126,9 +128,10 @@ class CollectionDapaCreation:
                 },
                 'domainName': current_url.hostname, 'apiId': ''
             },
-            'body': self.__request_body,
+            'body': json.dumps(self.__request_body),
             'isBase64Encoded': False
         }
+        LOGGER.info(f'actual_event: {actual_event}')
         response = AwsLambda().invoke_function(
             function_name=self.__collection_creation_lambda_name,
             payload=actual_event,
