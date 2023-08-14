@@ -151,6 +151,5 @@ class TestCumulusCreateCollectionDapa(TestCase):
                                     headers=headers,
                                     json=stac_collection,
                                     )
-        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        self.assertEqual(query_result.status_code, 202, f'wrong status code. {query_result.text}')
         return
-
