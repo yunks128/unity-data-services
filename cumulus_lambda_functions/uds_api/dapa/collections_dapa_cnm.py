@@ -46,7 +46,7 @@ class CollectionsDapaCnm:
         actual_event = {
             'resource': actual_path,
             'path': actual_path,
-            'httpMethod': 'POST',
+            'httpMethod': 'PUT',
             'headers': {
                 'Accept': '*/*', 'Accept-Encoding': 'gzip, deflate', 'Authorization': 'Bearer xxx',
                 'Host': current_url.hostname, 'User-Agent': 'python-requests/2.28.2',
@@ -65,7 +65,7 @@ class CollectionsDapaCnm:
             'requestContext': {
                 'resourceId': '',
                 'authorizer': {'principalId': '', 'integrationLatency': 0},
-                'resourcePath': actual_path, 'httpMethod': 'POST',
+                'resourcePath': actual_path, 'httpMethod': 'PUT',
                 'extendedRequestId': '', 'requestTime': '',
                 'path': actual_path, 'accountId': '',
                 'protocol': 'HTTP/1.1', 'stage': '', 'domainPrefix': '', 'requestTimeEpoch': 0,
