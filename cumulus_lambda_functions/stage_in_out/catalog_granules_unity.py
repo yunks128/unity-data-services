@@ -22,7 +22,7 @@ class CatalogGranulesUnity(CatalogGranulesAbstract):
         self.__provider_id = ''
         self.__verify_ssl = True
         self.__delaying_second = 30
-        self.__repeating_times = 5
+        self.__repeating_times = 0
 
     def __set_props_from_env(self):
         missing_keys = [k for k in [self.UPLOADED_FILES_JSON, self.PROVIDER_ID_KEY] if k not in os.environ]
@@ -32,7 +32,7 @@ class CatalogGranulesUnity(CatalogGranulesAbstract):
         self.__provider_id = os.environ.get(self.PROVIDER_ID_KEY)
         self.__verify_ssl = os.environ.get(self.VERIFY_SSL_KEY, 'TRUE').strip().upper() == 'TRUE'
         self.__delaying_second = int(os.environ.get(self.DELAY_SECOND, '30'))
-        self.__repeating_times = int(os.environ.get(self.REPEAT_TIMES, '30'))
+        self.__repeating_times = int(os.environ.get(self.REPEAT_TIMES, '0'))
         self.__verify_ssl = os.environ.get(self.VERIFY_SSL_KEY, 'TRUE').strip().upper() == 'TRUE'
         return self
 

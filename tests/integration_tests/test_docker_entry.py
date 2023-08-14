@@ -1903,6 +1903,9 @@ class TestDockerEntry(TestCase):
         os.environ['VERIFY_SSL'] = 'FALSE'
         os.environ['PROVIDER_ID'] = 'SNPP'
         os.environ['GRANULES_CATALOG_TYPE'] = 'UNITY'
+        # os.environ['DELAY_SECOND'] = '5'
+        # os.environ['REPEAT_TIMES'] = '3'
+
         if len(argv) > 1:
             argv.pop(-1)
         argv.append('CATALOG')
