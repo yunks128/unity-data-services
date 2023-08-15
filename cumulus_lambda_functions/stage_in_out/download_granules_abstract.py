@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from abc import ABC, abstractmethod
-from multiprocessing import Queue
+from multiprocessing import Queue, Manager
 
 from pystac import ItemCollection, Asset, Item
 
@@ -40,12 +40,11 @@ class DownloadItemExecutor(JobExecutorAbstract):
                 value_dict.href = os.path.join('.', os.path.basename(downloading_url))
                 new_asset_dict[name] = value_dict
             granule_item.assets = new_asset_dict
-            with lock:
-                self.__result_list.put(granule_item)
+            self.__result_list.put(granule_item)
         except Exception as e:
             LOGGER.exception(f'error downloading granule: {granule_item.id}')
-            with lock:
-                self.__error_list.put({'error': str(e), 'id': granule_item.id, })
+            self.__error_list.put({'error': str(e), 'id': granule_item.id, })
+        LOGGER.debug(f'done DownloadItemExecutor#execute_job')
         return True  # always return true?
 
 
@@ -102,8 +101,8 @@ class DownloadGranulesAbstract(ABC):
             return json.dumps(granules_json_dict)
         # local_items = []
         # error_list = []
-        local_items = Queue()
-        error_list = Queue()
+        local_items = Manager().Queue()
+        error_list = Manager().Queue()
         job_manager_props = JobManagerProps()
         for each_item in self._granules_json.items:
             job_manager_props.memory_job_dict[each_item.id] = each_item

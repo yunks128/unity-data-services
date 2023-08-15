@@ -2,6 +2,9 @@ import json
 import os
 from typing import Union
 
+from cumulus_lambda_functions.lib.aws.aws_lambda import AwsLambda
+from starlette.datastructures import URL
+
 from cumulus_lambda_functions.lib.aws.aws_sns import AwsSns
 
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
@@ -24,10 +27,73 @@ class CnmRequestBody(BaseModel):
 
 class CollectionsDapaCnm:
     def __init__(self, request_body):
-        if 'SNS_TOPIC_ARN' not in os.environ:
-            raise EnvironmentError('missing key: SNS_TOPIC_ARN')
+        required_env = ['SNS_TOPIC_ARN', 'COLLECTION_CREATION_LAMBDA_NAME']
+        if not all([k in os.environ for k in required_env]):
+            raise EnvironmentError(f'one or more missing env: {required_env}')
         self.__sns_topic_arn = os.getenv('SNS_TOPIC_ARN')
         self.__request_body = request_body
+        self.__collection_cnm_lambda_name = os.environ.get('COLLECTION_CREATION_LAMBDA_NAME', '').strip()
+
+
+    def start_facade(self, current_url: URL):
+        LOGGER.debug(f'request body: {self.__request_body}')
+
+        actual_path = current_url.path
+        actual_path = actual_path if actual_path.endswith('/') else f'{actual_path}/'
+        actual_path = f'{actual_path}actual'
+        LOGGER.info(f'sanity_check')
+
+        actual_event = {
+            'resource': actual_path,
+            'path': actual_path,
+            'httpMethod': 'PUT',
+            'headers': {
+                'Accept': '*/*', 'Accept-Encoding': 'gzip, deflate', 'Authorization': 'Bearer xxx',
+                'Host': current_url.hostname, 'User-Agent': 'python-requests/2.28.2',
+                'X-Amzn-Trace-Id': 'Root=1-64a66e90-6fa8b7a64449014639d4f5b4', 'X-Forwarded-For': '44.236.15.58',
+                'X-Forwarded-Port': '443', 'X-Forwarded-Proto': 'https'},
+            'multiValueHeaders': {
+                'Accept': ['*/*'], 'Accept-Encoding': ['gzip, deflate'], 'Authorization': ['Bearer xxx'],
+                'Host': [current_url.hostname], 'User-Agent': ['python-requests/2.28.2'],
+                'X-Amzn-Trace-Id': ['Root=1-64a66e90-6fa8b7a64449014639d4f5b4'],
+                'X-Forwarded-For': ['127.0.0.1'], 'X-Forwarded-Port': ['443'], 'X-Forwarded-Proto': ['https']
+            },
+            'queryStringParameters': {},
+            'multiValueQueryStringParameters': {},
+            'pathParameters': {},
+            'stageVariables': None,
+            'requestContext': {
+                'resourceId': '',
+                'authorizer': {'principalId': '', 'integrationLatency': 0},
+                'resourcePath': actual_path, 'httpMethod': 'PUT',
+                'extendedRequestId': '', 'requestTime': '',
+                'path': actual_path, 'accountId': '',
+                'protocol': 'HTTP/1.1', 'stage': '', 'domainPrefix': '', 'requestTimeEpoch': 0,
+                'requestId': '',
+                'identity': {
+                    'cognitoIdentityPoolId': None, 'accountId': None, 'cognitoIdentityId': None, 'caller': None,
+                    'sourceIp': '127.0.0.1', 'principalOrgId': None, 'accessKey': None,
+                    'cognitoAuthenticationType': None,
+                    'cognitoAuthenticationProvider': None, 'userArn': None, 'userAgent': 'python-requests/2.28.2',
+                    'user': None
+                },
+                'domainName': current_url.hostname, 'apiId': ''
+            },
+            'body': json.dumps(self.__request_body),
+            'isBase64Encoded': False
+        }
+        LOGGER.info(f'actual_event: {actual_event}')
+        response = AwsLambda().invoke_function(
+            function_name=self.__collection_cnm_lambda_name,
+            payload=actual_event,
+        )
+        LOGGER.debug(f'async function started: {response}')
+        return {
+            'statusCode': 202,
+            'body': json.dumps({
+                'message': 'processing'
+            })
+        }
 
     def start(self):
         """
