@@ -1928,3 +1928,41 @@ class TestDockerEntry(TestCase):
             self.assertTrue('registered_granules' in status_result, f'missing registered_granules')
             self.assertTrue(isinstance(status_result['cataloged'], bool), f'cataloged is not boolean: {status_result["cataloged"]}')
         return
+
+    def test_04_catalog_from_file_item_collection_large(self):
+        upload_result = FileUtils.read_json('./stage-out-results.json')
+
+        os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
+        os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
+        os.environ['PASSWORD_TYPE'] = 'PARAM_STORE'
+        os.environ[Constants.CLIENT_ID] = '71g0c73jl77gsqhtlfg2ht388c'  # MCP Dev
+        os.environ['COGNITO_URL'] = 'https://cognito-idp.us-west-2.amazonaws.com'
+        os.environ['DAPA_API'] = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev'
+        os.environ['VERIFY_SSL'] = 'FALSE'
+        os.environ['PROVIDER_ID'] = 'SNPP'
+        os.environ['GRANULES_CATALOG_TYPE'] = 'UNITY'
+        # os.environ['DELAY_SECOND'] = '5'
+        # os.environ['REPEAT_TIMES'] = '3'
+
+        if len(argv) > 1:
+            argv.pop(-1)
+        argv.append('CATALOG')
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            input_file_path = os.path.join(tmp_dir_name, 'uploaded_files.json')
+            FileUtils.write_json(input_file_path, upload_result)
+            os.environ['UPLOADED_FILES_JSON'] = input_file_path
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
+            catalog_result_str = choose_process()
+            catalog_result = json.loads(catalog_result_str)
+            self.assertTrue('cataloging_request_status' in catalog_result, f'missing cataloging_request_status')
+            self.assertTrue('status_result' in catalog_result, f'missing status_result')
+            self.assertEqual(catalog_result['cataloging_request_status'], 'registered', f'mismatched cataloging_request_status value')
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
+
+            status_result = catalog_result['status_result']
+
+            self.assertTrue('cataloged' in status_result, f'missing cataloged')
+            self.assertTrue('missing_granules' in status_result, f'missing missing_granules')
+            self.assertTrue('registered_granules' in status_result, f'missing registered_granules')
+            self.assertTrue(isinstance(status_result['cataloged'], bool), f'cataloged is not boolean: {status_result["cataloged"]}')
+        return
