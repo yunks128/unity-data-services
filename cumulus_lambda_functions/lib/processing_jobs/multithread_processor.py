@@ -2,7 +2,7 @@ import logging
 import time
 import multiprocessing
 multiprocessing.set_start_method("fork")
-from multiprocessing import Process, Queue, Lock, cpu_count
+from multiprocessing import Process, Queue, Lock, cpu_count, Manager
 from random import randint
 
 from cumulus_lambda_functions.lib.processing_jobs.job_executor_abstract import JobExecutorAbstract
@@ -142,13 +142,14 @@ class MultiThreadProcessor:
             else:
                 LOGGER.debug(f'executed job: `{job}` ends in Error. putting back to jobs dir')
                 self.__props.job_manager.put_back_failed_job(job_path)
+        LOGGER.debug(f'quitting __execute_job')
         return
 
     def start(self):
         if self.__props.job_executor is None or self.__props.job_manager is None:
             raise RuntimeError('missing job_executor or job_manager')
         LOGGER.info(f'multithread processing starting with process_count: {self.__props.process_count}')
-        for i in range(cpu_count()):
+        for i in range(self.__props.process_count):
             p = Process(target=self.__execute_job, args=())
             p.daemon = True
             self.__props.consumers.append(p)
@@ -162,4 +163,5 @@ class MultiThreadProcessor:
         for c in self.__props.consumers:  # to check if all consumers are done processing it
             LOGGER.info('joining consumers: {}. exit_code: {}'.format(c.pid, c.exitcode))
             c.join()
+            LOGGER.debug('joined')
         return
