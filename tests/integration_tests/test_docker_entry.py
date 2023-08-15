@@ -1,3 +1,7 @@
+import logging
+
+logging.basicConfig(level=10, format="%(asctime)s [%(levelname)s] [%(name)s::%(lineno)d] %(message)s")
+
 import json
 import os
 import tempfile
@@ -1284,6 +1288,45 @@ class TestDockerEntry(TestCase):
             os.environ['DOWNLOAD_DIR'] = downloading_dir
             download_result_str = choose_process()
             download_result = json.loads(download_result_str)
+            self.assertTrue('features' in download_result, f'missing features in download_result')
+            self.assertEqual(len(download_result['features']) + 1, len(glob(os.path.join(downloading_dir, '*'))), f'downloaded file does not match')
+            error_file = os.path.join(downloading_dir, 'error.log')
+            if FileUtils.file_exist(error_file):
+                self.assertTrue(False, f'some downloads failed. error.log exists. {FileUtils.read_json(error_file)}')
+            download_result = download_result['features']
+            self.assertTrue('assets' in download_result[0], f'no assets in download_result: {download_result}')
+            downloaded_file_hrefs = set([k['assets']['data']['href'] for k in download_result])
+            for each_granule in zip(granule_json['features'], download_result):
+                remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
+                self.assertTrue(os.path.join('.', remote_filename) in downloaded_file_hrefs, f'mismatched: {remote_filename}')
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
+        return
+
+    def test_02_download__from_file_large(self):
+        granule_json = FileUtils.read_json('./stage-in.json')
+        if len(argv) > 1:
+            argv.pop(-1)
+        argv.append('DOWNLOAD')
+        os.environ[Constants.EDL_USERNAME] = '/unity/uds/user/wphyo/edl_username'
+        os.environ[Constants.EDL_PASSWORD] = '/unity/uds/user/wphyo/edl_dwssap'
+        os.environ[Constants.EDL_PASSWORD_TYPE] = Constants.PARAM_STORE
+        os.environ[Constants.EDL_BASE_URL] = 'urs.earthdata.nasa.gov'
+        os.environ['STAC_JSON'] = json.dumps(granule_json)
+        os.environ['GRANULES_DOWNLOAD_TYPE'] = 'DAAC'
+        os.environ['PARALLEL_COUNT'] = '5'
+
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            print(tmp_dir_name)
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
+            granule_json_file = os.path.join(tmp_dir_name, 'input_file.json')
+            downloading_dir = os.path.join(tmp_dir_name, 'downloading_dir')
+            FileUtils.mk_dir_p(downloading_dir)
+            FileUtils.write_json(granule_json_file, granule_json)
+            os.environ['STAC_JSON'] = granule_json_file
+            os.environ['DOWNLOAD_DIR'] = downloading_dir
+            download_result_str = choose_process()
+            download_result = json.loads(download_result_str)
+            print(len(download_result['features']))
             self.assertTrue('features' in download_result, f'missing features in download_result')
             self.assertEqual(len(download_result['features']) + 1, len(glob(os.path.join(downloading_dir, '*'))), f'downloaded file does not match')
             error_file = os.path.join(downloading_dir, 'error.log')
