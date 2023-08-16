@@ -62,7 +62,7 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
                 uploading_current_granule_stac = None
                 for asset_type, asset_href in current_assets.items():
                     LOGGER.debug(f'uploading {asset_type}, {asset_href}')
-                    s3_url = self.__s3.upload(asset_href, self.__staging_bucket, f'{self.__collection_id}:{current_granule_id}', self.__delete_files)
+                    s3_url = self.__s3.upload(asset_href, self.__staging_bucket, f'{self.__collection_id}/{self.__collection_id}:{current_granule_id}', self.__delete_files)
                     if asset_href == each_child:
                         uploading_current_granule_stac = s3_url
                     updating_assets[asset_type] = s3_url
