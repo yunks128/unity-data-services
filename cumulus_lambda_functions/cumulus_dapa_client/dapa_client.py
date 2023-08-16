@@ -16,9 +16,9 @@ class DapaClient:
         self.__token_retriever = CognitoTokenRetriever()
         self.__token = None
         self.__dapa_base_api = None
-        self.__get_dapa_base_api()
         self.__verify_ssl = True
         self.__api_base_prefix = WebServiceConstants.API_PREFIX
+        self.__get_dapa_base_api()
 
     def with_verify_ssl(self, verify_ssl: bool):
         self.__verify_ssl = verify_ssl
@@ -126,5 +126,5 @@ class DapaClient:
         if response.status_code > 400:
             raise RuntimeError(
                 f'querying granules ingestion ends in error. status_code: {response.status_code}. url: {dapa_ingest_cnm_api}. details: {response.text}')
-        granules_result = response.text
+        granules_result = json.loads(response.text)
         return granules_result
