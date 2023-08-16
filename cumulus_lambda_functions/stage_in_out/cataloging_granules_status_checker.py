@@ -13,7 +13,7 @@ class CatalogingGranulesStatusChecker:
         self.__granules_ids = granules_ids
         self.__threshold_datetime = threshold_datetime
         self.__delay = delay
-        self.__repeating_times = repeating_times if repeating_times > 0 else 1
+        self.__repeating_times = repeating_times if repeating_times >= 0 else 0
         self.__dapa_client = DapaClient().with_verify_ssl(veriffy_ssl)
         self.__registered_granules = {}
 

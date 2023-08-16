@@ -6,6 +6,7 @@ import requests
 
 from cumulus_lambda_functions.lib.cognito_login.cognito_token_retriever import CognitoTokenRetriever
 from cumulus_lambda_functions.lib.constants import Constants
+from cumulus_lambda_functions.uds_api.web_service_constants import WebServiceConstants
 
 LOGGER = logging.getLogger(__name__)
 
@@ -15,8 +16,9 @@ class DapaClient:
         self.__token_retriever = CognitoTokenRetriever()
         self.__token = None
         self.__dapa_base_api = None
-        self.__get_dapa_base_api()
         self.__verify_ssl = True
+        self.__api_base_prefix = WebServiceConstants.API_PREFIX
+        self.__get_dapa_base_api()
 
     def with_verify_ssl(self, verify_ssl: bool):
         self.__verify_ssl = verify_ssl
@@ -27,6 +29,7 @@ class DapaClient:
             raise ValueError(f'missing key: {Constants.DAPA_API_KEY}')
         self.__dapa_base_api = os.environ.get(Constants.DAPA_API_KEY)
         self.__dapa_base_api = self.__dapa_base_api[:-1] if self.__dapa_base_api.endswith('/') else self.__dapa_base_api
+        self.__api_base_prefix = os.environ.get(Constants.DAPA_API_PREIFX_KEY) if Constants.DAPA_API_PREIFX_KEY in os.environ else self.__api_base_prefix
         return self
 
     def __get_token(self):
@@ -46,7 +49,7 @@ class DapaClient:
         LOGGER.debug(f'getting collection details for: {collection_id}')
         self.__get_token()
         header = {'Authorization': f'Bearer {self.__token}'}
-        dapa_collection_url = f'{self.__dapa_base_api}/am-uds-dapa/collections?limit=1000'
+        dapa_collection_url = f'{self.__dapa_base_api}/{self.__api_base_prefix}/collections?limit=1000'
         response = requests.get(url=dapa_collection_url, headers=header, verify=self.__verify_ssl)
         if response.status_code > 400:
             raise RuntimeError(
@@ -92,7 +95,7 @@ class DapaClient:
         :param date_to:
         :return:
         """
-        dapa_granules_api = f'{self.__dapa_base_api}/am-uds-dapa/collections/{collection_id}/items?limit={limit}&offset={offset}'
+        dapa_granules_api = f'{self.__dapa_base_api}/{self.__api_base_prefix}/collections/{collection_id}/items?limit={limit}&offset={offset}'
         if date_from != '' or date_to != '':
             dapa_granules_api = f"{dapa_granules_api}&datetime={date_from if date_from != '' else '..'}/{date_to if date_to != '' else '..'}"
         if filter is not None:
@@ -111,7 +114,7 @@ class DapaClient:
         return granules_result
 
     def ingest_granules_w_cnm(self, cnm_ingest_body: dict) -> str:
-        dapa_ingest_cnm_api = f'{self.__dapa_base_api}/am-uds-dapa/collections/'
+        dapa_ingest_cnm_api = f'{self.__dapa_base_api}/{self.__api_base_prefix}/collections/'
         LOGGER.debug(f'getting granules for: {dapa_ingest_cnm_api}')
         self.__get_token()
         header = {
@@ -123,5 +126,5 @@ class DapaClient:
         if response.status_code > 400:
             raise RuntimeError(
                 f'querying granules ingestion ends in error. status_code: {response.status_code}. url: {dapa_ingest_cnm_api}. details: {response.text}')
-        granules_result = response.text
+        granules_result = json.loads(response.text)
         return granules_result
