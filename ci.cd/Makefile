@@ -6,7 +6,7 @@ export VERSION ?= latest
 all: build_lambda upload_lambda update_lambda_function build_docker
 local: build_lambda upload_lambda update_lambda_function_1 update_lambda_function_2 update_lambda_function_3
 build_docker:
-	docker build -t "$(IMAGE_PREFIX)/$(NAME):$(VERSION)" -f docker/Dockerfile .
+	docker build --no-cache -t "$(IMAGE_PREFIX)/$(NAME):$(VERSION)" -f docker/Dockerfile_download_granules.jpl .
 
 zip_docker:
 	docker save "$(IMAGE_PREFIX)/$(NAME):$(VERSION)" | gzip > "$(NAME)__$(VERSION).tar.gz"
