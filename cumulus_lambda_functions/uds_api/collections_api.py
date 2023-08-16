@@ -31,7 +31,7 @@ router = APIRouter(
 
 @router.put("")
 @router.put("/")
-async def ingest_cnm_dapa(request: Request, new_cnm_body: CnmRequestBody):
+async def ingest_cnm_dapa(request: Request, new_cnm_body: CnmRequestBody, response: Response):
     LOGGER.debug(f'starting ingest_cnm_dapa')
     collection_id = new_cnm_body.model_dump()
     if 'features' not in collection_id or len(collection_id['features']) < 1 or 'collection' not in collection_id['features'][0]:
@@ -55,6 +55,21 @@ async def ingest_cnm_dapa(request: Request, new_cnm_body: CnmRequestBody):
         raise HTTPException(status_code=403, detail=json.dumps({
             'message': 'not authorized to execute this action'
         }))
+    try:
+        cnm_prep_result = CollectionsDapaCnm(new_cnm_body.model_dump()).start_facade(request.url)
+    except Exception as e:
+        LOGGER.exception('failed during ingest_cnm_dapa')
+        raise HTTPException(status_code=500, detail=str(e))
+    if cnm_prep_result['statusCode'] < 300:
+        response.status_code = cnm_prep_result['statusCode']
+        return cnm_prep_result['body']
+    raise HTTPException(status_code=cnm_prep_result['statusCode'], detail=cnm_prep_result['body'])
+
+
+@router.put("/actual")
+@router.put("/actual/")
+async def ingest_cnm_dapa_actual(request: Request, new_cnm_body: CnmRequestBody):
+    LOGGER.debug(f'starting ingest_cnm_dapa_actual')
     try:
         collections_dapa_cnm = CollectionsDapaCnm(new_cnm_body.model_dump())
         cnm_result = collections_dapa_cnm.start()
