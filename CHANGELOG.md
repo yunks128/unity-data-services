@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - [#190](https://github.com/unity-sds/unity-data-services/pull/190) feat: Using Fastapi for all API endpoints
 
+## [5.2.3] - 2023-08-07
+### Changed
+- [#193](https://github.com/unity-sds/unity-data-services/pull/193) fix: add collection folder in s3 upload
+
 ## [5.2.2] - 2023-07-21
 ### Changed
 - [#188](https://github.com/unity-sds/unity-data-services/pull/188) fix: Update stage out task to read STAC items from STAC catalog

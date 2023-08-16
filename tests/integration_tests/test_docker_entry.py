@@ -1834,10 +1834,10 @@ class TestDockerEntry(TestCase):
             self.assertTrue('metadata__cas' in upload_result['assets'], 'missing assets#metadata__cas')
             self.assertTrue('href' in upload_result['assets']['metadata__cas'], 'missing assets#metadata__cas#href')
             self.assertTrue(
-                upload_result['assets']['metadata__cas']['href'].startswith(f's3://{os.environ["STAGING_BUCKET"]}/'))
+                upload_result['assets']['metadata__cas']['href'].startswith(f's3://{os.environ["STAGING_BUCKET"]}/{os.environ["COLLECTION_ID"]}/'))
             self.assertTrue('data' in upload_result['assets'], 'missing assets#data')
             self.assertTrue('href' in upload_result['assets']['data'], 'missing assets#data#href')
-            self.assertTrue(upload_result['assets']['data']['href'].startswith(f's3://{os.environ["STAGING_BUCKET"]}/'))
+            self.assertTrue(upload_result['assets']['data']['href'].startswith(f's3://{os.environ["STAGING_BUCKET"]}/{os.environ["COLLECTION_ID"]}/'))
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
             """
             Example output: 
@@ -1852,11 +1852,11 @@ class TestDockerEntry(TestCase):
                                 'updated': '2022-03-23T15:48:21.578000Z', 'datetime': '1970-01-01T00:00:00Z'},
                     'geometry': {'type': 'Point', 'coordinates': [0.0, 0.0]}, 'links': [], 
                     'assets': {'data': {
-                        'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc',
+                        'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc',
                         'title': 'main data'}, 'metadata__cas': {
-                        'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.cas',
+                        'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.cas',
                         'title': 'metadata cas'}, 'metadata__stac': {
-                        'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.stac.json',
+                        'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.stac.json',
                         'title': 'metadata stac'}}, 
                     'bbox': [0.0, 0.0, 0.0, 0.0], 
                     'stac_extensions': [],
@@ -1931,11 +1931,11 @@ class TestDockerEntry(TestCase):
                             'created': '2016-02-01T02:45:59.639000Z', 'updated': '2022-03-23T15:48:21.578000Z',
                             'datetime': '1970-01-01T00:00:00Z'}, 'geometry': {'type': 'Point', 'coordinates': [0.0, 0.0]},
              'links': [], 'assets': {
-                'data': {'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc',
+                'data': {'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc',
                          'title': 'main data'}, 'metadata__cas': {
-                    'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.cas',
+                    'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.cas',
                     'title': 'metadata cas'}, 'metadata__stac': {
-                    'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.stac.json',
+                    'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.stac.json',
                     'title': 'metadata stac'}}, 'bbox': [0.0, 0.0, 0.0, 0.0], 'stac_extensions': [],
              'collection': 'NEW_COLLECTION_EXAMPLE_L1B___9'}]}
         os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
@@ -1949,7 +1949,8 @@ class TestDockerEntry(TestCase):
         os.environ['GRANULES_CATALOG_TYPE'] = 'UNITY'
         # os.environ['DELAY_SECOND'] = '5'
         # os.environ['REPEAT_TIMES'] = '3'
-
+        os.environ['DELAY_SECOND'] = '35'
+        os.environ['REPEAT_TIMES'] = '3'
         if len(argv) > 1:
             argv.pop(-1)
         argv.append('CATALOG')
