@@ -22,3 +22,10 @@ class StageInOutUtils:
         with open(output_filepath, 'w') as ff:
             ff.write(output_str)
         return
+
+    @staticmethod
+    def chunk_list(input_list, chunked_size):
+        """Yield successive n-sized chunks from l."""
+        for i in range(0, len(input_list), chunked_size):
+            yield input_list[i:i + chunked_size]
+        return
