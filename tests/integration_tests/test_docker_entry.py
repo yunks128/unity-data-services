@@ -1,3 +1,8 @@
+import logging
+import math
+
+logging.basicConfig(level=20, format="%(asctime)s [%(levelname)s] [%(name)s::%(lineno)d] %(message)s")
+
 import json
 import os
 import tempfile
@@ -1298,6 +1303,45 @@ class TestDockerEntry(TestCase):
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
 
+    def test_02_download__from_file_large(self):
+        granule_json = FileUtils.read_json('./stage-in.json')
+        if len(argv) > 1:
+            argv.pop(-1)
+        argv.append('DOWNLOAD')
+        os.environ[Constants.EDL_USERNAME] = '/unity/uds/user/wphyo/edl_username'
+        os.environ[Constants.EDL_PASSWORD] = '/unity/uds/user/wphyo/edl_dwssap'
+        os.environ[Constants.EDL_PASSWORD_TYPE] = Constants.PARAM_STORE
+        os.environ[Constants.EDL_BASE_URL] = 'urs.earthdata.nasa.gov'
+        os.environ['STAC_JSON'] = json.dumps(granule_json)
+        os.environ['GRANULES_DOWNLOAD_TYPE'] = 'DAAC'
+        os.environ['PARALLEL_COUNT'] = '5'
+
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            print(tmp_dir_name)
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
+            granule_json_file = os.path.join(tmp_dir_name, 'input_file.json')
+            downloading_dir = os.path.join(tmp_dir_name, 'downloading_dir')
+            FileUtils.mk_dir_p(downloading_dir)
+            FileUtils.write_json(granule_json_file, granule_json)
+            os.environ['STAC_JSON'] = granule_json_file
+            os.environ['DOWNLOAD_DIR'] = downloading_dir
+            download_result_str = choose_process()
+            download_result = json.loads(download_result_str)
+            print(len(download_result['features']))
+            self.assertTrue('features' in download_result, f'missing features in download_result')
+            self.assertEqual(len(download_result['features']) + 1, len(glob(os.path.join(downloading_dir, '*'))), f'downloaded file does not match')
+            error_file = os.path.join(downloading_dir, 'error.log')
+            if FileUtils.file_exist(error_file):
+                self.assertTrue(False, f'some downloads failed. error.log exists. {FileUtils.read_json(error_file)}')
+            download_result = download_result['features']
+            self.assertTrue('assets' in download_result[0], f'no assets in download_result: {download_result}')
+            downloaded_file_hrefs = set([k['assets']['data']['href'] for k in download_result])
+            for each_granule in zip(granule_json['features'], download_result):
+                remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
+                self.assertTrue(os.path.join('.', remote_filename) in downloaded_file_hrefs, f'mismatched: {remote_filename}')
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
+        return
+
     def test_02_download__from_http(self):
         granule_json = '{"numberMatched": 20, "numberReturned": 20, "stac_version": "1.0.0", "type": "FeatureCollection", "links": [{"rel": "self", "href": "https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/SNDR_SNPP_ATMS_L1A___1/items?datetime=2016-01-14T08:00:00Z/2016-01-14T11:59:59Z&limit=100&offset=0"}, {"rel": "root", "href": "https://58nbcawrvb.execute-api.us-west-2.amazonaws.com"}, {"rel": "next", "href": "https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/SNDR_SNPP_ATMS_L1A___1/items?datetime=2016-01-14T08:00:00Z/2016-01-14T11:59:59Z&limit=100&offset=100"}, {"rel": "prev", "href": "https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/SNDR_SNPP_ATMS_L1A___1/items?datetime=2016-01-14T08:00:00Z/2016-01-14T11:59:59Z&limit=100&offset=0"}], "features": [{"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.01", "properties": {"start_datetime": "2016-01-14T09:54:00Z", "end_datetime": "2016-01-14T10:00:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:39.830000Z", "datetime": "2022-08-15T06:26:37.029000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "https://raw.githubusercontent.com/unity-sds/unity-data-services/develop/README.md", "title": "SNDR.SNPP.ATMS.L1A.nominal2.01.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.01.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.01.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.01.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.01.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.01.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.01.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.01.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.08", "properties": {"start_datetime": "2016-01-14T10:36:00Z", "end_datetime": "2016-01-14T10:42:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:26.078000Z", "datetime": "2022-08-15T06:26:19.333000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "https://raw.githubusercontent.com/unity-sds/unity-data-services/develop/CHANGELOG.md", "title": "SNDR.SNPP.ATMS.L1A.nominal2.08.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.08.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.08.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.08.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.08.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.08.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.08.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.08.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.06", "properties": {"start_datetime": "2016-01-14T10:24:00Z", "end_datetime": "2016-01-14T10:30:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:26.068000Z", "datetime": "2022-08-15T06:26:18.641000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "https://raw.githubusercontent.com/unity-sds/unity-data-services/develop/CODE_OF_CONDUCT.md", "title": "SNDR.SNPP.ATMS.L1A.nominal2.06.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.06.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.06.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.06.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.06.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.06.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.06.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.06.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.18", "properties": {"start_datetime": "2016-01-14T11:36:00Z", "end_datetime": "2016-01-14T11:42:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:26.060000Z", "datetime": "2022-08-15T06:26:19.698000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "https://raw.githubusercontent.com/unity-sds/unity-data-services/develop/CONTRIBUTING.md", "title": "SNDR.SNPP.ATMS.L1A.nominal2.18.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.18.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.18.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.18.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.18.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.18.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.18.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.18.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.04", "properties": {"start_datetime": "2016-01-14T10:12:00Z", "end_datetime": "2016-01-14T10:18:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:26.050000Z", "datetime": "2022-08-15T06:26:19.491000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "https://raw.githubusercontent.com/unity-sds/unity-data-services/develop/LICENSE", "title": "SNDR.SNPP.ATMS.L1A.nominal2.04.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.04.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.04.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.04.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.04.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.04.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.04.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.04.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}]}'
         granule_json = json.loads(granule_json)
@@ -1903,6 +1947,8 @@ class TestDockerEntry(TestCase):
         os.environ['VERIFY_SSL'] = 'FALSE'
         os.environ['PROVIDER_ID'] = 'SNPP'
         os.environ['GRANULES_CATALOG_TYPE'] = 'UNITY'
+        # os.environ['DELAY_SECOND'] = '5'
+        # os.environ['REPEAT_TIMES'] = '3'
         os.environ['DELAY_SECOND'] = '35'
         os.environ['REPEAT_TIMES'] = '3'
         if len(argv) > 1:
@@ -1919,11 +1965,53 @@ class TestDockerEntry(TestCase):
             self.assertTrue('status_result' in catalog_result, f'missing status_result')
             self.assertEqual(catalog_result['cataloging_request_status'], 'registered', f'mismatched cataloging_request_status value')
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
-
+            # TODO update this after it is deployed to MCP Test
             status_result = catalog_result['status_result']
 
             self.assertTrue('cataloged' in status_result, f'missing cataloged')
             self.assertTrue('missing_granules' in status_result, f'missing missing_granules')
             self.assertTrue('registered_granules' in status_result, f'missing registered_granules')
             self.assertTrue(isinstance(status_result['cataloged'], bool), f'cataloged is not boolean: {status_result["cataloged"]}')
+        return
+
+    def test_04_catalog_from_file_item_collection_large(self):
+        upload_result = FileUtils.read_json('./stage-out-results.json')
+        os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
+        os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
+        os.environ['PASSWORD_TYPE'] = 'PARAM_STORE'
+        os.environ[Constants.CLIENT_ID] = '71g0c73jl77gsqhtlfg2ht388c'  # MCP Dev
+        os.environ['COGNITO_URL'] = 'https://cognito-idp.us-west-2.amazonaws.com'
+        os.environ['DAPA_API'] = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev'
+        os.environ['VERIFY_SSL'] = 'FALSE'
+        os.environ['PROVIDER_ID'] = 'SNPP'
+        os.environ['GRANULES_CATALOG_TYPE'] = 'UNITY'
+        os.environ['CHUNK_SIZE'] = '250'
+        # os.environ['DELAY_SECOND'] = '5'
+        # os.environ['REPEAT_TIMES'] = '3'
+
+        if len(argv) > 1:
+            argv.pop(-1)
+        argv.append('CATALOG')
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            input_file_path = os.path.join(tmp_dir_name, 'uploaded_files.json')
+            FileUtils.write_json(input_file_path, upload_result)
+            os.environ['UPLOADED_FILES_JSON'] = input_file_path
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
+            catalog_result_str = choose_process()
+            catalog_result = json.loads(catalog_result_str)
+            self.assertTrue(isinstance(catalog_result, list), f'catalog_result is not list. {catalog_result}')
+            self.assertEqual(len(catalog_result), math.ceil(len(upload_result['features']) / 250), f'mismatched catalog_result count')
+
+            catalog_result = catalog_result[0]
+            self.assertTrue('cataloging_request_status' in catalog_result, f'missing cataloging_request_status')
+            self.assertTrue('status_result' in catalog_result, f'missing status_result')
+            self.assertEqual(catalog_result['cataloging_request_status'], {'message': 'processing'}, f'mismatched cataloging_request_status value')
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
+
+            status_result = catalog_result['status_result']
+            # TODO disabling this as we are not waiting for them to be registered.
+            # self.assertTrue('cataloged' in status_result, f'missing cataloged')
+            # self.assertTrue('missing_granules' in status_result, f'missing missing_granules')
+            # self.assertTrue('registered_granules' in status_result, f'missing registered_granules')
+            # self.assertTrue(isinstance(status_result['cataloged'], bool), f'cataloged is not boolean: {status_result["cataloged"]}')
         return
