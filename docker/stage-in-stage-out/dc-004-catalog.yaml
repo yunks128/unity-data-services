@@ -30,6 +30,7 @@ services:
 
       DELAY_SECOND: '45'
       REPEAT_TIMES: '5'
+      CHUNK_SIZE: '5'
 
     networks:
       - internal
