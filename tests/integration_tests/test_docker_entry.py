@@ -1964,7 +1964,7 @@ class TestDockerEntry(TestCase):
             self.assertTrue('status_result' in catalog_result, f'missing status_result')
             self.assertEqual(catalog_result['cataloging_request_status'], 'registered', f'mismatched cataloging_request_status value')
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
-
+            # TODO update this after it is deployed to MCP Test
             status_result = catalog_result['status_result']
 
             self.assertTrue('cataloged' in status_result, f'missing cataloged')
@@ -2008,9 +2008,9 @@ class TestDockerEntry(TestCase):
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
 
             status_result = catalog_result['status_result']
-
-            self.assertTrue('cataloged' in status_result, f'missing cataloged')
-            self.assertTrue('missing_granules' in status_result, f'missing missing_granules')
-            self.assertTrue('registered_granules' in status_result, f'missing registered_granules')
-            self.assertTrue(isinstance(status_result['cataloged'], bool), f'cataloged is not boolean: {status_result["cataloged"]}')
+            # TODO disabling this as we are not waiting for them to be registered.
+            # self.assertTrue('cataloged' in status_result, f'missing cataloged')
+            # self.assertTrue('missing_granules' in status_result, f'missing missing_granules')
+            # self.assertTrue('registered_granules' in status_result, f'missing registered_granules')
+            # self.assertTrue(isinstance(status_result['cataloged'], bool), f'cataloged is not boolean: {status_result["cataloged"]}')
         return
