@@ -90,9 +90,9 @@ class CollectionsDapaCnm:
         LOGGER.debug(f'async function started: {response}')
         return {
             'statusCode': 202,
-            'body': json.dumps({
+            'body': {
                 'message': 'processing'
-            })
+            }
         }
 
     def start(self):

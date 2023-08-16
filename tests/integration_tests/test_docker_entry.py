@@ -1,6 +1,7 @@
 import logging
+import math
 
-logging.basicConfig(level=10, format="%(asctime)s [%(levelname)s] [%(name)s::%(lineno)d] %(message)s")
+logging.basicConfig(level=20, format="%(asctime)s [%(levelname)s] [%(name)s::%(lineno)d] %(message)s")
 
 import json
 import os
@@ -1974,7 +1975,6 @@ class TestDockerEntry(TestCase):
 
     def test_04_catalog_from_file_item_collection_large(self):
         upload_result = FileUtils.read_json('./stage-out-results.json')
-
         os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
         os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
         os.environ['PASSWORD_TYPE'] = 'PARAM_STORE'
@@ -1984,6 +1984,7 @@ class TestDockerEntry(TestCase):
         os.environ['VERIFY_SSL'] = 'FALSE'
         os.environ['PROVIDER_ID'] = 'SNPP'
         os.environ['GRANULES_CATALOG_TYPE'] = 'UNITY'
+        os.environ['CHUNK_SIZE'] = '250'
         # os.environ['DELAY_SECOND'] = '5'
         # os.environ['REPEAT_TIMES'] = '3'
 
@@ -1997,9 +1998,13 @@ class TestDockerEntry(TestCase):
             os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
             catalog_result_str = choose_process()
             catalog_result = json.loads(catalog_result_str)
+            self.assertTrue(isinstance(catalog_result, list), f'catalog_result is not list. {catalog_result}')
+            self.assertEqual(len(catalog_result), math.ceil(len(upload_result['features']) / 250), f'mismatched catalog_result count')
+
+            catalog_result = catalog_result[0]
             self.assertTrue('cataloging_request_status' in catalog_result, f'missing cataloging_request_status')
             self.assertTrue('status_result' in catalog_result, f'missing status_result')
-            self.assertEqual(catalog_result['cataloging_request_status'], 'registered', f'mismatched cataloging_request_status value')
+            self.assertEqual(catalog_result['cataloging_request_status'], {'message': 'processing'}, f'mismatched cataloging_request_status value')
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
 
             status_result = catalog_result['status_result']

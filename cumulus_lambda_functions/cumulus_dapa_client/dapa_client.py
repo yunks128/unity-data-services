@@ -126,5 +126,5 @@ class DapaClient:
         if response.status_code > 400:
             raise RuntimeError(
                 f'querying granules ingestion ends in error. status_code: {response.status_code}. url: {dapa_ingest_cnm_api}. details: {response.text}')
-        granules_result = response.text
+        granules_result = json.loads(response.text)
         return granules_result
