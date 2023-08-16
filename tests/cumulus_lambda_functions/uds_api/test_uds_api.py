@@ -113,7 +113,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
         # TODO check if collection shows up
         return
 
-    def test_cnm(self):
+    def test_cnm_facade(self):
         os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
         os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
         os.environ[Constants.PASSWORD_TYPE] = Constants.PARAM_STORE
@@ -151,6 +151,5 @@ class TestCumulusCreateCollectionDapa(TestCase):
                                     headers=headers,
                                     json=stac_collection,
                                     )
-        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        self.assertEqual(query_result.status_code, 202, f'wrong status code. {query_result.text}')
         return
-
