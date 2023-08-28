@@ -34,10 +34,13 @@ class SetupESIndexAlias:
         alias_json = getattr(es_mappings, 'alias_pointer')
         alias_json = [k['add'] for k in alias_json['actions']]
         for each_action in alias_json:
-            current_index = each_action['index']
-            current_alias = each_action['alias']
-            LOGGER.debug(f'working on {current_index}')
-            index_json = self.get_index_mapping(current_index)
-            self.__es.create_index(current_index, index_json)
-            self.__es.create_alias(current_index, current_alias)
+            try:
+                current_index = each_action['index']
+                current_alias = each_action['alias']
+                LOGGER.debug(f'working on {current_index}')
+                index_json = self.get_index_mapping(current_index)
+                self.__es.create_index(current_index, index_json)
+                self.__es.create_alias(current_index, current_alias)
+            except:
+                LOGGER.exception(f'failed to create index / alias for: {each_action}')
         return self

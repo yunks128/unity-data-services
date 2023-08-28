@@ -15,7 +15,16 @@ from cumulus_lambda_functions.lib.constants import Constants
 class TestCumulusCreateCollectionDapa(TestCase):
 
 
-    def test_collections_get(self):
+
+    def setUp(self) -> None:
+        super().setUp()
+        # post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
+        # post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/'  # JPL Cloud
+        # post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/'  # MCP Dev
+        # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/'  # MCP Dev
+
+        self.uds_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/'
+
         os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
         os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
         os.environ[Constants.PASSWORD_TYPE] = Constants.PARAM_STORE
@@ -24,13 +33,17 @@ class TestCumulusCreateCollectionDapa(TestCase):
         # os.environ[Constants.CLIENT_ID] = '6ir9qveln397i0inh9pmsabq1'  # MCP Test
 
         os.environ[Constants.COGNITO_URL] = 'https://cognito-idp.us-west-2.amazonaws.com'
-        bearer_token = CognitoTokenRetriever().start()
+        self.bearer_token = CognitoTokenRetriever().start()
+        return
+
+
+    def test_collections_get(self):
         post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
         post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # JPL Cloud
-        post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/collections/'  # MCP Dev
+        post_url = f'{self.uds_url}collections/'  # MCP Dev
         # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/'  # MCP Dev
         headers = {
-            'Authorization': f'Bearer {bearer_token}',
+            'Authorization': f'Bearer {self.bearer_token}',
         }
 
         query_result = requests.get(url=post_url,
@@ -41,21 +54,9 @@ class TestCumulusCreateCollectionDapa(TestCase):
         return
 
     def test_granules_get(self):
-        os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
-        os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
-        os.environ[Constants.PASSWORD_TYPE] = Constants.PARAM_STORE
-        # os.environ[Constants.CLIENT_ID] = '7a1fglm2d54eoggj13lccivp25'  # JPL Cloud
-        os.environ[Constants.CLIENT_ID] = '71g0c73jl77gsqhtlfg2ht388c'  # MCP Dev
-        # os.environ[Constants.CLIENT_ID] = '6ir9qveln397i0inh9pmsabq1'  # MCP Test
-
-        os.environ[Constants.COGNITO_URL] = 'https://cognito-idp.us-west-2.amazonaws.com'
-        bearer_token = CognitoTokenRetriever().start()
-        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
-        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/URN:NASA:UNITY:MAIN_PROJECT:DEV:NEW_COLLECTION_EXAMPLE_L1B___9/items/'  # JPL Cloud
-        post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/collections/URN:NASA:UNITY:MAIN_PROJECT:DEV:NEW_COLLECTION_EXAMPLE_L1B___9/items/'  # MCP Dev
-        # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/L0_SNPP_ATMS_SCIENCE___1/items/'  # MCP Dev
+        post_url = f'{self.uds_url}collections/URN:NASA:UNITY:MAIN_PROJECT:DEV:NEW_COLLECTION_EXAMPLE_L1B___9/items/'  # MCP Dev
         headers = {
-            'Authorization': f'Bearer {bearer_token}',
+            'Authorization': f'Bearer {self.bearer_token}',
         }
 
         query_result = requests.get(url=post_url,
@@ -66,19 +67,9 @@ class TestCumulusCreateCollectionDapa(TestCase):
         return
 
     def test_create_new_collection(self):
-        os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
-        os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
-        os.environ[Constants.PASSWORD_TYPE] = Constants.PARAM_STORE
-        os.environ[Constants.CLIENT_ID] = '7a1fglm2d54eoggj13lccivp25'  # JPL Cloud
-        os.environ[Constants.CLIENT_ID] = '71g0c73jl77gsqhtlfg2ht388c'  # MCP Dev
-
-        os.environ[Constants.COGNITO_URL] = 'https://cognito-idp.us-west-2.amazonaws.com'
-        bearer_token = CognitoTokenRetriever().start()
-        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
-        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # JPL Cloud
-        post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/collections/'  # MCP Dev
+        post_url = f'{self.uds_url}collections/'  # MCP Dev
         headers = {
-            'Authorization': f'Bearer {bearer_token}',
+            'Authorization': f'Bearer {self.bearer_token}',
             'Content-Type': 'application/json',
         }
         temp_collection_id = f'URN:NASA:UNITY:MAIN_PROJECT:DEV:CUMULUS_DAPA_UNIT_TEST___{int(datetime.utcnow().timestamp())}'
@@ -118,21 +109,9 @@ class TestCumulusCreateCollectionDapa(TestCase):
         return
 
     def test_cnm_facade(self):
-        os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
-        os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
-        os.environ[Constants.PASSWORD_TYPE] = Constants.PARAM_STORE
-        # os.environ[Constants.CLIENT_ID] = '7a1fglm2d54eoggj13lccivp25'  # JPL Cloud
-        os.environ[Constants.CLIENT_ID] = '71g0c73jl77gsqhtlfg2ht388c'  # MCP Dev
-        # os.environ[Constants.CLIENT_ID] = '6ir9qveln397i0inh9pmsabq1'  # MCP Test
-
-        os.environ[Constants.COGNITO_URL] = 'https://cognito-idp.us-west-2.amazonaws.com'
-        bearer_token = CognitoTokenRetriever().start()
-        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
-        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # JPL Cloud
-        post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/collections/'  # MCP Dev
-        # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/'  # MCP Dev
+        post_url = f'{self.uds_url}collections/'  # MCP Dev
         headers = {
-            'Authorization': f'Bearer {bearer_token}',
+            'Authorization': f'Bearer {self.bearer_token}',
             'Content-Type': 'application/json',
         }
         stac_collection = {
@@ -159,21 +138,9 @@ class TestCumulusCreateCollectionDapa(TestCase):
         return
 
     def test_cnm_403(self):
-        os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
-        os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
-        os.environ[Constants.PASSWORD_TYPE] = Constants.PARAM_STORE
-        # os.environ[Constants.CLIENT_ID] = '7a1fglm2d54eoggj13lccivp25'  # JPL Cloud
-        os.environ[Constants.CLIENT_ID] = '71g0c73jl77gsqhtlfg2ht388c'  # MCP Dev
-        # os.environ[Constants.CLIENT_ID] = '6ir9qveln397i0inh9pmsabq1'  # MCP Test
-
-        os.environ[Constants.COGNITO_URL] = 'https://cognito-idp.us-west-2.amazonaws.com'
-        bearer_token = CognitoTokenRetriever().start()
-        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
-        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # JPL Cloud
-        post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/collections/'  # MCP Dev
-        # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/'  # MCP Dev
+        post_url = f'{self.uds_url}collections/'  # MCP Dev
         headers = {
-            'Authorization': f'Bearer {bearer_token}',
+            'Authorization': f'Bearer {self.bearer_token}',
             'Content-Type': 'application/json',
         }
         stac_collection = {
@@ -198,3 +165,21 @@ class TestCumulusCreateCollectionDapa(TestCase):
                                     )
         self.assertEqual(query_result.status_code, 403, f'wrong status code. {query_result.text}')
         return
+
+    def test_add_granules_index(self):
+        post_url = f'{self.uds_url}admin/custom_metadata/URN:NASA:UNITY:MAIN_PROJECT:DEV:NEW_COLLECTION_EXAMPLE_L1B___9?venue=DEV'  # MCP Dev
+        headers = {
+            'Authorization': f'Bearer {self.bearer_token}',
+            'Content-Type': 'application/json',
+        }
+        body = {
+            'tag': {'type': 'keyword'},
+            'some_key': {'type': 'long'},
+        }
+        query_result = requests.put(url=post_url,
+                                    headers=headers,
+                                    json=body,
+                                    )
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        return
+

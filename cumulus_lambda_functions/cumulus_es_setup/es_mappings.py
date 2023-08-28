@@ -1,10 +1,22 @@
 alias_pointer = {
     "actions" : [
         {"add" : {"index" : "authorization_mappings_v1", "alias" : "authorization_mappings"}},
-        {"add" : {"index" : "unity_collections_v1", "alias" : "unity_collections"}}
+        {"add" : {"index" : "unity_collections_v1", "alias" : "unity_collections"}},
+        {"add": {"index": "unity_granules_v1", "alias": "unity_granules_read"}},
+        {"add": {"index": "unity_granules_v1", "alias": "unity_granules_write"}}
     ]
 }
-
+unity_granules_v1 = {
+    "settings": {
+        "number_of_shards": 3,
+        "number_of_replicas": 2
+    },
+    "mappings": {
+        "properties": {
+            "granule_id": {"type": "keyword"}
+        }
+    }
+}
 authorization_mappings_v1 = {
   "settings" : {
         "number_of_shards" : 3,
