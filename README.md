@@ -94,7 +94,7 @@ Please visit our [developer guide](https://unity-sds.gitbook.io/docs/developer-d
 
 ## Changelog
 
-See our [CHANGELOG.md](CHANGELOG.md) for a history of our changes.
+See our [CHANGELOG.md](CHANGELOG.md) for a history of our changes..
 
 See our [releases page](https://github.com/unity-sds/unity-data-services/releases) for our key versioned releases.
 
