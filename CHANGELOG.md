@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.3.2] - 2023-08-28
 ### Changed
-- [#194](https://github.com/unity-sds/unity-data-services/pull/194) fix: parallelize upload
+- [#200](https://github.com/unity-sds/unity-data-services/pull/200) fix: parallelize upload
 - 
 ## [5.3.1] - 2023-08-16
 ### Changed
