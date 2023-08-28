@@ -4,6 +4,7 @@ import os
 from abc import ABC, abstractmethod
 from multiprocessing import Queue, Manager
 
+from cumulus_lambda_functions.lib.constants import Constants
 from pystac import ItemCollection, Asset, Item
 
 from cumulus_lambda_functions.lib.processing_jobs.job_executor_abstract import JobExecutorAbstract
@@ -52,14 +53,13 @@ class DownloadGranulesAbstract(ABC):
     STAC_JSON = 'STAC_JSON'
     DOWNLOAD_DIR_KEY = 'DOWNLOAD_DIR'
     DOWNLOADING_KEYS = 'DOWNLOADING_KEYS'
-    PARALLEL_COUNT = 'PARALLEL_COUNT'
 
     def __init__(self) -> None:
         super().__init__()
         self._granules_json: ItemCollection = {}
         self._download_dir = '/tmp'
         self._downloading_keys = set([k.strip() for k in os.environ.get(self.DOWNLOADING_KEYS, 'data').strip().split(',')])
-        self._parallel_count = int(os.environ.get(self.PARALLEL_COUNT, '-1'))
+        self._parallel_count = int(os.environ.get(Constants.PARALLEL_COUNT, '-1'))
 
     @abstractmethod
     def _set_props_from_env(self):
