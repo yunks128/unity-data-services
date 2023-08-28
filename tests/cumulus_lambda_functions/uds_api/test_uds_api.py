@@ -168,6 +168,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
 
     def test_add_granules_index(self):
         post_url = f'{self.uds_url}admin/custom_metadata/URN:NASA:UNITY:MAIN_PROJECT:DEV:NEW_COLLECTION_EXAMPLE_L1B___9?venue=DEV'  # MCP Dev
+        print(post_url)
         headers = {
             'Authorization': f'Bearer {self.bearer_token}',
             'Content-Type': 'application/json',

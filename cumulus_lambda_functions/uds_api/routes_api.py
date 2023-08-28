@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 
-from cumulus_lambda_functions.uds_api import collections_api, granules_api, auth_admin_api, system_admin_api
-from cumulus_lambda_functions.uds_api import collections_api, granules_api
+from cumulus_lambda_functions.uds_api import collections_api, granules_api, auth_admin_api, system_admin_api, custom_meta_admin_api
 
 # from ideas_api.src.endpoints import job_endpoints
 # from ideas_api.src.endpoints import process_endpoints
@@ -14,3 +13,4 @@ main_router.include_router(auth_admin_api.router)
 main_router.include_router(system_admin_api.router)
 main_router.include_router(collections_api.router)
 main_router.include_router(granules_api.router)
+main_router.include_router(custom_meta_admin_api.router)
