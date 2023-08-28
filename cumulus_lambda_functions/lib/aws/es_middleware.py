@@ -2,6 +2,7 @@ import json
 import logging
 
 from elasticsearch import Elasticsearch
+from elasticsearch.exceptions import NotFoundError
 
 from cumulus_lambda_functions.lib.aws.es_abstract import ESAbstract, DEFAULT_TYPE
 
@@ -52,6 +53,22 @@ class ESMiddleware(ESAbstract):
 
     def has_index(self, index_name):
         result = self._engine.indices.exists(index=index_name)
+        return result
+
+    def swap_index_for_alias(self, alias_name, old_index_name, new_index_name):
+        try:
+            temp_result = self._engine.indices.delete_alias(index=old_index_name, name=alias_name)
+        except NotFoundError as ee:
+            temp_result = {}
+        result = self.create_alias(new_index_name, alias_name)
+        return result
+
+    def get_alias(self, alias_name):
+        # /Users/wphyo/anaconda3/envs/cumulus_py_3.9/lib/python3.9/site-packages/elasticsearch-7.13.4-py3.9.egg/elasticsearch/client/indices.py
+        try:
+            result = self._engine.indices.get_alias(name=alias_name)
+        except NotFoundError as ee:
+            return {}
         return result
 
     def create_alias(self, index_name, alias_name):

@@ -14,6 +14,14 @@ class ESAbstract(ABC):
         return
 
     @abstractmethod
+    def swap_index_for_alias(self, alias_name, old_index_name, new_index_name):
+        return
+
+    @abstractmethod
+    def get_alias(self, alias_name):
+        return
+
+    @abstractmethod
     def create_alias(self, index_name, alias_name):
         return
 
