@@ -14,7 +14,7 @@ LOGGER = logging.getLogger(__name__)
 class MultiThreadProcessorProps:
     def __init__(self, process_count: int = -1):
         self.__consumers = []
-        self.__message_queue = multiprocessing.get_context('fork').Queue()
+        self.__message_queue = Queue()
         self.__lock = Lock()
         self.__process_count = process_count
         if self.__process_count < 0:

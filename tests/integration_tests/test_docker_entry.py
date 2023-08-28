@@ -1305,6 +1305,7 @@ class TestDockerEntry(TestCase):
 
     def test_02_download__from_file_large(self):
         granule_json = FileUtils.read_json('./stage-in.json')
+        # granule_json['features'] = granule_json['features'][0:5]
         if len(argv) > 1:
             argv.pop(-1)
         argv.append('DOWNLOAD')
@@ -1314,7 +1315,7 @@ class TestDockerEntry(TestCase):
         os.environ[Constants.EDL_BASE_URL] = 'urs.earthdata.nasa.gov'
         os.environ['STAC_JSON'] = json.dumps(granule_json)
         os.environ['GRANULES_DOWNLOAD_TYPE'] = 'DAAC'
-        os.environ['PARALLEL_COUNT'] = '5'
+        # os.environ['PARALLEL_COUNT'] = '5'
 
         with tempfile.TemporaryDirectory() as tmp_dir_name:
             print(tmp_dir_name)
@@ -1692,6 +1693,8 @@ class TestDockerEntry(TestCase):
             os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
             os.environ['UPLOAD_DIR'] = ''  # not needed
             os.environ['CATALOG_FILE'] = os.path.join(tmp_dir_name, 'catalog.json')
+            total_files = 10
+            # os.environ['PARALLEL_COUNT'] = str(total_files)
             granules_dir = os.path.join(tmp_dir_name, 'some_granules')
             FileUtils.mk_dir_p(granules_dir)
             catalog = Catalog(
@@ -1699,7 +1702,6 @@ class TestDockerEntry(TestCase):
                 description='NA')
             catalog.set_self_href(os.environ['CATALOG_FILE'])
 
-            total_files = 10
             for i in range(1, total_files+1):
                 filename = f'test_file{i:02d}'
                 with open(os.path.join(granules_dir, f'{filename}.nc'), 'w') as ff:
