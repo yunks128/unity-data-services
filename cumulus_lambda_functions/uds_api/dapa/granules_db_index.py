@@ -32,14 +32,14 @@ class GranulesDbIndex:
         # add new index to read alias
         # add new index to write alias
         # add delete current index from write alias
-        tenant = tenant.replace(':', '--').lower().strip()
+        tenant = tenant.replace(':', '--')
         write_alias_name = f'write_unity_granule_{tenant}_{tenant_venue}'
         read_alias_name = f'read_unity_granule_{tenant}_{tenant_venue}'
         current_alias = self.__es.get_alias(write_alias_name)
         # {'meta_labels_v2': {'aliases': {'metadata_labels': {}}}}
         current_index_name = f'{write_alias_name}__v0' if current_alias == {} else [k for k in current_alias.keys()][0]
         new_version = int(current_index_name.split('__')[-1][1:]) + 1
-        new_index_name = f'unity_granule_{tenant}_{tenant_venue}__v{new_version:02d}'
+        new_index_name = f'unity_granule_{tenant}_{tenant_venue}__v{new_version:02d}'.lower().strip()
         LOGGER.debug(f'new_index_name: {new_index_name}')
         index_mapping = {
             "settings": {
