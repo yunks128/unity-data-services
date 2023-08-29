@@ -1,4 +1,16 @@
+import json
+import os
 from typing import Union
+
+from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
+
+from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
+
+from cumulus_lambda_functions.uds_api.fast_api_utils import FastApiUtils
+
+from cumulus_lambda_functions.lib.authorization.uds_authorizer_factory import UDSAuthorizerFactory
+
+from cumulus_lambda_functions.lib.authorization.uds_authorizer_abstract import UDSAuthorizorAbstract
 
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from fastapi import APIRouter, HTTPException, Request, Response
@@ -21,6 +33,28 @@ router = APIRouter(
 @router.put("/")
 async def ingest_cnm_dapa(request: Request, new_cnm_body: CnmRequestBody, response: Response):
     LOGGER.debug(f'starting ingest_cnm_dapa')
+    collection_id = new_cnm_body.model_dump()
+    if 'features' not in collection_id or len(collection_id['features']) < 1 or 'collection' not in collection_id['features'][0]:
+        raise HTTPException(status_code=500, detail=json.dumps({
+            'message': 'missing collection_id in request_body["features"][0]["collection"]'
+        }))
+    collection_id = collection_id['features'][0]['collection']
+    collection_id = collection_id.split('___')[0]  # split id, version and only keeping id. TODO need this?
+    authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory() \
+        .get_instance(UDSAuthorizerFactory.cognito,
+                      es_url=os.getenv('ES_URL'),
+                      es_port=int(os.getenv('ES_PORT', '443'))
+                      )
+    auth_info = FastApiUtils.get_authorization_info(request)
+    collection_identifier = UdsCollections.decode_identifier(collection_id)
+    if not authorizer.is_authorized_for_collection(DBConstants.create, collection_id,
+                                                   auth_info['ldap_groups'],
+                                                   collection_identifier.tenant,
+                                                   collection_identifier.venue):
+        LOGGER.debug(f'user: {auth_info["username"]} is not authorized for {collection_id}')
+        raise HTTPException(status_code=403, detail=json.dumps({
+            'message': 'not authorized to execute this action'
+        }))
     try:
         cnm_prep_result = CollectionsDapaCnm(new_cnm_body.model_dump()).start_facade(request.url)
     except Exception as e:
@@ -51,9 +85,32 @@ async def ingest_cnm_dapa_actual(request: Request, new_cnm_body: CnmRequestBody)
 @router.post("/")
 async def create_new_collection(request: Request, new_collection: dict, response: Response):
     LOGGER.debug(f'starting create_new_collection')
+    collection_id = new_collection
+    if 'id' not in collection_id:
+        raise HTTPException(status_code=500, detail=json.dumps({
+            'message': 'missing collection_id in request_body["id"]'
+        }))
+    collection_id = new_collection['id']
+    authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory() \
+        .get_instance(UDSAuthorizerFactory.cognito,
+                      es_url=os.getenv('ES_URL'),
+                      es_port=int(os.getenv('ES_PORT', '443'))
+                      )
+    auth_info = FastApiUtils.get_authorization_info(request)
+    collection_identifier = UdsCollections.decode_identifier(collection_id)
+    if not authorizer.is_authorized_for_collection(DBConstants.create, collection_id,
+                                                   auth_info['ldap_groups'],
+                                                   collection_identifier.tenant,
+                                                   collection_identifier.venue):
+        LOGGER.debug(f'user: {auth_info["username"]} is not authorized for {collection_id}')
+        raise HTTPException(status_code=403, detail=json.dumps({
+            'message': 'not authorized to execute this action'
+        }))
     try:
         # new_collection = request.body()
-        creation_result = CollectionDapaCreation(new_collection).start(request.url)
+        bearer_token = request.headers.get('Authorization', '')
+        LOGGER.debug(f'create_new_collection--bearer_token: {bearer_token}')
+        creation_result = CollectionDapaCreation(new_collection).start(request.url, bearer_token)
     except Exception as e:
         LOGGER.exception('failed during ingest_cnm_dapa')
         raise HTTPException(status_code=500, detail=str(e))
@@ -66,6 +123,28 @@ async def create_new_collection(request: Request, new_collection: dict, response
 @router.post("/actual")
 async def create_new_collection_real(request: Request, new_collection: dict):
     LOGGER.debug(f'starting create_new_collection_real')
+    collection_id = new_collection
+    if 'id' not in collection_id:
+        raise HTTPException(status_code=500, detail=json.dumps({
+            'message': 'missing collection_id in request_body["id"]'
+        }))
+    collection_id = new_collection['id']
+    authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory() \
+        .get_instance(UDSAuthorizerFactory.cognito,
+                      es_url=os.getenv('ES_URL'),
+                      es_port=int(os.getenv('ES_PORT', '443'))
+                      )
+    auth_info = FastApiUtils.get_authorization_info(request)
+    collection_identifier = UdsCollections.decode_identifier(collection_id)
+    if not authorizer.is_authorized_for_collection(DBConstants.create, collection_id,
+                                                   auth_info['ldap_groups'],
+                                                   collection_identifier.tenant,
+                                                   collection_identifier.venue):
+        LOGGER.debug(f'user: {auth_info["username"]} is not authorized for {collection_id}')
+        raise HTTPException(status_code=403, detail=json.dumps({
+            'message': 'not authorized to execute this action'
+        }))
+
     try:
         creation_result = CollectionDapaCreation(new_collection).create()
     except Exception as e:
@@ -82,6 +161,34 @@ async def create_new_collection_real(request: Request, new_collection: dict):
 @router.get("/{collection_id}/")
 async def query_collections(request: Request, collection_id: Union[str, None] = None, limit: Union[int, None] = 10, offset: Union[int, None] = 0, ):
     LOGGER.debug(f'starting query_collections: {collection_id}')
+
+    authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory() \
+        .get_instance(UDSAuthorizerFactory.cognito,
+                      es_url=os.getenv('ES_URL'),
+                      es_port=int(os.getenv('ES_PORT', '443'))
+                      )
+    auth_info = FastApiUtils.get_authorization_info(request)
+    uds_collections = UdsCollections(es_url=os.getenv('ES_URL'),
+                                     es_port=int(os.getenv('ES_PORT', '443')))
+    if collection_id is not None:
+        collection_identifier = uds_collections.decode_identifier(collection_id)
+        if not authorizer.is_authorized_for_collection(DBConstants.read, collection_id,
+                                                       auth_info['ldap_groups'],
+                                                       collection_identifier.tenant,
+                                                       collection_identifier.venue):
+            LOGGER.debug(f'user: {auth_info["username"]} is not authorized for {collection_id}')
+            raise HTTPException(status_code=403, detail=json.dumps({
+                'message': 'not authorized to execute this action'
+            }))
+    else:
+        collection_regexes = authorizer.get_authorized_collections(DBConstants.read, auth_info['ldap_groups'])
+        LOGGER.info(f'collection_regexes: {collection_regexes}')
+        authorized_collections = uds_collections.get_collections(collection_regexes)
+        LOGGER.info(f'authorized_collections: {authorized_collections}')
+        collection_id = [k[DBConstants.collection_id] for k in authorized_collections]
+        LOGGER.info(f'authorized_collection_ids: {collection_id}')
+        # NOTE: 2022-11-21: only pass collections. not versions
+
     try:
         pagination_links = PaginationLinksGenerator(request).generate_pagination_links()
         collections_dapa_query = CollectionDapaQuery(collection_id, limit, offset, pagination_links)
