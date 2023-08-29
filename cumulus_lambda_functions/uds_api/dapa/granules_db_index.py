@@ -29,6 +29,7 @@ class GranulesDbIndex:
         # add new index to read alias
         # add new index to write alias
         # add delete current index from write alias
+        tenant = tenant.replace(':', '--')
         write_alias_name = f'write_unity_granule_{tenant}_{tenant_venue}'
         read_alias_name = f'read_unity_granule_{tenant}_{tenant_venue}'
         current_alias = self.__es.get_alias(write_alias_name)
