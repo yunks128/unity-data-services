@@ -5,11 +5,17 @@ from time import sleep
 from unittest import TestCase
 
 import requests
+from cumulus_lambda_functions.lib.time_utils import TimeUtils
+
+from cumulus_lambda_functions.lib.aws.es_factory import ESFactory
+
+from cumulus_lambda_functions.lib.aws.es_abstract import ESAbstract
 
 from cumulus_lambda_functions.cumulus_collections_dapa.cumulus_create_collection_dapa import CumulusCreateCollectionDapa
 from cumulus_lambda_functions.cumulus_stac.unity_collection_stac import UnityCollectionStac
 from cumulus_lambda_functions.lib.cognito_login.cognito_token_retriever import CognitoTokenRetriever
 from cumulus_lambda_functions.lib.constants import Constants
+from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
 
 
 class TestCumulusCreateCollectionDapa(TestCase):
@@ -167,7 +173,8 @@ class TestCumulusCreateCollectionDapa(TestCase):
         return
 
     def test_add_granules_index(self):
-        post_url = f'{self.uds_url}admin/custom_metadata/URN:NASA:UNITY:MAIN_PROJECT:DEV:NEW_COLLECTION_EXAMPLE_L1B?venue=DEV'  # MCP Dev
+        project_name = f'MAIN_PROJECT{TimeUtils.get_current_unix_milli()}'
+        post_url = f'{self.uds_url}admin/custom_metadata/URN:NASA:UNITY:{project_name}?venue=DEV'  # MCP Dev
         print(post_url)
         headers = {
             'Authorization': f'Bearer {self.bearer_token}',
@@ -182,5 +189,30 @@ class TestCumulusCreateCollectionDapa(TestCase):
                                     json=body,
                                     )
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        sleep(3)
+        body = {
+            'tag': {'type': 'keyword'},
+            'last_updated': {'type': 'long'},
+        }
+        query_result = requests.put(url=post_url,
+                                    headers=headers,
+                                    json=body,
+                                    )
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        os.environ['ES_URL'] = 'https://vpc-uds-sbx-cumulus-es-qk73x5h47jwmela5nbwjte4yzq.us-west-2.es.amazonaws.com'
+        os.environ['ES_PORT'] = '9200'
+        es: ESAbstract = ESFactory().get_instance('AWS',
+                                                  index=DBConstants.collections_index,
+                                                  base_url=os.getenv('ES_URL'),
+                                                  port=int(os.getenv('ES_PORT', '443'))
+                                                  )
+        index_name_prefix = f'{DBConstants.granules_index_prefix}_URN:NASA:UNITY:{project_name}_DEV'.replace(':', '--').lower()
+        write_alias = f'{DBConstants.granules_write_alias_prefix}_URN:NASA:UNITY:{project_name}_DEV'.replace(':', '--').lower()
+        read_alias = f'{DBConstants.granules_read_alias_prefix}_URN:NASA:UNITY:{project_name}_DEV'.replace(':', '--').lower()
+        self.assertTrue(es.has_index(f'{index_name_prefix}__v01'), f'{index_name_prefix}__v0 does not exist')
+        self.assertTrue(es.has_index(f'{index_name_prefix}__v02'), f'{index_name_prefix}__v1 does not exist')
+        a = es.get_alias(write_alias)
+        b = es.get_alias(read_alias)
+        # self.assertEqual(es.get_alias(write_alias), {}
         return
 
