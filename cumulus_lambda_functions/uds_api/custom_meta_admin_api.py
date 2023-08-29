@@ -38,8 +38,8 @@ async def es_granules_index_setup(request: Request, tenant: str, venue: Union[st
     return {'message': 'successful'}
 
 
-@router.put("/custom_metadata/{tenant}/destroy")
-@router.put("/custom_metadata/{tenant}/destroy/")
+@router.delete("/custom_metadata/{tenant}/destroy")
+@router.delete("/custom_metadata/{tenant}/destroy/")
 async def es_granules_index_setup(request: Request, tenant: str, venue: Union[str, None] = None):
     LOGGER.debug(f'started es_granules_index_setup')
     auth_info = FastApiUtils.get_authorization_info(request)

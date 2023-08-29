@@ -189,6 +189,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
                                     json=body,
                                     )
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        print('added version 1')
         sleep(3)
         body = {
             'tag': {'type': 'keyword'},
@@ -199,6 +200,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
                                     json=body,
                                     )
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        print('added version 2')
         sleep(3)
         os.environ['ES_URL'] = 'https://vpc-uds-sbx-cumulus-es-qk73x5h47jwmela5nbwjte4yzq.us-west-2.es.amazonaws.com'
         os.environ['ES_PORT'] = '9200'
@@ -214,23 +216,28 @@ class TestCumulusCreateCollectionDapa(TestCase):
         self.assertTrue(es.has_index(f'{index_name_prefix}__v01'), f'{index_name_prefix}__v0 does not exist')
         self.assertTrue(es.has_index(f'{index_name_prefix}__v02'), f'{index_name_prefix}__v1 does not exist')
         actual_write_alias = es.get_alias(write_alias)
-        expected_write_alias = {'unity_granule_urn--nasa--unity--main_project1693333190038_dev__v02': {'aliases': {'write_unity_granule_urn--nasa--unity--main_project1693333190038_dev': {}}}}
+        expected_write_alias = {
+            f'{index_name_prefix}__v02':
+                {'aliases': {write_alias: {}}}}
         self.assertEqual(actual_write_alias, expected_write_alias)
         actual_read_alias = es.get_alias(read_alias)
-        expected_read_alias = {'unity_granule_urn--nasa--unity--main_project1693333190038_dev__v02': {'aliases': {'read_unity_granule_urn--nasa--unity--main_project1693333190038_dev': {}}}, 'unity_granule_urn--nasa--unity--main_project1693333190038_dev__v01': {'aliases': {'read_unity_granule_urn--nasa--unity--main_project1693333190038_dev': {}}}}
+        expected_read_alias = {f'{index_name_prefix}__v02': {'aliases': {read_alias: {}}}, f'{index_name_prefix}__v01': {'aliases': {read_alias: {}}}}
         self.assertEqual(actual_read_alias, expected_read_alias)
+        print('verified indices & aliases')
 
-        delete_url = f'{self.uds_url}admin/custom_metadata/destroy/URN:NASA:UNITY:{project_name}?venue=DEV'  # MCP Dev
+        delete_url = f'{self.uds_url}admin/custom_metadata/URN:NASA:UNITY:{project_name}/destroy?venue=DEV'  # MCP Dev
         query_result = requests.delete(url=delete_url,
-                                    headers=headers,
-                                    )
+                                        headers=headers,
+                                        )
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        print('destroyed')
         sleep(3)
-        self.assertFalse(es.has_index(f'{index_name_prefix}__v01'), f'{index_name_prefix}__v0 does not exist')
-        self.assertFalse(es.has_index(f'{index_name_prefix}__v02'), f'{index_name_prefix}__v1 does not exist')
+        self.assertFalse(es.has_index(f'{index_name_prefix}__v01'), f'{index_name_prefix}__v0 does exist')
+        self.assertFalse(es.has_index(f'{index_name_prefix}__v02'), f'{index_name_prefix}__v1 does exist')
         actual_write_alias = es.get_alias(write_alias)
         self.assertEqual(actual_write_alias, {})
         actual_read_alias = es.get_alias(read_alias)
         self.assertEqual(actual_read_alias, {})
+        print('verified indices & aliases')
         return
 
