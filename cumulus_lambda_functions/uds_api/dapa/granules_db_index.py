@@ -1,10 +1,13 @@
 import os
 
+from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
+
 from cumulus_lambda_functions.lib.aws.es_abstract import ESAbstract
 
 from cumulus_lambda_functions.lib.aws.es_factory import ESFactory
 
 from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
+LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
 class GranulesDbIndex:
@@ -37,13 +40,14 @@ class GranulesDbIndex:
         current_index_name = f'{write_alias_name}__v0' if current_alias == {} else [k for k in current_alias.keys()][0]
         new_version = int(current_index_name.split('__')[-1][1:]) + 1
         new_index_name = f'unity_granule_{tenant}_{tenant_venue}__v{new_version:02d}'
-
+        LOGGER.debug(f'new_index_name: {new_index_name}')
         index_mapping = {
             "settings": {
                 "number_of_shards": 3,
                 "number_of_replicas": 2
             },
             "mappings": {
+                "dynamic": "strict",
                 "properties": {
                     **es_mapping,
                     "granule_id": {"type": "keyword"},
