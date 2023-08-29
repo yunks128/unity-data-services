@@ -2,6 +2,10 @@ class DBConstants:
     collections_index = 'unity_collections'
     collection_id = 'collection_id'
 
+    granules_index_prefix = 'unity_granule'
+    granules_write_alias_prefix = 'write_unity_granule'
+    granules_read_alias_prefix = 'read_unity_granule'
+
     authorization_index = 'authorization_mappings'
     authorized_group_name_key = 'user_group'
     action_key = 'action'
