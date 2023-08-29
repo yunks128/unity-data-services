@@ -51,6 +51,14 @@ class ESMiddleware(ESAbstract):
             return result
         return result['acknowledged']
 
+    def get_index_mapping(self, index_name):
+        try:
+            result = self._engine.indices.get_mapping(index=index_name)
+        except NotFoundError as e:
+            return None
+        return result
+
+
     def has_index(self, index_name):
         result = self._engine.indices.exists(index=index_name)
         return result

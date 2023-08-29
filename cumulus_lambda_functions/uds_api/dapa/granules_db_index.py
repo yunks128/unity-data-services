@@ -60,12 +60,40 @@ class GranulesDbIndex:
         self.__es.swap_index_for_alias(write_alias_name, current_index_name, new_index_name)
         return
 
+    def get_latest_index(self, tenant, tenant_venue):
+        write_alias_name = f'{DBConstants.granules_write_alias_prefix}_{tenant}_{tenant_venue}'.lower().strip()
+        write_alias_name = self.__es.get_alias(write_alias_name)
+        if len(write_alias_name) != 1:
+            raise ValueError(f'missing index for {tenant}_{tenant_venue}. {write_alias_name}')
+        latest_index_name = [k for k in write_alias_name.keys()][0]
+        index_mapping = self.__es.get_index_mapping(latest_index_name)
+        if index_mapping is None:
+            raise ValueError(f'missing index: {latest_index_name}')
+        return index_mapping
+
+    def delete_index(self, tenant, tenant_venue):
+        tenant = tenant.replace(':', '--')
+        write_alias_name = f'{DBConstants.granules_write_alias_prefix}_{tenant}_{tenant_venue}'.lower().strip()
+        write_alias_name = self.__es.get_alias(write_alias_name)
+        if len(write_alias_name) != 1:
+            raise ValueError(f'missing index for {tenant}_{tenant_venue}. {write_alias_name}')
+        latest_index_name = [k for k in write_alias_name.keys()][0]
+        prev_version = int(latest_index_name.split('__v')[-1]) - 1
+        if prev_version < 1:
+            LOGGER.warn(f'no previous index to point write index. {latest_index_name}')
+        else:
+            LOGGER.debug(f'updating write alias to previous index')
+            prev_index_name = f'{latest_index_name.split("__v")[0]}__v{prev_version:02d}'.lower().strip()
+            self.__es.swap_index_for_alias(write_alias_name, latest_index_name, prev_index_name)
+        self.__es.delete_index(latest_index_name)
+        return
+
     def destroy_indices(self, tenant, tenant_venue):
         # TODO assuming that both read and write aliases are destroyed once indices are destroyed.
         tenant = tenant.replace(':', '--')
         read_alias_name = f'{DBConstants.granules_read_alias_prefix}_{tenant}_{tenant_venue}'.lower().strip()
-        actual_write_alias = self.__es.get_alias(read_alias_name)
-        for each_index in actual_write_alias.keys():
+        actual_read_alias = self.__es.get_alias(read_alias_name)
+        for each_index in actual_read_alias.keys():
             LOGGER.debug(f'deleting index: {each_index}')
             self.__es.delete_index(each_index)
         return

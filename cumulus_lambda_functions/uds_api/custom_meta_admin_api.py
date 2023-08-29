@@ -38,6 +38,27 @@ async def es_granules_index_setup(request: Request, tenant: str, venue: Union[st
     return {'message': 'successful'}
 
 
+@router.get("/custom_metadata/{tenant}")
+@router.get("/custom_metadata/{tenant}/")
+async def es_granules_index_setup(request: Request, tenant: str, venue: Union[str, None] = None):
+    LOGGER.debug(f'started es_granules_index_setup')
+    auth_info = FastApiUtils.get_authorization_info(request)
+    query_body = {
+        'tenant': tenant,
+        'venue': venue,
+    }
+    auth_crud = AuthCrud(auth_info, query_body)
+    is_admin_result = auth_crud.is_admin()
+    if is_admin_result['statusCode'] != 200:
+        raise HTTPException(status_code=is_admin_result['statusCode'], detail=is_admin_result['body'])
+    try:
+        GranulesDbIndex().get_latest_index(tenant, venue)
+    except Exception as e:
+        LOGGER.exception(f'')
+        raise HTTPException(status_code=500, detail=str(e))
+    return {'message': 'successful'}
+
+
 @router.delete("/custom_metadata/{tenant}/destroy")
 @router.delete("/custom_metadata/{tenant}/destroy/")
 async def es_granules_index_setup(request: Request, tenant: str, venue: Union[str, None] = None):
@@ -72,4 +93,9 @@ async def es_granules_index_delete_setup(request: Request, tenant: str, venue: U
     is_admin_result = auth_crud.is_admin()
     if is_admin_result['statusCode'] != 200:
         raise HTTPException(status_code=is_admin_result['statusCode'], detail=is_admin_result['body'])
-    raise HTTPException(status_code=500, detail=f'not implemented yet')
+    try:
+        GranulesDbIndex().delete_index(tenant, venue)
+    except Exception as e:
+        LOGGER.exception(f'')
+        raise HTTPException(status_code=500, detail=str(e))
+    return {'message': 'successful'}

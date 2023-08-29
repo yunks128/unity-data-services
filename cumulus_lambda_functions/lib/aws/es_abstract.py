@@ -10,6 +10,10 @@ class ESAbstract(ABC):
         return
 
     @abstractmethod
+    def get_index_mapping(self, index_name):
+        return {}
+
+    @abstractmethod
     def has_index(self, index_name):
         return
 
