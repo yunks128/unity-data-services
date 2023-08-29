@@ -59,3 +59,13 @@ class GranulesDbIndex:
         self.__es.create_alias(new_index_name, read_alias_name)
         self.__es.swap_index_for_alias(write_alias_name, current_index_name, new_index_name)
         return
+
+    def destroy_indices(self, tenant, tenant_venue):
+        # TODO assuming that both read and write aliases are destroyed once indices are destroyed.
+        tenant = tenant.replace(':', '--')
+        write_alias_name = f'{DBConstants.granules_write_alias_prefix}_{tenant}_{tenant_venue}'.lower().strip()
+        actual_write_alias = self.__es.get_alias(write_alias_name)
+        for each_index in actual_write_alias.keys():
+            LOGGER.debug(f'deleting index: {each_index}')
+            self.__es.delete_index(each_index)
+        return
