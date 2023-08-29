@@ -213,8 +213,8 @@ class TestCumulusCreateCollectionDapa(TestCase):
         write_alias = f'{DBConstants.granules_write_alias_prefix}_URN:NASA:UNITY:{project_name}_DEV'.replace(':', '--').lower()
         read_alias = f'{DBConstants.granules_read_alias_prefix}_URN:NASA:UNITY:{project_name}_DEV'.replace(':', '--').lower()
 
-        self.assertTrue(es.has_index(f'{index_name_prefix}__v01'), f'{index_name_prefix}__v0 does not exist')
-        self.assertTrue(es.has_index(f'{index_name_prefix}__v02'), f'{index_name_prefix}__v1 does not exist')
+        self.assertTrue(es.has_index(f'{index_name_prefix}__v01'), f'{index_name_prefix}__v01 does not exist')
+        self.assertTrue(es.has_index(f'{index_name_prefix}__v02'), f'{index_name_prefix}__v02 does not exist')
         actual_write_alias = es.get_alias(write_alias)
         expected_write_alias = {
             f'{index_name_prefix}__v02':
@@ -232,8 +232,8 @@ class TestCumulusCreateCollectionDapa(TestCase):
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
         print('destroyed')
         sleep(3)
-        self.assertFalse(es.has_index(f'{index_name_prefix}__v01'), f'{index_name_prefix}__v0 does exist')
-        self.assertFalse(es.has_index(f'{index_name_prefix}__v02'), f'{index_name_prefix}__v1 does exist')
+        self.assertFalse(es.has_index(f'{index_name_prefix}__v01'), f'{index_name_prefix}__v01 does exist')
+        self.assertFalse(es.has_index(f'{index_name_prefix}__v02'), f'{index_name_prefix}__v02 does exist')
         actual_write_alias = es.get_alias(write_alias)
         self.assertEqual(actual_write_alias, {})
         actual_read_alias = es.get_alias(read_alias)
