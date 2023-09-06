@@ -384,6 +384,12 @@ class ItemTransformer(StacTransformerAbstract):
             "collectionId": "ATMS_SCIENCE_Group___001",
             "duration": 197.993,
             "error": {},
+            "custom_metadata": {
+                "custom_entry_1": "test1",
+                "custom_entry_2": true,
+                "custom_entry_3": 3.14159,
+                "custom_entry_4": -20107,
+            }
             "lastUpdateDateTime": "2018-04-25T21:45:45.524053"
         }
         :param source:
@@ -396,10 +402,12 @@ class ItemTransformer(StacTransformerAbstract):
 
         cumulus_file_validator = JsonValidator(CUMULUS_FILE_SCHEMA)
         validated_files = [k for k in source['files'] if cumulus_file_validator.validate(k) is None]
+        custom_metadata = source['custom_metadata'] if 'custom_metadata' in source else {}
         stac_item = Item(
             id=source['granuleId'],
             bbox=[0.0, 0.0, 0.0, 0.0],
             properties={
+                **custom_metadata,
                 # "datetime": f"{TimeUtils.decode_datetime(source['createdAt'], False)}Z",
                 "start_datetime": datetime_to_str(self.get_time_obj(source['beginningDateTime'])),
                 "end_datetime": datetime_to_str(self.get_time_obj(source['endingDateTime'])),
