@@ -68,6 +68,11 @@ variable "cumulus_base" {
   description = "Cumulus base URL. Example: https://axhmoecy02.execute-api.us-west-2.amazonaws.com/dev"
 }
 
+variable "register_custom_metadata" {
+  type = string
+  default = "TRUE"
+  description = "flag to decide if custom metadata will be added. "
+}
 variable "lambda_processing_role_arn" {
   type = string
 }
