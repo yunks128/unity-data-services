@@ -174,7 +174,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
 
     def test_add_granules_index(self):
         project_name = f'MAIN_PROJECT{TimeUtils.get_current_unix_milli()}'
-        post_url = f'{self.uds_url}admin/custom_metadata/URN:NASA:UNITY:{project_name}?venue=DEV'  # MCP Dev
+        post_url = f'{self.uds_url}admin/custom_metadata/{project_name}?venue=DEV'  # MCP Dev
         print(post_url)
         headers = {
             'Authorization': f'Bearer {self.bearer_token}',
@@ -209,9 +209,9 @@ class TestCumulusCreateCollectionDapa(TestCase):
                                                   base_url=os.getenv('ES_URL'),
                                                   port=int(os.getenv('ES_PORT', '443'))
                                                   )
-        index_name_prefix = f'{DBConstants.granules_index_prefix}_URN:NASA:UNITY:{project_name}_DEV'.replace(':', '--').lower()
-        write_alias = f'{DBConstants.granules_write_alias_prefix}_URN:NASA:UNITY:{project_name}_DEV'.replace(':', '--').lower()
-        read_alias = f'{DBConstants.granules_read_alias_prefix}_URN:NASA:UNITY:{project_name}_DEV'.replace(':', '--').lower()
+        index_name_prefix = f'{DBConstants.granules_index_prefix}_{project_name}_DEV'.replace(':', '--').lower()
+        write_alias = f'{DBConstants.granules_write_alias_prefix}_{project_name}_DEV'.replace(':', '--').lower()
+        read_alias = f'{DBConstants.granules_read_alias_prefix}_{project_name}_DEV'.replace(':', '--').lower()
 
         self.assertTrue(es.has_index(f'{index_name_prefix}__v01'), f'{index_name_prefix}__v01 does not exist')
         self.assertTrue(es.has_index(f'{index_name_prefix}__v02'), f'{index_name_prefix}__v02 does not exist')
@@ -225,7 +225,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
         self.assertEqual(actual_read_alias, expected_read_alias)
         print('verified indices & aliases')
 
-        delete_url = f'{self.uds_url}admin/custom_metadata/URN:NASA:UNITY:{project_name}/destroy?venue=DEV'  # MCP Dev
+        delete_url = f'{self.uds_url}admin/custom_metadata/{project_name}/destroy?venue=DEV'  # MCP Dev
         query_result = requests.delete(url=delete_url,
                                         headers=headers,
                                         )
