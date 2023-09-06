@@ -8,3 +8,4 @@ local*
 dist
 __pycache__
 .env
+.terraform
