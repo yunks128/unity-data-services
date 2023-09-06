@@ -127,7 +127,7 @@ class StacInputMetadata:
     def __remove_default_keys_in_custom_props(self):
         ignoring_keys = ['start_datetime', 'end_datetime', 'created', 'updated', 'datetime']
         for each_key in ignoring_keys:
-            if 'start_datetime' in self.__custom_properties:
+            if each_key in self.__custom_properties:
                 self.__custom_properties.pop(each_key)
         return
     def start(self) -> GranuleMetadataProps:
