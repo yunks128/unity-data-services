@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.4.0] - 2023-08-16
+### Added
+- [#95](https://github.com/unity-sds/unity-data-services/pull/95) feat: elasticsearch branch
+
 ## [5.3.2] - 2023-08-28
 ### Changed
 - [#200](https://github.com/unity-sds/unity-data-services/pull/200) fix: parallelize upload
