@@ -14,3 +14,4 @@ main_router.include_router(system_admin_api.router)
 main_router.include_router(collections_api.router)
 main_router.include_router(granules_api.router)
 main_router.include_router(custom_meta_admin_api.router)
+

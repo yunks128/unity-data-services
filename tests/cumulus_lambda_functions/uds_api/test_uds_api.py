@@ -240,4 +240,3 @@ class TestCumulusCreateCollectionDapa(TestCase):
         self.assertEqual(actual_read_alias, {})
         print('verified indices & aliases')
         return
-
