@@ -63,6 +63,11 @@ variable "dapa_api_prefix" {
   default = "am-uds-dapa"
 }
 
+variable "report_to_ems" {
+  type = string
+  default = "TRUE"
+}
+
 variable "cumulus_base" {
   type = string
   description = "Cumulus base URL. Example: https://axhmoecy02.execute-api.us-west-2.amazonaws.com/dev"

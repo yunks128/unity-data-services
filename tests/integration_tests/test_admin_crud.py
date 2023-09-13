@@ -12,46 +12,40 @@ from cumulus_lambda_functions.lib.cognito_login.cognito_login import CognitoLogi
 
 class TestDapaStac(TestCase):
 
-    def test_setup_es(self):
+
+    def setUp(self) -> None:
+        super().setUp()
         load_dotenv()
-        cognito_login = CognitoLogin() \
+        self.cognito_login = CognitoLogin() \
             .with_client_id(os.environ.get('CLIENT_ID', '')) \
             .with_cognito_url(os.environ.get('COGNITO_URL', '')) \
             .with_verify_ssl(False) \
             .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(),
                    base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
-        es_setup_url = f'{os.environ.get("UNITY_URL")}/sbx-uds-dapa/admin/system/es_setup/'
+        self._url_prefix = f'{os.environ.get("UNITY_URL")}/{os.environ.get("UNITY_STAGE", "sbx-uds-dapa")}'
+        return
+
+    def test_setup_es(self):
+        es_setup_url = f'{self._url_prefix}/admin/system/es_setup/'
         s = requests.session()
         s.trust_env = False
-        response = s.put(url=es_setup_url, headers={'Authorization': f'Bearer {cognito_login.token}'}, verify=False)
+        response = s.put(url=es_setup_url, headers={'Authorization': f'Bearer {self.cognito_login.token}'}, verify=False)
         self.assertEqual(response.status_code, 200, f'wrong status code: {response.text}')
 
         return
 
     def test_list_admin_list_01(self):
-        load_dotenv()
-        cognito_login = CognitoLogin()\
-            .with_client_id(os.environ.get('CLIENT_ID', ''))\
-            .with_cognito_url(os.environ.get('COGNITO_URL', ''))\
-            .with_verify_ssl(False)\
-            .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(), base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
-        collection_url = f'{os.environ.get("UNITY_URL")}/sbx-uds-dapa/admin/auth'
+        collection_url = f'{self._url_prefix}/admin/auth'
         s = requests.session()
         s.trust_env = False
-        response = s.get(url=collection_url, headers={'Authorization': f'Bearer {cognito_login.token}'}, verify=False)
+        response = s.get(url=collection_url, headers={'Authorization': f'Bearer {self.cognito_login.token}'}, verify=False)
         self.assertEqual(response.status_code, 200, f'wrong status code: {response.text}')
         response_json = json.loads(response.content.decode())
         print(json.dumps(response_json, indent=4))
         return
 
     def test_add_admin_01(self):
-        load_dotenv()
-        cognito_login = CognitoLogin()\
-            .with_client_id(os.environ.get('CLIENT_ID', ''))\
-            .with_cognito_url(os.environ.get('COGNITO_URL', ''))\
-            .with_verify_ssl(False)\
-            .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(), base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
-        collection_url = f'{os.environ.get("UNITY_URL")}/sbx-uds-dapa/admin/auth'
+        collection_url = f'{self._url_prefix}/admin/auth'
         admin_add_body = {
             "actions": ["READ", "CREATE"],
             "resources": ["urn:nasa:unity:uds_local_test:DEV1:.*"],
@@ -63,7 +57,7 @@ class TestDapaStac(TestCase):
         s = requests.session()
         s.trust_env = False
         response = s.put(url=collection_url, headers={
-            'Authorization': f'Bearer {cognito_login.token}',
+            'Authorization': f'Bearer {self.cognito_login.token}',
             'Content-Type': 'application/json',
         }, verify=False, data=json.dumps(admin_add_body))
         self.assertEqual(response.status_code, 200, f'wrong status code: {response.text}')
@@ -72,13 +66,7 @@ class TestDapaStac(TestCase):
         return
 
     def test_delete_admin_01(self):
-        load_dotenv()
-        cognito_login = CognitoLogin()\
-            .with_client_id(os.environ.get('CLIENT_ID', ''))\
-            .with_cognito_url(os.environ.get('COGNITO_URL', ''))\
-            .with_verify_ssl(False)\
-            .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(), base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
-        collection_url = f'{os.environ.get("UNITY_URL")}/sbx-uds-dapa/admin/auth'
+        collection_url = f'{self._url_prefix}/admin/auth'
         admin_add_body = {
             "tenant": "uds_local_test",
             "venue": "DEV1-1674680116",
@@ -87,7 +75,7 @@ class TestDapaStac(TestCase):
         s = requests.session()
         s.trust_env = False
         response = s.delete(url=collection_url, headers={
-            'Authorization': f'Bearer {cognito_login.token}',
+            'Authorization': f'Bearer {self.cognito_login.token}',
             'Content-Type': 'application/json',
         }, verify=False, data=json.dumps(admin_add_body))
         self.assertEqual(response.status_code, 200, f'wrong status code: {response.text}')

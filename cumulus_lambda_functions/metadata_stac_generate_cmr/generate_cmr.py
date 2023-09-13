@@ -203,6 +203,7 @@ class GenerateCmr:
                                                   base_url=os.getenv('ES_URL'),
                                                   port=int(os.getenv('ES_PORT', '443'))
                                                   )
+        custom_metadata['event_time'] = TimeUtils.get_current_unix_milli()
         # TODO validate custom metadata vs the latest index to filter extra items
         es.index_one(custom_metadata, custom_metadata['granule_id'])  # TODO assuming granule_id is prefixed with collection id
         return

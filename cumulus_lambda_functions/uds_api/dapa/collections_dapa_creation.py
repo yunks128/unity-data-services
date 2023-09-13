@@ -27,6 +27,7 @@ class CollectionDapaCreation:
         self.__collection_creation_lambda_name = os.environ.get('COLLECTION_CREATION_LAMBDA_NAME', '').strip()
         self.__cumulus_lambda_prefix = os.getenv('CUMULUS_LAMBDA_PREFIX')
         self.__ingest_sqs_url = os.getenv('CUMULUS_WORKFLOW_SQS_URL')
+        self.__report_to_ems = os.getenv('REPORT_TO_EMS', 'TRUE').strip().upper() == 'TRUE'
         self.__workflow_name = os.getenv('CUMULUS_WORKFLOW_NAME', 'CatalogGranule')
         self.__provider_id = os.getenv('UNITY_DEFAULT_PROVIDER', '')
 
@@ -35,7 +36,7 @@ class CollectionDapaCreation:
             # validation_result = pystac.Collection.from_dict(self.__request_body).validate()
             cumulus_collection_query = CollectionsQuery('', '')
 
-            collection_transformer = CollectionTransformer()
+            collection_transformer = CollectionTransformer(self.__report_to_ems)
             cumulus_collection_doc = collection_transformer.from_stac(self.__request_body)
             self.__provider_id = self.__provider_id if collection_transformer.output_provider is None else collection_transformer.output_provider
             creation_result = cumulus_collection_query.create_collection(cumulus_collection_doc, self.__cumulus_lambda_prefix)

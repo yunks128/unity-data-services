@@ -51,7 +51,8 @@ class GranulesDbIndex:
                 "properties": {
                     **es_mapping,
                     "granule_id": {"type": "keyword"},
-                    "collection_id": {"type": "keyword"}
+                    "collection_id": {"type": "keyword"},
+                    "event_time": {"type": "long"}
                 }
             }
         }
