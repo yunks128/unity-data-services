@@ -1,16 +1,72 @@
 import json
+from multiprocessing import Manager
 
-from pystac import ItemCollection, Item
+from cumulus_lambda_functions.lib.constants import Constants
+from pystac import ItemCollection
 
 from cumulus_lambda_functions.cumulus_stac.granules_catalog import GranulesCatalog
-from cumulus_lambda_functions.stage_in_out.search_collections_factory import SearchCollectionsFactory
+from cumulus_lambda_functions.lib.processing_jobs.job_executor_abstract import JobExecutorAbstract
+from cumulus_lambda_functions.lib.processing_jobs.job_manager_abstract import JobManagerProps
+from cumulus_lambda_functions.lib.processing_jobs.job_manager_memory import JobManagerMemory
+from cumulus_lambda_functions.lib.processing_jobs.multithread_processor import MultiThreadProcessorProps, \
+    MultiThreadProcessor
 from cumulus_lambda_functions.stage_in_out.upload_granules_abstract import UploadGranulesAbstract
 import logging
 import os
-import re
 from cumulus_lambda_functions.lib.aws.aws_s3 import AwsS3
 
 LOGGER = logging.getLogger(__name__)
+
+
+class UploadItemExecutor(JobExecutorAbstract):
+    def __init__(self, result_list, error_list, collection_id, staging_bucket, delet_files: bool) -> None:
+        super().__init__()
+        self.__collection_id = collection_id
+        self.__staging_bucket = staging_bucket
+        self.__delete_files = delet_files
+
+        self.__result_list = result_list
+        self.__error_list = error_list
+        self.__gc = GranulesCatalog()
+        self.__s3 = AwsS3()
+
+    def validate_job(self, job_obj):
+        return True
+
+    def execute_job(self, each_child, lock) -> bool:
+        try:
+            current_granule_stac = self.__gc.get_granules_item(each_child)
+            current_granules_dir = os.path.dirname(each_child)
+            current_assets = self.__gc.extract_assets_href(current_granule_stac, current_granules_dir)
+            if 'data' not in current_assets:
+                LOGGER.warning(f'skipping {each_child}. no data in {current_assets}')
+                self.__error_list.put({'href': each_child, 'error': f'missing "data" in assets'})
+                return True
+            current_granule_id = str(current_granule_stac.id)
+            if current_granule_id in ['', 'NA', None]:
+                raise ValueError(f'invalid current_granule_id in granule {each_child}: {current_granule_id} ...')
+            updating_assets = {}
+            uploading_current_granule_stac = None
+            for asset_type, asset_href in current_assets.items():
+                LOGGER.debug(f'uploading {asset_type}, {asset_href}')
+                s3_url = self.__s3.upload(asset_href, self.__staging_bucket,
+                                          f'{self.__collection_id}/{self.__collection_id}:{current_granule_id}',
+                                          self.__delete_files)
+                if asset_href == each_child:
+                    uploading_current_granule_stac = s3_url
+                updating_assets[asset_type] = s3_url
+            self.__gc.update_assets_href(current_granule_stac, updating_assets)
+            current_granule_stac.id = current_granule_id
+            current_granule_stac.collection_id = self.__collection_id
+            if uploading_current_granule_stac is not None:  # upload metadata file again
+                self.__s3.set_s3_url(uploading_current_granule_stac)
+                self.__s3.upload_bytes(json.dumps(current_granule_stac.to_dict(False, False)).encode())
+            current_granule_stac.id = f'{self.__collection_id}:{current_granule_id}'
+            self.__result_list.put(current_granule_stac.to_dict(False, False))
+        except Exception as e:
+            LOGGER.exception(f'error while processing: {each_child}')
+            self.__error_list.put({'href': each_child, 'error': str(e)})
+        return True
 
 
 class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
@@ -29,6 +85,7 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
         self.__verify_ssl = True
         self.__delete_files = False
         self.__s3 = AwsS3()
+        self._parallel_count = int(os.environ.get(Constants.PARALLEL_COUNT, '-1'))
 
     def __set_props_from_env(self):
         missing_keys = [k for k in [self.CATALOG_FILE, self.COLLECTION_ID_KEY, self.STAGING_BUCKET_KEY] if k not in os.environ]
@@ -45,38 +102,27 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
     def upload(self, **kwargs) -> str:
         self.__set_props_from_env()
         child_links = self.__gc.get_child_link_hrefs(os.environ.get(self.CATALOG_FILE))
-        errors = []
-        dapa_body_granules = []
+        local_items = Manager().Queue()
+        error_list = Manager().Queue()
+        job_manager_props = JobManagerProps()
         for each_child in child_links:
-            try:
-                current_granule_stac = self.__gc.get_granules_item(each_child)
-                current_granules_dir = os.path.dirname(each_child)
-                current_assets = self.__gc.extract_assets_href(current_granule_stac, current_granules_dir)
-                if 'data' not in current_assets:
-                    LOGGER.warning(f'skipping {each_child}. no data in {current_assets}')
-                    continue
-                current_granule_id = str(current_granule_stac.id)
-                if current_granule_id in ['', 'NA', None]:
-                    raise ValueError(f'invalid current_granule_id in granule {each_child}: {current_granule_id} ...')
-                updating_assets = {}
-                uploading_current_granule_stac = None
-                for asset_type, asset_href in current_assets.items():
-                    LOGGER.debug(f'uploading {asset_type}, {asset_href}')
-                    s3_url = self.__s3.upload(asset_href, self.__staging_bucket, f'{self.__collection_id}/{self.__collection_id}:{current_granule_id}', self.__delete_files)
-                    if asset_href == each_child:
-                        uploading_current_granule_stac = s3_url
-                    updating_assets[asset_type] = s3_url
-                self.__gc.update_assets_href(current_granule_stac, updating_assets)
-                current_granule_stac.id = current_granule_id
-                current_granule_stac.collection_id = self.__collection_id
-                if uploading_current_granule_stac is not None:  # upload metadata file again
-                    self.__s3.set_s3_url(uploading_current_granule_stac)
-                    self.__s3.upload_bytes(json.dumps(current_granule_stac.to_dict(False, False)).encode())
-                current_granule_stac.id = f'{self.__collection_id}:{current_granule_id}'
-                dapa_body_granules.append(current_granule_stac.to_dict(False, False))
-            except Exception as e:
-                LOGGER.exception(f'error while processing: {each_child}')
-                errors.append({'href': each_child, 'error': str(e)})
+            job_manager_props.memory_job_dict[each_child] = each_child
+
+        # https://www.infoworld.com/article/3542595/6-python-libraries-for-parallel-processing.html
+        multithread_processor_props = MultiThreadProcessorProps(self._parallel_count)
+        multithread_processor_props.job_manager = JobManagerMemory(job_manager_props)
+        multithread_processor_props.job_executor = UploadItemExecutor(local_items, error_list, self.__collection_id, self.__staging_bucket, self.__delete_files)
+        multithread_processor = MultiThreadProcessor(multithread_processor_props)
+        multithread_processor.start()
+
+        LOGGER.debug(f'finished uploading all granules')
+        dapa_body_granules = []
+        while not local_items.empty():
+            dapa_body_granules.append(local_items.get())
+
+        errors = []
+        while not error_list.empty():
+            errors.append(error_list.get())
         if len(errors) > 0:
             LOGGER.error(f'some errors while uploading granules: {errors}')
         LOGGER.debug(f'dapa_body_granules: {dapa_body_granules}')
