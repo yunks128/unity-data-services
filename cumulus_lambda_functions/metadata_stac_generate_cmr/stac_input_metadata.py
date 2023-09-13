@@ -1,5 +1,4 @@
 from copy import deepcopy
-
 from pystac import Item
 
 from cumulus_lambda_functions.cumulus_stac.item_transformer import ItemTransformer
@@ -122,7 +121,6 @@ class StacInputMetadata:
         """
         self.__insert_dt = val
         return
-
 
     def __remove_default_keys_in_custom_props(self):
         ignoring_keys = ['start_datetime', 'end_datetime', 'created', 'updated', 'datetime']

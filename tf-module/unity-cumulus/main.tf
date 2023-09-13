@@ -89,7 +89,6 @@ resource "aws_lambda_function" "metadata_stac_generate_cmr" {
       REGISTER_CUSTOM_METADATA = var.register_custom_metadata
       ES_URL = aws_elasticsearch_domain.uds-es.endpoint
       ES_PORT = 443
-
     }
   }
 

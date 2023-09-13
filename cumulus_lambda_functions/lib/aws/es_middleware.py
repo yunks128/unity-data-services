@@ -58,7 +58,6 @@ class ESMiddleware(ESAbstract):
             return None
         return result
 
-
     def has_index(self, index_name):
         result = self._engine.indices.exists(index=index_name)
         return result

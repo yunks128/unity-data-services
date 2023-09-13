@@ -403,6 +403,7 @@ class ItemTransformer(StacTransformerAbstract):
         cumulus_file_validator = JsonValidator(CUMULUS_FILE_SCHEMA)
         validated_files = [k for k in source['files'] if cumulus_file_validator.validate(k) is None]
         custom_metadata = source['custom_metadata'] if 'custom_metadata' in source else {}
+
         stac_item = Item(
             id=source['granuleId'],
             bbox=[0.0, 0.0, 0.0, 0.0],

@@ -78,6 +78,7 @@ variable "register_custom_metadata" {
   default = "TRUE"
   description = "flag to decide if custom metadata will be added. "
 }
+
 variable "lambda_processing_role_arn" {
   type = string
 }
