@@ -94,7 +94,7 @@ class GranulesQuery(CumulusBase):
         total_size = query_result['meta']['count']
         return {'total_size': total_size}
 
-    def query_direct_to_private_api(self, private_api_prefix: str):
+    def query_direct_to_private_api(self, private_api_prefix: str, transform=True):
         payload = {
             'httpMethod': 'GET',
             'resource': '/{proxy+}',
@@ -124,13 +124,13 @@ class GranulesQuery(CumulusBase):
                 LOGGER.error(f'missing key: results. invalid response json: {query_result}')
                 return {'server_error': f'missing key: results. invalid response json: {query_result}'}
             query_result = query_result['results']
-            stac_list = [ItemTransformer().to_stac(k) for k in query_result]
+            stac_list = [ItemTransformer().to_stac(k) for k in query_result] if transform is True else query_result
         except Exception as e:
             LOGGER.exception('error while invoking')
             return {'server_error': f'error while invoking:{str(e)}'}
         return {'results': stac_list}
 
-    def query(self):
+    def query(self, transform=True):
         conditions_str = '&'.join(self._conditions)
         LOGGER.info(f'cumulus_base: {self.cumulus_base}')
         LOGGER.info(f'get_base_headers: {self.get_base_headers()}')
@@ -149,4 +149,6 @@ class GranulesQuery(CumulusBase):
         except Exception as e:
             LOGGER.exception('error during cumulus query')
             return {'server_error': str(e)}
-        return {'results': [ItemTransformer().to_stac(k) for k in query_result]}
+        if transform is True:
+            return {'results': [ItemTransformer().to_stac(k) for k in query_result]}
+        return query_result
