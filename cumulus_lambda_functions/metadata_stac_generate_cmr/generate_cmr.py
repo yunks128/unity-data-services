@@ -5,6 +5,13 @@ from copy import deepcopy
 
 import xmltodict
 
+from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
+from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
+
+from cumulus_lambda_functions.lib.aws.es_abstract import ESAbstract
+
+from cumulus_lambda_functions.lib.aws.es_factory import ESFactory
+
 from cumulus_lambda_functions.lib.aws.aws_s3 import AwsS3
 from cumulus_lambda_functions.lib.json_validator import JsonValidator
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
@@ -181,6 +188,27 @@ class GenerateCmr:
         }}
         return output_dict
 
+    def __ingest_custom_metadata(self, custom_metadata: dict):
+        if os.getenv('REGISTER_CUSTOM_METADATA', 'TRUE').strip().upper() != 'TRUE':
+            LOGGER.debug(f'not registering custom metadata due to ENV setting. {custom_metadata}')
+            return
+        LOGGER.debug(f'custom_metadata: {custom_metadata}')
+        if 'granule_id' not in custom_metadata or 'collection_id' not in custom_metadata:
+            LOGGER.error(f'unable to write custom metadata w/o granule or collection id: {custom_metadata}')
+            return
+        collection_identifier = UdsCollections.decode_identifier(custom_metadata['collection_id'])
+        write_alias_name = f'{DBConstants.granules_write_alias_prefix}_{collection_identifier.tenant}_{collection_identifier.venue}'.lower().strip()
+
+        es: ESAbstract = ESFactory().get_instance('AWS',
+                                                  index=write_alias_name,
+                                                  base_url=os.getenv('ES_URL'),
+                                                  port=int(os.getenv('ES_PORT', '443'))
+                                                  )
+        custom_metadata['event_time'] = TimeUtils.get_current_unix_milli()
+        # TODO validate custom metadata vs the latest index to filter extra items
+        es.index_one(custom_metadata, custom_metadata['granule_id'])  # TODO assuming granule_id is prefixed with collection id
+        return
+
     def start(self):
         """
         sample event
@@ -353,8 +381,10 @@ class GenerateCmr:
         :return:
         """
         self.__validate_input()
-        LOGGER.error(f'input: {self.__event}')
-        granules_metadata_props = StacInputMetadata(json.loads(self.__read_pds_metadata_file())).start()
+        LOGGER.debug(f'input: {self.__event}')
+        stac_input_meta = StacInputMetadata(json.loads(self.__read_pds_metadata_file()))
+        granules_metadata_props = stac_input_meta.start()
+        self.__ingest_custom_metadata(stac_input_meta.custom_properties)
         echo_metadata = EchoMetadata(granules_metadata_props).load().echo_metadata
         echo_metadata_xml_str = xmltodict.unparse(echo_metadata, pretty=True)
         self.__s3.target_key = os.path.join(os.path.dirname(self.__s3.target_key), f'{granules_metadata_props.granule_id}.cmr.xml')
