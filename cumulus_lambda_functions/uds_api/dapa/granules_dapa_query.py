@@ -135,27 +135,28 @@ class GranulesDapaQuery:
         return cumulus_size
 
     def __get_custom_metadata(self, cumulus_result) -> dict:
-        custom_meta_query_conditions = [[  # TODO split if array is more than 1024
-            {'term': {'collection_id': self.__collection_id}},
-            {'term': {'granule_id': k['granuleId']}},
-        ] for k in cumulus_result['results']]
-        custom_metadata_result = self.__es.query_pages({
+        custom_meta_query_conditions = [{
+            'bool': {
+                'must': [  # TODO split if array is more than 1024
+                    {'term': {'collection_id': self.__collection_id}},
+                    {'term': {'granule_id': k['granuleId']}},
+                ]
+            }
+        } for k in cumulus_result['results']]
+        custom_metadata_query_dsl = {
             '_source': {
-                'exclude': ['granule_id', 'collection_id']
+                'exclude': ['collection_id']
             },
             'sort': [{'granule_id': {'order': 'ASC'}}],
             'query': {
                 'bool': {
-                    'should': [
-                        {
-                            'bool': {
-                                'must': custom_meta_query_conditions
-                            }
-                        }
-                    ]
+                    'should': custom_meta_query_conditions
                 }
             }
-        })
+        }
+        LOGGER.debug(f'custom_metadata_query_dsl: {custom_metadata_query_dsl}')
+        custom_metadata_result = self.__es.query_pages(custom_metadata_query_dsl)
+        LOGGER.debug(f'custom_metadata_result: {custom_metadata_result}')
         custom_metadata_result = custom_metadata_result['hits']['hits']
         custom_metadata_result = {k['granule_id']: k for k in custom_metadata_result}
         return custom_metadata_result
