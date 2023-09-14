@@ -192,6 +192,7 @@ class GenerateCmr:
         if os.getenv('REGISTER_CUSTOM_METADATA', 'TRUE').strip().upper() != 'TRUE':
             LOGGER.debug(f'not registering custom metadata due to ENV setting. {custom_metadata}')
             return
+        LOGGER.debug(f'custom_metadata: {custom_metadata}')
         if 'granule_id' not in custom_metadata or 'collection_id' not in custom_metadata:
             LOGGER.error(f'unable to write custom metadata w/o granule or collection id: {custom_metadata}')
             return
@@ -380,7 +381,7 @@ class GenerateCmr:
         :return:
         """
         self.__validate_input()
-        LOGGER.error(f'input: {self.__event}')
+        LOGGER.debug(f'input: {self.__event}')
         stac_input_meta = StacInputMetadata(json.loads(self.__read_pds_metadata_file()))
         granules_metadata_props = stac_input_meta.start()
         self.__ingest_custom_metadata(stac_input_meta.custom_properties)
