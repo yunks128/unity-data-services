@@ -180,6 +180,8 @@ class GranulesDapaQuery:
             main_result_dict = {k['granuleId']: k for k in cumulus_result['results']}
             for k, v in main_result_dict.items():
                 if k in custom_metadata_result:
+                    if 'granule_id' in custom_metadata_result[k]:
+                        custom_metadata_result[k].pop('granule_id')
                     v['custom_metadata'] = custom_metadata_result[k]
             combined_cumulus_result = [ItemTransformer().to_stac(k) for k in main_result_dict.values()]
             return {
