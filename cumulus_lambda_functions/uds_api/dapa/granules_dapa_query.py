@@ -177,7 +177,7 @@ class GranulesDapaQuery:
             cumulus_size = self.__get_size()
             LOGGER.debug(f'cumulus_result: {cumulus_result}')
             custom_metadata_result = self.__get_custom_metadata(cumulus_result)
-            main_result_dict = {k['granule_id']: k for k in cumulus_result['results']}
+            main_result_dict = {k['granuleId']: k for k in cumulus_result['results']}
             for k, v in main_result_dict.items():
                 if k in custom_metadata_result:
                     v['custom_metadata'] = custom_metadata_result[k]
