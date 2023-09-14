@@ -157,7 +157,7 @@ class GranulesDapaQuery:
         LOGGER.debug(f'custom_metadata_query_dsl: {custom_metadata_query_dsl}')
         custom_metadata_result = self.__es.query_pages(custom_metadata_query_dsl)
         LOGGER.debug(f'custom_metadata_result: {custom_metadata_result}')
-        custom_metadata_result = custom_metadata_result['hits']['hits']
+        custom_metadata_result = [k['_source'] for k in custom_metadata_result['hits']['hits']]
         custom_metadata_result = {k['granule_id']: k for k in custom_metadata_result}
         return custom_metadata_result
 
@@ -175,7 +175,7 @@ class GranulesDapaQuery:
                     'body': {'message': cumulus_result['client_error']}
                 }
             cumulus_size = self.__get_size()
-
+            LOGGER.debug(f'cumulus_result: {cumulus_result}')
             custom_metadata_result = self.__get_custom_metadata(cumulus_result)
             main_result_dict = {k['granule_id']: k for k in cumulus_result['results']}
             for k, v in main_result_dict.items():
