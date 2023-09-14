@@ -206,7 +206,8 @@ class GenerateCmr:
                                                   )
         custom_metadata['event_time'] = TimeUtils.get_current_unix_milli()
         # TODO validate custom metadata vs the latest index to filter extra items
-        es.index_one(custom_metadata, custom_metadata['granule_id'])  # TODO assuming granule_id is prefixed with collection id
+        es.index_one(custom_metadata, f"{custom_metadata['collection_id']}:{custom_metadata['granule_id']}")  # TODO assuming granule_id is prefixed with collection id
+        LOGGER.debug(f'custom_metadata indexed')
         return
 
     def start(self):
@@ -384,6 +385,7 @@ class GenerateCmr:
         LOGGER.debug(f'input: {self.__event}')
         stac_input_meta = StacInputMetadata(json.loads(self.__read_pds_metadata_file()))
         granules_metadata_props = stac_input_meta.start()
+        LOGGER.debug(f'starting __ingest_custom_metadata')
         self.__ingest_custom_metadata(stac_input_meta.custom_properties)
         echo_metadata = EchoMetadata(granules_metadata_props).load().echo_metadata
         echo_metadata_xml_str = xmltodict.unparse(echo_metadata, pretty=True)
