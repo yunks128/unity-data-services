@@ -2,6 +2,9 @@ import json
 import os
 
 import pystac
+from cumulus_lambda_functions.lib.time_utils import TimeUtils
+
+from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
 from starlette.datastructures import URL
 
 from cumulus_lambda_functions.cumulus_wrapper.query_collections import CollectionsQuery
@@ -24,6 +27,7 @@ class CollectionDapaCreation:
         self.__collection_creation_lambda_name = os.environ.get('COLLECTION_CREATION_LAMBDA_NAME', '').strip()
         self.__cumulus_lambda_prefix = os.getenv('CUMULUS_LAMBDA_PREFIX')
         self.__ingest_sqs_url = os.getenv('CUMULUS_WORKFLOW_SQS_URL')
+        self.__report_to_ems = os.getenv('REPORT_TO_EMS', 'TRUE').strip().upper() == 'TRUE'
         self.__workflow_name = os.getenv('CUMULUS_WORKFLOW_NAME', 'CatalogGranule')
         self.__provider_id = os.getenv('UNITY_DEFAULT_PROVIDER', '')
 
@@ -32,7 +36,7 @@ class CollectionDapaCreation:
             # validation_result = pystac.Collection.from_dict(self.__request_body).validate()
             cumulus_collection_query = CollectionsQuery('', '')
 
-            collection_transformer = CollectionTransformer()
+            collection_transformer = CollectionTransformer(self.__report_to_ems)
             cumulus_collection_doc = collection_transformer.from_stac(self.__request_body)
             self.__provider_id = self.__provider_id if collection_transformer.output_provider is None else collection_transformer.output_provider
             creation_result = cumulus_collection_query.create_collection(cumulus_collection_doc, self.__cumulus_lambda_prefix)
@@ -42,6 +46,26 @@ class CollectionDapaCreation:
                     'statusCode': 500,
                     'body': {
                         'message': creation_result
+                    }
+                }
+            uds_collection = UdsCollections(es_url=os.getenv('ES_URL'), es_port=int(os.getenv('ES_PORT', '443')))
+            try:
+                time_range = collection_transformer.get_collection_time_range()
+                uds_collection.add_collection(
+                    collection_id=collection_transformer.get_collection_id(),
+                    start_time=TimeUtils().set_datetime_obj(time_range[0][0]).get_datetime_unix(True),
+                    end_time=TimeUtils().set_datetime_obj(time_range[0][1]).get_datetime_unix(True),
+                    bbox=collection_transformer.get_collection_bbox(),
+                    granules_count=0,
+                )
+            except Exception as e:
+                LOGGER.exception(f'failed to add collection to Elasticsearch')
+                delete_collection_result = cumulus_collection_query.delete_collection(self.__cumulus_lambda_prefix, cumulus_collection_doc['name'], cumulus_collection_doc['version'])
+                return {
+                    'statusCode': 500,
+                    'body': {
+                        'message': f'unable to add collection to Elasticsearch: {str(e)}',
+                        'details': f'collection deletion result: {delete_collection_result}'
                     }
                 }
             LOGGER.debug(f'__provider_id: {self.__provider_id}')
@@ -55,6 +79,7 @@ class CollectionDapaCreation:
             if 'status' not in rule_creation_result:
                 LOGGER.error(f'status not in rule_creation_result. deleting collection: {rule_creation_result}')
                 delete_collection_result = cumulus_collection_query.delete_collection(self.__cumulus_lambda_prefix, cumulus_collection_doc['name'], cumulus_collection_doc['version'])
+                uds_collection.delete_collection(collection_transformer.get_collection_id())
                 return {
                     'statusCode': 500,
                     'body': {
@@ -79,7 +104,7 @@ class CollectionDapaCreation:
             }
         }
 
-    def start(self, current_url: URL):
+    def start(self, current_url: URL, bearer_token: str):
         LOGGER.debug(f'request body: {self.__request_body}')
         validation_result = pystac.Collection.from_dict(self.__request_body).validate()
         if not isinstance(validation_result, list):
@@ -99,12 +124,13 @@ class CollectionDapaCreation:
             'path': actual_path,
             'httpMethod': 'POST',
             'headers': {
-                'Accept': '*/*', 'Accept-Encoding': 'gzip, deflate', 'Authorization': 'Bearer xxx',
+                'Authorization': bearer_token,
+                'Accept': '*/*', 'Accept-Encoding': 'gzip, deflate',
                 'Host': current_url.hostname, 'User-Agent': 'python-requests/2.28.2',
                 'X-Amzn-Trace-Id': 'Root=1-64a66e90-6fa8b7a64449014639d4f5b4', 'X-Forwarded-For': '44.236.15.58',
                 'X-Forwarded-Port': '443', 'X-Forwarded-Proto': 'https'},
             'multiValueHeaders': {
-                'Accept': ['*/*'], 'Accept-Encoding': ['gzip, deflate'], 'Authorization': ['Bearer xxx'],
+                'Accept': ['*/*'], 'Accept-Encoding': ['gzip, deflate'], 'Authorization': [bearer_token],
                 'Host': [current_url.hostname], 'User-Agent': ['python-requests/2.28.2'],
                 'X-Amzn-Trace-Id': ['Root=1-64a66e90-6fa8b7a64449014639d4f5b4'],
                 'X-Forwarded-For': ['127.0.0.1'], 'X-Forwarded-Port': ['443'], 'X-Forwarded-Proto': ['https']
