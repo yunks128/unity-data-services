@@ -206,7 +206,7 @@ class GenerateCmr:
                                                   )
         custom_metadata['event_time'] = TimeUtils.get_current_unix_milli()
         # TODO validate custom metadata vs the latest index to filter extra items
-        es.index_one(custom_metadata, f"{custom_metadata['collection_id']}:{custom_metadata['granule_id']}")  # TODO assuming granule_id is prefixed with collection id
+        es.index_one(custom_metadata, custom_metadata['granule_id'])  # TODO assuming granule_id is prefixed with collection id
         LOGGER.debug(f'custom_metadata indexed')
         return
 
