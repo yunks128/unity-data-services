@@ -3,6 +3,10 @@ variable "log_level" {
   default = "20"
   description = "Lambda Log Level. Follow Python3 log level numbers info=20, warning=30, etc..."
 }
+variable "account_id" {
+  type = string
+  description = "AWS Account ID"
+}
 variable "metadata_s4pa_file_postfix" {
   type = string
   description = "Comma separated File Postfix for PDS XML metadata files"
@@ -59,11 +63,39 @@ variable "dapa_api_prefix" {
   default = "am-uds-dapa"
 }
 
+variable "report_to_ems" {
+  type = string
+  default = "TRUE"
+}
+
 variable "cumulus_base" {
   type = string
   description = "Cumulus base URL. Example: https://axhmoecy02.execute-api.us-west-2.amazonaws.com/dev"
 }
 
+variable "register_custom_metadata" {
+  type = string
+  default = "TRUE"
+  description = "flag to decide if custom metadata will be added. "
+}
+
 variable "lambda_processing_role_arn" {
   type = string
+}
+
+variable "uds_es_cluster_instance_count" {
+  type = number
+  default = 2
+  description = "How many EC2 instances for Opensearch"
+}
+
+variable "uds_es_cluster_instance_type" {
+  type = string
+  default = "r5.large.elasticsearch"
+  description = "EC2 instance type for Opensearch"
+}
+
+variable "comma_separated_admin_groups" {
+  type = string
+  description = "comma separated cognito groups which will be authorized as ADMIN group"
 }
