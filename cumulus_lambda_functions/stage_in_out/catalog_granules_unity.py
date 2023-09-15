@@ -2,7 +2,7 @@ import json
 
 from cumulus_lambda_functions.stage_in_out.stage_in_out_utils import StageInOutUtils
 
-from cumulus_lambda_functions.cumulus_dapa_client.dapa_client import DapaClient
+from cumulus_lambda_functions.stage_in_out.dapa_client import DapaClient
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
 from cumulus_lambda_functions.stage_in_out.catalog_granules_abstract import CatalogGranulesAbstract
 import logging
