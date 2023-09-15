@@ -21,7 +21,7 @@
 <!-- ☝️ Screenshot of your software (if applicable) via ![](https://uri-to-your-screenshot) ☝️ -->
 
 This repository contains
-* Functions that parses metadata and is used within Cumulus workflows
+* Functions that parses metadata and is used within Cumulus workflows.
 * Functions that invoke Cumulus API and implement OGC DAPA and STAC
 * Functions for data search and download through OGC DAPA and STAC
 * Functions for data ingest through OGC DAPA, STAC, and CNM
