@@ -60,7 +60,7 @@ async def get_granules_dapa(request: Request, collection_id: str):
         for k, v in granule_index_mapping.items():
             granule_index_mapping = v
             break
-        granule_index_mapping = granule_index_mapping['properties']
+        granule_index_mapping = granule_index_mapping['mappings']['properties']
         for k in granules_db_index.default_fields.keys():
             if k in granule_index_mapping:
                 granule_index_mapping.pop(k)
