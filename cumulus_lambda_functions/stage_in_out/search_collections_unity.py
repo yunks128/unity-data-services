@@ -2,7 +2,7 @@ import json
 import logging
 import os
 
-from cumulus_lambda_functions.cumulus_dapa_client.dapa_client import DapaClient
+from cumulus_lambda_functions.stage_in_out.dapa_client import DapaClient
 from cumulus_lambda_functions.stage_in_out.search_collections_abstract import SearchCollectionsAbstract
 
 LOGGER = logging.getLogger(__name__)
