@@ -50,7 +50,13 @@ async def get_granules_dapa(request: Request, collection_id: str):
         }))
 
     try:
-        granule_index_mapping = GranulesDbIndex().get_latest_index(collection_identifier.tenant, collection_identifier.venue)
+        granules_db_index = GranulesDbIndex()
+        granule_index_mapping = granules_db_index.get_latest_index(collection_identifier.tenant, collection_identifier.venue)
+        granule_index_mapping = granule_index_mapping['properties']
+        for k in granules_db_index.default_fields.keys():
+            if k in granule_index_mapping:
+                granule_index_mapping.pop(k)
+
     except Exception as e:
         LOGGER.exception('failed during get_granules_dapa')
         raise HTTPException(status_code=500, detail=str(e))

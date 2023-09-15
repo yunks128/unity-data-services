@@ -20,6 +20,24 @@ class GranulesDbIndex:
                                                          base_url=os.getenv('ES_URL'),
                                                          port=int(os.getenv('ES_PORT', '443'))
                                                          )
+        self.__default_fields = {
+            "granule_id": {"type": "keyword"},
+            "collection_id": {"type": "keyword"},
+            "event_time": {"type": "long"}
+        }
+
+    @property
+    def default_fields(self):
+        return self.__default_fields
+
+    @default_fields.setter
+    def default_fields(self, val):
+        """
+        :param val:
+        :return: None
+        """
+        self.__default_fields = val
+        return
 
     def create_new_index(self, tenant, tenant_venue, es_mapping: dict):
         # TODO validate es_mapping
@@ -50,9 +68,7 @@ class GranulesDbIndex:
                 "dynamic": "strict",
                 "properties": {
                     **es_mapping,
-                    "granule_id": {"type": "keyword"},
-                    "collection_id": {"type": "keyword"},
-                    "event_time": {"type": "long"}
+                    **self.__default_fields,
                 }
             }
         }

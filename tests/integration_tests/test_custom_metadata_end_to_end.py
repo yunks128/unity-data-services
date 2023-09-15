@@ -42,6 +42,12 @@ class TestCustomMetadataEndToEnd(TestCase):
         self.tenant_venue = 'dev'
         self.collection_name = 'sbx_collection'
         self.collection_version = '2309141300'
+        self.custom_metadata_body = {
+            'tag': {'type': 'keyword'},
+            'c_data1': {'type': 'long'},
+            'c_data2': {'type': 'boolean'},
+            'c_data3': {'type': 'keyword'},
+        }
         return
 
     def test_01_setup_permissions(self):
@@ -70,19 +76,26 @@ class TestCustomMetadataEndToEnd(TestCase):
             'Authorization': f'Bearer {self.cognito_login.token}',
             'Content-Type': 'application/json',
         }
-        body = {
-            'tag': {'type': 'keyword'},
-            'c_data1': {'type': 'long'},
-            'c_data2': {'type': 'boolean'},
-            'c_data3': {'type': 'keyword'},
-        }
         query_result = requests.put(url=post_url,
                                     headers=headers,
-                                    json=body,
+                                    json=self.custom_metadata_body,
                                     )
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
         response_json = query_result.content.decode()
         print(response_json)
+        return
+
+    def test_02_01_get_custom_metadata_fields(self):
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
+        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/variables'  # MCP Dev
+        headers = {
+            'Authorization': f'Bearer {self.cognito_login.token}',
+        }
+        query_result = requests.get(url=post_url,
+                                     headers=headers)
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        print(query_result.text)
+        self.assertEqual(json.loads(query_result.text), self.custom_metadata_body, f'wrong body')
         return
 
     def test_03_create_collection(self):
