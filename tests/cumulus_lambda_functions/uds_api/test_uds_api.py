@@ -224,7 +224,12 @@ class TestCumulusCreateCollectionDapa(TestCase):
         expected_read_alias = {f'{index_name_prefix}__v02': {'aliases': {read_alias: {}}}, f'{index_name_prefix}__v01': {'aliases': {read_alias: {}}}}
         self.assertEqual(actual_read_alias, expected_read_alias)
         print('verified indices & aliases')
-
+        get_url = f'{self.uds_url}admin/custom_metadata/{project_name}?venue=DEV'
+        query_result = requests.get(url=get_url,
+                                       headers=headers,
+                                       )
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        print(f'query_result: {query_result.text}')
         delete_url = f'{self.uds_url}admin/custom_metadata/{project_name}/destroy?venue=DEV'  # MCP Dev
         query_result = requests.delete(url=delete_url,
                                         headers=headers,

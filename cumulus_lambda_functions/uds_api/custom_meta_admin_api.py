@@ -52,11 +52,11 @@ async def es_granules_index_setup(request: Request, tenant: str, venue: Union[st
     if is_admin_result['statusCode'] != 200:
         raise HTTPException(status_code=is_admin_result['statusCode'], detail=is_admin_result['body'])
     try:
-        GranulesDbIndex().get_latest_index(tenant, venue)
+        granules_index_mapping = GranulesDbIndex().get_latest_index(tenant, venue)
     except Exception as e:
-        LOGGER.exception(f'')
+        LOGGER.exception(f'failed to retrieve granules mapping')
         raise HTTPException(status_code=500, detail=str(e))
-    return {'message': 'successful'}
+    return granules_index_mapping
 
 
 @router.delete("/custom_metadata/{tenant}/destroy")
