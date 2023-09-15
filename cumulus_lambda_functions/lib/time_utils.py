@@ -30,6 +30,10 @@ class TimeUtils:
         self.__time_obj = datetime.fromtimestamp(converting_timestamp, timezone(timedelta(0, 0, 0, 0)))
         return self
 
+    def set_datetime_obj(self, time_obj: datetime):
+        self.__time_obj = time_obj
+        return self
+
     def get_datetime_obj(self):
         return self.__time_obj
 
