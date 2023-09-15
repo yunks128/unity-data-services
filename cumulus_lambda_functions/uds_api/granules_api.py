@@ -52,6 +52,14 @@ async def get_granules_dapa(request: Request, collection_id: str):
     try:
         granules_db_index = GranulesDbIndex()
         granule_index_mapping = granules_db_index.get_latest_index(collection_identifier.tenant, collection_identifier.venue)
+        # This is the response from the method
+        # {"unity_granule_main_project1694791693139_dev__v02":{"mappings":{"dynamic":"strict","properties":{"collection_id":{"type":"keyword"},"event_time":{"type":"long"},"granule_id":{"type":"keyword"},"last_updated":{"type":"long"},"tag":{"type":"keyword"}}}}}
+        # needs to drill down to properties
+        if len(granule_index_mapping) < 1:
+            raise ValueError(f'missing custom metadata DB index for : {collection_identifier.tenant}-{collection_identifier.venue}')
+        for k, v in granule_index_mapping.items():
+            granule_index_mapping = v
+            break
         granule_index_mapping = granule_index_mapping['properties']
         for k in granules_db_index.default_fields.keys():
             if k in granule_index_mapping:
