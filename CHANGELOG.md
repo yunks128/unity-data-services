@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - [#95](https://github.com/unity-sds/unity-data-services/pull/95) feat: elasticsearch branch
 
+## [5.3.3] - 2023-09-18
+### Changed
+- [#204](https://github.com/unity-sds/unity-data-services/pull/204) chore: clean.up - remove old codes
+
 ## [5.3.2] - 2023-08-28
 ### Changed
 - [#200](https://github.com/unity-sds/unity-data-services/pull/200) fix: parallelize upload

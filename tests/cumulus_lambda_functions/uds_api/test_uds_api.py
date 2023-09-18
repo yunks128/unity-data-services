@@ -6,7 +6,6 @@ from unittest import TestCase
 
 import requests
 
-from cumulus_lambda_functions.cumulus_collections_dapa.cumulus_create_collection_dapa import CumulusCreateCollectionDapa
 from cumulus_lambda_functions.cumulus_stac.unity_collection_stac import UnityCollectionStac
 from cumulus_lambda_functions.lib.cognito_login.cognito_token_retriever import CognitoTokenRetriever
 from cumulus_lambda_functions.lib.constants import Constants
