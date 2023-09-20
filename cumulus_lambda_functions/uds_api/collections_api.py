@@ -83,6 +83,9 @@ async def create_new_collection_real(request: Request, new_collection: dict):
 async def query_collections(request: Request, collection_id: Union[str, None] = None, limit: Union[int, None] = 10, offset: Union[int, None] = 0, ):
     LOGGER.debug(f'starting query_collections: {collection_id}')
     try:
+        if limit > CollectionDapaQuery.max_limit:
+            LOGGER.debug(f'incoming limit > {CollectionDapaQuery.max_limit}. resetting to max. incoming limit: {limit}')
+            limit = CollectionDapaQuery.max_limit
         pagination_links = PaginationLinksGenerator(request).generate_pagination_links()
         collections_dapa_query = CollectionDapaQuery(collection_id, limit, offset, pagination_links)
         collections_result = collections_dapa_query.start()
