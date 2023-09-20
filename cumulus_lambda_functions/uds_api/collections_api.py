@@ -86,6 +86,7 @@ async def query_collections(request: Request, collection_id: Union[str, None] = 
         if limit > CollectionDapaQuery.max_limit:
             LOGGER.debug(f'incoming limit > {CollectionDapaQuery.max_limit}. resetting to max. incoming limit: {limit}')
             limit = CollectionDapaQuery.max_limit
+        print(f'new limit: {limit}')
         pagination_links = PaginationLinksGenerator(request).generate_pagination_links()
         collections_dapa_query = CollectionDapaQuery(collection_id, limit, offset, pagination_links)
         collections_result = collections_dapa_query.start()
