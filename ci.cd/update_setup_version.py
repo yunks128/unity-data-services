@@ -47,7 +47,7 @@ def update_version():
     new_version = get_new_version(current_version)
 
     # Replace the old version with the new version in setup.py
-    updated_setup_contents = re.sub(version_pattern, f"version='{new_version}'", setup_contents)
+    updated_setup_contents = re.sub(version_pattern, f'version="{new_version}"', setup_contents)
 
     # Write the updated contents back to setup.py
     with open(setup_py_path, 'w') as setup_file:
