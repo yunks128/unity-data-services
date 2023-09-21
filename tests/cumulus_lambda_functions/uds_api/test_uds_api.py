@@ -36,6 +36,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
                                     )
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
         query_result = json.loads(query_result.text)
+        print(query_result)
         self.assertTrue('links' in query_result, 'links missing')
         links = {k['rel']: k for k in query_result['links']}
         self.assertTrue('next' in links, f'missing next in links: {links}')
