@@ -5,21 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [6.0.0] - 2023-09-21
-### Added
-- [#223](https://github.com/unity-sds/unity-data-services/pull/223) breaking: formatting changelog file
-
-## [5.4.0] - 2023-09-21
-### Changed
-- [#$222](https://github.com/unity-sds/unity-data-services/pull/222) feat: wrong insertion point for changelog
-
-## [5.3.5] - 2023-09-21
-### Fixed
-- [#$221](https://github.com/unity-sds/unity-data-services/pull/221) fix: remove print statements
-## [5.3.4] - 2023-09-21
-### Fixed
-- [#$220](https://github.com/unity-sds/unity-data-services/pull/220) fix:version increment does not work directly
-
 ## [5.3.3] - 2023-09-18
 ### Changed
 - [#204](https://github.com/unity-sds/unity-data-services/pull/204) chore: clean.up - remove old codes
