@@ -57,6 +57,7 @@ class TestDapaStac(TestCase):
         }
         s = requests.session()
         s.trust_env = False
+        print(collection_url)
         response = s.put(url=collection_url, headers={
             'Authorization': f'Bearer {self.cognito_login.token}',
             'Content-Type': 'application/json',

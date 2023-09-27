@@ -71,15 +71,15 @@ class UdsCollections:
         return self
 
     def get_collections(self, collection_regex: list):
-        temp_dsl = {
-            'query': {'match_all': {}},
-            'sort': [
-                {DBConstants.collection_id: {'order': 'asc'}}
-            ]
-        }
-        LOGGER.debug(f'temp_dsl: {temp_dsl}')
-        temp_result = self.__es.query_pages(temp_dsl, DBConstants.collections_index)
-        LOGGER.debug(f'temp_result: {temp_result}')
+        # temp_dsl = {
+        #     'query': {'match_all': {}},
+        #     'sort': [
+        #         {DBConstants.collection_id: {'order': 'asc'}}
+        #     ]
+        # }
+        # LOGGER.debug(f'temp_dsl: {temp_dsl}')
+        # temp_result = self.__es.query_pages(temp_dsl, DBConstants.collections_index)
+        # LOGGER.debug(f'temp_result: {temp_result}')
         authorized_collection_ids_dsl = {
             'query': {
                 'bool': {
