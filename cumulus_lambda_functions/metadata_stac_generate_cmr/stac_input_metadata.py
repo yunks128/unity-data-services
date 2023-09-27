@@ -1,3 +1,4 @@
+from copy import deepcopy
 from pystac import Item
 
 from cumulus_lambda_functions.cumulus_stac.item_transformer import ItemTransformer
@@ -15,6 +16,20 @@ class StacInputMetadata:
         self.__granule_id = None
         self.__prod_dt = None
         self.__insert_dt = None
+        self.__custom_properties = {}
+
+    @property
+    def custom_properties(self):
+        return self.__custom_properties
+
+    @custom_properties.setter
+    def custom_properties(self, val):
+        """
+        :param val:
+        :return: None
+        """
+        self.__custom_properties = val
+        return
 
     @property
     def beginning_dt(self):
@@ -107,8 +122,19 @@ class StacInputMetadata:
         self.__insert_dt = val
         return
 
+    def __remove_default_keys_in_custom_props(self):
+        ignoring_keys = ['start_datetime', 'end_datetime', 'created', 'updated', 'datetime']
+        for each_key in ignoring_keys:
+            if each_key in self.__custom_properties:
+                self.__custom_properties.pop(each_key)
+        return
     def start(self) -> GranuleMetadataProps:
         stac_item: Item = ItemTransformer().from_stac(self.__input_stac_dict)
+        self.__custom_properties = deepcopy(stac_item.properties)
+        self.__remove_default_keys_in_custom_props()
+        self.__custom_properties['collection_id'] = stac_item.collection_id  # TODO version is included
+        collection_led_granule_id = stac_item.id if stac_item.id.startswith(stac_item.collection_id) else f'{stac_item.collection_id}:{stac_item.id}'
+        self.__custom_properties['granule_id'] = collection_led_granule_id  # This needs to be start with collection_id to be consistent with cumulus granule_id which starts with collection
         granule_metadata_props = GranuleMetadataProps()
         granule_metadata_props.granule_id = stac_item.id
         collection_id_split = stac_item.collection_id.split('___')
