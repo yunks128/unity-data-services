@@ -72,7 +72,10 @@ class UdsCollections:
 
     def get_collections(self, collection_regex: list):
         temp_dsl = {
-            'query': {'match_all': {}}
+            'query': {'match_all': {}},
+            'sort': [
+                {DBConstants.collection_id: {'order': 'asc'}}
+            ]
         }
         LOGGER.debug(f'temp_dsl: {temp_dsl}')
         temp_result = self.__es.query_pages(temp_dsl, DBConstants.collections_index)
