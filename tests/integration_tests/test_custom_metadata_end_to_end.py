@@ -38,10 +38,10 @@ class TestCustomMetadataEndToEnd(TestCase):
             .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(),
                    base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
         self._url_prefix = f'{os.environ.get("UNITY_URL")}/{os.environ.get("UNITY_STAGE", "sbx-uds-dapa")}'
-        self.tenant = 'uds_sandbox'  # 'uds_local_test'  # 'uds_sandbox'
-        self.tenant_venue = 'dev'  # 'DEV1'  # 'dev'
-        self.collection_name = 'sbx_collection'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '2309270539'  # '2309141300'
+        self.tenant = 'uds_local_test'  # 'uds_local_test'  # 'uds_sandbox'
+        self.tenant_venue = 'DEV1'  # 'DEV1'  # 'dev'
+        self.collection_name = 'uds_collection'  # 'uds_collection'  # 'sbx_collection'
+        self.collection_version = '230927702'  # '2309141300'
         self.custom_metadata_body = {
             'tag': {'type': 'keyword'},
             'c_data1': {'type': 'long'},
@@ -105,7 +105,7 @@ class TestCustomMetadataEndToEnd(TestCase):
             'Content-Type': 'application/json',
         }
         print(post_url)
-        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
+        temp_collection_id = f'urn:nasa:unity:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
         dapa_collection = UnityCollectionStac() \
             .with_id(temp_collection_id) \
             .with_graule_id_regex("^test_file.*$") \
