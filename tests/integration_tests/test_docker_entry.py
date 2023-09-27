@@ -1833,9 +1833,25 @@ class TestDockerEntry(TestCase):
             upload_result_str = choose_process()
             upload_result = json.loads(upload_result_str)
             print(upload_result)
-            self.assertTrue('features' in upload_result, 'missing features')
-            self.assertEqual(total_files, len(upload_result['features']), 'wrong length of upload_result features')
-            upload_result = upload_result['features'][0]
+            """
+            {'type': 'Catalog', 'id': 'NA', 'stac_version': '1.0.0', 'description': 'NA', 'links': [{'rel': 'root', 'href': '/var/folders/33/xhq97d6s0dq78wg4h2smw23m0000gq/T/tmprew515jo/catalog.json', 'type': 'application/json'}, {'rel': 'item', 'href': '/var/folders/33/xhq97d6s0dq78wg4h2smw23m0000gq/T/tmprew515jo/successful_features.json', 'type': 'application/json'}, {'rel': 'item', 'href': '/var/folders/33/xhq97d6s0dq78wg4h2smw23m0000gq/T/tmprew515jo/failed_features.json', 'type': 'application/json'}]}
+            """
+            self.assertTrue('type' in upload_result, 'missing type')
+            self.assertEqual(upload_result['type'], 'Catalog', 'missing type')
+            upload_result = Catalog.from_dict(upload_result)
+            child_links = [k.href for k in upload_result.get_links(rel='item')]
+            self.assertEqual(len(child_links), 2, f'wrong length: {child_links}')
+            self.assertTrue(FileUtils.file_exist(child_links[0]), f'missing file: {child_links[0]}')
+            successful_feature_collection = ItemCollection.from_dict(FileUtils.read_json(child_links[0]))
+            successful_feature_collection = list(successful_feature_collection.items)
+            self.assertEqual(len(successful_feature_collection), total_files, f'wrong length: {successful_feature_collection}')
+
+            self.assertTrue(FileUtils.file_exist(child_links[1]), f'missing file: {child_links[1]}')
+            failed_feature_collection = ItemCollection.from_dict(FileUtils.read_json(child_links[1]))
+            failed_feature_collection = list(failed_feature_collection.items)
+            self.assertEqual(len(failed_feature_collection), 0, f'wrong length: {failed_feature_collection}')
+
+            upload_result = successful_feature_collection[0].to_dict(False, False)
             self.assertTrue('assets' in upload_result, 'missing assets')
             self.assertTrue('metadata__cas' in upload_result['assets'], 'missing assets#metadata__cas')
             self.assertTrue('href' in upload_result['assets']['metadata__cas'], 'missing assets#metadata__cas#href')

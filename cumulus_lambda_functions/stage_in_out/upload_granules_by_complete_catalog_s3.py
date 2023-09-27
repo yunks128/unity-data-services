@@ -1,4 +1,5 @@
 import json
+import time
 from multiprocessing import Manager
 
 from cumulus_lambda_functions.lib.utils.file_utils import FileUtils
@@ -21,19 +22,29 @@ LOGGER = logging.getLogger(__name__)
 
 
 class UploadItemExecutor(JobExecutorAbstract):
-    def __init__(self, result_list, error_list, collection_id, staging_bucket, delet_files: bool) -> None:
+    def __init__(self, result_list, error_list, collection_id, staging_bucket, retry_wait_time_sec, retry_times, delete_files: bool) -> None:
         super().__init__()
         self.__collection_id = collection_id
         self.__staging_bucket = staging_bucket
-        self.__delete_files = delet_files
+        self.__delete_files = delete_files
 
         self.__result_list = result_list
         self.__error_list = error_list
         self.__gc = GranulesCatalog()
         self.__s3 = AwsS3()
+        self.__retry_wait_time_sec = retry_wait_time_sec
+        self.__retry_times = retry_times
 
     def validate_job(self, job_obj):
         return True
+
+    # def __upload_function_w_retry(self, ):
+    #     upload_try_count = 1
+    #     while r.status_code in [502, 504] and upload_try_count < self.__retry_times:
+    #         LOGGER.error(f'502 or 504 while downloading {upload_try_count}. attempt: {upload_try_count}')
+    #         time.sleep(self.__retry_wait_time_sec)
+    #         upload_try_count += 1
+    #     return
 
     def execute_job(self, each_child, lock) -> bool:
         current_granule_stac = self.__gc.get_granules_item(each_child)
@@ -117,7 +128,7 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
         # https://www.infoworld.com/article/3542595/6-python-libraries-for-parallel-processing.html
         multithread_processor_props = MultiThreadProcessorProps(self._parallel_count)
         multithread_processor_props.job_manager = JobManagerMemory(job_manager_props)
-        multithread_processor_props.job_executor = UploadItemExecutor(local_items, error_list, self.__collection_id, self.__staging_bucket, self.__delete_files)
+        multithread_processor_props.job_executor = UploadItemExecutor(local_items, error_list, self.__collection_id, self.__staging_bucket, self.__retry_wait_time_sec, self.__retry_times, self.__delete_files)
         multithread_processor = MultiThreadProcessor(multithread_processor_props)
         multithread_processor.start()
 
