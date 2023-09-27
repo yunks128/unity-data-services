@@ -83,6 +83,7 @@ class UdsCollections:
                 {DBConstants.collection_id: {'order': 'asc'}}
             ]
         }
+        LOGGER.debug(f'authorized_collection_ids_dsl: {authorized_collection_ids_dsl}')
         authorized_collection_ids = self.__es.query_pages(authorized_collection_ids_dsl, DBConstants.collections_index)
         authorized_collection_ids = [k['_source'] for k in authorized_collection_ids['hits']['hits']]
         return authorized_collection_ids

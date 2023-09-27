@@ -27,17 +27,18 @@ class TestDapaStac(TestCase):
 
     def test_setup_es(self):
         es_setup_url = f'{self._url_prefix}/admin/system/es_setup/'
+        print(f'es_setup_url: {es_setup_url}')
         s = requests.session()
         s.trust_env = False
         response = s.put(url=es_setup_url, headers={'Authorization': f'Bearer {self.cognito_login.token}'}, verify=False)
         self.assertEqual(response.status_code, 200, f'wrong status code: {response.text}')
-
         return
 
     def test_list_admin_list_01(self):
         collection_url = f'{self._url_prefix}/admin/auth'
         s = requests.session()
         s.trust_env = False
+        print(collection_url)
         response = s.get(url=collection_url, headers={'Authorization': f'Bearer {self.cognito_login.token}'}, verify=False)
         self.assertEqual(response.status_code, 200, f'wrong status code: {response.text}')
         response_json = json.loads(response.content.decode())

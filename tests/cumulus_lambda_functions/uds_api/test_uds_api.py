@@ -43,14 +43,12 @@ class TestCumulusCreateCollectionDapa(TestCase):
 
 
     def test_collections_get(self):
-        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
-        post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/collections/'  # JPL Cloud
         post_url = f'{self.uds_url}collections/'  # MCP Dev
         # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/'  # MCP Dev
         headers = {
             'Authorization': f'Bearer {self.bearer_token}',
         }
-
+        print(post_url)
         query_result = requests.get(url=post_url,
                                     headers=headers,
                                     )
