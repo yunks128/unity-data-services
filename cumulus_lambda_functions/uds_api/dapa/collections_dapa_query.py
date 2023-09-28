@@ -8,6 +8,8 @@ LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_le
 
 
 class CollectionDapaQuery:
+    max_limit = 50
+
     def __init__(self, collection_id, limit, offset, pagination_links):
         self.__pagination_links = pagination_links
         page_number = (offset // limit) + 1
