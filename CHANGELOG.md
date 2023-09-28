@@ -5,9 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [5.3.4] - 2023-09-21
+## [5.5.1] - 2023-09-21
 ### Changed
 - [#207](https://github.com/unity-sds/unity-data-services/pull/207) feat: upper limit = 50 for collections
+
+## [5.5.0] - 2023-09-28
+### Added
+- [#201](https://github.com/unity-sds/unity-data-services/pull/201) feat: Custom metadata mechanism
+
+## [5.4.0] - 2023-08-16
+### Added
+- [#95](https://github.com/unity-sds/unity-data-services/pull/95) feat: elasticsearch branch
 
 ## [5.3.3] - 2023-09-18
 ### Changed

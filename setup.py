@@ -1,6 +1,10 @@
 from setuptools import find_packages, setup
 
 install_requires = [
+    'elasticsearch===7.13.4',
+    'urllib3===1.26.11',
+    'requests_aws4auth',
+    'requests===2.31.0',
     'pystac', 'jsonschema',
     'fastjsonschema',
     'xmltodict',
@@ -22,7 +26,7 @@ extra_requires = ['botocore', 'boto3',]
 
 setup(
     name="cumulus_lambda_functions",
-    version="5.3.4",
+    version="5.5.1",
     packages=find_packages(),
     install_requires=install_requires,
     tests_require=['mock', 'nose', 'sphinx', 'sphinx_rtd_theme', 'coverage', 'pystac', 'python-dotenv', 'jsonschema'],
