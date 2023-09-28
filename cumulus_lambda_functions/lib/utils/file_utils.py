@@ -32,7 +32,7 @@ class FileUtils:
 
     @staticmethod
     def is_relative_path(file_path):
-        regex = re.compile('^([A-Za-z0-9-]+)://.+$', re.IGNORECASE)
+        regex = re.compile('^([A-Za-z0-9-]+)://.+$')
         current_granule_id = re.findall(regex, file_path)
         if len(current_granule_id) > 0:
             return False
