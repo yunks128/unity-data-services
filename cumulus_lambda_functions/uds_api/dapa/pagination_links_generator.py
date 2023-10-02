@@ -6,10 +6,11 @@ LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_le
 
 
 class PaginationLinksGenerator:
-    def __init__(self, request: Request):
+    def __init__(self, request: Request, custom_params: dict = {}):
         self.__default_limit = 10
         self.__request = request
         self.__org_query_params = {k: v for k, v in request.query_params.items()}
+        self.__org_query_params = {**self.__org_query_params, **custom_params}
 
 
     def __get_current_page(self):
