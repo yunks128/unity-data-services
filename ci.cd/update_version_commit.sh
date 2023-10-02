@@ -20,5 +20,4 @@ echo ${pr_number}
 #gh pr review $pr_number --approve
 # hi
 gh pr merge $pr_number --squash --admin
-git branch -D ${temp_branch}
-
+git push origin --delete ${temp_branch}
