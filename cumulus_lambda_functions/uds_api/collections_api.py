@@ -25,7 +25,7 @@ LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_le
 
 router = APIRouter(
     prefix=f'/{WebServiceConstants.COLLECTIONS}',
-    tags=["Process CRUD"],
+    tags=["Collection CRUD API"],
     responses={404: {"description": "Not found"}},
 )
 
