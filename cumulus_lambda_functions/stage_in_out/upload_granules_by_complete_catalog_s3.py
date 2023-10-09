@@ -39,6 +39,7 @@ class UploadItemExecutor(JobExecutorAbstract):
         return True
 
     # def __upload_function_w_retry(self, ):
+    # NOTE: 2023-10-09: we are not proceeding with "retry" logic at this moment as most the errors (when failed to upload) are not transient.
     #     upload_try_count = 1
     #     while r.status_code in [502, 504] and upload_try_count < self.__retry_times:
     #         LOGGER.error(f'502 or 504 while downloading {upload_try_count}. attempt: {upload_try_count}')
