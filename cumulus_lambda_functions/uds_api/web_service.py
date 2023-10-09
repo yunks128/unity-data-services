@@ -1,5 +1,7 @@
 import os
 
+from fastapi.openapi.utils import get_openapi
+
 from cumulus_lambda_functions.lib.constants import Constants
 
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
@@ -21,13 +23,19 @@ app = FastAPI(title='Unity UDS API',
               description='API to interact with UDS services',
               docs_url=f'/{api_base_prefix}/docs',
               redoc_url=f'/{api_base_prefix}/redoc',
-              openapi_url=f'/dev/{api_base_prefix}/docs/openapi',  # TODO temporarily adding /dev to see if it works.
+              openapi_url=f'/{api_base_prefix}/docs/openapi',
               )
 app.include_router(main_router, prefix=f'/{api_base_prefix}')
 
 @app.get("/")
 async def root(request: Request):
     return {"message": "Hello World", "root_path": request.scope.get("root_path")}
+
+
+@app.get(f'/{api_base_prefix}/openapi')
+@app.get(f'/{api_base_prefix}/openapi/')
+async def get_open_api(request: Request):
+    return app.openapi()
 
 
 # to make it work with Amazon Lambda, we create a handler object
