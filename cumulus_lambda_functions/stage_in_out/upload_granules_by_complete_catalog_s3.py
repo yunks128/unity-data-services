@@ -1,5 +1,8 @@
 import json
+import time
 from multiprocessing import Manager
+
+from cumulus_lambda_functions.lib.utils.file_utils import FileUtils
 
 from cumulus_lambda_functions.lib.constants import Constants
 from pystac import ItemCollection
@@ -19,23 +22,33 @@ LOGGER = logging.getLogger(__name__)
 
 
 class UploadItemExecutor(JobExecutorAbstract):
-    def __init__(self, result_list, error_list, collection_id, staging_bucket, delet_files: bool) -> None:
+    def __init__(self, result_list, error_list, collection_id, staging_bucket, retry_wait_time_sec, retry_times, delete_files: bool) -> None:
         super().__init__()
         self.__collection_id = collection_id
         self.__staging_bucket = staging_bucket
-        self.__delete_files = delet_files
+        self.__delete_files = delete_files
 
         self.__result_list = result_list
         self.__error_list = error_list
         self.__gc = GranulesCatalog()
         self.__s3 = AwsS3()
+        self.__retry_wait_time_sec = retry_wait_time_sec
+        self.__retry_times = retry_times
 
     def validate_job(self, job_obj):
         return True
 
+    # def __upload_function_w_retry(self, ):
+    #     upload_try_count = 1
+    #     while r.status_code in [502, 504] and upload_try_count < self.__retry_times:
+    #         LOGGER.error(f'502 or 504 while downloading {upload_try_count}. attempt: {upload_try_count}')
+    #         time.sleep(self.__retry_wait_time_sec)
+    #         upload_try_count += 1
+    #     return
+
     def execute_job(self, each_child, lock) -> bool:
+        current_granule_stac = self.__gc.get_granules_item(each_child)
         try:
-            current_granule_stac = self.__gc.get_granules_item(each_child)
             current_granules_dir = os.path.dirname(each_child)
             current_assets = self.__gc.extract_assets_href(current_granule_stac, current_granules_dir)
             if 'data' not in current_assets:
@@ -64,8 +77,9 @@ class UploadItemExecutor(JobExecutorAbstract):
             current_granule_stac.id = f'{self.__collection_id}:{current_granule_id}'
             self.__result_list.put(current_granule_stac.to_dict(False, False))
         except Exception as e:
+            current_granule_stac.properties['upload_error'] = str(e)
             LOGGER.exception(f'error while processing: {each_child}')
-            self.__error_list.put({'href': each_child, 'error': str(e)})
+            self.__error_list.put(current_granule_stac.to_dict(False, False))
         return True
 
 
@@ -86,6 +100,8 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
         self.__delete_files = False
         self.__s3 = AwsS3()
         self._parallel_count = int(os.environ.get(Constants.PARALLEL_COUNT, '-1'))
+        self.__retry_wait_time_sec = int(os.environ.get('UPLOAD_RETRY_WAIT_TIME', '30'))
+        self.__retry_times = int(os.environ.get('UPLOAD_RETRY_TIMES', '5'))
 
     def __set_props_from_env(self):
         missing_keys = [k for k in [self.CATALOG_FILE, self.COLLECTION_ID_KEY, self.STAGING_BUCKET_KEY] if k not in os.environ]
@@ -101,7 +117,8 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
 
     def upload(self, **kwargs) -> str:
         self.__set_props_from_env()
-        child_links = self.__gc.get_child_link_hrefs(os.environ.get(self.CATALOG_FILE))
+        catalog_file_path = os.environ.get(self.CATALOG_FILE)
+        child_links = self.__gc.get_child_link_hrefs(catalog_file_path)
         local_items = Manager().Queue()
         error_list = Manager().Queue()
         job_manager_props = JobManagerProps()
@@ -111,7 +128,7 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
         # https://www.infoworld.com/article/3542595/6-python-libraries-for-parallel-processing.html
         multithread_processor_props = MultiThreadProcessorProps(self._parallel_count)
         multithread_processor_props.job_manager = JobManagerMemory(job_manager_props)
-        multithread_processor_props.job_executor = UploadItemExecutor(local_items, error_list, self.__collection_id, self.__staging_bucket, self.__delete_files)
+        multithread_processor_props.job_executor = UploadItemExecutor(local_items, error_list, self.__collection_id, self.__staging_bucket, self.__retry_wait_time_sec, self.__retry_times, self.__delete_files)
         multithread_processor = MultiThreadProcessor(multithread_processor_props)
         multithread_processor.start()
 
@@ -123,8 +140,16 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
         errors = []
         while not error_list.empty():
             errors.append(error_list.get())
-        if len(errors) > 0:
-            LOGGER.error(f'some errors while uploading granules: {errors}')
-        LOGGER.debug(f'dapa_body_granules: {dapa_body_granules}')
-        uploaded_item_collections = ItemCollection(items=dapa_body_granules)
-        return json.dumps(uploaded_item_collections.to_dict(False))
+        LOGGER.debug(f'successful count: {len(dapa_body_granules)}. failed count: {len(errors)}')
+        successful_item_collections = ItemCollection(items=dapa_body_granules)
+        failed_item_collections = ItemCollection(items=errors)
+        catalog_file_dir = os.path.dirname(catalog_file_path)
+        successful_features_file = os.path.join(catalog_file_dir, 'successful_features.json')
+        failed_features_file = os.path.join(catalog_file_dir, 'failed_features.json')
+        LOGGER.debug(f'writing results: {successful_features_file} && {failed_features_file}')
+        FileUtils.write_json(successful_features_file, successful_item_collections.to_dict(False))
+        FileUtils.write_json(failed_features_file, failed_item_collections.to_dict(False))
+        LOGGER.debug(f'creating response catalog')
+        catalog_json = GranulesCatalog().update_catalog(catalog_file_path, [successful_features_file, failed_features_file])
+        LOGGER.debug(f'catalog_json: {catalog_json}')
+        return json.dumps(catalog_json)

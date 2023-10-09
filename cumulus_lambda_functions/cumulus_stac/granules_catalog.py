@@ -1,11 +1,20 @@
 import os
 
-from pystac import Catalog, Item, Asset
+from pystac import Catalog, Item, Asset, Link
 
 from cumulus_lambda_functions.lib.utils.file_utils import FileUtils
 
 
 class GranulesCatalog:
+    def update_catalog(self, catalog_file_path: str, file_paths: list, rel_name: str = 'item'):
+        if not FileUtils.file_exist(catalog_file_path):
+            raise ValueError(f'missing file: {catalog_file_path}')
+        catalog = FileUtils.read_json(catalog_file_path)
+        catalog = Catalog.from_dict(catalog)
+        catalog.clear_links(rel_name)
+        for each_path in file_paths:
+            catalog.add_link(Link('item', each_path, 'application/json'))
+        return catalog.to_dict(False, False)
 
     def get_child_link_hrefs(self, catalog_file_path: str, rel_name: str = 'item'):
         if not FileUtils.file_exist(catalog_file_path):
