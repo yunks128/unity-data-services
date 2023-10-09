@@ -64,6 +64,7 @@ class GranulesDapaQuery:
     def __get_filter(self, filter_input: str):
         """
         https://portal.ogc.org/files/96288#rc_filter
+        https://portal.ogc.org/files/96288#simple-cql_comparison-predicates
 
         { "eq": [ { "property": "city" }, "Toronto" ] }
 
@@ -76,7 +77,7 @@ class GranulesDapaQuery:
           "nocase": true
         }
 
-        {
+{
   "in": {
      "value": { "property": "cityName" },
      "list": [ "Toronto", "Franfurt", "Tokyo", "New York" ],
