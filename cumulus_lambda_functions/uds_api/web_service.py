@@ -1,5 +1,7 @@
 import os
 
+from fastapi.openapi.utils import get_openapi
+
 from cumulus_lambda_functions.lib.constants import Constants
 
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
@@ -17,13 +19,23 @@ from cumulus_lambda_functions.uds_api.web_service_constants import WebServiceCon
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 api_base_prefix = os.environ.get(Constants.DAPA_API_PREIFX_KEY) if Constants.DAPA_API_PREIFX_KEY in os.environ else WebServiceConstants.API_PREFIX
-app = FastAPI(title='Cryptocurrency API',
-              description='API to track current prices and trading signals')
+app = FastAPI(title='Unity UDS API',
+              description='API to interact with UDS services',
+              docs_url=f'/{api_base_prefix}/docs',
+              redoc_url=f'/{api_base_prefix}/redoc',
+              openapi_url=f'/{api_base_prefix}/docs/openapi',
+              )
 app.include_router(main_router, prefix=f'/{api_base_prefix}')
 
 @app.get("/")
 async def root(request: Request):
     return {"message": "Hello World", "root_path": request.scope.get("root_path")}
+
+
+@app.get(f'/{api_base_prefix}/openapi')
+@app.get(f'/{api_base_prefix}/openapi/')
+async def get_open_api(request: Request):
+    return app.openapi()
 
 
 # to make it work with Amazon Lambda, we create a handler object
