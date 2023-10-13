@@ -19,6 +19,12 @@ from cumulus_lambda_functions.lib.aws.aws_lambda import AwsLambda
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
+class SummariesModel(BaseModel):
+    granuleId: list[str]
+    granuleIdExtraction: list[str]
+    process: list[str]
+
+
 class ExtentModel(BaseModel):
     temporal: dict
     spatial: dict
@@ -52,9 +58,9 @@ class CumulusCollectionModel(BaseModel):
     title: str
     description: Optional[str] = 'TODO'
     license: Optional[str] = 'proprietary'
-    process: list[str]
-    summaries: Optional[dict] = {}
+    summaries: SummariesModel
     links: list[CumulusLinkModel]
+    providers: list[dict]
     extent: ExtentModel
 
 class CollectionDapaCreation:
