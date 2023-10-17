@@ -35,6 +35,10 @@ async def root(request: Request):
 @app.get(f'/{api_base_prefix}/openapi')
 @app.get(f'/{api_base_prefix}/openapi/')
 async def get_open_api(request: Request):
+    default_open_api_doc = app.openapi()
+    dropping_keys = [k for k in default_open_api_doc['paths'].keys() if not k.endswith('/')]
+    for k in dropping_keys:
+        default_open_api_doc['paths'].pop(k)
     return app.openapi()
 
 
