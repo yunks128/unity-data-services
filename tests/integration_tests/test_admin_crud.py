@@ -49,9 +49,9 @@ class TestDapaStac(TestCase):
         collection_url = f'{self._url_prefix}/admin/auth'
         admin_add_body = {
             "actions": ["READ", "CREATE"],
-            "resources": ["urn:nasa:unity:uds_local_test:DEV1:.*"],
-            "tenant": "uds_local_test",
-            "venue": f"DEV1-{int(datetime.utcnow().timestamp())}",
+            "resources": ["URN:NASA:UNITY:MAIN_PROJECT:DEV:.*"],
+            "tenant": "MAIN_PROJECT",
+            "venue": f"DEV-{int(datetime.utcnow().timestamp())}",
             # "venue": f"DEV1",
             "group_name": "Unity_Viewer"
         }
