@@ -66,3 +66,7 @@ class CqlParser:
                 'range': {str(parsed_obj.lhs.name): {'gte': parsed_obj.rhs}},
             }
         return
+
+    def transform(self, parsed_text):
+        parsed_obj = text_parse(parsed_text)
+        return self.__transform_this(parsed_obj)
