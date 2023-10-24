@@ -38,10 +38,10 @@ class TestCustomMetadataEndToEnd(TestCase):
             .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(),
                    base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
         self._url_prefix = f'{os.environ.get("UNITY_URL")}/{os.environ.get("UNITY_STAGE", "sbx-uds-dapa")}'
-        self.tenant = 'uds_local_test'  # 'uds_local_test'  # 'uds_sandbox'
-        self.tenant_venue = 'DEV1'  # 'DEV1'  # 'dev'
+        self.tenant = 'uds_sandbox'  # 'uds_local_test'  # 'uds_sandbox'
+        self.tenant_venue = 'dev'  # 'DEV1'  # 'dev'
         self.collection_name = 'uds_collection'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '230927702'  # '2309141300'
+        self.collection_version = '2310231744'  # '2309141300'
         self.custom_metadata_body = {
             'tag': {'type': 'keyword'},
             'c_data1': {'type': 'long'},
@@ -70,7 +70,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         print(response_json)
         return
 
-    def test_02_setup_custom_metadata_index(self):
+    def test_02_01_setup_custom_metadata_index(self):
         post_url = f'{self._url_prefix}/admin/custom_metadata/{self.tenant}?venue={self.tenant_venue}'  # MCP Dev
         headers = {
             'Authorization': f'Bearer {self.cognito_login.token}',
@@ -85,7 +85,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         print(response_json)
         return
 
-    def test_02_01_get_custom_metadata_fields(self):
+    def test_02_02_get_custom_metadata_fields(self):
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
         post_url = f'{self._url_prefix}/collections/{temp_collection_id}/variables'  # MCP Dev
         headers = {
@@ -339,21 +339,22 @@ class TestCustomMetadataEndToEnd(TestCase):
 
         :return:
         """
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
         upload_result = {'type': 'FeatureCollection', 'features': [{
             'type': 'Feature', 'stac_version': '1.0.0',
-            'id': 'URN:NASA:UNITY:uds_sandbox:dev:sbx_collection___2309141300:test_file01',
+            'id': f'{temp_collection_id}:test_file01',
             'properties': {'tag': '#sample', 'c_data1': [1, 10, 100, 1000], 'c_data2': [False, True, True, False, True],
                            'c_data3': ['Bellman Ford'], 'start_datetime': '2016-01-31T18:00:00.009057Z',
                            'end_datetime': '2016-01-31T19:59:59.991043Z', 'created': '2016-02-01T02:45:59.639000Z',
                            'updated': '2022-03-23T15:48:21.578000Z', 'datetime': '1970-01-01T00:00:00Z'},
             'geometry': {'type': 'Point', 'coordinates': [0.0, 0.0]}, 'links': [], 'assets': {'data': {
-                'href': 's3://uds-sbx-cumulus-staging/URN:NASA:UNITY:uds_sandbox:dev:sbx_collection___2309141300/URN:NASA:UNITY:uds_sandbox:dev:sbx_collection___2309141300:test_file01/test_file01.nc',
+                'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:test_file01/test_file01.nc',
                 'title': 'main data'}, 'metadata__cas': {
-                'href': 's3://uds-sbx-cumulus-staging/URN:NASA:UNITY:uds_sandbox:dev:sbx_collection___2309141300/URN:NASA:UNITY:uds_sandbox:dev:sbx_collection___2309141300:test_file01/test_file01.nc.cas',
+                'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:test_file01/test_file01.nc.cas',
                 'title': 'metadata cas'}, 'metadata__stac': {
-                'href': 's3://uds-sbx-cumulus-staging/URN:NASA:UNITY:uds_sandbox:dev:sbx_collection___2309141300/URN:NASA:UNITY:uds_sandbox:dev:sbx_collection___2309141300:test_file01/test_file01.nc.stac.json',
+                'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:test_file01/test_file01.nc.stac.json',
                 'title': 'metadata stac'}}, 'bbox': [0.0, 0.0, 0.0, 0.0], 'stac_extensions': [],
-            'collection': 'URN:NASA:UNITY:uds_sandbox:dev:sbx_collection___2309141300'}]}
+            'collection': temp_collection_id}]}
 
         os.environ['PASSWORD_TYPE'] = 'BASE64'
         os.environ['DAPA_API'] = os.environ.get("UNITY_URL")

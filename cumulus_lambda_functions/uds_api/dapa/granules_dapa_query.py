@@ -5,13 +5,6 @@ from cumulus_lambda_functions.cumulus_stac.item_transformer import ItemTransform
 
 from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
 
-from cumulus_lambda_functions.lib.aws.es_abstract import ESAbstract
-
-from cumulus_lambda_functions.lib.aws.es_factory import ESFactory
-from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
-
-from cumulus_lambda_functions.lib.utils.lambda_api_gateway_utils import LambdaApiGatewayUtils
-
 from cumulus_lambda_functions.lib.json_validator import JsonValidator
 
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
@@ -29,13 +22,6 @@ class GranulesDapaQuery:
         if 'CUMULUS_LAMBDA_PREFIX' not in os.environ:
             raise EnvironmentError('missing key: CUMULUS_LAMBDA_PREFIX')
         self.__granules_index = GranulesDbIndex()
-        collection_identifier = UdsCollections.decode_identifier(collection_id)
-        read_alias_name = f'{DBConstants.granules_read_alias_prefix}_{collection_identifier.tenant}_{collection_identifier.venue}'.lower().strip()
-        self.__es: ESAbstract = ESFactory().get_instance('AWS',
-                                                         index=read_alias_name,
-                                                         base_url=os.getenv('ES_URL'),
-                                                         port=int(os.getenv('ES_PORT', '443'))
-                                                         )
         self.__cumulus_lambda_prefix = os.getenv('CUMULUS_LAMBDA_PREFIX')
         self.__cumulus = GranulesQuery('https://na/dev', 'NA')
         self.__cumulus.with_limit(limit)
@@ -155,8 +141,9 @@ class GranulesDapaQuery:
                 }
             }
         }
+        collection_identifier = UdsCollections.decode_identifier(self.__collection_id)
         LOGGER.debug(f'custom_metadata_query_dsl: {custom_metadata_query_dsl}')
-        custom_metadata_result = self.__es.query_pages(custom_metadata_query_dsl)
+        custom_metadata_result = GranulesDbIndex().dsl_search(collection_identifier.tenant, collection_identifier.venue, custom_metadata_query_dsl)
         LOGGER.debug(f'custom_metadata_result: {custom_metadata_result}')
         custom_metadata_result = [k['_source'] for k in custom_metadata_result['hits']['hits']]
         custom_metadata_result = {k['granule_id']: k for k in custom_metadata_result}
