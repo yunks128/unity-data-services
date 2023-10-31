@@ -1,5 +1,4 @@
-from cumulus_lambda_functions.cumulus_collections_dapa.cumulus_collections_dapa import CumulusCollectionsDapa
-from cumulus_lambda_functions.cumulus_collections_dapa.cumulus_create_collection_dapa import CumulusCreateCollectionDapa
+from cumulus_lambda_functions.cumulus_es_setup.es_setup import SetupESIndexAlias
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 
 
@@ -11,10 +10,4 @@ def lambda_handler(event, context):
     :return:
     """
     LambdaLoggerGenerator.remove_default_handlers()
-    # TODO implement
-    return CumulusCollectionsDapa(event).start()
-
-
-def lambda_handler_ingestion(event, context):
-    LambdaLoggerGenerator.remove_default_handlers()
-    return CumulusCreateCollectionDapa(event).start()
+    return SetupESIndexAlias().start()

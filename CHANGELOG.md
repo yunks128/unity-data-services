@@ -5,10 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.5.5] - 2023-10-09
+### Fixed
+- [#252](https://github.com/unity-sds/unity-data-services/pull/252) fix: version update + changelog via pr
+
+## [5.5.4] - 2023-10-03
+### Fixed
+- [#249](https://github.com/unity-sds/unity-data-services/pull/249) chore: update version + change log
+
+## [5.5.3] - 2023-10-03
+### Fixed
+- [#248](https://github.com/unity-sds/unity-data-services/pull/248) fix: github action write protected branch 15
+
+## [5.5.2] - 2023-10-02
+### Fixed
+- [#233](https://github.com/unity-sds/unity-data-services/pull/233) fix: github action write protected branch 7
+
+## [5.5.1] - 2023-09-21
+### Changed
+- [#207](https://github.com/unity-sds/unity-data-services/pull/207) feat: upper limit = 50 for collections
+
+## [5.5.0] - 2023-09-28
+### Added
+- [#201](https://github.com/unity-sds/unity-data-services/pull/201) feat: Custom metadata mechanism
+
+## [5.4.0] - 2023-08-16
+### Added
+- [#95](https://github.com/unity-sds/unity-data-services/pull/95) feat: elasticsearch branch
+
+## [5.3.3] - 2023-09-18
+### Changed
+- [#204](https://github.com/unity-sds/unity-data-services/pull/204) chore: clean.up - remove old codes
+
 ## [5.3.2] - 2023-08-28
 ### Changed
 - [#200](https://github.com/unity-sds/unity-data-services/pull/200) fix: parallelize upload
-- 
+
 ## [5.3.1] - 2023-08-16
 ### Changed
 - [#194](https://github.com/unity-sds/unity-data-services/pull/194) fix: Cataloging large number asynchronously by batch + download is stuck when there are large number of files
