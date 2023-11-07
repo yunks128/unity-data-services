@@ -1,5 +1,7 @@
 import os
 
+from cumulus_lambda_functions.lib.time_utils import TimeUtils
+
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 
 from cumulus_lambda_functions.lib.aws.es_abstract import ESAbstract
@@ -114,3 +116,17 @@ class GranulesDbIndex:
             LOGGER.debug(f'deleting index: {each_index}')
             self.__es.delete_index(each_index)
         return
+
+    def add_entry(self, tenant: str, tenant_venue: str, json_body: dict, doc_id: str, ):
+        write_alias_name = f'{DBConstants.granules_write_alias_prefix}_{tenant}_{tenant_venue}'.lower().strip()
+        json_body['event_time'] = TimeUtils.get_current_unix_milli()
+        # TODO validate custom metadata vs the latest index to filter extra items
+        self.__es.index_one(json_body, doc_id, index=write_alias_name)  # TODO assuming granule_id is prefixed with collection id
+        LOGGER.debug(f'custom_metadata indexed')
+        return
+
+    def dsl_search(self, tenant: str, tenant_venue: str, search_dsl: dict):
+        read_alias_name = f'{DBConstants.granules_read_alias_prefix}_{tenant}_{tenant_venue}'.lower().strip()
+        search_result = self.__es.query_pages(search_dsl, querying_index=read_alias_name) if 'sort' in search_dsl else self.__es.query(search_dsl, querying_index=read_alias_name)
+        LOGGER.debug(f'search_finished: {len(search_result["hits"]["hits"])}')
+        return search_result
