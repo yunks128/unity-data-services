@@ -2,6 +2,7 @@ import json
 import os
 
 from cumulus_lambda_functions.cumulus_stac.item_transformer import ItemTransformer
+from cumulus_lambda_functions.lib.cql_parser import CqlParser
 
 from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
 
@@ -18,6 +19,9 @@ LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_le
 class GranulesDapaQuery:
     def __init__(self, collection_id, limit, offset, datetime, filter_input, pagination_links):
         self.__pagination_links = pagination_links
+        self.__limit = limit
+        self.__offset = offset
+        self.__filter_input = filter_input
         page_number = (offset // limit) + 1
         if 'CUMULUS_LAMBDA_PREFIX' not in os.environ:
             raise EnvironmentError('missing key: CUMULUS_LAMBDA_PREFIX')
@@ -30,6 +34,37 @@ class GranulesDapaQuery:
         self.__collection_id = collection_id
         self.__get_time_range(datetime)
         self.__get_filter(filter_input)
+        self.__es_granules_result = None  # this is where Elasticsearch granules result is stored
+
+    def __custom_metadata_query(self):
+        if self.__filter_input is None:
+            return self
+        LOGGER.debug(f'filter_input: {self.__filter_input}')
+        dsl_query = CqlParser().transform(self.__filter_input)
+        LOGGER.debug(f'CqlParser result: {dsl_query}')
+        custom_metadata_query_dsl = {
+            'from': self.__offset,
+            'size': self.__limit,
+            'query': {
+                'bool': {
+                    'must': [
+
+                        dsl_query,
+                    ]
+                }
+            }
+        }
+
+        LOGGER.debug(f'custom_metadata_query_dsl: {custom_metadata_query_dsl}')
+        collection_identifier = UdsCollections.decode_identifier(self.__collection_id)
+        LOGGER.debug(f'custom_metadata_query_dsl: {custom_metadata_query_dsl}')
+        custom_metadata_result = GranulesDbIndex().dsl_search(collection_identifier.tenant, collection_identifier.venue,
+                                                              custom_metadata_query_dsl)
+        LOGGER.debug(f'custom_metadata_result: {custom_metadata_result}')
+        custom_metadata_result = [k['_source'] for k in custom_metadata_result['hits']['hits']]
+        self.__es_granules_result = {k['granule_id']: k for k in custom_metadata_result}
+        return self
+
 
     def __get_time_range(self, datetime: str):
         if datetime is None:
@@ -151,6 +186,11 @@ class GranulesDapaQuery:
 
     def start(self):
         try:
+            self.__custom_metadata_query()
+            if self.__es_granules_result is not None:
+                # already queried custom metadata.
+                # just need to find those granule ids from Cumulus.
+                self.__get_filter('granules_id', [k for k in self.__es_granules_result.keys()])
             cumulus_result = self.__cumulus.query_direct_to_private_api(self.__cumulus_lambda_prefix, False)
             if 'server_error' in cumulus_result:
                 return {

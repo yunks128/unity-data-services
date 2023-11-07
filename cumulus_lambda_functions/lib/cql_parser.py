@@ -18,17 +18,21 @@ class CqlParser:
     def __transform_this(self, parsed_obj):
         if isinstance(parsed_obj, And):
             return {
-                'must': [
-                    self.__transform_this(parsed_obj.lhs),
-                    self.__transform_this(parsed_obj.rhs),
-                ]
+                'bool': {
+                    'must': [
+                        self.__transform_this(parsed_obj.lhs),
+                        self.__transform_this(parsed_obj.rhs),
+                    ]
+                }
             }
         if isinstance(parsed_obj, Or):
             return {
-                'should': [
-                    self.__transform_this(parsed_obj.lhs),
-                    self.__transform_this(parsed_obj.rhs),
-                ]
+                'bool': {
+                    'should': [
+                        self.__transform_this(parsed_obj.lhs),
+                        self.__transform_this(parsed_obj.rhs),
+                    ]
+                }
             }
         if isinstance(parsed_obj, IsNull):
             return {
