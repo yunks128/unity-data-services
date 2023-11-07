@@ -16,7 +16,8 @@ class PaginationLinksGenerator:
     def __get_current_page(self):
         try:
             # requesting_base_url = f"{self.__request.base_url}{self.__request.url.path}"
-            requesting_base_url = f"{self.__request.url.scheme}://{self.__request.url.netloc}{self.__request.url.path}"
+            # requesting_base_url = f"{self.__request.url.scheme}://{self.__request.url.netloc}{self.__request.url.path}"
+            requesting_base_url = f"{self.__request.url.path}"
             new_queries = deepcopy(self.__org_query_params)
             limit = int(new_queries['limit'] if 'limit' in new_queries else self.__default_limit)
             offset = int(new_queries['offset'] if 'offset' in new_queries else 0)
@@ -30,7 +31,8 @@ class PaginationLinksGenerator:
 
     def __get_next_page(self):
         try:
-            requesting_base_url = f"{self.__request.url.scheme}://{self.__request.url.netloc}{self.__request.url.path}"
+            # requesting_base_url = f"{self.__request.url.scheme}://{self.__request.url.netloc}{self.__request.url.path}"
+            requesting_base_url = f"{self.__request.url.path}"
             new_queries = deepcopy(self.__org_query_params)
             limit = int(new_queries['limit'] if 'limit' in new_queries else self.__default_limit)
             if limit == 0:
@@ -47,7 +49,8 @@ class PaginationLinksGenerator:
 
     def __get_prev_page(self):
         try:
-            requesting_base_url = f"{self.__request.url.scheme}://{self.__request.url.netloc}{self.__request.url.path}"
+            # requesting_base_url = f"{self.__request.url.scheme}://{self.__request.url.netloc}{self.__request.url.path}"
+            requesting_base_url = f"{self.__request.url.path}"
             new_queries = deepcopy(self.__org_query_params)
             limit = int(new_queries['limit'] if 'limit' in new_queries else self.__default_limit)
             if limit == 0:
