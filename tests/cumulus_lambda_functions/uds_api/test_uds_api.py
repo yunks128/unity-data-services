@@ -99,7 +99,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
         headers = {
             'Authorization': f'Bearer {self.bearer_token}',
         }
-
+        print(post_url)
         query_result = requests.get(url=post_url,
                                     headers=headers,
                                     )

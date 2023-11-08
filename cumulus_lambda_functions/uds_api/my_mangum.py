@@ -13,11 +13,19 @@ logger = logging.getLogger("mangum")
 class MyMangum(Mangum):
 
     def __call__(self, event: LambdaEvent, context: LambdaContext) -> dict:
+        """
+        Overriding the original Mangum class so that we can store the deployed stage somewhere.
+        Currently, it is stored in ENV variable.
+
+        :param event:
+        :param context:
+        :return:
+        """
         os.environ[WebServiceConstants.DEPLOYED_STAGE] = event['requestContext']['stage']
         return super().__call__(event, context)
 
 '''
-
+Sample input Lambda Event
 {
   "resource": "/sbx-uds-dapa/collections",
   "path": "/sbx-uds-dapa/collections/",
@@ -25,7 +33,7 @@ class MyMangum(Mangum):
   "headers": {
     "Accept": "*/*",
     "Accept-Encoding": "gzip, deflate",
-    "Authorization": "Bearer eyJraWQiOiJsWmw3XC9yYXFVTVRaTHBVMnJ3bm1paXZKSCtpVFlONngxSUhQNndZaU03RT0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI4MjJiNmQwYy05MDU0LTRjNDMtYTkwZS04YjU5YjI2MTZiMzUiLCJjb2duaXRvOmdyb3VwcyI6WyJVbml0eV9WaWV3ZXIiLCJVbml0eV9BZG1pbiJdLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtd2VzdC0yLmFtYXpvbmF3cy5jb21cL3VzLXdlc3QtMl95YU93M3lqMHoiLCJjbGllbnRfaWQiOiI3MWcwYzczamw3N2dzcWh0bGZnMmh0Mzg4YyIsIm9yaWdpbl9qdGkiOiI1NzAxNDc4MC0zZTRkLTRmZGUtYmMwMC03MTg1ZTUyY2M3ZmYiLCJldmVudF9pZCI6ImZhYjYzNjNhLTMxNmEtNDE3MC05MDdkLWFiZWIxZGEwNDBkZiIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4iLCJhdXRoX3RpbWUiOjE2OTk0MDg3ODIsImV4cCI6MTY5OTQxMjM4MiwiaWF0IjoxNjk5NDA4NzgyLCJqdGkiOiJhZDRmMzdlYi05NmVhLTRlZjgtODY5Yy05ODJjOGIxNDdmZTEiLCJ1c2VybmFtZSI6IndwaHlvIn0.AfX5y2T1birsHnHA5O5P4qzG87oM2H_OS3ozUpnFyK32ZF0fyWjCodJaFxhYBkzM5tzfSsWq0N6dtqT0tuGU83gBlQBjC7kVmCw6QMhd2Cgb5LB5_eVUhyXQygNYq01hHpivO5RdEPBCrLl5ZTDDe3TqB18-ho42TY4Up-xQErHWpyu2n0UvIBYBtbO7baASQjuhYqQ4cn5gXZcG0VPBsHc5-nbRjWtbmZJNqHxaEmzNXPbJ6dBW5cNtvjhbTBv10zypC1xdXkdF_ZrDHKv-yfFReUCWPxxnu61iRw1heNMTouMvCwemfUHuXLM-u6_5Cp5qMKyalj5j6E_OQ8RBSw",
+    "Authorization": "Bearer <token>",
     "CloudFront-Forwarded-Proto": "https",
     "CloudFront-Is-Android-Viewer": "false",
     "CloudFront-Is-Desktop-Viewer": "true",
@@ -64,7 +72,7 @@ class MyMangum(Mangum):
       "gzip, deflate"
     ],
     "Authorization": [
-      "Bearer eyJraWQiOiJsWmw3XC9yYXFVTVRaTHBVMnJ3bm1paXZKSCtpVFlONngxSUhQNndZaU03RT0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI4MjJiNmQwYy05MDU0LTRjNDMtYTkwZS04YjU5YjI2MTZiMzUiLCJjb2duaXRvOmdyb3VwcyI6WyJVbml0eV9WaWV3ZXIiLCJVbml0eV9BZG1pbiJdLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtd2VzdC0yLmFtYXpvbmF3cy5jb21cL3VzLXdlc3QtMl95YU93M3lqMHoiLCJjbGllbnRfaWQiOiI3MWcwYzczamw3N2dzcWh0bGZnMmh0Mzg4YyIsIm9yaWdpbl9qdGkiOiI1NzAxNDc4MC0zZTRkLTRmZGUtYmMwMC03MTg1ZTUyY2M3ZmYiLCJldmVudF9pZCI6ImZhYjYzNjNhLTMxNmEtNDE3MC05MDdkLWFiZWIxZGEwNDBkZiIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4iLCJhdXRoX3RpbWUiOjE2OTk0MDg3ODIsImV4cCI6MTY5OTQxMjM4MiwiaWF0IjoxNjk5NDA4NzgyLCJqdGkiOiJhZDRmMzdlYi05NmVhLTRlZjgtODY5Yy05ODJjOGIxNDdmZTEiLCJ1c2VybmFtZSI6IndwaHlvIn0.AfX5y2T1birsHnHA5O5P4qzG87oM2H_OS3ozUpnFyK32ZF0fyWjCodJaFxhYBkzM5tzfSsWq0N6dtqT0tuGU83gBlQBjC7kVmCw6QMhd2Cgb5LB5_eVUhyXQygNYq01hHpivO5RdEPBCrLl5ZTDDe3TqB18-ho42TY4Up-xQErHWpyu2n0UvIBYBtbO7baASQjuhYqQ4cn5gXZcG0VPBsHc5-nbRjWtbmZJNqHxaEmzNXPbJ6dBW5cNtvjhbTBv10zypC1xdXkdF_ZrDHKv-yfFReUCWPxxnu61iRw1heNMTouMvCwemfUHuXLM-u6_5Cp5qMKyalj5j6E_OQ8RBSw"
+      "Bearer <token>"
     ],
     "CloudFront-Forwarded-Proto": [
       "https"
