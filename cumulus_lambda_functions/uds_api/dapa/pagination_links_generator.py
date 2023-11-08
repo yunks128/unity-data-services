@@ -15,6 +15,7 @@ class PaginationLinksGenerator:
         self.__org_query_params = {k: v for k, v in request.query_params.items()}
         self.__org_query_params = {**self.__org_query_params, **custom_params}
         self.__deployed_stage = os.environ.get(WebServiceConstants.DEPLOYED_STAGE, '')
+        self.__deployed_stage = f'/{self.__deployed_stage}' if len(self.__deployed_stage) > 0 and not self.__deployed_stage.startswith('/') else ''
 
 
     def __get_current_page(self):
