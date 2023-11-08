@@ -27,9 +27,10 @@ class TestCumulusCreateCollectionDapa(TestCase):
         # post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/'  # JPL Cloud
         # post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/'  # MCP Dev
         # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/'  # MCP Dev
-
-        self.uds_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/'
-        self.uds_url = 'https://d3vc8w9zcq658.cloudfront.net/sbx-uds-dapa/'
+        self.stage = 'dev'
+        self.uds_dapa_prefix = 'sbx-uds-dapa'
+        self.uds_url = f'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/{self.stage}/{self.uds_dapa_prefix}/'
+        # self.uds_url = 'https://d3vc8w9zcq658.cloudfront.net/sbx-uds-dapa/'
 
         os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
         os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
@@ -113,6 +114,9 @@ class TestCumulusCreateCollectionDapa(TestCase):
         self.assertTrue('next' in links, f'missing next in links: {links}')
         self.assertTrue('href' in links['next'], f'missing next in links: {links}')
         self.assertTrue('limit=50' in links['next']['href'], f"limit not reset to 50: {links['next']['href']}")
+        links = {k['rel']: k['href'] for k in query_result['links'] if k['rel'] != 'root'}
+        for k, v in links.items():
+            self.assertTrue(self.stage in v, f'missing stage: {self.stage} in {v} for {k}')
         return
 
     def test_granules_get(self):
@@ -125,7 +129,10 @@ class TestCumulusCreateCollectionDapa(TestCase):
                                     headers=headers,
                                     )
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
-        print(query_result.text)
+        response_json = json.loads(query_result.text)
+        links = {k['rel']: k['href'] for k in response_json['links'] if k['rel'] != 'root'}
+        for k, v in links.items():
+            self.assertTrue(self.stage in v, f'missing stage: {self.stage} in {v} for {k}')
         return
 
     def test_create_new_collection(self):
