@@ -14,14 +14,15 @@ class PaginationLinksGenerator:
         self.__request = request
         self.__org_query_params = {k: v for k, v in request.query_params.items()}
         self.__org_query_params = {**self.__org_query_params, **custom_params}
-        self.__deployed_stage = os.environ.get(WebServiceConstants.DEPLOYED_STAGE, '')
-        self.__deployed_stage = f'/{self.__deployed_stage}' if len(self.__deployed_stage) > 0 and not self.__deployed_stage.startswith('/') else ''
+        self.__base_url = os.environ.get(WebServiceConstants.BASE_URL, f'{self.__request.url.scheme}://{self.__request.url.netloc}')
+        self.__base_url = self.__base_url[:-1] if self.__base_url.endswith('/') else self.__base_url
+        self.__base_url = self.__base_url if self.__base_url.startswith('http') else f'https://{self.__base_url}'
 
 
     def __get_current_page(self):
         try:
             # requesting_base_url = f"{self.__request.base_url}{self.__request.url.path}"
-            requesting_base_url = f"{self.__request.url.scheme}://{self.__request.url.netloc}{self.__deployed_stage}{self.__request.url.path}"
+            requesting_base_url = f"{self.__base_url}{self.__request.url.path}"
             new_queries = deepcopy(self.__org_query_params)
             limit = int(new_queries['limit'] if 'limit' in new_queries else self.__default_limit)
             offset = int(new_queries['offset'] if 'offset' in new_queries else 0)
@@ -35,7 +36,7 @@ class PaginationLinksGenerator:
 
     def __get_next_page(self):
         try:
-            requesting_base_url = f"{self.__request.url.scheme}://{self.__request.url.netloc}{self.__deployed_stage}{self.__request.url.path}"
+            requesting_base_url = f"{self.__base_url}{self.__request.url.path}"
             new_queries = deepcopy(self.__org_query_params)
             limit = int(new_queries['limit'] if 'limit' in new_queries else self.__default_limit)
             if limit == 0:
@@ -52,7 +53,7 @@ class PaginationLinksGenerator:
 
     def __get_prev_page(self):
         try:
-            requesting_base_url = f"{self.__request.url.scheme}://{self.__request.url.netloc}{self.__deployed_stage}{self.__request.url.path}"
+            requesting_base_url = f"{self.__base_url}{self.__request.url.path}"
             new_queries = deepcopy(self.__org_query_params)
             limit = int(new_queries['limit'] if 'limit' in new_queries else self.__default_limit)
             if limit == 0:

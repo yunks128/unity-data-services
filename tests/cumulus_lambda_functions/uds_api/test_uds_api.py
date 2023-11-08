@@ -140,7 +140,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
         self.assertTrue('limit=50' in links['next']['href'], f"limit not reset to 50: {links['next']['href']}")
         links = {k['rel']: k['href'] for k in query_result['links'] if k['rel'] != 'root'}
         for k, v in links.items():
-            self.assertTrue(self.stage in v, f'missing stage: {self.stage} in {v} for {k}')
+            self.assertTrue(v.startswith(self.uds_url), f'missing stage: {self.stage} in {v} for {k}')
         return
 
     def test_granules_get(self):
@@ -156,7 +156,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
         response_json = json.loads(query_result.text)
         links = {k['rel']: k['href'] for k in response_json['links'] if k['rel'] != 'root'}
         for k, v in links.items():
-            self.assertTrue(self.stage in v, f'missing stage: {self.stage} in {v} for {k}')
+            self.assertTrue(v.startswith(self.uds_url), f'missing stage: {self.stage} in {v} for {k}')
         return
 
     def test_create_new_collection(self):
