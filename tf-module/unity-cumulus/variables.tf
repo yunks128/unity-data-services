@@ -63,6 +63,10 @@ variable "dapa_api_prefix" {
   default = "am-uds-dapa"
 }
 
+variable "uds_base_url" {
+  type = string
+}
+
 variable "report_to_ems" {
   type = string
   default = "TRUE"
