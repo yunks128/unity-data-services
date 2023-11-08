@@ -74,7 +74,7 @@ class PaginationLinksGenerator:
         try:
             pagination_links = [
             {'rel': 'self', 'href': self.__get_current_page()},
-            {'rel': 'root', 'href': str(self.__request.base_url)},
+            {'rel': 'root', 'href': self.__base_url},
             {'rel': 'next', 'href': self.__get_next_page()},
             {'rel': 'prev', 'href': self.__get_prev_page()},
         ]
