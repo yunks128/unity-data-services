@@ -40,6 +40,27 @@ class TestCumulusCreateCollectionDapa(TestCase):
 
         os.environ[Constants.COGNITO_URL] = 'https://cognito-idp.us-west-2.amazonaws.com'
         self.bearer_token = CognitoTokenRetriever().start()
+        self.custom_metadata_body = {
+            'tag': {'type': 'keyword'},
+            'c_data1': {'type': 'long'},
+            'c_data2': {'type': 'boolean'},
+            'c_data3': {'type': 'keyword'},
+        }
+        return
+
+    def test_01_setup_custom_metadata_index(self):
+        post_url = f'{self.uds_url}admin/custom_metadata/MAIN_PROJECT?venue=DEV'  # MCP Dev
+        headers = {
+            'Authorization': f'Bearer {self.bearer_token}',
+            'Content-Type': 'application/json',
+        }
+        query_result = requests.put(url=post_url,
+                                    headers=headers,
+                                    json=self.custom_metadata_body,
+                                    )
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        response_json = query_result.content.decode()
+        print(response_json)
         return
 
     def test_03_create_collection(self):
