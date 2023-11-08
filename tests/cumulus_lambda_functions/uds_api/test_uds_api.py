@@ -28,7 +28,8 @@ class TestCumulusCreateCollectionDapa(TestCase):
         # post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/'  # MCP Dev
         # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/'  # MCP Dev
 
-        self.uds_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/'
+        self.uds_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/'
+        self.uds_url = 'https://d3vc8w9zcq658.cloudfront.net/sbx-uds-dapa/'
 
         os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
         os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
@@ -41,6 +42,36 @@ class TestCumulusCreateCollectionDapa(TestCase):
         self.bearer_token = CognitoTokenRetriever().start()
         return
 
+    def test_03_create_collection(self):
+        post_url = f'{self.uds_url}collections/'  # MCP Dev
+        headers = {
+            'Authorization': f'Bearer {self.bearer_token}',
+            'Content-Type': 'application/json',
+        }
+        print(post_url)
+        temp_collection_id = 'URN:NASA:UNITY:MAIN_PROJECT:DEV:NEW_COLLECTION_EXAMPLE_L1B___9'
+        dapa_collection = UnityCollectionStac() \
+            .with_id(temp_collection_id) \
+            .with_graule_id_regex("^test_file.*$") \
+            .with_granule_id_extraction_regex("(^test_file.*)(\\.nc|\\.nc\\.cas|\\.cmr\\.xml)") \
+            .with_title("test_file01.nc") \
+            .with_process('stac') \
+            .with_provider('unity') \
+            .add_file_type("test_file01.nc", "^test_file.*\\.nc$", 'unknown_bucket', 'application/json', 'root') \
+            .add_file_type("test_file01.nc", "^test_file.*\\.nc$", 'protected', 'data', 'item') \
+            .add_file_type("test_file01.nc.cas", "^test_file.*\\.nc.cas$", 'protected', 'metadata', 'item') \
+            .add_file_type("test_file01.nc.cmr.xml", "^test_file.*\\.nc.cmr.xml$", 'protected', 'metadata', 'item') \
+            .add_file_type("test_file01.nc.stac.json", "^test_file.*\\.nc.stac.json$", 'protected', 'metadata', 'item')
+        print(dapa_collection)
+        stac_collection = dapa_collection.start()
+        print(json.dumps(stac_collection))
+        query_result = requests.post(url=post_url,
+                                     headers=headers,
+                                     json=stac_collection,
+                                     )
+        self.assertEqual(query_result.status_code, 202, f'wrong status code. {query_result.text}')
+        sleep(60)
+        return
 
     def test_collections_get(self):
         post_url = f'{self.uds_url}collections/'  # MCP Dev
