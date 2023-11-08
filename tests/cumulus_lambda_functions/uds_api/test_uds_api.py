@@ -49,6 +49,30 @@ class TestCumulusCreateCollectionDapa(TestCase):
         }
         return
 
+    def test_add_admin_01(self):
+        collection_url = f'{self.uds_url}admin/auth'
+        tenant, tenant_venue = 'uds_local_test', 'DEV1'
+        tenant, tenant_venue = 'MAIN_PROJECT', 'DEV'
+        admin_add_body = {
+            "actions": ["READ", "CREATE"],
+            "resources": [f"URN:NASA:UNITY:{tenant}:{tenant_venue}:.*"],
+            "tenant": tenant,
+            # "venue": f"DEV1-{int(datetime.utcnow().timestamp())}",
+            "venue": tenant_venue,
+            "group_name": "Unity_Viewer"
+        }
+        s = requests.session()
+        s.trust_env = False
+        print(collection_url)
+        response = s.put(url=collection_url, headers={
+            'Authorization': f'Bearer {self.bearer_token}',
+            'Content-Type': 'application/json',
+        }, verify=False, data=json.dumps(admin_add_body))
+        self.assertEqual(response.status_code, 200, f'wrong status code: {response.text}')
+        response_json = response.content.decode()
+        print(response_json)
+        return
+
     def test_01_setup_custom_metadata_index(self):
         post_url = f'{self.uds_url}admin/custom_metadata/MAIN_PROJECT?venue=DEV'  # MCP Dev
         headers = {

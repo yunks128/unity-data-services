@@ -9,7 +9,8 @@ load_dotenv()
 
 import uvicorn
 from fastapi import FastAPI
-# from mangum import Mangum
+# from mangum import Mangum  # using customized Mangum for api stage.
+
 from cumulus_lambda_functions.uds_api.my_mangum import MyMangum
 from starlette.requests import Request
 

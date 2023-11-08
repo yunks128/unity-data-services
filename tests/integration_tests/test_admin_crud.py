@@ -47,14 +47,12 @@ class TestDapaStac(TestCase):
 
     def test_add_admin_01(self):
         collection_url = f'{self._url_prefix}/admin/auth'
-        tenant, tenant_venue = 'uds_local_test', 'DEV1'
-        tenant, tenant_venue = 'MAIN_PROJECT', 'DEV'
         admin_add_body = {
             "actions": ["READ", "CREATE"],
-            "resources": [f"URN:NASA:UNITY:{tenant}:{tenant_venue}:.*"],
-            "tenant": tenant,
-            # "venue": f"DEV1-{int(datetime.utcnow().timestamp())}",
-            "venue": tenant_venue,
+            "resources": ["urn:nasa:unity:uds_local_test:DEV1:.*"],
+            "tenant": "uds_local_test",
+            "venue": f"DEV1-{int(datetime.utcnow().timestamp())}",
+            # "venue": f"DEV1",
             "group_name": "Unity_Viewer"
         }
         s = requests.session()

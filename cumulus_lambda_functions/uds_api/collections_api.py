@@ -161,7 +161,6 @@ async def create_new_collection_real(request: Request, new_collection: dict):
 @router.get("/{collection_id}/")
 async def query_collections(request: Request, collection_id: Union[str, None] = None, limit: Union[int, None] = 10, offset: Union[int, None] = 0, ):
     LOGGER.debug(f'starting query_collections: {collection_id}')
-    LOGGER.debug(f'starting query_collections request: {request.url}')
 
     authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory() \
         .get_instance(UDSAuthorizerFactory.cognito,
