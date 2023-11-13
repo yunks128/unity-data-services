@@ -1,5 +1,11 @@
 class GranulesIndexMapping:
     mappings = {
+        "cusotm_metadat": {
+            "type": "object",
+            "properties": {
+                "c3": {},
+            }
+        },
         "eventTime": {"type": "long"},
         "collectionId": {"type": "keyword"},
         "createdAt": {"type": "long"},

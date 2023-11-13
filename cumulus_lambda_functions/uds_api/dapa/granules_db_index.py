@@ -1,5 +1,6 @@
 import os
 
+from cumulus_lambda_functions.granules_to_es.granules_index_mapping import GranulesIndexMapping
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
 
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
@@ -22,11 +23,12 @@ class GranulesDbIndex:
                                                          base_url=os.getenv('ES_URL'),
                                                          port=int(os.getenv('ES_PORT', '443'))
                                                          )
-        self.__default_fields = {
-            "granule_id": {"type": "keyword"},
-            "collection_id": {"type": "keyword"},
-            "event_time": {"type": "long"}
-        }
+        # self.__default_fields = {
+        #     "granule_id": {"type": "keyword"},
+        #     "collection_id": {"type": "keyword"},
+        #     "event_time": {"type": "long"}
+        # }
+        self.__default_fields = GranulesIndexMapping.mappings
 
     @property
     def default_fields(self):
