@@ -1,6 +1,5 @@
 class GranulesIndexMapping:
     mappings = {
-
         "eventTime": {"type": "long"},
         "collectionId": {"type": "keyword"},
         "createdAt": {"type": "long"},
