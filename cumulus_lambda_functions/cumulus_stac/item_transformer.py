@@ -321,10 +321,33 @@ class ItemTransformer(StacTransformerAbstract):
         return input_dict['type']
 
     def __get_asset_obj(self, input_dict):
+        """
+      {
+        "bucket": "uds-sbx-cumulus-staging",
+        "checksum": "9817be382b87c48ebe482b9c47d1525a",
+        "checksumType": "md5",
+        "fileName": "test_file01.cmr.xml",
+        "key": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2311091417/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2311091417:test_file01/test_file01.cmr.xml",
+        "size": 1768,
+        "source": "s3://uds-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2311091417/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2311091417:test_file01/test_file01.cmr.xml",
+        "type": "metadata"
+      }
+        "bucket": "am-uds-dev-cumulus-internal",
+        "key": "ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS",
+        "size": 760,
+        "fileName": "P1570515ATMSSCIENCEAAT16032024518500.PDS",
+        "source": "data/SNPP_ATMS_Level0_T/ATMS_SCIENCE_Group/2016/031//P1570515ATMSSCIENCEAAT16032024518500.PDS",
+        "type": "data"
+
+        :param input_dict:
+        :return:
+        """
+        description_keys = ['size', 'checksumType', 'checksum']
+        descriptions = [f'{k}={input_dict[k]};' for k in description_keys if k in input_dict]
         asset = Asset(
             href=f"s3://{input_dict['bucket']}/{input_dict['key']}",
             title=input_dict['fileName'],
-            description=input_dict['fileName'],
+            description=''.join(descriptions),
         )
         return asset
 
