@@ -28,8 +28,8 @@ resource "aws_sns_topic_subscription" "report_granules_topic_subscription" { // 
   topic_arn = data.aws_sns_topic.report_granules_topic.arn
   protocol  = "sqs"
   endpoint  = aws_sqs_queue.granules_to_es_queue.arn
-  filter_policy_scope = "MessageBody"  // MessageAttributes. not using attributes
-  filter_policy = templatefile("${path.module}/ideas_api_job_results_filter_policy.json", {})
+#  filter_policy_scope = "MessageBody"  // MessageAttributes. not using attributes
+#  filter_policy = templatefile("${path.module}/ideas_api_job_results_filter_policy.json", {})
 }
 
 resource "aws_lambda_event_source_mapping" "granules_to_es_queue_lambda_trigger" {  // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping#sqs
