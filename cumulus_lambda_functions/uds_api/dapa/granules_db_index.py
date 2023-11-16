@@ -43,7 +43,7 @@ class GranulesDbIndex:
         self.__default_fields = val
         return
 
-    def __add_custom_mappings(self, es_mapping):
+    def __add_custom_mappings(self, es_mapping: dict):
         self.default_fields['properties']['properties'] = {
             **es_mapping
             **self.default_fields['properties']['properties'],
@@ -70,7 +70,7 @@ class GranulesDbIndex:
         new_version = int(current_index_name.split('__')[-1][1:]) + 1
         new_index_name = f'{DBConstants.granules_index_prefix}_{tenant}_{tenant_venue}__v{new_version:02d}'.lower().strip()
         LOGGER.debug(f'new_index_name: {new_index_name}')
-        self.__add_custom_mappings()
+        self.__add_custom_mappings(es_mapping)
         index_mapping = {
             "settings": {
                 "number_of_shards": 3,
