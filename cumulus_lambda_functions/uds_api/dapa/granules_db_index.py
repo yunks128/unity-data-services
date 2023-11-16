@@ -45,7 +45,7 @@ class GranulesDbIndex:
 
     def __add_custom_mappings(self, es_mapping: dict):
         self.default_fields['properties']['properties'] = {
-            **es_mapping
+            **es_mapping,
             **self.default_fields['properties']['properties'],
         }
         return
