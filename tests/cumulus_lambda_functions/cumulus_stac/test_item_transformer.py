@@ -125,7 +125,10 @@ class TestItemTransformer(TestCase):
                                 "end_datetime": "2016-01-31T19:59:59.991043Z",
                                 "created": "2016-02-01T02:45:59.639000Z",
                                 "updated": "2022-03-23T15:48:21.578000Z",
-                                "datetime": "2022-03-23T15:48:19.079000Z"},
+                                "datetime": "2022-03-23T15:48:19.079000Z",
+                                "status": "completed",
+                                "provider": "snpp_provider_03",
+                            },
                             'collection': 'ATMS_SCIENCE_Group___001', 'links': [{"href": ".", "rel": "collection"}], 'assets': {'data': {
                 'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS',
                 'title': 'P1570515ATMSSCIENCEAAT16032024518500.PDS',
@@ -261,7 +264,10 @@ class TestItemTransformer(TestCase):
                                 "end_datetime": "2016-01-31T19:59:59.991043Z",
                                 "created": "2016-02-01T02:45:59.639000Z",
                                 "updated": "2022-03-23T15:48:21.578000Z",
-                                "datetime": "2022-03-23T15:48:19.079000Z"},
+                                "datetime": "2022-03-23T15:48:19.079000Z",
+                                "status": "completed",
+                                "provider": "snpp_provider_03",
+                            },
                             'collection': 'ATMS_SCIENCE_Group___001', 'links': [{"href": ".", "rel": "collection"}], 'assets': {'data': {
                 'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS',
                 'title': 'P1570515ATMSSCIENCEAAT16032024518500.PDS',
@@ -282,7 +288,7 @@ class TestItemTransformer(TestCase):
         self.assertEqual(None, stac_validator.validate(stac_item), f'invalid stac format: {stac_validator}')
         return
 
-    def test_just_checking(self):
+    def test_03_partial_cumulus(self):
         source = '''{
   "event": "Update",
   "record": {

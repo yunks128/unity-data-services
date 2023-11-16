@@ -8,6 +8,8 @@ class GranulesIndexMapping:
         "properties": {
             "dynamic": "false",
             "properties": {
+                "provider": {"type": "keyword"},
+                "status": {"type": "keyword"},
                 "datetime": {"type": "date"},
                 "updated": {"type": "date"},
                 "start_datetime": {"type": "date"},

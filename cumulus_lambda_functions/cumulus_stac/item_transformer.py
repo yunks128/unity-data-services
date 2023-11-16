@@ -427,16 +427,57 @@ class ItemTransformer(StacTransformerAbstract):
         validated_files = [k for k in source['files'] if cumulus_file_validator.validate(k) is None]
         custom_metadata = source['custom_metadata'] if 'custom_metadata' in source else {}
 
+        properties_template = [
+            {
+                'stac_key': 'datetime',
+                'cumulus_key': 'createdAt',
+                'execution': lambda x: f"{TimeUtils.decode_datetime(x['createdAt'], False)}Z"
+            },
+            {
+                'stac_key': 'start_datetime',
+                'cumulus_key': 'beginningDateTime',
+                'execution': lambda x: datetime_to_str(self.get_time_obj(x['beginningDateTime']))
+            },
+            {
+                'stac_key': 'end_datetime',
+                'cumulus_key': 'endingDateTime',
+                'execution': lambda x: datetime_to_str(self.get_time_obj(x['endingDateTime']))
+            },
+            {
+                'stac_key': 'created',
+                'cumulus_key': 'productionDateTime',
+                'execution': lambda x: datetime_to_str(self.get_time_obj(x['productionDateTime']))
+            },
+            {
+                'stac_key': 'updated',
+                'cumulus_key': 'updatedAt',
+                'execution': lambda x: datetime_to_str(TimeUtils().parse_from_unix(source['updatedAt'], True).get_datetime_obj())
+            },
+            {
+                'stac_key': 'status',
+                'cumulus_key': 'status',
+                'execution': lambda x: x['status']
+            },
+            {
+                'stac_key': 'provider',
+                'cumulus_key': 'provider',
+                'execution': lambda x: x['provider']
+            },
+        ]
+        cumulus_properties = {
+            k['stac_key']: k['execution'](source) for k in properties_template if k['cumulus_key'] in source
+        }
         stac_item = Item(
             id=source['granuleId'],
             bbox=[0.0, 0.0, 0.0, 0.0],
             properties={
                 **custom_metadata,
+                **cumulus_properties,
                 # "datetime": f"{TimeUtils.decode_datetime(source['createdAt'], False)}Z",
-                "start_datetime": datetime_to_str(self.get_time_obj(source['beginningDateTime'])),
-                "end_datetime": datetime_to_str(self.get_time_obj(source['endingDateTime'])),
-                "created": datetime_to_str(self.get_time_obj(source['productionDateTime'])),
-                "updated": datetime_to_str(TimeUtils().parse_from_unix(source['updatedAt'], True).get_datetime_obj()),
+                # "start_datetime": datetime_to_str(self.get_time_obj(source['beginningDateTime'])),
+                # "end_datetime": datetime_to_str(self.get_time_obj(source['endingDateTime'])),
+                # "created": datetime_to_str(self.get_time_obj(source['productionDateTime'])),
+                # "updated": datetime_to_str(TimeUtils().parse_from_unix(source['updatedAt'], True).get_datetime_obj()),
             },
             collection=source['collectionId'],
             assets={self.__get_asset_name(k): self.__get_asset_obj(k) for k in validated_files},
