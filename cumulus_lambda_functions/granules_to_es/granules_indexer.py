@@ -1,6 +1,8 @@
 import json
 import os
 
+from cumulus_lambda_functions.cumulus_stac.item_transformer import ItemTransformer
+
 from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
 
 from cumulus_lambda_functions.metadata_stac_generate_cmr.stac_input_metadata import StacInputMetadata
@@ -72,15 +74,12 @@ class GranulesIndexer:
             return
         stac_input_meta = StacInputMetadata(json.loads(self.__read_pds_metadata_file()))
         granules_metadata_props = stac_input_meta.start()
-        custom_properties = stac_input_meta.custom_properties
-        self.__cumulus_record = {
-            **self.__cumulus_record,
-            **custom_properties,
-        }
+        self.__cumulus_record['custom_metadata'] = stac_input_meta.custom_properties
+        stac_item = ItemTransformer().to_stac(self.__cumulus_record)
         collection_identifier = UdsCollections.decode_identifier(self.__cumulus_record['collectionId'])
         GranulesDbIndex().add_entry(collection_identifier.tenant,
                                     collection_identifier.venue,
-                                    self.__cumulus_record,
+                                    stac_item,
                                     self.__cumulus_record['granuleId']
                                     )
         return self
