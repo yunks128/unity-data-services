@@ -98,7 +98,7 @@ class DapaClient:
         dapa_granules_api = f'{self.__dapa_base_api}/{self.__api_base_prefix}/collections/{collection_id}/items?limit={limit}&offset={offset}'
         if date_from != '' or date_to != '':
             dapa_granules_api = f"{dapa_granules_api}&datetime={date_from if date_from != '' else '..'}/{date_to if date_to != '' else '..'}"
-        if filter is not None:
+        if filters is not None:
             dapa_granules_api = f'{dapa_granules_api}&filter={json.dumps(filters)}'
         LOGGER.debug(f'dapa_granules_api: {dapa_granules_api}')
         LOGGER.debug(f'getting granules for: {dapa_granules_api}')
