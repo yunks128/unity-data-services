@@ -1,11 +1,37 @@
 class GranulesIndexMapping:
-    mappings = {
-        "cusotm_metadat": {
-            "type": "object",
+    stac_mappings = {
+        "eventTime": {"type": "long"},
+        "type": {"type": "keyword"},
+        "stac_version": {"type": "keyword"},
+        "id": {"type": "keyword"},
+        "collection": {"type": "keyword"},
+        "properties": {
+            "dynamic": "false",
             "properties": {
-                "c3": {},
-            }
+                "datetime": {"type": "date"},
+                "updated": {"type": "date"},
+                "start_datetime": {"type": "date"},
+                "end_datetime": {"type": "date"},
+                "created": {"type": "date"},
+            },
         },
+        "assets": {
+            "type": "nested",
+            "dynamic": "true",
+            "properties": {
+                "dynamic_field": {
+                    "type": "nested",
+                    "dynamic": "true",
+                    "properties": {
+                        "href": {"type": "keyword"},
+                        "title": {"type": "text"},
+                        "description": {"type": "text"}
+                    }
+                }
+            }
+        }
+    }
+    mappings = {
         "eventTime": {"type": "long"},
         "collectionId": {"type": "keyword"},
         "createdAt": {"type": "long"},

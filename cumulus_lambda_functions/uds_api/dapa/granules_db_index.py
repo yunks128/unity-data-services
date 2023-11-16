@@ -28,7 +28,7 @@ class GranulesDbIndex:
         #     "collection_id": {"type": "keyword"},
         #     "event_time": {"type": "long"}
         # }
-        self.__default_fields = GranulesIndexMapping.mappings
+        self.__default_fields = GranulesIndexMapping.stac_mappings
 
     @property
     def default_fields(self):
@@ -41,6 +41,13 @@ class GranulesDbIndex:
         :return: None
         """
         self.__default_fields = val
+        return
+
+    def __add_custom_mappings(self, es_mapping):
+        self.default_fields['properties']['properties'] = {
+            **es_mapping
+            **self.default_fields['properties']['properties'],
+        }
         return
 
     def create_new_index(self, tenant, tenant_venue, es_mapping: dict):
@@ -63,6 +70,7 @@ class GranulesDbIndex:
         new_version = int(current_index_name.split('__')[-1][1:]) + 1
         new_index_name = f'{DBConstants.granules_index_prefix}_{tenant}_{tenant_venue}__v{new_version:02d}'.lower().strip()
         LOGGER.debug(f'new_index_name: {new_index_name}')
+        self.__add_custom_mappings()
         index_mapping = {
             "settings": {
                 "number_of_shards": 3,
@@ -70,10 +78,7 @@ class GranulesDbIndex:
             },
             "mappings": {
                 "dynamic": "strict",
-                "properties": {
-                    **es_mapping,
-                    **self.__default_fields,
-                }
+                "properties": self.default_fields,
             }
         }
         self.__es.create_index(new_index_name, index_mapping)
