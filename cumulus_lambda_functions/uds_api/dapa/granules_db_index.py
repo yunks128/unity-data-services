@@ -1,5 +1,8 @@
 import os
 
+from cumulus_lambda_functions.granules_to_es.granules_index_mapping import GranulesIndexMapping
+from cumulus_lambda_functions.lib.time_utils import TimeUtils
+
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 
 from cumulus_lambda_functions.lib.aws.es_abstract import ESAbstract
@@ -20,11 +23,12 @@ class GranulesDbIndex:
                                                          base_url=os.getenv('ES_URL'),
                                                          port=int(os.getenv('ES_PORT', '443'))
                                                          )
-        self.__default_fields = {
-            "granule_id": {"type": "keyword"},
-            "collection_id": {"type": "keyword"},
-            "event_time": {"type": "long"}
-        }
+        # self.__default_fields = {
+        #     "granule_id": {"type": "keyword"},
+        #     "collection_id": {"type": "keyword"},
+        #     "event_time": {"type": "long"}
+        # }
+        self.__default_fields = GranulesIndexMapping.stac_mappings
 
     @property
     def default_fields(self):
@@ -37,6 +41,13 @@ class GranulesDbIndex:
         :return: None
         """
         self.__default_fields = val
+        return
+
+    def __add_custom_mappings(self, es_mapping):
+        self.default_fields['properties']['properties'] = {
+            **es_mapping
+            **self.default_fields['properties']['properties'],
+        }
         return
 
     def create_new_index(self, tenant, tenant_venue, es_mapping: dict):
@@ -59,6 +70,7 @@ class GranulesDbIndex:
         new_version = int(current_index_name.split('__')[-1][1:]) + 1
         new_index_name = f'{DBConstants.granules_index_prefix}_{tenant}_{tenant_venue}__v{new_version:02d}'.lower().strip()
         LOGGER.debug(f'new_index_name: {new_index_name}')
+        self.__add_custom_mappings()
         index_mapping = {
             "settings": {
                 "number_of_shards": 3,
@@ -66,10 +78,7 @@ class GranulesDbIndex:
             },
             "mappings": {
                 "dynamic": "strict",
-                "properties": {
-                    **es_mapping,
-                    **self.__default_fields,
-                }
+                "properties": self.default_fields,
             }
         }
         self.__es.create_index(new_index_name, index_mapping)
@@ -114,3 +123,17 @@ class GranulesDbIndex:
             LOGGER.debug(f'deleting index: {each_index}')
             self.__es.delete_index(each_index)
         return
+
+    def add_entry(self, tenant: str, tenant_venue: str, json_body: dict, doc_id: str, ):
+        write_alias_name = f'{DBConstants.granules_write_alias_prefix}_{tenant}_{tenant_venue}'.lower().strip()
+        json_body['event_time'] = TimeUtils.get_current_unix_milli()
+        # TODO validate custom metadata vs the latest index to filter extra items
+        self.__es.index_one(json_body, doc_id, index=write_alias_name)  # TODO assuming granule_id is prefixed with collection id
+        LOGGER.debug(f'custom_metadata indexed')
+        return
+
+    def dsl_search(self, tenant: str, tenant_venue: str, search_dsl: dict):
+        read_alias_name = f'{DBConstants.granules_read_alias_prefix}_{tenant}_{tenant_venue}'.lower().strip()
+        search_result = self.__es.query_pages(search_dsl, querying_index=read_alias_name) if 'sort' in search_dsl else self.__es.query(search_dsl, querying_index=read_alias_name)
+        LOGGER.debug(f'search_finished: {len(search_result["hits"]["hits"])}')
+        return search_result

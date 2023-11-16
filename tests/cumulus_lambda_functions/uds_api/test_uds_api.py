@@ -31,7 +31,6 @@ class TestCumulusCreateCollectionDapa(TestCase):
         self.uds_dapa_prefix = 'sbx-uds-dapa'
         self.uds_url = f'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/{self.stage}/{self.uds_dapa_prefix}/'
         # self.uds_url = 'https://d3vc8w9zcq658.cloudfront.net/sbx-uds-dapa/'
-
         os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
         os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
         os.environ[Constants.PASSWORD_TYPE] = Constants.PARAM_STORE
