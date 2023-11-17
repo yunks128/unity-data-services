@@ -1,4 +1,8 @@
 import os
+from copy import deepcopy
+
+from cumulus_lambda_functions.granules_to_es.granules_index_mapping import GranulesIndexMapping
+from cumulus_lambda_functions.lib.time_utils import TimeUtils
 
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 
@@ -20,11 +24,12 @@ class GranulesDbIndex:
                                                          base_url=os.getenv('ES_URL'),
                                                          port=int(os.getenv('ES_PORT', '443'))
                                                          )
-        self.__default_fields = {
-            "granule_id": {"type": "keyword"},
-            "collection_id": {"type": "keyword"},
-            "event_time": {"type": "long"}
-        }
+        # self.__default_fields = {
+        #     "granule_id": {"type": "keyword"},
+        #     "collection_id": {"type": "keyword"},
+        #     "event_time": {"type": "long"}
+        # }
+        self.__default_fields = GranulesIndexMapping.stac_mappings
 
     @property
     def default_fields(self):
@@ -38,6 +43,25 @@ class GranulesDbIndex:
         """
         self.__default_fields = val
         return
+
+    def __add_custom_mappings(self, es_mapping: dict):
+        customized_es_mapping = deepcopy(self.default_fields)
+        customized_es_mapping['properties']['properties'] = {
+            **es_mapping,
+            **self.default_fields['properties']['properties'],
+        }
+        return customized_es_mapping
+
+    def get_custom_metadata_fields(self, es_mapping: dict):
+        if [k for k in es_mapping.keys() if k == 'properties']:
+            custom_metadata_fields = {k: v for k, v in es_mapping['properties']['properties'].items() if
+                                      k not in self.default_fields['properties']['properties']}
+            return custom_metadata_fields
+        if [k for k in es_mapping.keys() if k == 'mappings']:
+            return self.get_custom_metadata_fields(es_mapping['mappings'])
+        for k, v in es_mapping.items():
+            return self.get_custom_metadata_fields(v['mappings'])
+        raise ValueError(f'unknown format: {es_mapping}')
 
     def create_new_index(self, tenant, tenant_venue, es_mapping: dict):
         # TODO validate es_mapping
@@ -59,6 +83,7 @@ class GranulesDbIndex:
         new_version = int(current_index_name.split('__')[-1][1:]) + 1
         new_index_name = f'{DBConstants.granules_index_prefix}_{tenant}_{tenant_venue}__v{new_version:02d}'.lower().strip()
         LOGGER.debug(f'new_index_name: {new_index_name}')
+        customized_es_mapping = self.__add_custom_mappings(es_mapping)
         index_mapping = {
             "settings": {
                 "number_of_shards": 3,
@@ -66,10 +91,7 @@ class GranulesDbIndex:
             },
             "mappings": {
                 "dynamic": "strict",
-                "properties": {
-                    **es_mapping,
-                    **self.__default_fields,
-                }
+                "properties": customized_es_mapping,
             }
         }
         self.__es.create_index(new_index_name, index_mapping)
@@ -114,3 +136,17 @@ class GranulesDbIndex:
             LOGGER.debug(f'deleting index: {each_index}')
             self.__es.delete_index(each_index)
         return
+
+    def add_entry(self, tenant: str, tenant_venue: str, json_body: dict, doc_id: str, ):
+        write_alias_name = f'{DBConstants.granules_write_alias_prefix}_{tenant}_{tenant_venue}'.lower().strip()
+        json_body['event_time'] = TimeUtils.get_current_unix_milli()
+        # TODO validate custom metadata vs the latest index to filter extra items
+        self.__es.index_one(json_body, doc_id, index=write_alias_name)  # TODO assuming granule_id is prefixed with collection id
+        LOGGER.debug(f'custom_metadata indexed')
+        return
+
+    def dsl_search(self, tenant: str, tenant_venue: str, search_dsl: dict):
+        read_alias_name = f'{DBConstants.granules_read_alias_prefix}_{tenant}_{tenant_venue}'.lower().strip()
+        search_result = self.__es.query_pages(search_dsl, querying_index=read_alias_name) if 'sort' in search_dsl else self.__es.query(search_dsl, querying_index=read_alias_name)
+        LOGGER.debug(f'search_finished: {len(search_result["hits"]["hits"])}')
+        return search_result
