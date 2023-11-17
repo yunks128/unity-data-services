@@ -55,20 +55,11 @@ async def get_granules_dapa(request: Request, collection_id: str):
         # This is the response from the method
         # {"unity_granule_main_project1694791693139_dev__v02":{"mappings":{"dynamic":"strict","properties":{"collection_id":{"type":"keyword"},"event_time":{"type":"long"},"granule_id":{"type":"keyword"},"last_updated":{"type":"long"},"tag":{"type":"keyword"}}}}}
         # needs to drill down to properties
-        if len(granule_index_mapping) < 1:
-            raise ValueError(f'missing custom metadata DB index for : {collection_identifier.tenant}-{collection_identifier.venue}')
-        for k, v in granule_index_mapping.items():
-            granule_index_mapping = v
-            break
-        granule_index_mapping = granule_index_mapping['mappings']['properties']
-        for k in granules_db_index.default_fields.keys():
-            if k in granule_index_mapping:
-                granule_index_mapping.pop(k)
-
+        custom_metadata = granules_db_index.get_custom_metadata_fields(granule_index_mapping)
     except Exception as e:
         LOGGER.exception('failed during get_granules_dapa')
         raise HTTPException(status_code=500, detail=str(e))
-    return granule_index_mapping
+    return custom_metadata
 
 
 @router.get("/{collection_id}/items")

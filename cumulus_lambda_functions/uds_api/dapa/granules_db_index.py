@@ -1,4 +1,5 @@
 import os
+from copy import deepcopy
 
 from cumulus_lambda_functions.granules_to_es.granules_index_mapping import GranulesIndexMapping
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
@@ -44,11 +45,23 @@ class GranulesDbIndex:
         return
 
     def __add_custom_mappings(self, es_mapping: dict):
-        self.default_fields['properties']['properties'] = {
+        customized_es_mapping = deepcopy(self.default_fields)
+        customized_es_mapping['properties']['properties'] = {
             **es_mapping,
             **self.default_fields['properties']['properties'],
         }
-        return
+        return customized_es_mapping
+
+    def get_custom_metadata_fields(self, es_mapping: dict):
+        if [k for k in es_mapping.keys() if k == 'properties']:
+            custom_metadata_fields = {k: v for k, v in es_mapping['properties']['properties'].items() if
+                                      k not in self.default_fields['properties']['properties']}
+            return custom_metadata_fields
+        if [k for k in es_mapping.keys() if k == 'mappings']:
+            return self.get_custom_metadata_fields(es_mapping['mappings'])
+        for k, v in es_mapping.items():
+            return self.get_custom_metadata_fields(v['mappings'])
+        raise ValueError(f'unknown format: {es_mapping}')
 
     def create_new_index(self, tenant, tenant_venue, es_mapping: dict):
         # TODO validate es_mapping
@@ -70,7 +83,7 @@ class GranulesDbIndex:
         new_version = int(current_index_name.split('__')[-1][1:]) + 1
         new_index_name = f'{DBConstants.granules_index_prefix}_{tenant}_{tenant_venue}__v{new_version:02d}'.lower().strip()
         LOGGER.debug(f'new_index_name: {new_index_name}')
-        self.__add_custom_mappings(es_mapping)
+        customized_es_mapping = self.__add_custom_mappings(es_mapping)
         index_mapping = {
             "settings": {
                 "number_of_shards": 3,
@@ -78,7 +91,7 @@ class GranulesDbIndex:
             },
             "mappings": {
                 "dynamic": "strict",
-                "properties": self.default_fields,
+                "properties": customized_es_mapping,
             }
         }
         self.__es.create_index(new_index_name, index_mapping)
