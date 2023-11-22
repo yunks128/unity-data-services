@@ -2,6 +2,7 @@ import json
 import os
 from typing import Union
 
+from cumulus_lambda_functions.uds_api.dapa.granules_dapa_query_es import GranulesDapaQueryEs
 from cumulus_lambda_functions.uds_api.dapa.granules_db_index import GranulesDbIndex
 from cumulus_lambda_functions.uds_api.fast_api_utils import FastApiUtils
 
@@ -82,8 +83,10 @@ async def get_granules_dapa(request: Request, collection_id: str, limit: Union[i
         }))
 
     try:
-        pagination_links = PaginationLinksGenerator(request).generate_pagination_links()
-        granules_dapa_query = GranulesDapaQuery(collection_id, limit, offset, datetime, filter_input, pagination_links)
+        # pagination_links = PaginationLinksGenerator(request).generate_pagination_links()
+        pagination_links = PaginationLinksGenerator(request)
+
+        granules_dapa_query = GranulesDapaQueryEs(collection_id, limit, offset, datetime, filter_input, pagination_links)
         granules_result = granules_dapa_query.start()
     except Exception as e:
         LOGGER.exception('failed during get_granules_dapa')

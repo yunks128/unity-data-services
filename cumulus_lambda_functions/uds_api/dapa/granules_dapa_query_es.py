@@ -1,27 +1,19 @@
-import json
-import os
+from copy import deepcopy
 
+from cumulus_lambda_functions.uds_api.dapa.pagination_links_generator import PaginationLinksGenerator
 from cumulus_lambda_functions.lib.aws.es_middleware import ESMiddleware
-
-from cumulus_lambda_functions.cumulus_stac.item_transformer import ItemTransformer
 from cumulus_lambda_functions.lib.cql_parser import CqlParser
-
 from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
-
-from cumulus_lambda_functions.lib.json_validator import JsonValidator
-
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
-
-from cumulus_lambda_functions.cumulus_wrapper.query_granules import GranulesQuery
 from cumulus_lambda_functions.uds_api.dapa.granules_db_index import GranulesDbIndex
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
-class GranulesDapaQuery:
-    def __init__(self, collection_id, limit, offset, input_datetime, filter_input, pagination_links):
+class GranulesDapaQueryEs:
+    def __init__(self, collection_id, limit, offset, input_datetime, filter_input, pagination_link_obj: PaginationLinksGenerator):
+        self.__pagination_link_obj = pagination_link_obj
         self.__input_datetime = input_datetime
-        self.__pagination_links = pagination_links
         self.__collection_id = collection_id
         self.__limit = limit
         self.__offset = offset
@@ -80,6 +72,24 @@ class GranulesDapaQuery:
             cumulus_size = {'total_size': -1}
         return cumulus_size
 
+    def __create_pagination_links(self, page_marker_str):
+        new_queries = deepcopy(self.__pagination_link_obj.org_query_params)
+        new_queries['limit'] = int(new_queries['limit'] if 'limit' in new_queries else self.__limit)
+        current_page = f"{self.__pagination_link_obj.requesting_base_url}?{'&'.join([f'{k}={v}' for k, v in new_queries.items()])}"
+        pagination_links = [
+            {'rel': 'self', 'href': current_page},
+            {'rel': 'root', 'href': self.__pagination_link_obj.base_url},
+            # {'rel': 'prev', 'href': self.__get_prev_page()},
+        ]
+        pagination_links.append()
+        new_queries = deepcopy(self.__pagination_link_obj.org_query_params)
+        limit = int(new_queries['limit'] if 'limit' in new_queries else self.__limit)
+        if limit > 0:
+            new_queries['limit'] = limit
+            new_queries['offset'] = page_marker_str
+            pagination_links.append({'rel': 'next', 'href': f"{self.__pagination_link_obj.requesting_base_url}?{'&'.join([f'{k}={v}' for k, v in new_queries.items()])}"})
+        return pagination_links
+
     def start(self):
         try:
             granules_query_dsl = self.__generate_es_dsl()
@@ -90,7 +100,7 @@ class GranulesDapaQuery:
                                                                   granules_query_dsl)
             LOGGER.debug(f'granules_query_result: {granules_query_result}')
             result_size = ESMiddleware.get_result_size(granules_query_result)
-            granules_query_result = [k['_source'] for k in granules_query_result['hits']['hits']]
+            granules_query_result_stripped = [k['_source'] for k in granules_query_result['hits']['hits']]
 
             return {
                 'statusCode': 200,
@@ -99,8 +109,8 @@ class GranulesDapaQuery:
                     'numberReturned': len(granules_query_result),
                     'stac_version': '1.0.0',
                     'type': 'FeatureCollection',  # TODO correct name?
-                    'links': self.__pagination_links,
-                    'features': granules_query_result
+                    'links': self.__create_pagination_links(','.join(granules_query_result['hits']['hits'][-1]['sort'])),
+                    'features': granules_query_result_stripped
                 }
             }
         except Exception as e:
