@@ -55,7 +55,7 @@ class GranulesDbIndex:
     def get_custom_metadata_fields(self, es_mapping: dict):
         LOGGER.debug(f'get_custom_metadata_fields#es_mapping: {es_mapping}')
         if [k for k in es_mapping.keys() if k == 'properties']:
-            custom_metadata_fields = {k: v for k, v in es_mapping['properties']['properties'].items() if
+            custom_metadata_fields = {k: v for k, v in es_mapping['properties']['properties']['properties'].items() if
                                       k not in self.default_fields['properties']['properties']}
             return custom_metadata_fields
         if [k for k in es_mapping.keys() if k == 'mappings']:
