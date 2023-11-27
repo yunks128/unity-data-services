@@ -41,7 +41,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         self.tenant = 'UDS_LOCAL_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
         self.collection_name = 'UDS_COLLECTION'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '23.11.09.14.17'.replace('.', '')  # '2309141300'
+        self.collection_version = '23.11.27.05.00'.replace('.', '')  # '2309141300'
         self.custom_metadata_body = {
             'tag': {'type': 'keyword'},
             'c_data1': {'type': 'long'},
@@ -93,8 +93,8 @@ class TestCustomMetadataEndToEnd(TestCase):
         }
         query_result = requests.get(url=post_url,
                                      headers=headers)
-        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
         print(query_result.text)
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
         self.assertEqual(json.loads(query_result.text), self.custom_metadata_body, f'wrong body')
         return
 
