@@ -64,14 +64,6 @@ class GranulesDapaQueryEs:
                 {'range': {'properties.end_datetime': {'gte': split_time_range[0]}}},
             ]
 
-    def __get_size(self):
-        try:
-            cumulus_size = self.__cumulus.get_size(self.__cumulus_lambda_prefix)
-        except:
-            LOGGER.exception(f'cannot get cumulus_size')
-            cumulus_size = {'total_size': -1}
-        return cumulus_size
-
     def __create_pagination_links(self, page_marker_str):
         new_queries = deepcopy(self.__pagination_link_obj.org_query_params)
         new_queries['limit'] = int(new_queries['limit'] if 'limit' in new_queries else self.__limit)
@@ -84,7 +76,7 @@ class GranulesDapaQueryEs:
         pagination_links.append()
         new_queries = deepcopy(self.__pagination_link_obj.org_query_params)
         limit = int(new_queries['limit'] if 'limit' in new_queries else self.__limit)
-        if limit > 0:
+        if limit > 0 and page_marker_str != '':
             new_queries['limit'] = limit
             new_queries['offset'] = page_marker_str
             pagination_links.append({'rel': 'next', 'href': f"{self.__pagination_link_obj.requesting_base_url}?{'&'.join([f'{k}={v}' for k, v in new_queries.items()])}"})
@@ -102,6 +94,7 @@ class GranulesDapaQueryEs:
             result_size = ESMiddleware.get_result_size(granules_query_result)
             granules_query_result_stripped = [k['_source'] for k in granules_query_result['hits']['hits']]
 
+            pagination_link = '' if len(granules_query_result['hits']['hits']) < self.__limit else ','.join(granules_query_result['hits']['hits'][-1]['sort'])
             return {
                 'statusCode': 200,
                 'body': {
@@ -109,7 +102,7 @@ class GranulesDapaQueryEs:
                     'numberReturned': len(granules_query_result),
                     'stac_version': '1.0.0',
                     'type': 'FeatureCollection',  # TODO correct name?
-                    'links': self.__create_pagination_links(','.join(granules_query_result['hits']['hits'][-1]['sort'])),
+                    'links': self.__create_pagination_links(pagination_link),
                     'features': granules_query_result_stripped
                 }
             }
