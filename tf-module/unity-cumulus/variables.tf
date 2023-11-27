@@ -103,3 +103,8 @@ variable "comma_separated_admin_groups" {
   type = string
   description = "comma separated cognito groups which will be authorized as ADMIN group"
 }
+
+variable "report_granules_topic" {
+  type = string
+  description = "SNS name"
+}
