@@ -17,18 +17,55 @@ class PaginationLinksGenerator:
         self.__base_url = os.environ.get(WebServiceConstants.BASE_URL, f'{self.__request.url.scheme}://{self.__request.url.netloc}')
         self.__base_url = self.__base_url[:-1] if self.__base_url.endswith('/') else self.__base_url
         self.__base_url = self.__base_url if self.__base_url.startswith('http') else f'https://{self.__base_url}'
+        self.__requesting_base_url = f"{self.__base_url}{self.__request.url.path}"
 
+    @property
+    def requesting_base_url(self):
+        return self.__requesting_base_url
+
+    @requesting_base_url.setter
+    def requesting_base_url(self, val):
+        """
+        :param val:
+        :return: None
+        """
+        self.__requesting_base_url = val
+        return
+
+    @property
+    def base_url(self):
+        return self.__base_url
+
+    @base_url.setter
+    def base_url(self, val):
+        """
+        :param val:
+        :return: None
+        """
+        self.__base_url = val
+        return
+
+    @property
+    def org_query_params(self):
+        return self.__org_query_params
+
+    @org_query_params.setter
+    def org_query_params(self, val):
+        """
+        :param val:
+        :return: None
+        """
+        self.__org_query_params = val
+        return
 
     def __get_current_page(self):
         try:
-            # requesting_base_url = f"{self.__request.base_url}{self.__request.url.path}"
-            requesting_base_url = f"{self.__base_url}{self.__request.url.path}"
             new_queries = deepcopy(self.__org_query_params)
             limit = int(new_queries['limit'] if 'limit' in new_queries else self.__default_limit)
             offset = int(new_queries['offset'] if 'offset' in new_queries else 0)
             new_queries['limit'] = limit
             new_queries['offset'] = offset
-            requesting_url = f"{requesting_base_url}?{'&'.join([f'{k}={v}' for k, v in new_queries.items()])}"
+            requesting_url = f"{self.__requesting_base_url}?{'&'.join([f'{k}={v}' for k, v in new_queries.items()])}"
         except Exception as e:
             LOGGER.exception(f'error while getting current page URL')
             return f'unable to get current page URL, {str(e)}'
@@ -36,7 +73,6 @@ class PaginationLinksGenerator:
 
     def __get_next_page(self):
         try:
-            requesting_base_url = f"{self.__base_url}{self.__request.url.path}"
             new_queries = deepcopy(self.__org_query_params)
             limit = int(new_queries['limit'] if 'limit' in new_queries else self.__default_limit)
             if limit == 0:
@@ -45,7 +81,7 @@ class PaginationLinksGenerator:
             offset += limit
             new_queries['limit'] = limit
             new_queries['offset'] = offset
-            requesting_url = f"{requesting_base_url}?{'&'.join([f'{k}={v}' for k, v in new_queries.items()])}"
+            requesting_url = f"{self.__requesting_base_url}?{'&'.join([f'{k}={v}' for k, v in new_queries.items()])}"
         except Exception as e:
             LOGGER.exception(f'error while getting next page URL')
             return f'unable to get next page URL, {str(e)}'
@@ -53,7 +89,6 @@ class PaginationLinksGenerator:
 
     def __get_prev_page(self):
         try:
-            requesting_base_url = f"{self.__base_url}{self.__request.url.path}"
             new_queries = deepcopy(self.__org_query_params)
             limit = int(new_queries['limit'] if 'limit' in new_queries else self.__default_limit)
             if limit == 0:
@@ -64,7 +99,7 @@ class PaginationLinksGenerator:
                 offset = 0
             new_queries['limit'] = limit
             new_queries['offset'] = offset
-            requesting_url = f"{requesting_base_url}?{'&'.join([f'{k}={v}' for k, v in new_queries.items()])}"
+            requesting_url = f"{self.__requesting_base_url}?{'&'.join([f'{k}={v}' for k, v in new_queries.items()])}"
         except Exception as e:
             LOGGER.exception(f'error while getting previous page URL')
             return f'unable to get previous page URL, {str(e)}'
