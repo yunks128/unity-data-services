@@ -10,13 +10,16 @@ LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_le
 
 router = APIRouter(
     prefix=f'/{WebServiceConstants.ADMIN}/auth',
-    tags=["Admin Records CRUD"],
+    tags=["Admin Records CRUD", "Admins-Only"],
     responses={404: {"description": "Not found"}},
 )
 
 @router.delete("")
 @router.delete("/")
 async def delete_auth_mapping(request: Request, delete_body: AuthDeleteModel):
+    """
+    Deleting one authorization mapping
+    """
     LOGGER.debug(f'started delete_auth_mapping')
     auth_info = FastApiUtils.get_authorization_info(request)
     auth_crud = AuthCrud(auth_info, delete_body.model_dump())
@@ -31,6 +34,9 @@ async def delete_auth_mapping(request: Request, delete_body: AuthDeleteModel):
 @router.put("")
 @router.put("/")
 async def add_auth_mapping(request: Request, new_body: AuthAddModel):
+    """
+    Adding a new Authorization mapping
+    """
     LOGGER.debug(f'started add_auth_mapping. sss {new_body.model_dump()}')
     auth_info = FastApiUtils.get_authorization_info(request)
     auth_crud = AuthCrud(auth_info, new_body.model_dump())
@@ -45,6 +51,9 @@ async def add_auth_mapping(request: Request, new_body: AuthAddModel):
 @router.post("")
 @router.post("/")
 async def update_auth_mapping(request: Request, update_body: AuthAddModel):
+    """
+    Updating existing authorization mapping
+    """
     LOGGER.debug(f'started update_auth_mapping')
     auth_info = FastApiUtils.get_authorization_info(request)
     auth_crud = AuthCrud(auth_info, update_body.model_dump())
@@ -59,6 +68,10 @@ async def update_auth_mapping(request: Request, update_body: AuthAddModel):
 @router.get("")
 @router.get("/")
 async def list_auth_mappings(request: Request, tenant: Union[str, None]=None, venue: Union[str, None]=None, group_names: Union[str, None]=None):
+    """
+    Listing all exsiting Authorization Mapping.
+
+    """
     LOGGER.debug(f'started list_auth_mappings')
     auth_info = FastApiUtils.get_authorization_info(request)
     query_body = {

@@ -9,7 +9,7 @@ from unittest import TestCase
 import pystac
 import requests
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
-from pystac import Link, Catalog, Asset, Item
+from pystac import Link, Catalog, Asset, Item, ItemCollection
 
 from cumulus_lambda_functions.docker_entrypoint.__main__ import choose_process
 
@@ -38,10 +38,10 @@ class TestCustomMetadataEndToEnd(TestCase):
             .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(),
                    base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
         self._url_prefix = f'{os.environ.get("UNITY_URL")}/{os.environ.get("UNITY_STAGE", "sbx-uds-dapa")}'
-        self.tenant = 'uds_local_test'  # 'uds_local_test'  # 'uds_sandbox'
-        self.tenant_venue = 'DEV1'  # 'DEV1'  # 'dev'
-        self.collection_name = 'uds_collection'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '230927702'  # '2309141300'
+        self.tenant = 'UDS_LOCAL_TEST'  # 'uds_local_test'  # 'uds_sandbox'
+        self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
+        self.collection_name = 'UDS_COLLECTION'  # 'uds_collection'  # 'sbx_collection'
+        self.collection_version = '23.11.27.05.00'.replace('.', '')  # '2309141300'
         self.custom_metadata_body = {
             'tag': {'type': 'keyword'},
             'c_data1': {'type': 'long'},
@@ -54,7 +54,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         collection_url = f'{self._url_prefix}/admin/auth'
         admin_add_body = {
             "actions": ["READ", "CREATE"],
-            "resources": [f"urn:nasa:unity:{self.tenant}:{self.tenant_venue}:.*"],
+            "resources": [f"URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:.*"],
             "tenant": self.tenant,
             "venue": self.tenant_venue,
             "group_name": "Unity_Viewer"
@@ -70,7 +70,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         print(response_json)
         return
 
-    def test_02_setup_custom_metadata_index(self):
+    def test_02_01_setup_custom_metadata_index(self):
         post_url = f'{self._url_prefix}/admin/custom_metadata/{self.tenant}?venue={self.tenant_venue}'  # MCP Dev
         headers = {
             'Authorization': f'Bearer {self.cognito_login.token}',
@@ -85,7 +85,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         print(response_json)
         return
 
-    def test_02_01_get_custom_metadata_fields(self):
+    def test_02_02_get_custom_metadata_fields(self):
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
         post_url = f'{self._url_prefix}/collections/{temp_collection_id}/variables'  # MCP Dev
         headers = {
@@ -93,8 +93,8 @@ class TestCustomMetadataEndToEnd(TestCase):
         }
         query_result = requests.get(url=post_url,
                                      headers=headers)
-        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
         print(query_result.text)
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
         self.assertEqual(json.loads(query_result.text), self.custom_metadata_body, f'wrong body')
         return
 
@@ -105,7 +105,7 @@ class TestCustomMetadataEndToEnd(TestCase):
             'Content-Type': 'application/json',
         }
         print(post_url)
-        temp_collection_id = f'urn:nasa:unity:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
         dapa_collection = UnityCollectionStac() \
             .with_id(temp_collection_id) \
             .with_graule_id_regex("^test_file.*$") \
@@ -127,6 +127,16 @@ class TestCustomMetadataEndToEnd(TestCase):
                                      )
         self.assertEqual(query_result.status_code, 202, f'wrong status code. {query_result.text}')
         sleep(60)
+        post_url = post_url if post_url.endswith('/') else f'{post_url}/'
+        collection_created_result = requests.get(url=f'{post_url}{temp_collection_id}', headers=headers)
+        self.assertEqual(collection_created_result.status_code, 200,
+                         f'wrong status code. {collection_created_result.text}')
+        collection_created_result = json.loads(collection_created_result.text)
+        self.assertTrue('features' in collection_created_result,
+                        f'features not in collection_created_result: {collection_created_result}')
+        self.assertEqual(len(collection_created_result['features']), 1, f'wrong length: {collection_created_result}')
+        self.assertEqual(collection_created_result['features'][0]['id'], temp_collection_id, f'wrong id')
+        print(collection_created_result)
         return
 
     def test_04_upload_sample_granule(self):
@@ -254,7 +264,7 @@ class TestCustomMetadataEndToEnd(TestCase):
                         <val>8c3ae101-8f7c-46c8-b5c6-63e7b6d3c8cd</val>
                     </keyval>
                 </cas:metadata>''')
-            stac_item = Item(id='test_file01',
+            stac_item = Item(id=f'{temp_collection_id}:test_file01',
                              geometry={
                                  "type": "Point",
                                  "coordinates": [0.0, 0.0]
@@ -292,43 +302,34 @@ class TestCustomMetadataEndToEnd(TestCase):
             upload_result_str = choose_process()
             upload_result = json.loads(upload_result_str)
             print(upload_result)
-            self.assertTrue('features' in upload_result, 'missing features')
-            self.assertEqual(1, len(upload_result['features']), 'wrong length of upload_result features')
-            upload_result = upload_result['features'][0]
+            self.assertTrue('type' in upload_result, 'missing type')
+            self.assertEqual(upload_result['type'], 'Catalog', 'missing type')
+            upload_result = Catalog.from_dict(upload_result)
+            child_links = [k.href for k in upload_result.get_links(rel='item')]
+            self.assertEqual(len(child_links), 2, f'wrong length: {child_links}')
+            self.assertTrue(FileUtils.file_exist(child_links[0]), f'missing file: {child_links[0]}')
+            successful_feature_collection = ItemCollection.from_dict(FileUtils.read_json(child_links[0]))
+            successful_feature_collection = list(successful_feature_collection.items)
+            self.assertEqual(len(successful_feature_collection), 1,
+                             f'wrong length: {successful_feature_collection}')
+
+            self.assertTrue(FileUtils.file_exist(child_links[1]), f'missing file: {child_links[1]}')
+            failed_feature_collection = ItemCollection.from_dict(FileUtils.read_json(child_links[1]))
+            failed_feature_collection = list(failed_feature_collection.items)
+            self.assertEqual(len(failed_feature_collection), 0, f'wrong length: {failed_feature_collection}')
+
+            upload_result = successful_feature_collection[0].to_dict(False, False)
+            print(f'example feature: {upload_result}')
             self.assertTrue('assets' in upload_result, 'missing assets')
             self.assertTrue('metadata__cas' in upload_result['assets'], 'missing assets#metadata__cas')
             self.assertTrue('href' in upload_result['assets']['metadata__cas'], 'missing assets#metadata__cas#href')
-            self.assertTrue(
-                upload_result['assets']['metadata__cas']['href'].startswith(
-                    f's3://{os.environ["STAGING_BUCKET"]}/{os.environ["COLLECTION_ID"]}/'))
+            self.assertTrue(upload_result['assets']['metadata__cas']['href'].startswith(
+                f's3://{os.environ["STAGING_BUCKET"]}/{os.environ["COLLECTION_ID"]}/'))
             self.assertTrue('data' in upload_result['assets'], 'missing assets#data')
             self.assertTrue('href' in upload_result['assets']['data'], 'missing assets#data#href')
             self.assertTrue(upload_result['assets']['data']['href'].startswith(
                 f's3://{os.environ["STAGING_BUCKET"]}/{os.environ["COLLECTION_ID"]}/'))
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
-            """
-            Example output: 
-            {
-                'type': 'FeatureCollection', 
-                'features': [{
-                    'type': 'Feature', 
-                    'stac_version': '1.0.0', 
-                    'id': 'NEW_COLLECTION_EXAMPLE_L1B___9:test_file01',
-                    'properties': {'start_datetime': '2016-01-31T18:00:00.009057Z',
-                                'end_datetime': '2016-01-31T19:59:59.991043Z', 'created': '2016-02-01T02:45:59.639000Z',
-                                'updated': '2022-03-23T15:48:21.578000Z', 'datetime': '1970-01-01T00:00:00Z'},
-                    'geometry': {'type': 'Point', 'coordinates': [0.0, 0.0]}, 'links': [], 
-                    'assets': {'data': {
-                        'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc',
-                        'title': 'main data'}, 'metadata__cas': {
-                        'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.cas',
-                        'title': 'metadata cas'}, 'metadata__stac': {
-                        'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.stac.json',
-                        'title': 'metadata stac'}}, 
-                    'bbox': [0.0, 0.0, 0.0, 0.0], 
-                    'stac_extensions': [],
-                    'collection': 'NEW_COLLECTION_EXAMPLE_L1B___9'}]}
-            """
         return
 
     def test_05_execute_cnm(self):
@@ -339,21 +340,22 @@ class TestCustomMetadataEndToEnd(TestCase):
 
         :return:
         """
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
         upload_result = {'type': 'FeatureCollection', 'features': [{
             'type': 'Feature', 'stac_version': '1.0.0',
-            'id': 'URN:NASA:UNITY:uds_sandbox:dev:sbx_collection___2309141300:test_file01',
+            'id': f'{temp_collection_id}:test_file01',
             'properties': {'tag': '#sample', 'c_data1': [1, 10, 100, 1000], 'c_data2': [False, True, True, False, True],
                            'c_data3': ['Bellman Ford'], 'start_datetime': '2016-01-31T18:00:00.009057Z',
                            'end_datetime': '2016-01-31T19:59:59.991043Z', 'created': '2016-02-01T02:45:59.639000Z',
                            'updated': '2022-03-23T15:48:21.578000Z', 'datetime': '1970-01-01T00:00:00Z'},
             'geometry': {'type': 'Point', 'coordinates': [0.0, 0.0]}, 'links': [], 'assets': {'data': {
-                'href': 's3://uds-sbx-cumulus-staging/URN:NASA:UNITY:uds_sandbox:dev:sbx_collection___2309141300/URN:NASA:UNITY:uds_sandbox:dev:sbx_collection___2309141300:test_file01/test_file01.nc',
+                'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:test_file01/test_file01.nc',
                 'title': 'main data'}, 'metadata__cas': {
-                'href': 's3://uds-sbx-cumulus-staging/URN:NASA:UNITY:uds_sandbox:dev:sbx_collection___2309141300/URN:NASA:UNITY:uds_sandbox:dev:sbx_collection___2309141300:test_file01/test_file01.nc.cas',
+                'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:test_file01/test_file01.nc.cas',
                 'title': 'metadata cas'}, 'metadata__stac': {
-                'href': 's3://uds-sbx-cumulus-staging/URN:NASA:UNITY:uds_sandbox:dev:sbx_collection___2309141300/URN:NASA:UNITY:uds_sandbox:dev:sbx_collection___2309141300:test_file01/test_file01.nc.stac.json',
+                'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:test_file01/test_file01.nc.stac.json',
                 'title': 'metadata stac'}}, 'bbox': [0.0, 0.0, 0.0, 0.0], 'stac_extensions': [],
-            'collection': 'URN:NASA:UNITY:uds_sandbox:dev:sbx_collection___2309141300'}]}
+            'collection': temp_collection_id}]}
 
         os.environ['PASSWORD_TYPE'] = 'BASE64'
         os.environ['DAPA_API'] = os.environ.get("UNITY_URL")
