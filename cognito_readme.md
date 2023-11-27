@@ -1,4 +1,4 @@
-- create a text file: `cognito.jpl.aws.json`.
+- create a text file: `cognito.jpl.aws.json`..
 
         {
            "AuthParameters" : {
