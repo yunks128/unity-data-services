@@ -264,7 +264,7 @@ class TestCustomMetadataEndToEnd(TestCase):
                         <val>8c3ae101-8f7c-46c8-b5c6-63e7b6d3c8cd</val>
                     </keyval>
                 </cas:metadata>''')
-            stac_item = Item(id=f'{temp_collection_id}:test_file01',
+            stac_item = Item(id=f'test_file01',
                              geometry={
                                  "type": "Point",
                                  "coordinates": [0.0, 0.0]

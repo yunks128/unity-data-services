@@ -65,7 +65,7 @@ async def get_granules_dapa(request: Request, collection_id: str):
 
 @router.get("/{collection_id}/items")
 @router.get("/{collection_id}/items/")
-async def get_granules_dapa(request: Request, collection_id: str, limit: Union[int, None] = 10, offset: Union[int, None] = 0, datetime: Union[str, None] = None, filter_input: Union[str, None] = None):
+async def get_granules_dapa(request: Request, collection_id: str, limit: Union[int, None] = 10, offset: Union[str, None] = None, datetime: Union[str, None] = None, filter_input: Union[str, None] = None):
     authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory() \
         .get_instance(UDSAuthorizerFactory.cognito,
                       es_url=os.getenv('ES_URL'),
