@@ -79,9 +79,11 @@ class GranulesIndexer:
         if 'bbox' in stac_item:
             stac_item['bbox'] = GranulesDbIndex.to_es_bbox(stac_item['bbox'])
         collection_identifier = UdsCollections.decode_identifier(self.__cumulus_record['collectionId'])
+        LOGGER.debug(f'stac_item: {stac_item}')
         GranulesDbIndex().add_entry(collection_identifier.tenant,
                                     collection_identifier.venue,
                                     stac_item,
                                     self.__cumulus_record['granuleId']
                                     )
+        LOGGER.debug(f'added to GranulesDbIndex')
         return self

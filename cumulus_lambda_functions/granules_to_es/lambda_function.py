@@ -11,4 +11,5 @@ def lambda_handler(event, context):
     """
     LambdaLoggerGenerator.remove_default_handlers()
     # TODO implement
-    return GranulesIndexer(event).start()
+    GranulesIndexer(event).start()
+    return {}

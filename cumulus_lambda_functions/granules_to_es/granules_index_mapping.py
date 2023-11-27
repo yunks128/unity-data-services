@@ -1,6 +1,6 @@
 class GranulesIndexMapping:
     stac_mappings = {
-        "eventTime": {"type": "long"},
+        "event_time": {"type": "long"},
         "type": {"type": "keyword"},
         "stac_version": {"type": "keyword"},
         "id": {"type": "keyword"},
