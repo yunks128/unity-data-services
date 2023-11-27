@@ -76,6 +76,8 @@ class GranulesIndexer:
         granules_metadata_props = stac_input_meta.start()
         self.__cumulus_record['custom_metadata'] = stac_input_meta.custom_properties
         stac_item = ItemTransformer().to_stac(self.__cumulus_record)
+        if 'bbox' in stac_item:
+            stac_item['bbox'] = GranulesDbIndex.to_es_bbox(stac_item['bbox'])
         collection_identifier = UdsCollections.decode_identifier(self.__cumulus_record['collectionId'])
         GranulesDbIndex().add_entry(collection_identifier.tenant,
                                     collection_identifier.venue,

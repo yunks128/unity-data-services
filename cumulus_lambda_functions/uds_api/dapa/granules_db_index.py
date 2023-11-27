@@ -31,6 +31,30 @@ class GranulesDbIndex:
         # }
         self.__default_fields = GranulesIndexMapping.stac_mappings
 
+    @staticmethod
+    def to_es_bbox(bbox_array):
+        return {
+            "type": "envelope",
+            "coordinates": [
+                [bbox_array[0], bbox_array[3]],  # Top-left corner (minLon, maxLat)
+                [bbox_array[2], bbox_array[1]]   # Bottom-right corner (maxLon, minLat)
+            ]
+        }
+
+    @staticmethod
+    def from_es_bbox(bbox_envelope_obj: dict):
+        missing_keys = [k for k in ['type', 'coordinates'] if k not in bbox_envelope_obj]
+        if len(missing_keys) > 0:
+            raise ValueError(f'invalid bbox_envelope_obj, missing {missing_keys}: {bbox_envelope_obj}')
+        if bbox_envelope_obj['type'] != 'envelope':
+            raise ValueError(f'bbox_envelope_obj is not envelope: {bbox_envelope_obj}')
+        return [
+        bbox_envelope_obj["coordinates"][0][0],       # minLon
+        bbox_envelope_obj["coordinates"][1][1],   # minLat
+        bbox_envelope_obj["coordinates"][1][0],   # maxLon
+        bbox_envelope_obj["coordinates"][0][1]        # maxLat
+    ]
+
     @property
     def default_fields(self):
         return self.__default_fields

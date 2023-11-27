@@ -469,7 +469,7 @@ class ItemTransformer(StacTransformerAbstract):
         }
         stac_item = Item(
             id=source['granuleId'],
-            bbox=[0.0, 0.0, 0.0, 0.0],
+            bbox=[-180.0, -90.0, 180.0, 90.0],
             properties={
                 **custom_metadata,
                 **cumulus_properties,
@@ -481,10 +481,11 @@ class ItemTransformer(StacTransformerAbstract):
             },
             collection=source['collectionId'],
             assets={self.__get_asset_name(k): self.__get_asset_obj(k) for k in validated_files},
-            geometry={
-                "type": "Point",
-                "coordinates": [0.0, 0.0]
-            },
+            geometry=None,
+            # geometry={
+            #     "type": "Point",
+            #     "coordinates": [0.0, 0.0]
+            # },
             datetime=TimeUtils().parse_from_unix(source['createdAt'], True).get_datetime_obj(),
         )
         stac_item.links = [

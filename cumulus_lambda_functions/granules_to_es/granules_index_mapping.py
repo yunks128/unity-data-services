@@ -5,6 +5,18 @@ class GranulesIndexMapping:
         "stac_version": {"type": "keyword"},
         "id": {"type": "keyword"},
         "collection": {"type": "keyword"},
+        "geometry": {"type": "geo_shape"},
+        "bbox": {"type": "geo_shape"},
+        "links": {
+            "type": "object",
+            "properties": {
+                "href": {"type": "keyword"},
+                "rel": {"type": "keyword"},
+                "type": {"type": "keyword"},
+                "title": {"type": "text"}
+            }
+        },
+        "stac_extensions": {"type": "object"},
         "properties": {
             "dynamic": "false",
             "properties": {
