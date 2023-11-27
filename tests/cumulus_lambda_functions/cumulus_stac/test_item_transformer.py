@@ -115,7 +115,20 @@ class TestItemTransformer(TestCase):
         source = json.loads(source)
         stac_item = ItemTransformer().to_stac(source)
         sample_stac_item = {'stac_version': '1.0.0', 'stac_extensions': [], 'type': 'Feature',
-                            'id': 'P1570515ATMSSCIENCEAAT16032024518500.PDS', 'bbox': [0.0, 0.0, 0.0, 0.0], 'geometry': {"coordinates": [0.0, 0.0], "type": "Point"},
+                            'id': 'P1570515ATMSSCIENCEAAT16032024518500.PDS',
+                            'geometry': {
+    "type": "Point",
+    "coordinates": [
+      0.0,
+      0.0
+    ]
+  },
+                            'bbox': [
+                                -180.0,
+                                -90.0,
+                                180.0,
+                                90.0
+                              ],
                             'properties': {
                                 "custom_entry_1": "test1",
                                 "custom_entry_2": True,
@@ -258,7 +271,12 @@ class TestItemTransformer(TestCase):
         source = json.loads(source)
         stac_item = ItemTransformer().to_stac(source)
         sample_stac_item = {'stac_version': '1.0.0', 'stac_extensions': [], 'type': 'Feature',
-                            'id': 'P1570515ATMSSCIENCEAAT16032024518500.PDS', 'bbox': [0.0, 0.0, 0.0, 0.0], 'geometry': {"coordinates": [0.0, 0.0], "type": "Point"},
+                            'id': 'P1570515ATMSSCIENCEAAT16032024518500.PDS', 'bbox': [
+                                -180.0,
+                                -90.0,
+                                180.0,
+                                90.0
+                              ], 'geometry': {"coordinates": [0.0, 0.0], "type": "Point"},
                             'properties': {
                                 "start_datetime": "2016-01-31T18:00:00.009057Z",
                                 "end_datetime": "2016-01-31T19:59:59.991043Z",

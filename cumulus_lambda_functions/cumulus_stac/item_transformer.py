@@ -481,11 +481,10 @@ class ItemTransformer(StacTransformerAbstract):
             },
             collection=source['collectionId'],
             assets={self.__get_asset_name(k): self.__get_asset_obj(k) for k in validated_files},
-            geometry=None,
-            # geometry={
-            #     "type": "Point",
-            #     "coordinates": [0.0, 0.0]
-            # },
+            geometry={
+                "type": "Point",
+                "coordinates": [0.0, 0.0]
+            },
             datetime=TimeUtils().parse_from_unix(source['createdAt'], True).get_datetime_obj(),
         )
         stac_item.links = [
