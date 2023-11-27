@@ -73,7 +73,6 @@ class GranulesDapaQueryEs:
             {'rel': 'root', 'href': self.__pagination_link_obj.base_url},
             # {'rel': 'prev', 'href': self.__get_prev_page()},
         ]
-        pagination_links.append()
         new_queries = deepcopy(self.__pagination_link_obj.org_query_params)
         limit = int(new_queries['limit'] if 'limit' in new_queries else self.__limit)
         if limit > 0 and page_marker_str != '':
