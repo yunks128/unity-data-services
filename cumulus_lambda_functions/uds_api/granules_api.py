@@ -2,6 +2,7 @@ import json
 import os
 from typing import Union
 
+from cumulus_lambda_functions.uds_api.dapa.granules_dapa_query_es import GranulesDapaQueryEs
 from cumulus_lambda_functions.uds_api.dapa.granules_db_index import GranulesDbIndex
 from cumulus_lambda_functions.uds_api.fast_api_utils import FastApiUtils
 
@@ -25,7 +26,7 @@ LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_le
 
 router = APIRouter(
     prefix=f'/{WebServiceConstants.COLLECTIONS}',
-    tags=["Process CRUD"],
+    tags=["Granules CRUD API"],
     responses={404: {"description": "Not found"}},
 )
 
@@ -55,25 +56,16 @@ async def get_granules_dapa(request: Request, collection_id: str):
         # This is the response from the method
         # {"unity_granule_main_project1694791693139_dev__v02":{"mappings":{"dynamic":"strict","properties":{"collection_id":{"type":"keyword"},"event_time":{"type":"long"},"granule_id":{"type":"keyword"},"last_updated":{"type":"long"},"tag":{"type":"keyword"}}}}}
         # needs to drill down to properties
-        if len(granule_index_mapping) < 1:
-            raise ValueError(f'missing custom metadata DB index for : {collection_identifier.tenant}-{collection_identifier.venue}')
-        for k, v in granule_index_mapping.items():
-            granule_index_mapping = v
-            break
-        granule_index_mapping = granule_index_mapping['mappings']['properties']
-        for k in granules_db_index.default_fields.keys():
-            if k in granule_index_mapping:
-                granule_index_mapping.pop(k)
-
+        custom_metadata = granules_db_index.get_custom_metadata_fields(granule_index_mapping)
     except Exception as e:
         LOGGER.exception('failed during get_granules_dapa')
         raise HTTPException(status_code=500, detail=str(e))
-    return granule_index_mapping
+    return custom_metadata
 
 
 @router.get("/{collection_id}/items")
 @router.get("/{collection_id}/items/")
-async def get_granules_dapa(request: Request, collection_id: str, limit: Union[int, None] = 10, offset: Union[int, None] = 0, datetime: Union[str, None] = None, filter_input: Union[str, None] = None):
+async def get_granules_dapa(request: Request, collection_id: str, limit: Union[int, None] = 10, offset: Union[str, None] = None, datetime: Union[str, None] = None, filter_input: Union[str, None] = None):
     authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory() \
         .get_instance(UDSAuthorizerFactory.cognito,
                       es_url=os.getenv('ES_URL'),
@@ -91,8 +83,10 @@ async def get_granules_dapa(request: Request, collection_id: str, limit: Union[i
         }))
 
     try:
-        pagination_links = PaginationLinksGenerator(request).generate_pagination_links()
-        granules_dapa_query = GranulesDapaQuery(collection_id, limit, offset, datetime, filter_input, pagination_links)
+        # pagination_links = PaginationLinksGenerator(request).generate_pagination_links()
+        pagination_links = PaginationLinksGenerator(request)
+
+        granules_dapa_query = GranulesDapaQueryEs(collection_id, limit, offset, datetime, filter_input, pagination_links)
         granules_result = granules_dapa_query.start()
     except Exception as e:
         LOGGER.exception('failed during get_granules_dapa')
