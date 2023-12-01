@@ -93,6 +93,8 @@ class GranulesDapaQueryEs:
             result_size = ESMiddleware.get_result_size(granules_query_result)
             granules_query_result_stripped = [k['_source'] for k in granules_query_result['hits']['hits']]
             for each_granules_query_result_stripped in granules_query_result_stripped:
+                if 'event_time' in each_granules_query_result_stripped:
+                    each_granules_query_result_stripped.pop('event_time')
                 if 'bbox' in each_granules_query_result_stripped:
                     each_granules_query_result_stripped['bbox'] = GranulesDbIndex.from_es_bbox(each_granules_query_result_stripped['bbox'])
 

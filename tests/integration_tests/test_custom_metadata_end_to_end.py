@@ -41,7 +41,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         self.tenant = 'UDS_LOCAL_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
         self.collection_name = 'UDS_COLLECTION'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '23.11.27.13.00'.replace('.', '')  # '2309141300'
+        self.collection_version = '23.11.30.16.30'.replace('.', '')  # '2309141300'
         self.custom_metadata_body = {
             'tag': {'type': 'keyword'},
             'c_data1': {'type': 'long'},
@@ -413,3 +413,25 @@ class TestCustomMetadataEndToEnd(TestCase):
                             f'wrong validation for : {json.dumps(each_feature, indent=4)}. details: {validation_result}')
             self.assertTrue('c_data3' in stac_item.properties, f'missing custom_metadata: {each_feature}')
         return
+
+    def test_06_retrieve_granule_filter(self):
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
+        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/items?filter_input=c_data3 = \'Bellman Ford\' AND end_datetime >= \'2016-03-31\''
+        headers = {
+            'Authorization': f'Bearer {self.cognito_login.token}',
+            'Content-Type': 'application/json',
+        }
+        query_result = requests.get(url=post_url,
+                                    headers=headers)
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        response_json = json.loads(query_result.content.decode())
+        print(response_json)
+        self.assertTrue(len(response_json['features']) > 0, f'empty granules. Need collections to compare')
+        for each_feature in response_json['features']:
+            stac_item = pystac.Item.from_dict(each_feature)
+            validation_result = stac_item.validate()
+            self.assertTrue(isinstance(validation_result, list),
+                            f'wrong validation for : {json.dumps(each_feature, indent=4)}. details: {validation_result}')
+            self.assertTrue('c_data3' in stac_item.properties, f'missing custom_metadata: {each_feature}')
+        return
+
