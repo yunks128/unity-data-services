@@ -397,7 +397,7 @@ class TestCustomMetadataEndToEnd(TestCase):
     def test_06_retrieve_granule(self):
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
         post_url = f'{self._url_prefix}/collections/{temp_collection_id}/items?limit=2'
-        # post_url = 'https://dxebrgu0bc9w7.cloudfront.net/sbx-uds-dapa/collections/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/items?limit=2&offset=URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file05'
+        post_url = f'{self._url_prefix}/collections/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/items?limit=2&offset=URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02'
         headers = {
             'Authorization': f'Bearer {self.cognito_login.token}',
             'Content-Type': 'application/json',
@@ -450,4 +450,26 @@ class TestCustomMetadataEndToEnd(TestCase):
         response_json = json.loads(query_result.content.decode())
         print(response_json)
         self.assertTrue(len(response_json['features']) == 0, f'empty granules. Need collections to compare')
+        return
+
+    def test_01_pagination(self):
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
+        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/items?limit=2'
+        headers = {
+            'Authorization': f'Bearer {self.cognito_login.token}',
+            'Content-Type': 'application/json',
+        }
+        query_result = requests.get(url=post_url, headers=headers)
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        response_json = json.loads(query_result.content.decode())
+        links = {k['rel']: k for k in response_json['links']}
+        print(response_json)
+        while 'next' in links:
+            print(f"{links['next']}")
+            post_url = links['next']['href']
+            query_result = requests.get(url=post_url, headers=headers)
+            self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+            response_json = json.loads(query_result.content.decode())
+            links = {k['rel']: k for k in response_json['links']}
+            print(response_json)
         return
