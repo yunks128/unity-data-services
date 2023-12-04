@@ -44,7 +44,7 @@ class GranulesQuery(CumulusBase):
         return self
 
     def with_time_to(self, to_time):
-        self._conditions.append(f'{self.__beginning_time_key}__from={to_time}')
+        self._conditions.append(f'{self.__beginning_time_key}__to={to_time}')
         return self
 
     def with_time(self, input_time):
