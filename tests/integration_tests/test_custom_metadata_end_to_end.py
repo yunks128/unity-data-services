@@ -416,7 +416,7 @@ class TestCustomMetadataEndToEnd(TestCase):
 
     def test_06_retrieve_granule_filter(self):
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
-        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/items?filter_input=c_data3 = \'Bellman Ford\' AND end_datetime >= \'2016-03-31\''
+        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/items?filter_input=c_data3 = \'Bellman Ford\' AND end_datetime >= \'2016-01-31 11:11:11\''
         headers = {
             'Authorization': f'Bearer {self.cognito_login.token}',
             'Content-Type': 'application/json',
