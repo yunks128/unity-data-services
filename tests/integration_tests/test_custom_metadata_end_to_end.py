@@ -48,6 +48,7 @@ class TestCustomMetadataEndToEnd(TestCase):
             'c_data2': {'type': 'boolean'},
             'c_data3': {'type': 'keyword'},
         }
+        self.granule_id = 'test_file05'
         return
 
     def test_01_setup_permissions(self):
@@ -110,14 +111,14 @@ class TestCustomMetadataEndToEnd(TestCase):
             .with_id(temp_collection_id) \
             .with_graule_id_regex("^test_file.*$") \
             .with_granule_id_extraction_regex("(^test_file.*)(\\.nc|\\.nc\\.cas|\\.cmr\\.xml)") \
-            .with_title("test_file01.nc") \
+            .with_title(f"{self.granule_id}.nc") \
             .with_process('stac') \
             .with_provider('unity') \
-            .add_file_type("test_file01.nc", "^test_file.*\\.nc$", 'unknown_bucket', 'application/json', 'root') \
-            .add_file_type("test_file01.nc", "^test_file.*\\.nc$", 'protected', 'data', 'item') \
-            .add_file_type("test_file01.nc.cas", "^test_file.*\\.nc.cas$", 'protected', 'metadata', 'item') \
-            .add_file_type("test_file01.nc.cmr.xml", "^test_file.*\\.nc.cmr.xml$", 'protected', 'metadata', 'item') \
-            .add_file_type("test_file01.nc.stac.json", "^test_file.*\\.nc.stac.json$", 'protected', 'metadata', 'item')
+            .add_file_type(f"{self.granule_id}.nc", "^test_file.*\\.nc$", 'unknown_bucket', 'application/json', 'root') \
+            .add_file_type(f"{self.granule_id}.nc", "^test_file.*\\.nc$", 'protected', 'data', 'item') \
+            .add_file_type(f"{self.granule_id}.nc.cas", "^test_file.*\\.nc.cas$", 'protected', 'metadata', 'item') \
+            .add_file_type(f"{self.granule_id}.nc.cmr.xml", "^test_file.*\\.nc.cmr.xml$", 'protected', 'metadata', 'item') \
+            .add_file_type(f"{self.granule_id}.nc.stac.json", "^test_file.*\\.nc.stac.json$", 'protected', 'metadata', 'item')
         print(dapa_collection)
         stac_collection = dapa_collection.start()
         print(json.dumps(stac_collection))
@@ -166,9 +167,9 @@ class TestCustomMetadataEndToEnd(TestCase):
             os.environ['CATALOG_FILE'] = os.path.join(tmp_dir_name, 'catalog.json')
             granules_dir = os.path.join(tmp_dir_name, 'some_granules')
             FileUtils.mk_dir_p(granules_dir)
-            with open(os.path.join(granules_dir, 'test_file01.nc'), 'w') as ff:
+            with open(os.path.join(granules_dir, f'{self.granule_id}.nc'), 'w') as ff:
                 ff.write('sample_file')
-            with open(os.path.join(granules_dir, 'test_file01.nc.cas'), 'w') as ff:
+            with open(os.path.join(granules_dir, f'{self.granule_id}.nc.cas'), 'w') as ff:
                 ff.write('''<?xml version="1.0" encoding="UTF-8" ?>
                 <cas:metadata xmlns:cas="http://oodt.jpl.nasa.gov/1.0/cas">
                     <keyval type="scalar">
@@ -264,7 +265,7 @@ class TestCustomMetadataEndToEnd(TestCase):
                         <val>8c3ae101-8f7c-46c8-b5c6-63e7b6d3c8cd</val>
                     </keyval>
                 </cas:metadata>''')
-            stac_item = Item(id=f'test_file01',
+            stac_item = Item(id=self.granule_id,
                              geometry={
                                  "type": "Point",
                                  "coordinates": [0.0, 0.0]
@@ -279,22 +280,22 @@ class TestCustomMetadataEndToEnd(TestCase):
                                  "updated": "2022-03-23T15:48:21.578000Z",
                                  "datetime": "2022-03-23T15:48:19.079000Z"
                              },
-                             href=os.path.join('some_granules', 'test_file01.nc.stac.json'),
+                             href=os.path.join('some_granules', f'{self.granule_id}.nc.stac.json'),
                              collection=temp_collection_id,
                              assets={
-                                 'data': Asset(os.path.join('.', 'test_file01.nc'), title='main data'),
-                                 'metadata__cas': Asset(os.path.join('.', 'test_file01.nc.cas'), title='metadata cas'),
-                                 'metadata__stac': Asset(os.path.join('.', 'test_file01.nc.stac.json'),
+                                 'data': Asset(os.path.join('.', f'{self.granule_id}.nc'), title='main data'),
+                                 'metadata__cas': Asset(os.path.join('.', f'{self.granule_id}.nc.cas'), title='metadata cas'),
+                                 'metadata__stac': Asset(os.path.join('.', f'{self.granule_id}.nc.stac.json'),
                                                          title='metadata stac'),
                              })
-            with open(os.path.join(granules_dir, 'test_file01.nc.stac.json'), 'w') as ff:
+            with open(os.path.join(granules_dir, f'{self.granule_id}.nc.stac.json'), 'w') as ff:
                 ff.write(json.dumps(stac_item.to_dict(False, False)))
             catalog = Catalog(
                 id='NA',
                 description='NA')
             catalog.set_self_href(os.environ['CATALOG_FILE'])
             catalog.add_link(
-                Link('item', os.path.join('some_granules', 'test_file01.nc.stac.json'), 'application/json'))
+                Link('item', os.path.join('some_granules', f'{self.granule_id}.nc.stac.json'), 'application/json'))
             print(json.dumps(catalog.to_dict(False, False)))
             with open(os.environ['CATALOG_FILE'], 'w') as ff:
                 ff.write(json.dumps(catalog.to_dict(False, False)))
@@ -343,17 +344,17 @@ class TestCustomMetadataEndToEnd(TestCase):
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
         upload_result = {'type': 'FeatureCollection', 'features': [{
             'type': 'Feature', 'stac_version': '1.0.0',
-            'id': f'{temp_collection_id}:test_file01',
+            'id': f'{temp_collection_id}:{self.granule_id}',
             'properties': {'tag': '#sample', 'c_data1': [1, 10, 100, 1000], 'c_data2': [False, True, True, False, True],
                            'c_data3': ['Bellman Ford'], 'start_datetime': '2016-01-31T18:00:00.009057Z',
                            'end_datetime': '2016-01-31T19:59:59.991043Z', 'created': '2016-02-01T02:45:59.639000Z',
                            'updated': '2022-03-23T15:48:21.578000Z', 'datetime': '1970-01-01T00:00:00Z'},
             'geometry': {'type': 'Point', 'coordinates': [0.0, 0.0]}, 'links': [], 'assets': {'data': {
-                'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:test_file01/test_file01.nc',
+                'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:{self.granule_id}/{self.granule_id}.nc',
                 'title': 'main data'}, 'metadata__cas': {
-                'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:test_file01/test_file01.nc.cas',
+                'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:{self.granule_id}/{self.granule_id}.nc.cas',
                 'title': 'metadata cas'}, 'metadata__stac': {
-                'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:test_file01/test_file01.nc.stac.json',
+                'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:{self.granule_id}/{self.granule_id}.nc.stac.json',
                 'title': 'metadata stac'}}, 'bbox': [0.0, 0.0, 0.0, 0.0], 'stac_extensions': [],
             'collection': temp_collection_id}]}
 
@@ -395,7 +396,8 @@ class TestCustomMetadataEndToEnd(TestCase):
 
     def test_06_retrieve_granule(self):
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
-        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/items'
+        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/items?limit=2'
+        # post_url = 'https://dxebrgu0bc9w7.cloudfront.net/sbx-uds-dapa/collections/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/items?limit=2&offset=URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file05'
         headers = {
             'Authorization': f'Bearer {self.cognito_login.token}',
             'Content-Type': 'application/json',

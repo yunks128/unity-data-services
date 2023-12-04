@@ -103,7 +103,7 @@ class GranulesDapaQueryEs:
                 'statusCode': 200,
                 'body': {
                     'numberMatched': {'total_size': result_size},
-                    'numberReturned': len(granules_query_result),
+                    'numberReturned': len(granules_query_result['hits']['hits']),
                     'stac_version': '1.0.0',
                     'type': 'FeatureCollection',  # TODO correct name?
                     'links': self.__create_pagination_links(pagination_link),
