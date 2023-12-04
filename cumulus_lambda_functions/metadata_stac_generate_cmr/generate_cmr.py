@@ -5,12 +5,7 @@ from copy import deepcopy
 
 import xmltodict
 
-from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
 from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
-
-from cumulus_lambda_functions.lib.aws.es_abstract import ESAbstract
-
-from cumulus_lambda_functions.lib.aws.es_factory import ESFactory
 
 from cumulus_lambda_functions.lib.aws.aws_s3 import AwsS3
 from cumulus_lambda_functions.lib.json_validator import JsonValidator
@@ -18,6 +13,7 @@ from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGen
 from cumulus_lambda_functions.lib.metadata_extraction.echo_metadata import EchoMetadata
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
 from cumulus_lambda_functions.metadata_stac_generate_cmr.stac_input_metadata import StacInputMetadata
+from cumulus_lambda_functions.uds_api.dapa.granules_db_index import GranulesDbIndex
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
@@ -197,17 +193,11 @@ class GenerateCmr:
             LOGGER.error(f'unable to write custom metadata w/o granule or collection id: {custom_metadata}')
             return
         collection_identifier = UdsCollections.decode_identifier(custom_metadata['collection_id'])
-        write_alias_name = f'{DBConstants.granules_write_alias_prefix}_{collection_identifier.tenant}_{collection_identifier.venue}'.lower().strip()
-
-        es: ESAbstract = ESFactory().get_instance('AWS',
-                                                  index=write_alias_name,
-                                                  base_url=os.getenv('ES_URL'),
-                                                  port=int(os.getenv('ES_PORT', '443'))
-                                                  )
-        custom_metadata['event_time'] = TimeUtils.get_current_unix_milli()
-        # TODO validate custom metadata vs the latest index to filter extra items
-        es.index_one(custom_metadata, custom_metadata['granule_id'])  # TODO assuming granule_id is prefixed with collection id
-        LOGGER.debug(f'custom_metadata indexed')
+        GranulesDbIndex().add_entry(collection_identifier.tenant,
+                                    collection_identifier.venue,
+                                    custom_metadata,
+                                    custom_metadata['granule_id']
+                                    )
         return
 
     def start(self):
