@@ -27,9 +27,10 @@ class TestCumulusCreateCollectionDapa(TestCase):
         # post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/'  # JPL Cloud
         # post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/'  # MCP Dev
         # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/'  # MCP Dev
-
-        self.uds_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/'
-        self.uds_url = 'https://d3vc8w9zcq658.cloudfront.net/sbx-uds-dapa/'
+        self.stage = 'dev'
+        self.uds_dapa_prefix = 'sbx-uds-dapa'
+        self.uds_url = f'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/{self.stage}/{self.uds_dapa_prefix}/'
+        # self.uds_url = 'https://d3vc8w9zcq658.cloudfront.net/sbx-uds-dapa/'
 
         os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
         os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
@@ -40,6 +41,51 @@ class TestCumulusCreateCollectionDapa(TestCase):
 
         os.environ[Constants.COGNITO_URL] = 'https://cognito-idp.us-west-2.amazonaws.com'
         self.bearer_token = CognitoTokenRetriever().start()
+        self.custom_metadata_body = {
+            'tag': {'type': 'keyword'},
+            'c_data1': {'type': 'long'},
+            'c_data2': {'type': 'boolean'},
+            'c_data3': {'type': 'keyword'},
+        }
+        return
+
+    def test_add_admin_01(self):
+        collection_url = f'{self.uds_url}admin/auth'
+        tenant, tenant_venue = 'uds_local_test', 'DEV1'
+        tenant, tenant_venue = 'MAIN_PROJECT', 'DEV'
+        admin_add_body = {
+            "actions": ["READ", "CREATE"],
+            "resources": [f"URN:NASA:UNITY:{tenant}:{tenant_venue}:.*"],
+            "tenant": tenant,
+            # "venue": f"DEV1-{int(datetime.utcnow().timestamp())}",
+            "venue": tenant_venue,
+            "group_name": "Unity_Viewer"
+        }
+        s = requests.session()
+        s.trust_env = False
+        print(collection_url)
+        response = s.put(url=collection_url, headers={
+            'Authorization': f'Bearer {self.bearer_token}',
+            'Content-Type': 'application/json',
+        }, verify=False, data=json.dumps(admin_add_body))
+        self.assertEqual(response.status_code, 200, f'wrong status code: {response.text}')
+        response_json = response.content.decode()
+        print(response_json)
+        return
+
+    def test_01_setup_custom_metadata_index(self):
+        post_url = f'{self.uds_url}admin/custom_metadata/MAIN_PROJECT?venue=DEV'  # MCP Dev
+        headers = {
+            'Authorization': f'Bearer {self.bearer_token}',
+            'Content-Type': 'application/json',
+        }
+        query_result = requests.put(url=post_url,
+                                    headers=headers,
+                                    json=self.custom_metadata_body,
+                                    )
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        response_json = query_result.content.decode()
+        print(response_json)
         return
 
     def test_03_create_collection(self):
@@ -92,6 +138,9 @@ class TestCumulusCreateCollectionDapa(TestCase):
         self.assertTrue('next' in links, f'missing next in links: {links}')
         self.assertTrue('href' in links['next'], f'missing next in links: {links}')
         self.assertTrue('limit=50' in links['next']['href'], f"limit not reset to 50: {links['next']['href']}")
+        links = {k['rel']: k['href'] for k in query_result['links'] if k['rel'] != 'root'}
+        for k, v in links.items():
+            self.assertTrue(v.startswith(self.uds_url), f'missing stage: {self.stage} in {v} for {k}')
         return
 
     def test_granules_get(self):
@@ -99,12 +148,15 @@ class TestCumulusCreateCollectionDapa(TestCase):
         headers = {
             'Authorization': f'Bearer {self.bearer_token}',
         }
-
+        print(post_url)
         query_result = requests.get(url=post_url,
                                     headers=headers,
                                     )
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
-        print(query_result.text)
+        response_json = json.loads(query_result.text)
+        links = {k['rel']: k['href'] for k in response_json['links'] if k['rel'] != 'root'}
+        for k, v in links.items():
+            self.assertTrue(v.startswith(self.uds_url), f'missing stage: {self.stage} in {v} for {k}')
         return
 
     def test_create_new_collection(self):
