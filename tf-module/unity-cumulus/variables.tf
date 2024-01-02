@@ -108,3 +108,24 @@ variable "report_granules_topic" {
   type = string
   description = "SNS name"
 }
+
+variable "shared_services_rest_api_name" {
+  type        = string
+  description = "Shared services REST API name"
+  default     = "Unity Shared Services REST API Gateway"
+}
+
+variable "rest_api_stage" {
+  type        = string
+  description = "REST API Stage Name"
+  default     = "dev"
+}
+variable "resource_for_project" {
+  type = string
+  description = "An API Gateway resource to identify the Project Name that this specific resource is integrated with"
+  default = "am-uds-dapa"
+}
+variable "unity_cognito_authorizer__authorizer_id" {
+  type = string
+  description = "Example: 0h9egs"
+}

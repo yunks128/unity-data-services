@@ -73,6 +73,7 @@ class TestCustomMetadataEndToEnd(TestCase):
 
     def test_02_01_setup_custom_metadata_index(self):
         post_url = f'{self._url_prefix}/admin/custom_metadata/{self.tenant}?venue={self.tenant_venue}'  # MCP Dev
+        print(post_url)
         headers = {
             'Authorization': f'Bearer {self.cognito_login.token}',
             'Content-Type': 'application/json',
@@ -89,6 +90,7 @@ class TestCustomMetadataEndToEnd(TestCase):
     def test_02_02_get_custom_metadata_fields(self):
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
         post_url = f'{self._url_prefix}/collections/{temp_collection_id}/variables'  # MCP Dev
+        print(post_url)
         headers = {
             'Authorization': f'Bearer {self.cognito_login.token}',
         }
@@ -139,6 +141,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         self.assertEqual(collection_created_result['features'][0]['id'], temp_collection_id, f'wrong id')
         print(collection_created_result)
         return
+
 
     def test_04_upload_sample_granule(self):
         custom_metadata = {
@@ -397,7 +400,8 @@ class TestCustomMetadataEndToEnd(TestCase):
     def test_06_retrieve_granule(self):
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
         post_url = f'{self._url_prefix}/collections/{temp_collection_id}/items?limit=2'
-        post_url = f'{self._url_prefix}/collections/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/items?limit=2&offset=URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02'
+        # post_url = f'{self._url_prefix}/collections/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/items?limit=2&offset=URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02'
+        print(post_url)
         headers = {
             'Authorization': f'Bearer {self.cognito_login.token}',
             'Content-Type': 'application/json',
