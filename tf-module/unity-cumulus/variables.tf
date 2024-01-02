@@ -60,6 +60,7 @@ variable "unity_default_provider" {
 
 variable "dapa_api_prefix" {
   type = string
+  description = "An API Gateway resource to identify the Project Name that this specific resource is integrated with"
   default = "am-uds-dapa"
 }
 
@@ -120,11 +121,7 @@ variable "rest_api_stage" {
   description = "REST API Stage Name"
   default     = "dev"
 }
-variable "resource_for_project" {
-  type = string
-  description = "An API Gateway resource to identify the Project Name that this specific resource is integrated with"
-  default = "am-uds-dapa"
-}
+
 variable "unity_cognito_authorizer__authorizer_id" {
   type = string
   description = "Example: 0h9egs"

@@ -17,11 +17,11 @@ data "aws_api_gateway_authorizer" "unity_cognito_authorizer" {  # https://regist
 
 #
 # Creates the project API Gateway resource to be pointed to a project level API gateway.
-# DEPLOYER SHOULD MODIFY THE VARIABLE var.resource_for_project TO BE THE PROJECT NAME (e.g. "soundersips")
+# DEPLOYER SHOULD MODIFY THE VARIABLE var.dapa_api_prefix TO BE THE PROJECT NAME (e.g. "soundersips"). It is TIED to Lambda setting
 resource "aws_api_gateway_resource" "uds_api_base_resource" {
   rest_api_id = data.aws_api_gateway_rest_api.rest_api.id
   parent_id   = data.aws_api_gateway_rest_api.rest_api.root_resource_id
-  path_part   = var.resource_for_project
+  path_part   = var.dapa_api_prefix
 }
 
 #
