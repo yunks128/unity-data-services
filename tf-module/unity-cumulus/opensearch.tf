@@ -37,7 +37,7 @@ resource "aws_elasticsearch_domain" "uds-es" {
   access_policies = templatefile(
     "${path.module}/es_access_policy.json",
     {
-      es_resource: "arn:aws:es:${var.aws_region}:${var.account_id}:domain/${var.prefix}-es/*"
+      es_resource: "arn:aws:es:${var.aws_region}:${local.account_id}:domain/${var.prefix}-es/*"
     }
   )
   tags = var.tags
