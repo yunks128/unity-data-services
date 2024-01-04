@@ -47,7 +47,10 @@ class CatalogGranulesUnity(CatalogGranulesAbstract):
         self.__set_props_from_env()
         if isinstance(self._uploaded_files_json, dict) and 'features' in self._uploaded_files_json:
             self._uploaded_files_json = self._uploaded_files_json['features']
-
+        dapa_client = DapaClient().with_verify_ssl(self.__verify_ssl)
+        main_collection = self._uploaded_files_json[0]['collection']
+        collection_result = dapa_client.get_collection(main_collection)
+        LOGGER.debug(f'{main_collection} details: {collection_result}')
         response_jsons = []
         for i, features_chunk in enumerate(StageInOutUtils.chunk_list(self._uploaded_files_json, self.__chunk_size)):
             LOGGER.debug(f'working on chunk_index {i}')
@@ -55,7 +58,6 @@ class CatalogGranulesUnity(CatalogGranulesAbstract):
                 "provider_id": self.__provider_id,
                 "features": features_chunk
             }
-            dapa_client = DapaClient().with_verify_ssl(self.__verify_ssl)
             LOGGER.debug(f'dapa_body_granules: {dapa_body}')
             dapa_ingest_result = dapa_client.ingest_granules_w_cnm(dapa_body)
             extracted_ids = [k['id'] for k in features_chunk]
