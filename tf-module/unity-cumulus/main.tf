@@ -86,6 +86,7 @@ resource "aws_lambda_function" "metadata_stac_generate_cmr" {
   environment {
     variables = {
       LOG_LEVEL = var.log_level
+      FILE_POSTFIX = var.metadata_stac_file_postfix
       REGISTER_CUSTOM_METADATA = var.register_custom_metadata
       ES_URL = aws_elasticsearch_domain.uds-es.endpoint
       ES_PORT = 443

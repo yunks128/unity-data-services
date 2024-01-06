@@ -7,6 +7,11 @@ variable "account_id" {
   type = string
   description = "AWS Account ID"
 }
+variable "metadata_stac_file_postfix" {
+  type = string
+  description = "Comma separated File Postfix for STAC JSON metadata files"
+  default = "STAC.JSON"
+}
 variable "metadata_s4pa_file_postfix" {
   type = string
   description = "Comma separated File Postfix for PDS XML metadata files"
