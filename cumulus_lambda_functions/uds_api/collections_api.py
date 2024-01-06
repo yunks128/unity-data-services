@@ -16,22 +16,29 @@ from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGen
 from fastapi import APIRouter, HTTPException, Request, Response
 
 from cumulus_lambda_functions.uds_api.dapa.collections_dapa_cnm import CnmRequestBody, CollectionsDapaCnm
-from cumulus_lambda_functions.uds_api.dapa.collections_dapa_creation import CollectionDapaCreation
+from cumulus_lambda_functions.uds_api.dapa.collections_dapa_creation import CollectionDapaCreation, \
+    CumulusCollectionModel
 from cumulus_lambda_functions.uds_api.dapa.collections_dapa_query import CollectionDapaQuery
 from cumulus_lambda_functions.uds_api.dapa.pagination_links_generator import PaginationLinksGenerator
 from cumulus_lambda_functions.uds_api.web_service_constants import WebServiceConstants
+from fastapi.responses import PlainTextResponse, JSONResponse
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 router = APIRouter(
     prefix=f'/{WebServiceConstants.COLLECTIONS}',
-    tags=["Process CRUD"],
+    tags=["Collection CRUD API"],
     responses={404: {"description": "Not found"}},
 )
 
 @router.put("")
 @router.put("/")
-async def ingest_cnm_dapa(request: Request, new_cnm_body: CnmRequestBody, response: Response):
+async def ingest_cnm_dapa(request: Request, new_cnm_body: CnmRequestBody, response: Response, response_class=JSONResponse):
+    """
+    Ingestion of Granules for a given collection via CNM
+
+    This is a facade endpoint which will trigger another endpoint which takes some time to execute ingestion
+    """
     LOGGER.debug(f'starting ingest_cnm_dapa')
     collection_id = new_cnm_body.model_dump()
     if 'features' not in collection_id or len(collection_id['features']) < 1 or 'collection' not in collection_id['features'][0]:
@@ -68,7 +75,13 @@ async def ingest_cnm_dapa(request: Request, new_cnm_body: CnmRequestBody, respon
 
 @router.put("/actual")
 @router.put("/actual/")
-async def ingest_cnm_dapa_actual(request: Request, new_cnm_body: CnmRequestBody):
+async def ingest_cnm_dapa_actual(request: Request, new_cnm_body: CnmRequestBody, response_class=JSONResponse):
+    """
+    Real ingestion of Granules for a given collection via CNM
+
+    This will take some time to repeatedly create SNS messages for CNM
+
+    """
     LOGGER.debug(f'starting ingest_cnm_dapa_actual')
     try:
         collections_dapa_cnm = CollectionsDapaCnm(new_cnm_body.model_dump())
@@ -83,8 +96,14 @@ async def ingest_cnm_dapa_actual(request: Request, new_cnm_body: CnmRequestBody)
 
 @router.post("")
 @router.post("/")
-async def create_new_collection(request: Request, new_collection: dict, response: Response):
+async def create_new_collection(request: Request, new_collection: CumulusCollectionModel, response: Response):
+    """
+    Creating a new Cumulus Collection
+
+    This is a facade endpoint which will trigger another endpoint which takes some time to hit Cumulus collection creation endpoint.
+    """
     LOGGER.debug(f'starting create_new_collection')
+    new_collection = new_collection.model_dump()
     collection_id = new_collection
     if 'id' not in collection_id:
         raise HTTPException(status_code=500, detail=json.dumps({
@@ -121,8 +140,12 @@ async def create_new_collection(request: Request, new_collection: dict, response
 
 
 @router.post("/actual")
-async def create_new_collection_real(request: Request, new_collection: dict):
+async def create_new_collection_real(request: Request, new_collection: CumulusCollectionModel):
+    """
+    Actual endpoint to create a new Cumulus Collection
+    """
     LOGGER.debug(f'starting create_new_collection_real')
+    new_collection = new_collection.model_dump()
     collection_id = new_collection
     if 'id' not in collection_id:
         raise HTTPException(status_code=500, detail=json.dumps({

@@ -18,13 +18,9 @@ class CatalogingGranulesStatusChecker:
         self.__registered_granules = {}
 
     def verify_one_time(self):
+        granule_ids = [f"'{k}'" for k in self.__granules_ids]
         registered_granules = self.__dapa_client.get_granules(collection_id=self.__collection_id,
-                                                              filters={
-                                                                  'in': {
-                                                                      'value': {'property': 'id'},
-                                                                      'list': self.__granules_ids
-                                                                  }
-                                                              })
+                                                              filters=f"id in ({','.join(granule_ids)})")
         LOGGER.debug(f'raw registered_granules: {registered_granules}')
         registered_granules = [ItemTransformer().from_stac(k) for k in registered_granules['features']]
         self.__registered_granules = {k.id: k for k in registered_granules if

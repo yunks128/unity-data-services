@@ -1,4 +1,4 @@
-provider "aws" {
+ provider "aws" {
   region = var.aws_region
 
   ignore_tags {
@@ -88,6 +88,28 @@ resource "aws_lambda_function" "metadata_stac_generate_cmr" {
       LOG_LEVEL = var.log_level
       FILE_POSTFIX = var.metadata_stac_file_postfix
       REGISTER_CUSTOM_METADATA = var.register_custom_metadata
+      ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      ES_PORT = 443
+    }
+  }
+
+  vpc_config {
+    subnet_ids         = var.cumulus_lambda_subnet_ids
+    security_group_ids = local.security_group_ids_set ? var.security_group_ids : [aws_security_group.unity_cumulus_lambda_sg[0].id]
+  }
+  tags = var.tags
+}
+
+resource "aws_lambda_function" "granules_to_es" {
+  filename      = local.lambda_file_name
+  function_name = "${var.prefix}-granules_to_es"
+  role          = var.lambda_processing_role_arn
+  handler       = "cumulus_lambda_functions.granules_to_es.lambda_function.lambda_handler"
+  runtime       = "python3.9"
+  timeout       = 300
+  environment {
+    variables = {
+      LOG_LEVEL = var.log_level
       ES_URL = aws_elasticsearch_domain.uds-es.endpoint
       ES_PORT = 443
     }
