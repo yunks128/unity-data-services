@@ -1,7 +1,10 @@
 import json
 import os
+from typing import Optional
 
 import pystac
+from pydantic import BaseModel
+
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
 
 from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
@@ -16,6 +19,49 @@ from cumulus_lambda_functions.lib.aws.aws_lambda import AwsLambda
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
+class SummariesModel(BaseModel):
+    granuleId: list[str]
+    granuleIdExtraction: list[str]
+    process: list[str]
+
+
+class ExtentModel(BaseModel):
+    temporal: dict
+    spatial: dict
+
+class CumulusLinkModel(BaseModel):
+    rel: str
+    href: str
+    type: Optional[str] = ''
+    title: Optional[str] = ''
+
+class CumulusCollectionModel(BaseModel):
+    """
+    {"type": "Collection", "id": "URN:NASA:UNITY:MAIN_PROJECT:DEV:CUMULUS_DAPA_UNIT_TEST___1697248243", "stac_version": "1.0.0",
+    "description": "TODO",
+    "links": [
+{"rel": "root", "href": "./collection.json?bucket=internal&regex=%5EP%5B0-9%5D%7B3%7D%5B0-9%5D%7B4%7D%5BA-Z%5D%7B13%7DT%5B0-9%5D%7B12%7D01.PDS%24", "type": "application/json", "title": "P1570515ATMSSCIENCEAXT11344000000001.PDS"},
+{"rel": "item", "href": "./collection.json?bucket=internal&regex=%5EP%5B0-9%5D%7B3%7D%5B0-9%5D%7B4%7D%5BA-Z%5D%7B13%7DT%5B0-9%5D%7B12%7D00.PDS.cmr.xml%24", "type": "metadata", "title": "P1570515ATMSSCIENCEAXT11344000000000.PDS.cmr.xml"},
+{"rel": "item", "href": "./collection.json?bucket=internal&regex=%5EP%5B0-9%5D%7B3%7D%5B0-9%5D%7B4%7D%5BA-Z%5D%7B13%7DT%5B0-9%5D%7B12%7D01%5C.PDS%5C.xml%24", "type": "metadata", "title": "P1570515ATMSSCIENCEAXT11344000000001.PDS.xml"},
+{"rel": "item", "href": "./collection.json?bucket=internal&regex=%5EP%5B0-9%5D%7B3%7D%5B0-9%5D%7B4%7D%5BA-Z%5D%7B13%7DT%5B0-9%5D%7B12%7D00%5C.PDS%24", "type": "data", "title": "P1570515ATMSSCIENCEAXT11344000000000.PDS"}],
+"title": "P1570515ATMSSCIENCEAXT11344000000001.PDS",
+"extent": {"spatial": {"bbox": [[0, 0, 0, 0]]},
+"temporal": {"interval": [["2023-10-13T18:51:02.397693Z", "2023-10-13T18:51:02.397698Z"]]}},
+"license": "proprietary",
+"providers": [{"name": "unity"}],
+"summaries": {"granuleId": ["^P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}0$"], "granuleIdExtraction": ["(P[0-9]{3}[0-9]{4}[A-Z]{13}T[0-9]{12}0).+"],
+"process": ["modis"]}}
+    """
+    type: Optional[str] = 'Collection'
+    stac_version: Optional[str] = '1.0.0'
+    id: str
+    title: str
+    description: Optional[str] = 'TODO'
+    license: Optional[str] = 'proprietary'
+    summaries: SummariesModel
+    links: list[CumulusLinkModel]
+    providers: list[dict]
+    extent: ExtentModel
 
 class CollectionDapaCreation:
     def __init__(self, request_body):
