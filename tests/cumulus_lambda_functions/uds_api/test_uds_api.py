@@ -28,7 +28,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
         # post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/'  # MCP Dev
         # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/'  # MCP Dev
         self.stage = 'dev'
-        self.uds_dapa_prefix = 'sbx-uds-dapa'
+        self.uds_dapa_prefix = 'sbx-uds-2-dapa'
         self.uds_url = f'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/{self.stage}/{self.uds_dapa_prefix}/'
         # self.uds_url = 'https://d3vc8w9zcq658.cloudfront.net/sbx-uds-dapa/'
         os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
@@ -143,7 +143,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
         return
 
     def test_granules_get(self):
-        post_url = f'{self.uds_url}collections/URN:NASA:UNITY:MAIN_PROJECT:DEV:NEW_COLLECTION_EXAMPLE_L1B___9/items/'  # MCP Dev
+        post_url = f'{self.uds_url}collections/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/items/'  # MCP Dev
         headers = {
             'Authorization': f'Bearer {self.bearer_token}',
         }
@@ -153,6 +153,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
                                     )
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
         response_json = json.loads(query_result.text)
+        print(json.dumps(response_json))
         links = {k['rel']: k['href'] for k in response_json['links'] if k['rel'] != 'root'}
         for k, v in links.items():
             self.assertTrue(v.startswith(self.uds_url), f'missing stage: {self.stage} in {v} for {k}')
