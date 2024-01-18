@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 from datetime import datetime
@@ -5,16 +6,11 @@ from time import sleep
 from unittest import TestCase
 
 import requests
+from cumulus_lambda_functions.lib.cognito_login.cognito_login import CognitoLogin
+from dotenv import load_dotenv
+
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
-
-from cumulus_lambda_functions.lib.aws.es_factory import ESFactory
-
-from cumulus_lambda_functions.lib.aws.es_abstract import ESAbstract
-
 from cumulus_lambda_functions.cumulus_stac.unity_collection_stac import UnityCollectionStac
-from cumulus_lambda_functions.lib.cognito_login.cognito_token_retriever import CognitoTokenRetriever
-from cumulus_lambda_functions.lib.constants import Constants
-from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
 
 
 class TestCumulusCreateCollectionDapa(TestCase):
@@ -23,23 +19,16 @@ class TestCumulusCreateCollectionDapa(TestCase):
 
     def setUp(self) -> None:
         super().setUp()
-        # post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev'
-        # post_url = 'https://k3a3qmarxh.execute-api.us-west-2.amazonaws.com/dev/am-uds-dapa/'  # JPL Cloud
-        # post_url = 'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-dapa/'  # MCP Dev
-        # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/'  # MCP Dev
-        self.stage = 'dev'
-        self.uds_dapa_prefix = 'sbx-uds-2-dapa'
-        self.uds_url = f'https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/{self.stage}/{self.uds_dapa_prefix}/'
-        # self.uds_url = 'https://d3vc8w9zcq658.cloudfront.net/sbx-uds-dapa/'
-        os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'
-        os.environ[Constants.PASSWORD] = '/unity/uds/user/wphyo/dwssap'
-        os.environ[Constants.PASSWORD_TYPE] = Constants.PARAM_STORE
-        # os.environ[Constants.CLIENT_ID] = '7a1fglm2d54eoggj13lccivp25'  # JPL Cloud
-        os.environ[Constants.CLIENT_ID] = '71g0c73jl77gsqhtlfg2ht388c'  # MCP Dev
-        # os.environ[Constants.CLIENT_ID] = '6ir9qveln397i0inh9pmsabq1'  # MCP Test
-
-        os.environ[Constants.COGNITO_URL] = 'https://cognito-idp.us-west-2.amazonaws.com'
-        self.bearer_token = CognitoTokenRetriever().start()
+        load_dotenv()
+        self.cognito_login = CognitoLogin() \
+            .with_client_id(os.environ.get('CLIENT_ID', '')) \
+            .with_cognito_url(os.environ.get('COGNITO_URL', '')) \
+            .with_verify_ssl(False) \
+            .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(),
+                   base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
+        self.bearer_token = self.cognito_login.token
+        self.stage = os.environ.get("UNITY_URL").split('/')[-1]
+        self.uds_url = f'{os.environ.get("UNITY_URL")}/{os.environ.get("UNITY_STAGE", "sbx-uds-dapa")}/'
         self.custom_metadata_body = {
             'tag': {'type': 'keyword'},
             'c_data1': {'type': 'long'},
