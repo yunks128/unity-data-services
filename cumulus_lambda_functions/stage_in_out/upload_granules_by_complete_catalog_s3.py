@@ -52,8 +52,7 @@ class UploadItemExecutor(JobExecutorAbstract):
         try:
             current_granules_dir = os.path.dirname(each_child)
             current_assets = self.__gc.extract_assets_href(current_granule_stac, current_granules_dir)
-            # TODO this is broken now .
-            if 'data' not in current_assets:
+            if 'data' not in current_assets:  # this is still ok .coz extract_assets_href is {'data': [url1, url2], ...}
                 LOGGER.warning(f'skipping {each_child}. no data in {current_assets}')
                 self.__error_list.put({'href': each_child, 'error': f'missing "data" in assets'})
                 return True
@@ -62,15 +61,15 @@ class UploadItemExecutor(JobExecutorAbstract):
                 raise ValueError(f'invalid current_granule_id in granule {each_child}: {current_granule_id} ...')
             updating_assets = {}
             uploading_current_granule_stac = None
-            for asset_type, asset_href in current_assets.items():
-                LOGGER.debug(f'uploading {asset_type}, {asset_href}')
-                s3_url = self.__s3.upload(asset_href, self.__staging_bucket,
-                                          f'{self.__collection_id}/{self.__collection_id}:{current_granule_id}',
-                                          self.__delete_files)
-                if asset_href == each_child:
-                    uploading_current_granule_stac = s3_url
-                updating_assets[os.path.basename(s3_url)] = s3_url
-            # TODO This needs to be updated where updating_assets are file name as keys
+            for asset_type, asset_hrefs in current_assets.items():
+                for each_asset_href in asset_hrefs:
+                    LOGGER.debug(f'uploading {asset_type}, {each_asset_href}')
+                    s3_url = self.__s3.upload(each_asset_href, self.__staging_bucket,
+                                              f'{self.__collection_id}/{self.__collection_id}:{current_granule_id}',
+                                              self.__delete_files)
+                    if each_asset_href == each_child:
+                        uploading_current_granule_stac = s3_url
+                    updating_assets[os.path.basename(s3_url)] = s3_url
             self.__gc.update_assets_href(current_granule_stac, updating_assets)
             current_granule_stac.id = current_granule_id
             current_granule_stac.collection_id = self.__collection_id

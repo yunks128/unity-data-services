@@ -2235,9 +2235,10 @@ class TestDockerEntry(TestCase):
                                  href=os.path.join('some_granules', f'{filename}.nc.stac.json'),
                                  collection='NA',
                                  assets={
-                                    'data': Asset(os.path.join('.', 'test_file01.nc'), title='main data'),
-                                    'metadata__cas': Asset(os.path.join('.', 'test_file01.nc.cas'), title='metadata cas'),
-                                    'metadata__stac': Asset(os.path.join('.', 'test_file01.nc.stac.json'), title='metadata stac'),
+
+                                    'test_file01.nc': Asset(os.path.join('.', 'test_file01.nc'), title='test_file01.nc', roles=['data']),
+                                    'test_file01.nc.cas': Asset(os.path.join('.', 'test_file01.nc.cas'), title='test_file01.nc.cas', roles=['metadata']),
+                                    'test_file01.nc.stac.json': Asset(os.path.join('.', 'test_file01.nc.stac.json'), title='test_file01.nc.stac.json', roles=['metadata']),
                                  })
                 with open(os.path.join(granules_dir, f'{filename}.nc.stac.json'), 'w') as ff:
                     ff.write(json.dumps(stac_item.to_dict(False, False)))
@@ -2270,12 +2271,12 @@ class TestDockerEntry(TestCase):
             upload_result = successful_feature_collection[0].to_dict(False, False)
             print(f'example feature: {upload_result}')
             self.assertTrue('assets' in upload_result, 'missing assets')
-            self.assertTrue('metadata__cas' in upload_result['assets'], 'missing assets#metadata__cas')
-            self.assertTrue('href' in upload_result['assets']['metadata__cas'], 'missing assets#metadata__cas#href')
-            self.assertTrue(upload_result['assets']['metadata__cas']['href'].startswith(f's3://{os.environ["STAGING_BUCKET"]}/{os.environ["COLLECTION_ID"]}/'))
-            self.assertTrue('data' in upload_result['assets'], 'missing assets#data')
-            self.assertTrue('href' in upload_result['assets']['data'], 'missing assets#data#href')
-            self.assertTrue(upload_result['assets']['data']['href'].startswith(f's3://{os.environ["STAGING_BUCKET"]}/{os.environ["COLLECTION_ID"]}/'))
+            self.assertTrue('test_file01.nc.cas' in upload_result['assets'], 'missing assets#metadata asset: test_file01.nc.cas')
+            self.assertTrue('href' in upload_result['assets']['test_file01.nc.cas'], 'missing assets#metadata__cas#href')
+            self.assertTrue(upload_result['assets']['test_file01.nc.cas']['href'].startswith(f's3://{os.environ["STAGING_BUCKET"]}/{os.environ["COLLECTION_ID"]}/'))
+            self.assertTrue('test_file01.nc' in upload_result['assets'], 'missing assets#data: test_file01.nc')
+            self.assertTrue('href' in upload_result['assets']['test_file01.nc'], 'missing assets#data#href')
+            self.assertTrue(upload_result['assets']['test_file01.nc']['href'].startswith(f's3://{os.environ["STAGING_BUCKET"]}/{os.environ["COLLECTION_ID"]}/'))
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
             """
             Example output: 
