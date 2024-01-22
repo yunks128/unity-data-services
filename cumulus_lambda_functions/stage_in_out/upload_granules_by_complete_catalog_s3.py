@@ -52,6 +52,7 @@ class UploadItemExecutor(JobExecutorAbstract):
         try:
             current_granules_dir = os.path.dirname(each_child)
             current_assets = self.__gc.extract_assets_href(current_granule_stac, current_granules_dir)
+            # TODO this is broken now .
             if 'data' not in current_assets:
                 LOGGER.warning(f'skipping {each_child}. no data in {current_assets}')
                 self.__error_list.put({'href': each_child, 'error': f'missing "data" in assets'})
@@ -68,7 +69,8 @@ class UploadItemExecutor(JobExecutorAbstract):
                                           self.__delete_files)
                 if asset_href == each_child:
                     uploading_current_granule_stac = s3_url
-                updating_assets[asset_type] = s3_url
+                updating_assets[os.path.basename(s3_url)] = s3_url
+            # TODO This needs to be updated where updating_assets are file name as keys
             self.__gc.update_assets_href(current_granule_stac, updating_assets)
             current_granule_stac.id = current_granule_id
             current_granule_stac.collection_id = self.__collection_id
