@@ -1,4 +1,5 @@
 import json
+import os
 
 from pystac import Item, Asset, Link
 from pystac.utils import datetime_to_str
@@ -309,16 +310,17 @@ class ItemTransformer(StacTransformerAbstract):
         self.STAC_2_CUMULUS_KEYS_MAP = {v: k for k, v in self.CUMULUS_2_STAC_KEYS_MAP.items()}
 
     def __get_asset_name(self, input_dict):
-        if input_dict['type'] == 'data':
-            return 'data'
-        if input_dict['type'] == 'metadata':
-            filename = input_dict['fileName'].upper().strip()
-            if filename.endswith('.CMR.XML'):
-                return 'metadata__cmr'
-            if filename.endswith('.PDS.XML'):
-                return 'metadata__xml'
-            return 'metadata__data'
-        return input_dict['type']
+        return os.path.basename(input_dict['fileName'])
+        # if input_dict['type'] == 'data':
+        #     return 'data'
+        # if input_dict['type'] == 'metadata':
+        #     filename = input_dict['fileName'].upper().strip()
+        #     if filename.endswith('.CMR.XML'):
+        #         return 'metadata__cmr'
+        #     if filename.endswith('.PDS.XML'):
+        #         return 'metadata__xml'
+        #     return 'metadata__data'
+        # return input_dict['type']
 
     def __get_asset_obj(self, input_dict):
         """
@@ -348,6 +350,7 @@ class ItemTransformer(StacTransformerAbstract):
             href=f"s3://{input_dict['bucket']}/{input_dict['key']}",
             title=input_dict['fileName'],
             description=''.join(descriptions),
+            roles=[input_dict['type']]
         )
         return asset
 
