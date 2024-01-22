@@ -14,6 +14,4 @@ class StacUtils:
         for each_granule_asset in assets:
             data_only_asset = {k: v.to_dict() for k, v in each_granule_asset.items() if v.roles is not None and 'data' in v.roles}
             data_only_assets.append(data_only_asset)
-        # assets = [k for k in assets if 'roles' in k and 'data' in k['role']]
-        # data_assets = [{'assets': {'data': k['data'].to_dict()}} for k in assets if 'data' in k]
         return data_only_assets
