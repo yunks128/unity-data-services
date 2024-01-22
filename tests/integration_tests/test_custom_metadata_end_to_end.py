@@ -286,10 +286,9 @@ class TestCustomMetadataEndToEnd(TestCase):
                              href=os.path.join('some_granules', f'{self.granule_id}.nc.stac.json'),
                              collection=temp_collection_id,
                              assets={
-                                 'data': Asset(os.path.join('.', f'{self.granule_id}.nc'), title='main data'),
-                                 'metadata__cas': Asset(os.path.join('.', f'{self.granule_id}.nc.cas'), title='metadata cas'),
-                                 'metadata__stac': Asset(os.path.join('.', f'{self.granule_id}.nc.stac.json'),
-                                                         title='metadata stac'),
+                                 f'{self.granule_id}.nc': Asset(os.path.join('.', f'{self.granule_id}.nc'), title=f'{self.granule_id}.nc', roles=['data']),
+                                 f'{self.granule_id}.nc.cas': Asset(os.path.join('.', f'{self.granule_id}.nc.cas'), title=f'{self.granule_id}.nc.cas', roles=['metadata']),
+                                 f'{self.granule_id}.nc.stac.json': Asset(os.path.join('.', f'{self.granule_id}.nc.stac.json'), title=f'{self.granule_id}.nc.stac.json', roles=['metadata']),
                              })
             with open(os.path.join(granules_dir, f'{self.granule_id}.nc.stac.json'), 'w') as ff:
                 ff.write(json.dumps(stac_item.to_dict(False, False)))
@@ -325,13 +324,13 @@ class TestCustomMetadataEndToEnd(TestCase):
             upload_result = successful_feature_collection[0].to_dict(False, False)
             print(f'example feature: {upload_result}')
             self.assertTrue('assets' in upload_result, 'missing assets')
-            self.assertTrue('metadata__cas' in upload_result['assets'], 'missing assets#metadata__cas')
-            self.assertTrue('href' in upload_result['assets']['metadata__cas'], 'missing assets#metadata__cas#href')
-            self.assertTrue(upload_result['assets']['metadata__cas']['href'].startswith(
+            self.assertTrue(f'{self.granule_id}.nc.cas' in upload_result['assets'], 'missing assets#metadata__cas')
+            self.assertTrue('href' in upload_result['assets'][f'{self.granule_id}.nc.cas'], 'missing assets#metadata__cas#href')
+            self.assertTrue(upload_result['assets'][f'{self.granule_id}.nc.cas']['href'].startswith(
                 f's3://{os.environ["STAGING_BUCKET"]}/{os.environ["COLLECTION_ID"]}/'))
-            self.assertTrue('data' in upload_result['assets'], 'missing assets#data')
-            self.assertTrue('href' in upload_result['assets']['data'], 'missing assets#data#href')
-            self.assertTrue(upload_result['assets']['data']['href'].startswith(
+            self.assertTrue(f'{self.granule_id}.nc' in upload_result['assets'], 'missing assets#data')
+            self.assertTrue('href' in upload_result['assets'][f'{self.granule_id}.nc'], 'missing assets#data#href')
+            self.assertTrue(upload_result['assets'][f'{self.granule_id}.nc']['href'].startswith(
                 f's3://{os.environ["STAGING_BUCKET"]}/{os.environ["COLLECTION_ID"]}/'))
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
@@ -352,13 +351,25 @@ class TestCustomMetadataEndToEnd(TestCase):
                            'c_data3': ['Bellman Ford'], 'start_datetime': '2016-01-31T18:00:00.009057Z',
                            'end_datetime': '2016-01-31T19:59:59.991043Z', 'created': '2016-02-01T02:45:59.639000Z',
                            'updated': '2022-03-23T15:48:21.578000Z', 'datetime': '1970-01-01T00:00:00Z'},
-            'geometry': {'type': 'Point', 'coordinates': [0.0, 0.0]}, 'links': [], 'assets': {'data': {
+            'geometry': {'type': 'Point', 'coordinates': [0.0, 0.0]}, 'links': [],
+            'assets': {
+                f'{self.granule_id}.nc': {
                 'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:{self.granule_id}/{self.granule_id}.nc',
-                'title': 'main data'}, 'metadata__cas': {
+                'title': f'{self.granule_id}.nc',
+                'roles': ['data'],
+                },
+                f'{self.granule_id}.nc.cas': {
                 'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:{self.granule_id}/{self.granule_id}.nc.cas',
-                'title': 'metadata cas'}, 'metadata__stac': {
+                'title': f'{self.granule_id}.nc.cas',
+                'roles': ['metadata'],
+                },
+                f'{self.granule_id}.nc.stac.json': {
                 'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:{self.granule_id}/{self.granule_id}.nc.stac.json',
-                'title': 'metadata stac'}}, 'bbox': [0.0, 0.0, 0.0, 0.0], 'stac_extensions': [],
+                'title': f'{self.granule_id}.nc.stac.json',
+                'roles': ['metadata'],
+                }
+            },
+            'bbox': [0.0, 0.0, 0.0, 0.0], 'stac_extensions': [],
             'collection': temp_collection_id}]}
 
         os.environ['PASSWORD_TYPE'] = 'BASE64'
