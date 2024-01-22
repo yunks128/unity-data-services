@@ -4,6 +4,8 @@ import os
 from abc import ABC, abstractmethod
 from multiprocessing import Queue, Manager
 
+import requests
+
 from cumulus_lambda_functions.lib.constants import Constants
 from pystac import ItemCollection, Asset, Item
 
@@ -96,11 +98,19 @@ class DownloadGranulesAbstract(ABC):
     
     def _retrieve_stac_json(self):
         raw_stac_json = os.environ.get(self.STAC_JSON)
+        LOGGER.debug(f'attempting to decode raw_stac_json to JSON object')
         try:
             self._granules_json = ItemCollection.from_dict(json.loads(raw_stac_json))
             return self
         except:
             LOGGER.debug(f'raw_stac_json is not STAC_JSON: {raw_stac_json}. trying to see if file exists')
+
+        if raw_stac_json.startswith('https'):
+            LOGGER.debug(f'download raw stac json from URL: {raw_stac_json}')
+            downloading_response = requests.get(raw_stac_json)
+            downloading_response.raise_for_status()
+            self._granules_json = ItemCollection.from_dict(json.loads(downloading_response.content.decode()))
+            return self
         if not FileUtils.file_exist(raw_stac_json):
             raise ValueError(f'missing file or not JSON: {raw_stac_json}')
         json_stac = FileUtils.read_json(raw_stac_json)
