@@ -24,7 +24,7 @@ setup(
     version="6.0.0",
     packages=find_packages(),
     install_requires=install_requires,
-    tests_require=['mock', 'nose', 'sphinx', 'sphinx_rtd_theme', 'coverage', 'pystac', 'python-dotenv', 'jsonschema'],
+    tests_require=['mock', 'nose', 'sphinx', 'sphinx_rtd_theme', 'coverage', 'pystac', 'python-dotenv', 'jsonschema', 'pytest-mock'],
     test_suite='nose.collector',
     author=['Wai Phyo'],
     author_email=['wai.phyo@jpl.nasa.gov'],
