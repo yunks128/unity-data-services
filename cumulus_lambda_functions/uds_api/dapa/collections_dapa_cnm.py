@@ -204,7 +204,7 @@ Test Input message
                         'dataVersion': collection_id_version[1],
                         'files': [{
                             'name': os.path.basename(v['href']),
-                            'type': k,
+                            'type': v['roles'][0] if 'roles' in v and len(v['roles']) > 0 else 'unknown',
                             'uri': v['href'],
                             'checksumType': 'md5',
                             'checksum': 'unknown',  # TODO

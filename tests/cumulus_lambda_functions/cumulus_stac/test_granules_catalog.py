@@ -32,7 +32,7 @@ class TestGranulesCatalog(TestCase):
             granules_catalog_path = os.path.join(tmp_dir_name, 'sample_granules.json')
             FileUtils.write_json(granules_catalog_path, granules_catalog)
             pystac_catalog = GranulesCatalog()
-            hrefs = pystac_catalog.get_child_link_hrefs(granules_catalog_path)
+            hrefs = pystac_catalog.get_child_link_hrefs(granules_catalog_path, 'child')
             self.assertEqual(hrefs, ['/absolute/path/to/stac/granules/json/file', '/absolute/path/to/stac/granules/json/file2'])
         return
 
@@ -67,7 +67,7 @@ class TestGranulesCatalog(TestCase):
             granules_catalog_path = os.path.join(tmp_dir_name, 'sample_granules.json')
             FileUtils.write_json(granules_catalog_path, granules_catalog)
             pystac_catalog = GranulesCatalog()
-            hrefs = pystac_catalog.get_child_link_hrefs(granules_catalog_path)
+            hrefs = pystac_catalog.get_child_link_hrefs(granules_catalog_path, 'child')
             expecting_links = [
                 os.path.join(tmp_dir_name, './file'),  # TODO "./" is ok? should be fine. but just in case
                 os.path.join(tmp_dir_name, 'file2'),
@@ -102,21 +102,30 @@ class TestGranulesCatalog(TestCase):
             }
           ],
           "assets": {
-            "data": {
-              "href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
-              "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
-              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc"
-            },
-            "metadata__data": {
-              "href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
-              "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
-              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas"
-            },
-            "metadata__cmr": {
-              "href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
-              "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
-              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml"
-            }
+              "SNDR.SNPP.ATMS.L1A.nominal2.12.nc": {
+                  "href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
+                  "roles": ["data"],
+              },
+              "SNDR.SNPP.ATMS.L1A.nominal2.12.1.nc": {
+                  "href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.1.nc",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.1.nc",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.1.nc",
+                  "roles": ["data"],
+              },
+              "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas": {
+                  "href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
+                  "roles": ["metadata__data"],
+              },
+              "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml": {
+                  "href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
+                  "roles": ["metadata__cmr"],
+              }
           },
           "bbox": [
             0.0,
@@ -160,21 +169,24 @@ class TestGranulesCatalog(TestCase):
             }
           ],
           "assets": {
-            "data": {
-              "href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
-              "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
-              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc"
-            },
-            "metadata__data": {
-              "href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
-              "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
-              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas"
-            },
-            "metadata__cmr": {
-              "href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
-              "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
-              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml"
-            }
+              "SNDR.SNPP.ATMS.L1A.nominal2.12.nc": {
+                  "href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
+                  "roles": ["data"],
+              },
+              "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas": {
+                  "href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
+                  "roles": ["metadata__data"],
+              },
+              "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml": {
+                  "href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
+                  "roles": ["metadata__cmr"],
+              }
           },
           "bbox": [
             0.0,
@@ -192,7 +204,9 @@ class TestGranulesCatalog(TestCase):
             pystac_catalog = gc.get_granules_item(granules_catalog_path)
             self.assertEqual(pystac_catalog.id, 'SNDR.SNPP.ATMS.L1A.nominal2.12')
             assets = gc.extract_assets_href(pystac_catalog)
-            expected_assets = {'data': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc', 'metadata__data': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas', 'metadata__cmr': 's3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml'}
+            expected_assets = {'data': ['s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc'],
+                               'metadata__data': ['s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas'],
+                               'metadata__cmr': ['s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml']}
             self.assertEqual(assets, expected_assets, 'wrong assets')
         return
 
@@ -222,21 +236,24 @@ class TestGranulesCatalog(TestCase):
             }
           ],
           "assets": {
-            "data": {
-              "href": "./SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
-              "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
-              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc"
-            },
-            "metadata__data": {
-              "href": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
-              "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
-              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas"
-            },
-            "metadata__cmr": {
-              "href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
-              "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
-              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml"
-            }
+            "SNDR.SNPP.ATMS.L1A.nominal2.12.nc": {
+                  "href": "./SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
+                  "roles": ["data"],
+              },
+              "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas": {
+                  "href": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
+                  "roles": ["metadata__data"],
+              },
+              "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml": {
+                  "href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
+                  "roles": ["metadata__cmr"],
+              }
           },
           "bbox": [
             0.0,
@@ -255,9 +272,9 @@ class TestGranulesCatalog(TestCase):
             self.assertEqual(pystac_catalog.id, 'SNDR.SNPP.ATMS.L1A.nominal2.12')
             assets = gc.extract_assets_href(pystac_catalog)
             expected_assets = {
-                'data': './SNDR.SNPP.ATMS.L1A.nominal2.12.nc',
-                'metadata__data': 'SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas',
-                'metadata__cmr': 's3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml'}
+                'data': ['./SNDR.SNPP.ATMS.L1A.nominal2.12.nc'],
+                'metadata__data': ['SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas'],
+                'metadata__cmr': ['s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml']}
             self.assertEqual(assets, expected_assets, 'wrong assets')
         return
 
@@ -287,21 +304,30 @@ class TestGranulesCatalog(TestCase):
             }
           ],
           "assets": {
-            "data": {
-              "href": "./SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
-              "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
-              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc"
-            },
-            "metadata__data": {
-              "href": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
-              "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
-              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas"
-            },
-            "metadata__cmr": {
-              "href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
-              "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
-              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml"
-            }
+            "SNDR.SNPP.ATMS.L1A.nominal2.12.nc": {
+                  "href": "./SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
+                  "roles": ["data"],
+              },
+              "SNDR.SNPP.ATMS.L1A.nominal2.12.1.nc": {
+                  "href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.1.nc",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.1.nc",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.1.nc",
+                  "roles": ["data"],
+              },
+              "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas": {
+                  "href": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
+                  "roles": ["metadata__data"],
+              },
+              "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml": {
+                  "href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
+                  "roles": ["metadata__cmr"],
+              }
           },
           "bbox": [
             0.0,
@@ -320,9 +346,9 @@ class TestGranulesCatalog(TestCase):
             self.assertEqual(pystac_catalog.id, 'SNDR.SNPP.ATMS.L1A.nominal2.12')
             assets = gc.extract_assets_href(pystac_catalog, '/some/temp/directory/../hehe')
             expected_assets = {
-                'data': '/some/temp/directory/../hehe/./SNDR.SNPP.ATMS.L1A.nominal2.12.nc',
-                'metadata__data': '/some/temp/directory/../hehe/SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas',
-                'metadata__cmr': 's3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml'}
+                'data': ['/some/temp/directory/../hehe/./SNDR.SNPP.ATMS.L1A.nominal2.12.nc', 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.1.nc'],
+                'metadata__data': ['/some/temp/directory/../hehe/SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas'],
+                'metadata__cmr': ['s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml']}
             self.assertEqual(assets, expected_assets, 'wrong assets')
         return
 
@@ -356,21 +382,30 @@ class TestGranulesCatalog(TestCase):
               }
           ],
           "assets": {
-            "data": {
-              "href": "./SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
-              "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
-              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc"
-            },
-            "metadata__data": {
-              "href": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
-              "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
-              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas"
-            },
-            "metadata__cmr": {
-              "href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
-              "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
-              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml"
-            }
+              "SNDR.SNPP.ATMS.L1A.nominal2.12.nc": {
+                  "href": "./SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
+                  "roles": ["data"],
+              },
+              "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas": {
+                  "href": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
+                  "roles": ["metadata__data"],
+              },
+              "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.2.cas": {
+                  "href": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.2.cas",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.2.cas",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.2.cas",
+                  "roles": ["metadata__data"],
+              },
+              "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml": {
+                  "href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
+                  "roles": ["metadata__cmr"],
+              }
           },
           "bbox": [
             0.0,
@@ -389,9 +424,9 @@ class TestGranulesCatalog(TestCase):
             self.assertEqual(pystac_catalog.id, 'SNDR.SNPP.ATMS.L1A.nominal2.12')
             assets = gc.extract_assets_href(pystac_catalog)
             expected_assets = {
-                'data': '/some/temp/directory/../hehe/./SNDR.SNPP.ATMS.L1A.nominal2.12.nc',
-                'metadata__data': '/some/temp/directory/../hehe/SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas',
-                'metadata__cmr': 's3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml'}
+                'data': ['/some/temp/directory/../hehe/./SNDR.SNPP.ATMS.L1A.nominal2.12.nc'],
+                'metadata__data': ['/some/temp/directory/../hehe/SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas', '/some/temp/directory/../hehe/SNDR.SNPP.ATMS.L1A.nominal2.12.nc.2.cas'],
+                'metadata__cmr': ['s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml']}
             self.assertEqual(assets, expected_assets, 'wrong assets')
         return
 
@@ -421,21 +456,24 @@ class TestGranulesCatalog(TestCase):
             }
           ],
           "assets": {
-            "data": {
-              "href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
-              "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
-              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc"
-            },
-            "metadata__data": {
+              "SNDR.SNPP.ATMS.L1A.nominal2.12.nc": {
+                  "href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
+                  "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
+                  "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc",
+                  "roles": ["data"],
+              },
+            "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas": {
               "href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
               "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
-              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas"
-            },
-            "metadata__cmr": {
+              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas",
+                             "roles": ["metadata__data"],
+        },
+            "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml": {
               "href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
               "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
-              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml"
-            }
+              "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml",
+                             "roles": ["metadata__cmr"],
+        }
           },
           "bbox": [
             0.0,
@@ -453,16 +491,26 @@ class TestGranulesCatalog(TestCase):
             pystac_catalog = gc.get_granules_item(granules_catalog_path)
             self.assertEqual(pystac_catalog.id, 'SNDR.SNPP.ATMS.L1A.nominal2.12')
             assets = gc.extract_assets_href(pystac_catalog)
-            expected_assets = {'data': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc', 'metadata__data': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas', 'metadata__cmr': 's3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml'}
+            expected_assets = {
+                'data': ['s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc'],
+                'metadata__data': ['s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas'],
+                'metadata__cmr': ['s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml']
+            }
             self.assertEqual(assets, expected_assets, 'wrong assets')
             updating_assets = {
-                'data': 'file:///absolute/file/some/file/data',
-                'metadata__data': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas',
-                'metadata__extra': '/absolute/file/some/file/metadata__extra',
-                'metadata__cmr': 's3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml'
+                'SNDR.SNPP.ATMS.L1A.nominal2.12.nc': 'file:///absolute/file/some/file/data',
+                'SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas': 's3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas',
+                'other.name': '/absolute/file/some/file/metadata__extra',
+                'SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml': 's3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml'
+            }
+
+            updating_assets_result = {
+                'data': ['file:///absolute/file/some/file/data'],
+                'metadata__data': ['s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas'],
+                'metadata__cmr': ['s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml']
             }
             gc.update_assets_href(pystac_catalog, updating_assets)
             updated_assets = gc.extract_assets_href(pystac_catalog)
-            self.assertEqual(updated_assets, updating_assets, 'wrong updated assets')
+            self.assertEqual(updated_assets, updating_assets_result, 'wrong updated assets')
 
         return
