@@ -121,6 +121,7 @@ class GenerateCmr:
         self.__event = event
         self.__s3 = AwsS3()
         self._pds_file_dict = None
+        self.__valid_filetype_name = os.getenv('VALID_FILETYPE', 'metadata').lower()
         self.__file_postfixes = os.getenv('FILE_POSTFIX', 'STAC.JSON')
         self.__file_postfixes = [k.upper().strip() for k in self.__file_postfixes.split(',')]
         self.__input_file_list = []
@@ -135,6 +136,9 @@ class GenerateCmr:
         potential_files = []
         self.__input_file_list = self.__event['cma']['event']['meta']['input_granules'][0]['files']
         for each_file in self.__input_file_list:
+            if 'type' in each_file and each_file['type'].strip().lower() != self.__valid_filetype_name:
+                LOGGER.debug(f'Not metadata. skipping {each_file}')
+                continue
             if 'fileName' not in each_file and 'name' in each_file:  # add fileName if there is only name
                 each_file['fileName'] = each_file['name']
             if 'url_path' in each_file:
