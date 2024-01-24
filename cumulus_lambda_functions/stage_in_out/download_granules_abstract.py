@@ -20,8 +20,9 @@ LOGGER = logging.getLogger(__name__)
 
 
 class DownloadItemExecutor(JobExecutorAbstract):
-    def __init__(self, downloading_keys, download_one_item_func, result_list, error_list) -> None:
+    def __init__(self, downloading_keys, downloading_roles, download_one_item_func, result_list, error_list) -> None:
         self._downloading_keys = downloading_keys
+        self._downloading_roles = downloading_roles
         self._download_one_item_func = download_one_item_func
         self.__result_list = result_list
         self.__error_list = error_list
@@ -29,14 +30,27 @@ class DownloadItemExecutor(JobExecutorAbstract):
     def validate_job(self, job_obj):
         return isinstance(job_obj, Item)
 
+    def __is_downloading_this_file(self, file_key, file_role):
+        if len(self._downloading_roles) > 0:
+            role_comparison_result = file_role in self._downloading_roles
+            LOGGER.debug(f'Result for role comparison for {file_key}, {file_role} v. {self._downloading_roles}. Result: {role_comparison_result}')
+            return role_comparison_result
+        if len(self._downloading_keys) > 0:
+            key_comparison_result = file_key in self._downloading_keys
+            LOGGER.debug(f'Result for role comparison for {file_key}, {file_role} v. {self._downloading_keys}. Result: {key_comparison_result}')
+            return key_comparison_result
+        LOGGER.debug(f'both _downloading_keys and _downloading_roles are not set. Downloading: {file_key}, {file_role}')
+        return True
+
     def execute_job(self, granule_item, lock) -> bool:
         try:
             new_asset_dict = {}
             for name, value_dict in granule_item.assets.items():
-                if name not in self._downloading_keys:
+                value_dict: Asset = value_dict
+                role = value_dict.roles[0] if value_dict.roles is not None and len(value_dict.roles) > 0 else 'unknown'
+                if not self.__is_downloading_this_file(name, role):
                     LOGGER.debug(f'skipping {name}. Not in downloading keys')
                     continue
-                value_dict: Asset = value_dict
                 downloading_url = value_dict.href
                 LOGGER.debug(f'downloading: {downloading_url}')
                 self._download_one_item_func(downloading_url)
@@ -55,12 +69,16 @@ class DownloadGranulesAbstract(ABC):
     STAC_JSON = 'STAC_JSON'
     DOWNLOAD_DIR_KEY = 'DOWNLOAD_DIR'
     DOWNLOADING_KEYS = 'DOWNLOADING_KEYS'
+    DOWNLOADING_ROLES = 'DOWNLOADING_ROLES'
 
     def __init__(self) -> None:
         super().__init__()
         self._granules_json: ItemCollection = {}
         self._download_dir = '/tmp'
-        self._downloading_keys = set([k.strip() for k in os.environ.get(self.DOWNLOADING_KEYS, 'data').strip().split(',')])
+        self._downloading_roles = os.environ.get(self.DOWNLOADING_ROLES, '')
+        self._downloading_roles = set([]) if self._downloading_roles == '' else set([k.strip() for k in self._downloading_roles.strip().split(',')])
+        self._downloading_keys = os.environ.get(self.DOWNLOADING_KEYS, '')
+        self._downloading_keys = set([]) if self._downloading_keys == '' else set([k.strip() for k in self._downloading_keys.strip().split(',')])
         self._parallel_count = int(os.environ.get(Constants.PARALLEL_COUNT, '-1'))
 
     @abstractmethod
@@ -120,7 +138,7 @@ class DownloadGranulesAbstract(ABC):
         # https://www.infoworld.com/article/3542595/6-python-libraries-for-parallel-processing.html
         multithread_processor_props = MultiThreadProcessorProps(self._parallel_count)
         multithread_processor_props.job_manager = JobManagerMemory(job_manager_props)
-        multithread_processor_props.job_executor = DownloadItemExecutor(self._downloading_keys, self._download_one_item, local_items, error_list)
+        multithread_processor_props.job_executor = DownloadItemExecutor(self._downloading_keys,self._downloading_roles, self._download_one_item, local_items, error_list)
         multithread_processor = MultiThreadProcessor(multithread_processor_props)
         multithread_processor.start()
 
