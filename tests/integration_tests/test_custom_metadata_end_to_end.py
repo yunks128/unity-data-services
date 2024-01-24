@@ -41,7 +41,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         self.tenant = 'UDS_LOCAL_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
         self.collection_name = 'UDS_COLLECTION'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '23.12.04.10.30'.replace('.', '')  # '2309141300'
+        self.collection_version = '24.01.24.15.48'.replace('.', '')  # '2309141300'
         self.custom_metadata_body = {
             'tag': {'type': 'keyword'},
             'c_data1': {'type': 'long'},
@@ -141,7 +141,6 @@ class TestCustomMetadataEndToEnd(TestCase):
         self.assertEqual(collection_created_result['features'][0]['id'], temp_collection_id, f'wrong id')
         print(collection_created_result)
         return
-
 
     def test_04_upload_sample_granule(self):
         custom_metadata = {
