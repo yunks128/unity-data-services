@@ -131,9 +131,9 @@ class GenerateCmr:
             return
         raise ValueError(f'input json has validation errors: {result}')
 
-    def __get_pds_metadata_file(self):
+    def __get_potential_files(self):
+        potential_files = []
         self.__input_file_list = self.__event['cma']['event']['meta']['input_granules'][0]['files']
-        stac_metadata_file = None
         for each_file in self.__input_file_list:
             if 'fileName' not in each_file and 'name' in each_file:  # add fileName if there is only name
                 each_file['fileName'] = each_file['name']
@@ -145,15 +145,12 @@ class GenerateCmr:
             file_key_upper = each_file['key'].upper().strip()
             LOGGER.debug(f'checking file_key_upper: {file_key_upper} against {self.__file_postfixes}')
             if any([file_key_upper.endswith(k) for k in self.__file_postfixes]):
-                stac_metadata_file = each_file
-        return stac_metadata_file
+                potential_files.append(each_file)
+        return potential_files
 
-    def __read_pds_metadata_file(self):
-        self._pds_file_dict = self.__get_pds_metadata_file()
-        if self._pds_file_dict is None:
-            raise ValueError('missing PDS metadata file')
-        self.__s3.target_bucket = self._pds_file_dict['bucket']
-        self.__s3.target_key = self._pds_file_dict['key']
+    def __read_pds_metadata_file(self, potential_file):
+        self.__s3.target_bucket = potential_file['bucket']
+        self.__s3.target_key = potential_file['key']
         return self.__s3.read_small_txt_file()
 
     def __is_adding_extra_keys(self):
@@ -373,8 +370,17 @@ class GenerateCmr:
         """
         self.__validate_input()
         LOGGER.debug(f'input: {self.__event}')
-        stac_input_meta = StacInputMetadata(json.loads(self.__read_pds_metadata_file()))
-        granules_metadata_props = stac_input_meta.start()
+        stac_input_meta = None
+        potential_files = self.__get_potential_files()
+        for each_potential_file in potential_files:
+            try:
+                stac_input_meta = StacInputMetadata(json.loads(self.__read_pds_metadata_file(each_potential_file)))
+                granules_metadata_props = stac_input_meta.start()
+                break
+            except Exception as e:
+                LOGGER.exception(f'most likely not a STAC file: {each_potential_file}')
+        if stac_input_meta is None:
+            raise RuntimeError(f'unable to find STAC JSON file in {potential_files}')
         LOGGER.debug(f'starting __ingest_custom_metadata')
         self.__ingest_custom_metadata(stac_input_meta.custom_properties)
         echo_metadata = EchoMetadata(granules_metadata_props).load().echo_metadata
