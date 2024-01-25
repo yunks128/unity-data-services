@@ -33,15 +33,18 @@ class GranulesIndexer:
         self.__event = event
         self.__cumulus_record = {}
         self.__file_postfixes = os.getenv('FILE_POSTFIX', 'STAC.JSON')
+        self.__valid_filetype_name = os.getenv('VALID_FILETYPE', 'metadata').lower()
         self.__file_postfixes = [k.upper().strip() for k in self.__file_postfixes.split(',')]
         self.__input_file_list = []
         self.__s3 = AwsS3()
 
-
-    def __get_pds_metadata_file(self):
+    def __get_potential_files(self):
+        potential_files = []
         self.__input_file_list = self.__cumulus_record['files']
-        stac_metadata_file = None
         for each_file in self.__input_file_list:
+            if 'type' in each_file and each_file['type'].strip().lower() != self.__valid_filetype_name:
+                LOGGER.debug(f'Not metadata. skipping {each_file}')
+                continue
             if 'fileName' not in each_file and 'name' in each_file:  # add fileName if there is only name
                 each_file['fileName'] = each_file['name']
             if 'url_path' in each_file:
@@ -52,15 +55,12 @@ class GranulesIndexer:
             file_key_upper = each_file['key'].upper().strip()
             LOGGER.debug(f'checking file_key_upper: {file_key_upper} against {self.__file_postfixes}')
             if any([file_key_upper.endswith(k) for k in self.__file_postfixes]):
-                stac_metadata_file = each_file
-        return stac_metadata_file
+                potential_files.append(each_file)
+        return potential_files
 
-    def __read_pds_metadata_file(self):
-        pds_file_dict = self.__get_pds_metadata_file()
-        if pds_file_dict is None:
-            raise ValueError('missing PDS metadata file')
-        self.__s3.target_bucket = pds_file_dict['bucket']
-        self.__s3.target_key = pds_file_dict['key']
+    def __read_pds_metadata_file(self, potential_file):
+        self.__s3.target_bucket = potential_file['bucket']
+        self.__s3.target_key = potential_file['key']
         return self.__s3.read_small_txt_file()
 
     def start(self):
@@ -72,8 +72,19 @@ class GranulesIndexer:
         if len(self.__cumulus_record['files']) < 1:
             # TODO ingest updating stage?
             return
-        stac_input_meta = StacInputMetadata(json.loads(self.__read_pds_metadata_file()))
-        granules_metadata_props = stac_input_meta.start()
+        stac_input_meta = None
+        potential_files = self.__get_potential_files()
+        LOGGER.debug(f'potential_files: {potential_files}')
+        for each_potential_file in potential_files:
+            try:
+                LOGGER.debug(f'trying each_potential_file: {each_potential_file}')
+                stac_input_meta = StacInputMetadata(json.loads(self.__read_pds_metadata_file(each_potential_file)))
+                granules_metadata_props = stac_input_meta.start()
+                break
+            except:
+                LOGGER.exception(f'most likely not a STAC file: {each_potential_file}')
+        if stac_input_meta is None:
+            raise RuntimeError(f'unable to find STAC JSON file in {potential_files}')
         self.__cumulus_record['custom_metadata'] = stac_input_meta.custom_properties
         stac_item = ItemTransformer().to_stac(self.__cumulus_record)
         if 'bbox' in stac_item:
