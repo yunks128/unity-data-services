@@ -1,8 +1,11 @@
+import logging
 import os
+from collections import defaultdict
 
 from pystac import Catalog, Item, Asset, Link
 
 from cumulus_lambda_functions.lib.utils.file_utils import FileUtils
+LOGGER = logging.getLogger(__name__)
 
 
 class GranulesCatalog:
@@ -43,19 +46,23 @@ class GranulesCatalog:
             self_dir = os.path.dirname(granules_stac.self_href)
         except:
             self_dir = None
-        assets = {}
+        assets = defaultdict(list)
         for k, v in granules_stac.get_assets().items():
             href = v.href
+            if v.roles is None or len(v.roles) < 1:
+                LOGGER.warning(f'asset do not have roles: {v}')
+                continue
+            k = v.roles[0]
             if not FileUtils.is_relative_path(href):
-                assets[k] = href
+                assets[k].append(href)
                 continue
             if dir_name is not None and len(dir_name) > 0:
-                assets[k] = os.path.join(dir_name, href)
+                assets[k].append(os.path.join(dir_name, href))
                 continue
             if self_dir is not None and len(self_dir) > 0:
-                assets[k] = os.path.join(self_dir, href)
+                assets[k].append(os.path.join(self_dir, href))
                 continue
-            assets[k] = href
+            assets[k].append(href)
         return assets
 
     def update_assets_href(self, granules_stac: Item,  new_assets: dict):
