@@ -39,7 +39,7 @@ class GranulesIndexer:
 
     def __get_potential_files(self):
         potential_files = []
-        self.__input_file_list = self.__event['cma']['event']['meta']['input_granules'][0]['files']
+        self.__input_file_list = self.__cumulus_record['files']
         for each_file in self.__input_file_list:
             if 'type' in each_file and each_file['type'].strip().lower() != self.__valid_filetype_name:
                 LOGGER.debug(f'Not metadata. skipping {each_file}')

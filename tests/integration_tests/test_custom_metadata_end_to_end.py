@@ -116,7 +116,7 @@ class TestCustomMetadataEndToEnd(TestCase):
             .with_title(f"{self.granule_id}.nc") \
             .with_process('stac') \
             .with_provider('unity') \
-            .add_file_type(f"{self.granule_id}.nc", "^test_file.*\\.nc$", 'unknown_bucket', 'application/json', 'root') \
+            .add_file_type(f"{self.granule_id}.data.stac.json", "^test_file.*\\.data.stac.json$", 'unknown_bucket', 'application/json', 'root') \
             .add_file_type(f"{self.granule_id}.nc", "^test_file.*\\.nc$", 'protected', 'data', 'item') \
             .add_file_type(f"{self.granule_id}.nc.cas", "^test_file.*\\.nc.cas$", 'protected', 'metadata', 'item') \
             .add_file_type(f"{self.granule_id}.nc.cmr.xml", "^test_file.*\\.nc.cmr.xml$", 'protected', 'metadata', 'item') \
@@ -169,7 +169,7 @@ class TestCustomMetadataEndToEnd(TestCase):
             os.environ['CATALOG_FILE'] = os.path.join(tmp_dir_name, 'catalog.json')
             granules_dir = os.path.join(tmp_dir_name, 'some_granules')
             FileUtils.mk_dir_p(granules_dir)
-            with open(os.path.join(granules_dir, f'{self.granule_id}.nc'), 'w') as ff:
+            with open(os.path.join(granules_dir, f'{self.granule_id}.data.stac.json'), 'w') as ff:
                 ff.write('sample_file')
             with open(os.path.join(granules_dir, f'{self.granule_id}.nc.cas'), 'w') as ff:
                 ff.write('''<?xml version="1.0" encoding="UTF-8" ?>
@@ -285,7 +285,7 @@ class TestCustomMetadataEndToEnd(TestCase):
                              href=os.path.join('some_granules', f'{self.granule_id}.nc.stac.json'),
                              collection=temp_collection_id,
                              assets={
-                                 f'{self.granule_id}.nc': Asset(os.path.join('.', f'{self.granule_id}.nc'), title=f'{self.granule_id}.nc', roles=['data']),
+                                 f'{self.granule_id}.data.stac.json': Asset(os.path.join('.', f'{self.granule_id}.data.stac.json'), title=f'{self.granule_id}.data.stac.json', roles=['data']),
                                  f'{self.granule_id}.nc.cas': Asset(os.path.join('.', f'{self.granule_id}.nc.cas'), title=f'{self.granule_id}.nc.cas', roles=['metadata']),
                                  f'{self.granule_id}.nc.stac.json': Asset(os.path.join('.', f'{self.granule_id}.nc.stac.json'), title=f'{self.granule_id}.nc.stac.json', roles=['metadata']),
                              })
@@ -327,9 +327,9 @@ class TestCustomMetadataEndToEnd(TestCase):
             self.assertTrue('href' in upload_result['assets'][f'{self.granule_id}.nc.cas'], 'missing assets#metadata__cas#href')
             self.assertTrue(upload_result['assets'][f'{self.granule_id}.nc.cas']['href'].startswith(
                 f's3://{os.environ["STAGING_BUCKET"]}/{os.environ["COLLECTION_ID"]}/'))
-            self.assertTrue(f'{self.granule_id}.nc' in upload_result['assets'], 'missing assets#data')
-            self.assertTrue('href' in upload_result['assets'][f'{self.granule_id}.nc'], 'missing assets#data#href')
-            self.assertTrue(upload_result['assets'][f'{self.granule_id}.nc']['href'].startswith(
+            self.assertTrue(f'{self.granule_id}.data.stac.json' in upload_result['assets'], 'missing assets#data')
+            self.assertTrue('href' in upload_result['assets'][f'{self.granule_id}.data.stac.json'], 'missing assets#data#href')
+            self.assertTrue(upload_result['assets'][f'{self.granule_id}.data.stac.json']['href'].startswith(
                 f's3://{os.environ["STAGING_BUCKET"]}/{os.environ["COLLECTION_ID"]}/'))
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
