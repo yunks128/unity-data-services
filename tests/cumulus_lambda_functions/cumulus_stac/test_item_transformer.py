@@ -142,19 +142,42 @@ class TestItemTransformer(TestCase):
                                 "status": "completed",
                                 "provider": "snpp_provider_03",
                             },
-                            'collection': 'ATMS_SCIENCE_Group___001', 'links': [{"href": ".", "rel": "collection"}], 'assets': {'data': {
-                'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS',
-                'title': 'P1570515ATMSSCIENCEAAT16032024518500.PDS',
-                'description': "size=760;"}, 'metadata__data': {
-                'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518501.PDS',
-                'title': 'P1570515ATMSSCIENCEAAT16032024518501.PDS',
-                'description': "size=18084600;"}, 'metadata__xml': {
-                'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518501.PDS.xml',
-                'title': 'P1570515ATMSSCIENCEAAT16032024518501.PDS.xml',
-                'description': "size=9547;"}, 'metadata__cmr': {
-                'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml',
-                'title': 'P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml',
-                'description': "size=1749;"}}}
+                            'collection': 'ATMS_SCIENCE_Group___001', 'links': [{"href": ".", "rel": "collection"}],
+                            'assets': {
+                                "P1570515ATMSSCIENCEAAT16032024518500.PDS": {
+                                    "href": "s3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS",
+                                    "title": "P1570515ATMSSCIENCEAAT16032024518500.PDS",
+                                    "description": "size=760;",
+                                    "roles": [
+                                        "data"
+                                    ]
+                                },
+                                "P1570515ATMSSCIENCEAAT16032024518501.PDS": {
+                                    "href": "s3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518501.PDS",
+                                    "title": "P1570515ATMSSCIENCEAAT16032024518501.PDS",
+                                    "description": "size=18084600;",
+                                    "roles": [
+                                        "metadata"
+                                    ]
+                                },
+                                "P1570515ATMSSCIENCEAAT16032024518501.PDS.xml": {
+                                    "href": "s3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518501.PDS.xml",
+                                    "title": "P1570515ATMSSCIENCEAAT16032024518501.PDS.xml",
+                                    "description": "size=9547;",
+                                    "roles": [
+                                        "metadata"
+                                    ]
+                                },
+                                "P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml": {
+                                    "href": "s3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml",
+                                    "title": "P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml",
+                                    "description": "size=1749;",
+                                    "roles": [
+                                        "metadata"
+                                    ]
+                                }
+                            }
+                            }
         print(json.dumps(stac_item, indent=2))
         self.assertEqual(json.dumps(sample_stac_item, sort_keys=True), json.dumps(stac_item, sort_keys=True), 'wrong stac item')
         stac_validator = JsonValidator(json.loads(STAC_ITEM_SCHEMA))
@@ -286,19 +309,43 @@ class TestItemTransformer(TestCase):
                                 "status": "completed",
                                 "provider": "snpp_provider_03",
                             },
-                            'collection': 'ATMS_SCIENCE_Group___001', 'links': [{"href": ".", "rel": "collection"}], 'assets': {'data': {
-                'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS',
-                'title': 'P1570515ATMSSCIENCEAAT16032024518500.PDS',
-                'description': "size=760;checksumType=md5;checksum=9817be382b87c48ebe482b9c47d1525a;"}, 'metadata__data': {
-                'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518501.PDS',
-                'title': 'P1570515ATMSSCIENCEAAT16032024518501.PDS',
-                'description': "size=18084600;checksumType=md5;checksum=9817be382b87c48ebe482b9c47d1525a;"}, 'metadata__xml': {
-                'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518501.PDS.xml',
-                'title': 'P1570515ATMSSCIENCEAAT16032024518501.PDS.xml',
-                'description': "size=9547;checksumType=md5;checksum=9817be382b87c48ebe482b9c47d1525a;"}, 'metadata__cmr': {
-                'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml',
-                'title': 'P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml',
-                'description': "size=1749;"}}}
+                            'collection': 'ATMS_SCIENCE_Group___001', 'links': [{"href": ".", "rel": "collection"}],
+                            'assets':{
+                                "P1570515ATMSSCIENCEAAT16032024518500.PDS": {
+                                    "href": "s3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS",
+                                    "title": "P1570515ATMSSCIENCEAAT16032024518500.PDS",
+                                    "description": "size=760;checksumType=md5;checksum=9817be382b87c48ebe482b9c47d1525a;",
+                                    "roles": [
+                                        "data"
+                                    ]
+                                },
+                                "P1570515ATMSSCIENCEAAT16032024518501.PDS": {
+                                    "href": "s3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518501.PDS",
+                                    "title": "P1570515ATMSSCIENCEAAT16032024518501.PDS",
+                                    "description": "size=18084600;checksumType=md5;checksum=9817be382b87c48ebe482b9c47d1525a;",
+                                    "roles": [
+                                        "metadata"
+                                    ]
+                                },
+                                "P1570515ATMSSCIENCEAAT16032024518501.PDS.xml": {
+                                    "href": "s3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518501.PDS.xml",
+                                    "title": "P1570515ATMSSCIENCEAAT16032024518501.PDS.xml",
+                                    "description": "size=9547;checksumType=md5;checksum=9817be382b87c48ebe482b9c47d1525a;",
+                                    "roles": [
+                                        "metadata"
+                                    ]
+                                },
+                                "P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml": {
+                                    "href": "s3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml",
+                                    "title": "P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml",
+                                    "description": "size=1749;",
+                                    "roles": [
+                                        "metadata"
+                                    ]
+                                }
+                            }
+
+                            }
         print(json.dumps(stac_item, indent=2))
         self.assertEqual(json.dumps(sample_stac_item, sort_keys=True), json.dumps(stac_item, sort_keys=True), 'wrong stac item')
         stac_validator = JsonValidator(json.loads(STAC_ITEM_SCHEMA))
