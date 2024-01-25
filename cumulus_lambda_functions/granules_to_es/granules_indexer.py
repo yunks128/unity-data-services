@@ -73,12 +73,14 @@ class GranulesIndexer:
             return
         stac_input_meta = None
         potential_files = self.__get_potential_files()
+        LOGGER.debug(f'potential_files: {potential_files}')
         for each_potential_file in potential_files:
             try:
+                LOGGER.debug(f'trying each_potential_file: {each_potential_file}')
                 stac_input_meta = StacInputMetadata(json.loads(self.__read_pds_metadata_file(each_potential_file)))
                 granules_metadata_props = stac_input_meta.start()
                 break
-            except Exception as e:
+            except:
                 LOGGER.exception(f'most likely not a STAC file: {each_potential_file}')
         if stac_input_meta is None:
             raise RuntimeError(f'unable to find STAC JSON file in {potential_files}')
