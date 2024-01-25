@@ -36,6 +36,5 @@ resource "aws_lambda_event_source_mapping" "granules_to_es_queue_lambda_trigger"
   event_source_arn = aws_sqs_queue.granules_to_es_queue.arn
   function_name    = aws_lambda_function.granules_to_es.arn
   batch_size = 1
-  maximum_retry_attempts = 5
   enabled = true
 }
