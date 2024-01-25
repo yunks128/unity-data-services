@@ -33,6 +33,7 @@ class GranulesIndexer:
         self.__event = event
         self.__cumulus_record = {}
         self.__file_postfixes = os.getenv('FILE_POSTFIX', 'STAC.JSON')
+        self.__valid_filetype_name = os.getenv('VALID_FILETYPE', 'metadata').lower()
         self.__file_postfixes = [k.upper().strip() for k in self.__file_postfixes.split(',')]
         self.__input_file_list = []
         self.__s3 = AwsS3()
