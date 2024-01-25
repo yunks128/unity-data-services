@@ -41,7 +41,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         self.tenant = 'UDS_LOCAL_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
         self.collection_name = 'UDS_COLLECTION'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '24.01.24.18.00'.replace('.', '')  # '2309141300'
+        self.collection_version = '24.01.25.13.00'.replace('.', '')  # '2309141300'
         self.custom_metadata_body = {
             'tag': {'type': 'keyword'},
             'c_data1': {'type': 'long'},
@@ -112,8 +112,8 @@ class TestCustomMetadataEndToEnd(TestCase):
         dapa_collection = UnityCollectionStac() \
             .with_id(temp_collection_id) \
             .with_graule_id_regex("^test_file.*$") \
-            .with_granule_id_extraction_regex("(^test_file.*)(\\.nc|\\.nc\\.cas|\\.cmr\\.xml)") \
-            .with_title(f"{self.granule_id}.nc") \
+            .with_granule_id_extraction_regex("(^test_file.*)(\\.data\\.stac\\.json|\\.nc\\.cas|\\.cmr\\.xml)") \
+            .with_title(f"{self.granule_id}.data.stac.json") \
             .with_process('stac') \
             .with_provider('unity') \
             .add_file_type(f"{self.granule_id}.data.stac.json", "^test_file.*\\.data.stac.json$", 'unknown_bucket', 'application/json', 'root') \

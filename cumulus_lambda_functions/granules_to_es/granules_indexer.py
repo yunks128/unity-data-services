@@ -31,6 +31,7 @@ class GranulesIndexer:
 
     def __init__(self, event) -> None:
         self.__event = event
+        LOGGER.debug(f'event: {event}')
         self.__cumulus_record = {}
         self.__file_postfixes = os.getenv('FILE_POSTFIX', 'STAC.JSON')
         self.__valid_filetype_name = os.getenv('VALID_FILETYPE', 'metadata').lower()
