@@ -41,7 +41,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         self.tenant = 'UDS_LOCAL_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
         self.collection_name = 'UDS_COLLECTION'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '24.01.24.15.48'.replace('.', '')  # '2309141300'
+        self.collection_version = '24.01.24.18.00'.replace('.', '')  # '2309141300'
         self.custom_metadata_body = {
             'tag': {'type': 'keyword'},
             'c_data1': {'type': 'long'},
@@ -352,9 +352,9 @@ class TestCustomMetadataEndToEnd(TestCase):
                            'updated': '2022-03-23T15:48:21.578000Z', 'datetime': '1970-01-01T00:00:00Z'},
             'geometry': {'type': 'Point', 'coordinates': [0.0, 0.0]}, 'links': [],
             'assets': {
-                f'{self.granule_id}.nc': {
-                'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:{self.granule_id}/{self.granule_id}.nc',
-                'title': f'{self.granule_id}.nc',
+                f'{self.granule_id}.data.stac.json': {
+                'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:{self.granule_id}/{self.granule_id}.data.stac.json',
+                'title': f'{self.granule_id}.data.stac.json',
                 'roles': ['data'],
                 },
                 f'{self.granule_id}.nc.cas': {
