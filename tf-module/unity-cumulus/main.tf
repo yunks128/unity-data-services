@@ -87,6 +87,7 @@ resource "aws_lambda_function" "metadata_stac_generate_cmr" {
     variables = {
       LOG_LEVEL = var.log_level
       FILE_POSTFIX = var.metadata_stac_file_postfix
+      VALID_FILETYPE = var.valid_file_type
       REGISTER_CUSTOM_METADATA = var.register_custom_metadata
       ES_URL = aws_elasticsearch_domain.uds-es.endpoint
       ES_PORT = 443
@@ -111,6 +112,8 @@ resource "aws_lambda_function" "granules_to_es" {
     variables = {
       LOG_LEVEL = var.log_level
       ES_URL = aws_elasticsearch_domain.uds-es.endpoint
+      VALID_FILETYPE = var.valid_file_type
+      FILE_POSTFIX = var.metadata_stac_file_postfix
       ES_PORT = 443
     }
   }
