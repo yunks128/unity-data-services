@@ -7,6 +7,11 @@ variable "account_id" {
   type = string
   description = "AWS Account ID"
 }
+variable "valid_file_type" {
+  type = string
+  description = "metadata type name which is used to check if a file should be read as JSON metadata file"
+  default = "metadata"
+}
 variable "metadata_stac_file_postfix" {
   type = string
   description = "Comma separated File Postfix for STAC JSON metadata files"
