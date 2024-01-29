@@ -98,7 +98,7 @@ class CollectionsDapaCnm:
     def start(self):
         """
         Publish granule messages to CNM SNS Topic.
-
+        This is the workflow: cnm (Rest endpoint) -> sns -> sqs -> event bridge rule -> uds-dev-cumulus-sqsMessageConsumer lambda -> sqs -> uds-dev-cumulus-sqs2sf lambda -> step function
 Sample Output:
 {
     "collection": "SNDR_SNPP_ATMS_L1A",
@@ -204,7 +204,7 @@ Test Input message
                         'dataVersion': collection_id_version[1],
                         'files': [{
                             'name': os.path.basename(v['href']),
-                            'type': k,
+                            'type': v['roles'][0] if 'roles' in v and len(v['roles']) > 0 else 'unknown',
                             'uri': v['href'],
                             'checksumType': 'md5',
                             'checksum': 'unknown',  # TODO

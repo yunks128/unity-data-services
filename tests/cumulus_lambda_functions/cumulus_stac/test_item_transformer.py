@@ -80,8 +80,9 @@ class TestItemTransformer(TestCase):
                 1.3690476620161975
             ],
             "geometry": {
-    "type": "Point",
-    "coordinates": [ 0,0]  },
+                "type": "Point",
+                "coordinates": [ 0,0]
+            },
             "properties": {
                 "datetime": "2020-12-11T22:38:32.125000Z"
             },
@@ -114,7 +115,20 @@ class TestItemTransformer(TestCase):
         source = json.loads(source)
         stac_item = ItemTransformer().to_stac(source)
         sample_stac_item = {'stac_version': '1.0.0', 'stac_extensions': [], 'type': 'Feature',
-                            'id': 'P1570515ATMSSCIENCEAAT16032024518500.PDS', 'bbox': [0.0, 0.0, 0.0, 0.0], 'geometry': {"coordinates": [0.0, 0.0], "type": "Point"},
+                            'id': 'P1570515ATMSSCIENCEAAT16032024518500.PDS',
+                            'geometry': {
+    "type": "Point",
+    "coordinates": [
+      0.0,
+      0.0
+    ]
+  },
+                            'bbox': [
+                                -180.0,
+                                -90.0,
+                                180.0,
+                                90.0
+                              ],
                             'properties': {
                                 "custom_entry_1": "test1",
                                 "custom_entry_2": True,
@@ -124,20 +138,47 @@ class TestItemTransformer(TestCase):
                                 "end_datetime": "2016-01-31T19:59:59.991043Z",
                                 "created": "2016-02-01T02:45:59.639000Z",
                                 "updated": "2022-03-23T15:48:21.578000Z",
-                                "datetime": "2022-03-23T15:48:19.079000Z"},
-                            'collection': 'ATMS_SCIENCE_Group___001', 'links': [{"href": ".", "rel": "collection"}], 'assets': {'data': {
-                'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS',
-                'title': 'P1570515ATMSSCIENCEAAT16032024518500.PDS',
-                'description': 'P1570515ATMSSCIENCEAAT16032024518500.PDS'}, 'metadata__data': {
-                'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518501.PDS',
-                'title': 'P1570515ATMSSCIENCEAAT16032024518501.PDS',
-                'description': 'P1570515ATMSSCIENCEAAT16032024518501.PDS'}, 'metadata__xml': {
-                'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518501.PDS.xml',
-                'title': 'P1570515ATMSSCIENCEAAT16032024518501.PDS.xml',
-                'description': 'P1570515ATMSSCIENCEAAT16032024518501.PDS.xml'}, 'metadata__cmr': {
-                'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml',
-                'title': 'P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml',
-                'description': 'P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml'}}}
+                                "datetime": "2022-03-23T15:48:19.079000Z",
+                                "status": "completed",
+                                "provider": "snpp_provider_03",
+                            },
+                            'collection': 'ATMS_SCIENCE_Group___001', 'links': [{"href": ".", "rel": "collection"}],
+                            'assets': {
+                                "P1570515ATMSSCIENCEAAT16032024518500.PDS": {
+                                    "href": "s3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS",
+                                    "title": "P1570515ATMSSCIENCEAAT16032024518500.PDS",
+                                    "description": "size=760;",
+                                    "roles": [
+                                        "data"
+                                    ]
+                                },
+                                "P1570515ATMSSCIENCEAAT16032024518501.PDS": {
+                                    "href": "s3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518501.PDS",
+                                    "title": "P1570515ATMSSCIENCEAAT16032024518501.PDS",
+                                    "description": "size=18084600;",
+                                    "roles": [
+                                        "metadata"
+                                    ]
+                                },
+                                "P1570515ATMSSCIENCEAAT16032024518501.PDS.xml": {
+                                    "href": "s3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518501.PDS.xml",
+                                    "title": "P1570515ATMSSCIENCEAAT16032024518501.PDS.xml",
+                                    "description": "size=9547;",
+                                    "roles": [
+                                        "metadata"
+                                    ]
+                                },
+                                "P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml": {
+                                    "href": "s3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml",
+                                    "title": "P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml",
+                                    "description": "size=1749;",
+                                    "roles": [
+                                        "metadata"
+                                    ]
+                                }
+                            }
+                            }
+        print(json.dumps(stac_item, indent=2))
         self.assertEqual(json.dumps(sample_stac_item, sort_keys=True), json.dumps(stac_item, sort_keys=True), 'wrong stac item')
         stac_validator = JsonValidator(json.loads(STAC_ITEM_SCHEMA))
         # self.assertEqual(None, stac_validator.validate(raw), f'invalid stac format: {stac_validator}')
@@ -161,6 +202,9 @@ class TestItemTransformer(TestCase):
                 {
                     "bucket": "am-uds-dev-cumulus-internal",
                     "key": "ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS",
+        "checksum": "9817be382b87c48ebe482b9c47d1525a",
+        "checksumType": "md5",
+
                     "size": 760,
                     "fileName": "P1570515ATMSSCIENCEAAT16032024518500.PDS",
                     "source": "data/SNPP_ATMS_Level0_T/ATMS_SCIENCE_Group/2016/031//P1570515ATMSSCIENCEAAT16032024518500.PDS",
@@ -169,6 +213,8 @@ class TestItemTransformer(TestCase):
                 {
                     "bucket": "am-uds-dev-cumulus-internal",
                     "key": "ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518501.PDS",
+        "checksum": "9817be382b87c48ebe482b9c47d1525a",
+        "checksumType": "md5",
                     "size": 18084600,
                     "fileName": "P1570515ATMSSCIENCEAAT16032024518501.PDS",
                     "source": "data/SNPP_ATMS_Level0_T/ATMS_SCIENCE_Group/2016/031//P1570515ATMSSCIENCEAAT16032024518501.PDS",
@@ -177,6 +223,8 @@ class TestItemTransformer(TestCase):
                 {
                     "bucket": "am-uds-dev-cumulus-internal",
                     "key": "ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518501.PDS.xml",
+        "checksum": "9817be382b87c48ebe482b9c47d1525a",
+        "checksumType": "md5",
                     "size": 9547,
                     "fileName": "P1570515ATMSSCIENCEAAT16032024518501.PDS.xml",
                     "source": "data/SNPP_ATMS_Level0_T/ATMS_SCIENCE_Group/2016/031//P1570515ATMSSCIENCEAAT16032024518501.PDS.xml",
@@ -246,27 +294,95 @@ class TestItemTransformer(TestCase):
         source = json.loads(source)
         stac_item = ItemTransformer().to_stac(source)
         sample_stac_item = {'stac_version': '1.0.0', 'stac_extensions': [], 'type': 'Feature',
-                            'id': 'P1570515ATMSSCIENCEAAT16032024518500.PDS', 'bbox': [0.0, 0.0, 0.0, 0.0], 'geometry': {"coordinates": [0.0, 0.0], "type": "Point"},
+                            'id': 'P1570515ATMSSCIENCEAAT16032024518500.PDS', 'bbox': [
+                                -180.0,
+                                -90.0,
+                                180.0,
+                                90.0
+                              ], 'geometry': {"coordinates": [0.0, 0.0], "type": "Point"},
                             'properties': {
                                 "start_datetime": "2016-01-31T18:00:00.009057Z",
                                 "end_datetime": "2016-01-31T19:59:59.991043Z",
                                 "created": "2016-02-01T02:45:59.639000Z",
                                 "updated": "2022-03-23T15:48:21.578000Z",
-                                "datetime": "2022-03-23T15:48:19.079000Z"},
-                            'collection': 'ATMS_SCIENCE_Group___001', 'links': [{"href": ".", "rel": "collection"}], 'assets': {'data': {
-                'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS',
-                'title': 'P1570515ATMSSCIENCEAAT16032024518500.PDS',
-                'description': 'P1570515ATMSSCIENCEAAT16032024518500.PDS'}, 'metadata__data': {
-                'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518501.PDS',
-                'title': 'P1570515ATMSSCIENCEAAT16032024518501.PDS',
-                'description': 'P1570515ATMSSCIENCEAAT16032024518501.PDS'}, 'metadata__xml': {
-                'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518501.PDS.xml',
-                'title': 'P1570515ATMSSCIENCEAAT16032024518501.PDS.xml',
-                'description': 'P1570515ATMSSCIENCEAAT16032024518501.PDS.xml'}, 'metadata__cmr': {
-                'href': 's3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml',
-                'title': 'P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml',
-                'description': 'P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml'}}}
+                                "datetime": "2022-03-23T15:48:19.079000Z",
+                                "status": "completed",
+                                "provider": "snpp_provider_03",
+                            },
+                            'collection': 'ATMS_SCIENCE_Group___001', 'links': [{"href": ".", "rel": "collection"}],
+                            'assets':{
+                                "P1570515ATMSSCIENCEAAT16032024518500.PDS": {
+                                    "href": "s3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS",
+                                    "title": "P1570515ATMSSCIENCEAAT16032024518500.PDS",
+                                    "description": "size=760;checksumType=md5;checksum=9817be382b87c48ebe482b9c47d1525a;",
+                                    "roles": [
+                                        "data"
+                                    ]
+                                },
+                                "P1570515ATMSSCIENCEAAT16032024518501.PDS": {
+                                    "href": "s3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518501.PDS",
+                                    "title": "P1570515ATMSSCIENCEAAT16032024518501.PDS",
+                                    "description": "size=18084600;checksumType=md5;checksum=9817be382b87c48ebe482b9c47d1525a;",
+                                    "roles": [
+                                        "metadata"
+                                    ]
+                                },
+                                "P1570515ATMSSCIENCEAAT16032024518501.PDS.xml": {
+                                    "href": "s3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518501.PDS.xml",
+                                    "title": "P1570515ATMSSCIENCEAAT16032024518501.PDS.xml",
+                                    "description": "size=9547;checksumType=md5;checksum=9817be382b87c48ebe482b9c47d1525a;",
+                                    "roles": [
+                                        "metadata"
+                                    ]
+                                },
+                                "P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml": {
+                                    "href": "s3://am-uds-dev-cumulus-internal/ATMS_SCIENCE_Group___1/P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml",
+                                    "title": "P1570515ATMSSCIENCEAAT16032024518500.PDS.cmr.xml",
+                                    "description": "size=1749;",
+                                    "roles": [
+                                        "metadata"
+                                    ]
+                                }
+                            }
+
+                            }
+        print(json.dumps(stac_item, indent=2))
         self.assertEqual(json.dumps(sample_stac_item, sort_keys=True), json.dumps(stac_item, sort_keys=True), 'wrong stac item')
+        stac_validator = JsonValidator(json.loads(STAC_ITEM_SCHEMA))
+        # self.assertEqual(None, stac_validator.validate(raw), f'invalid stac format: {stac_validator}')
+        self.assertEqual(None, stac_validator.validate(stac_item), f'invalid stac format: {stac_validator}')
+        return
+
+    def test_03_partial_cumulus(self):
+        source = '''{
+  "event": "Update",
+  "record": {
+    "collectionId": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2311091417",
+    "createdAt": 1699568530472,
+    "duration": 20.553,
+    "error": {
+      "Cause": "None",
+      "Error": "Unknown Error"
+    },
+    "execution": "https://console.aws.amazon.com/states/home?region=us-west-2#/executions/details/arn:aws:states:us-west-2:237868187491:execution:uds-sbx-cumulus-CatalogGranule:3ae4c03e-dcd1-4d25-8b8a-b8c2a3c126ae",
+    "granuleId": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2311091417:test_file01",
+    "processingEndDateTime": "2023-11-09T22:22:31.023Z",
+    "processingStartDateTime": "2023-11-09T22:22:10.949Z",
+    "productVolume": "-3",
+    "provider": "unity",
+    "published": false,
+    "status": "running",
+    "timestamp": 1699568551025,
+    "timeToArchive": 0,
+    "timeToPreprocess": 0,
+    "updatedAt": 1699568551025,
+    "files": []
+  }
+}'''
+        source = json.loads(source)
+        source = source['record']
+        stac_item = ItemTransformer().to_stac(source)
+        print(json.dumps(stac_item, indent=2))
         stac_validator = JsonValidator(json.loads(STAC_ITEM_SCHEMA))
         # self.assertEqual(None, stac_validator.validate(raw), f'invalid stac format: {stac_validator}')
         self.assertEqual(None, stac_validator.validate(stac_item), f'invalid stac format: {stac_validator}')

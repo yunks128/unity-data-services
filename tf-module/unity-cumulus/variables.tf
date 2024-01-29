@@ -7,6 +7,11 @@ variable "account_id" {
   type = string
   description = "AWS Account ID"
 }
+variable "valid_file_type" {
+  type = string
+  description = "metadata type name which is used to check if a file should be read as JSON metadata file"
+  default = "metadata"
+}
 variable "metadata_stac_file_postfix" {
   type = string
   description = "Comma separated File Postfix for STAC JSON metadata files"
@@ -65,6 +70,7 @@ variable "unity_default_provider" {
 
 variable "dapa_api_prefix" {
   type = string
+  description = "An API Gateway resource to identify the Project Name that this specific resource is integrated with"
   default = "am-uds-dapa"
 }
 
@@ -107,4 +113,26 @@ variable "uds_es_cluster_instance_type" {
 variable "comma_separated_admin_groups" {
   type = string
   description = "comma separated cognito groups which will be authorized as ADMIN group"
+}
+
+variable "report_granules_topic" {
+  type = string
+  description = "SNS name"
+}
+
+variable "shared_services_rest_api_name" {
+  type        = string
+  description = "Shared services REST API name"
+  default     = "Unity Shared Services REST API Gateway"
+}
+
+variable "rest_api_stage" {
+  type        = string
+  description = "REST API Stage Name"
+  default     = "dev"
+}
+
+variable "unity_cognito_authorizer__authorizer_id" {
+  type = string
+  description = "Example: 0h9egs"
 }

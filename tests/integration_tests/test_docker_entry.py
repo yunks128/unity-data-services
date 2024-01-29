@@ -1,8 +1,9 @@
 import logging
+
+logging.basicConfig(level=10, format="%(asctime)s [%(levelname)s] [%(name)s::%(lineno)d] %(message)s")
+
 import math
-
-logging.basicConfig(level=20, format="%(asctime)s [%(levelname)s] [%(name)s::%(lineno)d] %(message)s")
-
+from unittest.mock import patch, MagicMock
 import json
 import os
 import tempfile
@@ -1273,7 +1274,15 @@ class TestDockerEntry(TestCase):
         return
 
     def test_02_download__from_file(self):
-        granule_json = '{"numberMatched": 20, "numberReturned": 20, "stac_version": "1.0.0", "type": "FeatureCollection", "links": [{"rel": "self", "href": "https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/SNDR_SNPP_ATMS_L1A___1/items?datetime=2016-01-14T08:00:00Z/2016-01-14T11:59:59Z&limit=100&offset=0"}, {"rel": "root", "href": "https://58nbcawrvb.execute-api.us-west-2.amazonaws.com"}, {"rel": "next", "href": "https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/SNDR_SNPP_ATMS_L1A___1/items?datetime=2016-01-14T08:00:00Z/2016-01-14T11:59:59Z&limit=100&offset=100"}, {"rel": "prev", "href": "https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/SNDR_SNPP_ATMS_L1A___1/items?datetime=2016-01-14T08:00:00Z/2016-01-14T11:59:59Z&limit=100&offset=0"}], "features": [{"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.01", "properties": {"start_datetime": "2016-01-14T09:54:00Z", "end_datetime": "2016-01-14T10:00:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:39.830000Z", "datetime": "2022-08-15T06:26:37.029000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.01.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.01.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.01.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.01.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.01.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.01.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.01.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.01.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.01.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.08", "properties": {"start_datetime": "2016-01-14T10:36:00Z", "end_datetime": "2016-01-14T10:42:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:26.078000Z", "datetime": "2022-08-15T06:26:19.333000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.08.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.08.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.08.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.08.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.08.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.08.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.08.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.08.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.08.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.06", "properties": {"start_datetime": "2016-01-14T10:24:00Z", "end_datetime": "2016-01-14T10:30:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:26.068000Z", "datetime": "2022-08-15T06:26:18.641000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.06.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.06.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.06.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.06.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.06.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.06.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.06.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.06.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.06.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.18", "properties": {"start_datetime": "2016-01-14T11:36:00Z", "end_datetime": "2016-01-14T11:42:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:26.060000Z", "datetime": "2022-08-15T06:26:19.698000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.18.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.18.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.18.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.18.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.18.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.18.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.18.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.18.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.18.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.04", "properties": {"start_datetime": "2016-01-14T10:12:00Z", "end_datetime": "2016-01-14T10:18:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:26.050000Z", "datetime": "2022-08-15T06:26:19.491000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.04.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.04.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.04.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.04.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.04.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.04.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.04.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.04.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.04.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.16", "properties": {"start_datetime": "2016-01-14T11:24:00Z", "end_datetime": "2016-01-14T11:30:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:25.917000Z", "datetime": "2022-08-15T06:26:19.027000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.16.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.16.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.16.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.16.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.16.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.16.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.16.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.16.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.16.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.17", "properties": {"start_datetime": "2016-01-14T11:30:00Z", "end_datetime": "2016-01-14T11:36:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:25.907000Z", "datetime": "2022-08-15T06:26:19.042000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.17.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.17.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.17.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.17.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.17.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.17.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.17.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.17.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.17.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.10", "properties": {"start_datetime": "2016-01-14T10:48:00Z", "end_datetime": "2016-01-14T10:54:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:25.446000Z", "datetime": "2022-08-15T06:26:18.730000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.10.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.10.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.10.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.10.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.10.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.10.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.10.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.10.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.10.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.14", "properties": {"start_datetime": "2016-01-14T11:12:00Z", "end_datetime": "2016-01-14T11:18:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:25.354000Z", "datetime": "2022-08-15T06:26:17.758000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.14.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.14.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.14.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.14.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.14.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.14.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.14.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.14.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.14.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.12", "properties": {"start_datetime": "2016-01-14T11:00:00Z", "end_datetime": "2016-01-14T11:06:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:25.344000Z", "datetime": "2022-08-15T06:26:17.938000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.12.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.09", "properties": {"start_datetime": "2016-01-14T10:42:00Z", "end_datetime": "2016-01-14T10:48:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:24.910000Z", "datetime": "2022-08-15T06:26:20.688000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.09.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.09.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.09.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.09.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.09.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.09.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.09.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.09.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.09.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.20", "properties": {"start_datetime": "2016-01-14T11:48:00Z", "end_datetime": "2016-01-14T11:54:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:23.929000Z", "datetime": "2022-08-15T06:26:19.091000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.20.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.20.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.20.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.20.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.20.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.20.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.20.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.20.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.20.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.15", "properties": {"start_datetime": "2016-01-14T11:18:00Z", "end_datetime": "2016-01-14T11:24:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:23.732000Z", "datetime": "2022-08-15T06:26:19.282000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.15.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.15.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.15.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.15.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.15.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.15.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.15.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.15.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.15.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.07", "properties": {"start_datetime": "2016-01-14T10:30:00Z", "end_datetime": "2016-01-14T10:36:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:23.371000Z", "datetime": "2022-08-15T06:26:19.047000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.07.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.07.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.07.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.07.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.07.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.07.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.07.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.07.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.07.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.19", "properties": {"start_datetime": "2016-01-14T11:42:00Z", "end_datetime": "2016-01-14T11:48:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:23.268000Z", "datetime": "2022-08-15T06:26:18.576000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.19.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.19.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.19.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.19.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.19.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.19.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.19.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.19.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.19.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.03", "properties": {"start_datetime": "2016-01-14T10:06:00Z", "end_datetime": "2016-01-14T10:12:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:22.930000Z", "datetime": "2022-08-15T06:26:17.714000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.03.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.03.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.03.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.03.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.03.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.03.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.03.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.03.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.03.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.11", "properties": {"start_datetime": "2016-01-14T10:54:00Z", "end_datetime": "2016-01-14T11:00:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:22.863000Z", "datetime": "2022-08-15T06:26:17.648000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.11.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.11.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.11.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.11.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.11.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.11.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.11.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.11.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.11.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.05", "properties": {"start_datetime": "2016-01-14T10:18:00Z", "end_datetime": "2016-01-14T10:24:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:22.649000Z", "datetime": "2022-08-15T06:26:18.060000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.05.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.05.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.05.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.05.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.05.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.05.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.05.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.05.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.05.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.13", "properties": {"start_datetime": "2016-01-14T11:06:00Z", "end_datetime": "2016-01-14T11:12:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:22.277000Z", "datetime": "2022-08-15T06:26:18.090000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.13.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.13.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.13.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.13.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.13.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.13.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.13.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.13.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.13.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}, {"type": "Feature", "stac_version": "1.0.0", "id": "SNDR.SNPP.ATMS.L1A.nominal2.02", "properties": {"start_datetime": "2016-01-14T10:00:00Z", "end_datetime": "2016-01-14T10:06:00Z", "created": "2020-12-14T13:50:00Z", "updated": "2022-08-15T06:26:22.169000Z", "datetime": "2022-08-15T06:26:17.466000Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.02.nc", "title": "SNDR.SNPP.ATMS.L1A.nominal2.02.nc", "description": "SNDR.SNPP.ATMS.L1A.nominal2.02.nc"}, "metadata__data": {"href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.02.nc.cas", "title": "SNDR.SNPP.ATMS.L1A.nominal2.02.nc.cas", "description": "SNDR.SNPP.ATMS.L1A.nominal2.02.nc.cas"}, "metadata__cmr": {"href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.02.cmr.xml", "title": "SNDR.SNPP.ATMS.L1A.nominal2.02.cmr.xml", "description": "SNDR.SNPP.ATMS.L1A.nominal2.02.cmr.xml"}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "SNDR_SNPP_ATMS_L1A___1"}]}'
+        granule_json = '{"numberMatched": {"total_size": 5}, "numberReturned": 6, "stac_version": "1.0.0", "type": "FeatureCollection", ' \
+                       '"links": [{"rel": "self", "href": "https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-2-dapa/collections/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/items/?limit=10"}, {"rel": "root", "href": "https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev"}], ' \
+                       '"features": [' \
+                       '{"type": "Feature", "stac_version": "1.0.0", "id": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file01", "properties": {"tag": "#sample", "c_data1": [1, 10, 100, 1000], "c_data2": [false, true, true, false, true], "c_data3": ["Bellman Ford"], "datetime": "2023-12-04T18:21:04.234000Z", "start_datetime": "2016-01-31T18:00:00.009000Z", "end_datetime": "2016-01-31T19:59:59.991000Z", "created": "1970-01-01T00:00:00Z", "updated": "2023-12-04T18:21:47.477000Z", "status": "completed", "provider": "unity"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"metadata__cmr": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file01/test_file01.cmr.xml", "title": "test_file01.cmr.xml", "description": "size=1768;checksumType=md5;checksum=4d1935f25f3b508ca1e1a0368eeda10c;"}, "metadata__stac": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file01/test_file01.nc.stac.json", "title": "test_file01.nc.stac.json", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "metadata__cas": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file01/test_file01.nc.cas", "title": "test_file01.nc.cas", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "data": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file01/test_file01.nc", "title": "test_file01.nc", "description": "size=-1;checksumType=md5;checksum=unknown;"}}, "bbox": [-180.0, -90.0, 180.0, 90.0], "stac_extensions": [], "collection": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030"}, ' \
+                       '{"type": "Feature", "stac_version": "1.0.0", "id": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02", "properties": {"tag": "#sample", "c_data1": [1, 10, 100, 1000], "c_data2": [false, true, true, false, true], "c_data3": ["Bellman Ford"], "datetime": "2023-12-04T18:44:56.784000Z", "start_datetime": "2016-01-31T18:00:00.009000Z", "end_datetime": "2016-01-31T19:59:59.991000Z", "created": "1970-01-01T00:00:00Z", "updated": "2023-12-04T18:45:40.118000Z", "status": "completed", "provider": "unity"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"metadata__stac": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02/test_file02.nc.stac.json", "title": "test_file02.nc.stac.json", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "metadata__cmr": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02/test_file02.cmr.xml", "title": "test_file02.cmr.xml", "description": "size=1768;checksumType=md5;checksum=88b82e1824d51713d0bc897d970f3b0a;"}, "metadata__cas": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02/test_file02.nc.cas", "title": "test_file02.nc.cas", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "data": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02/test_file02.nc", "title": "test_file02.nc", "description": "size=-1;checksumType=md5;checksum=unknown;"}}, "bbox": [-180.0, -90.0, 180.0, 90.0], "stac_extensions": [], "collection": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030"}, ' \
+                       '{"type": "Feature", "stac_version": "1.0.0", "id": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file03", "properties": {"tag": "#sample", "c_data1": [1, 10, 100, 1000], "c_data2": [false, true, true, false, true], "c_data3": ["Bellman Ford"], "datetime": "2023-12-04T18:54:01.078000Z", "start_datetime": "2016-01-31T18:00:00.009000Z", "end_datetime": "2016-01-31T19:59:59.991000Z", "created": "1970-01-01T00:00:00Z", "updated": "2023-12-04T18:54:42.272000Z", "status": "completed", "provider": "unity"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"metadata__cmr": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file03/test_file03.cmr.xml", "title": "test_file03.cmr.xml", "description": "size=1768;checksumType=md5;checksum=cd84e6a6138b3aad77d013ca4fb3ded4;"}, "metadata__stac": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file03/test_file03.nc.stac.json", "title": "test_file03.nc.stac.json", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "metadata__cas": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file03/test_file03.nc.cas", "title": "test_file03.nc.cas", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "data": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file03/test_file03.nc", "title": "test_file03.nc", "description": "size=-1;checksumType=md5;checksum=unknown;"}}, "bbox": [-180.0, -90.0, 180.0, 90.0], "stac_extensions": [], "collection": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030"}, ' \
+                       '{"type": "Feature", "stac_version": "1.0.0", "id": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file04", "properties": {"tag": "#sample", "c_data1": [1, 10, 100, 1000], "c_data2": [false, true, true, false, true], "c_data3": ["Bellman Ford"], "datetime": "2023-12-04T18:54:33.221000Z", "start_datetime": "2016-01-31T18:00:00.009000Z", "end_datetime": "2016-01-31T19:59:59.991000Z", "created": "1970-01-01T00:00:00Z", "updated": "2023-12-04T18:55:12.198000Z", "status": "completed", "provider": "unity"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"metadata__cmr": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file04/test_file04.cmr.xml", "title": "test_file04.cmr.xml", "description": "size=1768;checksumType=md5;checksum=47574084df6d14bbe9df60a2d40617ef;"}, "metadata__stac": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file04/test_file04.nc.stac.json", "title": "test_file04.nc.stac.json", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "metadata__cas": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file04/test_file04.nc.cas", "title": "test_file04.nc.cas", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "data": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file04/test_file04.nc", "title": "test_file04.nc", "description": "size=-1;checksumType=md5;checksum=unknown;"}}, "bbox": [-180.0, -90.0, 180.0, 90.0], "stac_extensions": [], "collection": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030"}, ' \
+                       '{"type": "Feature", "stac_version": "1.0.0", "id": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file05", "properties": {"tag": "#sample", "c_data1": [1, 10, 100, 1000], "c_data2": [false, true, true, false, true], "c_data3": ["Bellman Ford"], "datetime": "2023-12-04T18:58:31.381000Z", "start_datetime": "2016-01-31T18:00:00.009000Z", "end_datetime": "2016-01-31T19:59:59.991000Z", "created": "1970-01-01T00:00:00Z", "updated": "2023-12-04T18:58:42.027000Z", "status": "completed", "provider": "unity"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"metadata__stac": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file05/test_file05.nc.stac.json", "title": "test_file05.nc.stac.json", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "metadata__cmr": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file05/test_file05.cmr.xml", "title": "test_file05.cmr.xml", "description": "size=1768;checksumType=md5;checksum=03e639becc6c74ad5128ccd438fc35ae;"}, "metadata__cas": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file05/test_file05.nc.cas", "title": "test_file05.nc.cas", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "data": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file05/test_file05.nc", "title": "test_file05.nc", "description": "size=-1;checksumType=md5;checksum=unknown;"}}, "bbox": [-180.0, -90.0, 180.0, 90.0], "stac_extensions": [], "collection": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030"} ' \
+                       ']}'
         granule_json = json.loads(granule_json)
         if len(argv) > 1:
             argv.pop(-1)
@@ -1290,6 +1299,57 @@ class TestDockerEntry(TestCase):
             download_result_str = choose_process()
             download_result = json.loads(download_result_str)
             self.assertTrue('features' in download_result, f'missing features in download_result')
+            self.assertEqual(len(download_result['features'])*4 + 1, len(glob(os.path.join(downloading_dir, '*'))), f'downloaded file does not match: {download_result["features"]}')
+            error_file = os.path.join(downloading_dir, 'error.log')
+            if FileUtils.file_exist(error_file):
+                self.assertTrue(False, f'some downloads failed. error.log exists. {FileUtils.read_json(error_file)}')
+            download_result = download_result['features']
+            self.assertTrue('assets' in download_result[0], f'no assets in download_result: {download_result}')
+            downloaded_file_hrefs = set([k['assets']['data']['href'] for k in download_result])
+            for each_granule in zip(granule_json['features'], download_result):
+                remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
+                self.assertTrue(os.path.join('.', remote_filename) in downloaded_file_hrefs, f'mismatched: {remote_filename}')
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
+        return
+
+    @patch('requests.get')
+    def test_02_download__from_file_with_http(self, mock_requests):
+        granule_json = '{"numberMatched": {"total_size": 5}, "numberReturned": 6, "stac_version": "1.0.0", "type": "FeatureCollection", ' \
+                       '"links": [{"rel": "self", "href": "https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-2-dapa/collections/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/items/?limit=10"}, {"rel": "root", "href": "https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev"}], ' \
+                       '"features": [' \
+                       '{"type": "Feature", "stac_version": "1.0.0", "id": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file01", "properties": {"tag": "#sample", "c_data1": [1, 10, 100, 1000], "c_data2": [false, true, true, false, true], "c_data3": ["Bellman Ford"], "datetime": "2023-12-04T18:21:04.234000Z", "start_datetime": "2016-01-31T18:00:00.009000Z", "end_datetime": "2016-01-31T19:59:59.991000Z", "created": "1970-01-01T00:00:00Z", "updated": "2023-12-04T18:21:47.477000Z", "status": "completed", "provider": "unity"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"metadata__cmr": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file01/test_file01.cmr.xml", "title": "test_file01.cmr.xml", "description": "size=1768;checksumType=md5;checksum=4d1935f25f3b508ca1e1a0368eeda10c;"}, "metadata__stac": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file01/test_file01.nc.stac.json", "title": "test_file01.nc.stac.json", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "metadata__cas": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file01/test_file01.nc.cas", "title": "test_file01.nc.cas", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "data": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file01/test_file01.nc", "title": "test_file01.nc", "description": "size=-1;checksumType=md5;checksum=unknown;"}}, "bbox": [-180.0, -90.0, 180.0, 90.0], "stac_extensions": [], "collection": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030"}, ' \
+                       '{"type": "Feature", "stac_version": "1.0.0", "id": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02", "properties": {"tag": "#sample", "c_data1": [1, 10, 100, 1000], "c_data2": [false, true, true, false, true], "c_data3": ["Bellman Ford"], "datetime": "2023-12-04T18:44:56.784000Z", "start_datetime": "2016-01-31T18:00:00.009000Z", "end_datetime": "2016-01-31T19:59:59.991000Z", "created": "1970-01-01T00:00:00Z", "updated": "2023-12-04T18:45:40.118000Z", "status": "completed", "provider": "unity"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"metadata__stac": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02/test_file02.nc.stac.json", "title": "test_file02.nc.stac.json", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "metadata__cmr": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02/test_file02.cmr.xml", "title": "test_file02.cmr.xml", "description": "size=1768;checksumType=md5;checksum=88b82e1824d51713d0bc897d970f3b0a;"}, "metadata__cas": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02/test_file02.nc.cas", "title": "test_file02.nc.cas", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "data": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02/test_file02.nc", "title": "test_file02.nc", "description": "size=-1;checksumType=md5;checksum=unknown;"}}, "bbox": [-180.0, -90.0, 180.0, 90.0], "stac_extensions": [], "collection": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030"}, ' \
+                       '{"type": "Feature", "stac_version": "1.0.0", "id": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file03", "properties": {"tag": "#sample", "c_data1": [1, 10, 100, 1000], "c_data2": [false, true, true, false, true], "c_data3": ["Bellman Ford"], "datetime": "2023-12-04T18:54:01.078000Z", "start_datetime": "2016-01-31T18:00:00.009000Z", "end_datetime": "2016-01-31T19:59:59.991000Z", "created": "1970-01-01T00:00:00Z", "updated": "2023-12-04T18:54:42.272000Z", "status": "completed", "provider": "unity"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"metadata__cmr": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file03/test_file03.cmr.xml", "title": "test_file03.cmr.xml", "description": "size=1768;checksumType=md5;checksum=cd84e6a6138b3aad77d013ca4fb3ded4;"}, "metadata__stac": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file03/test_file03.nc.stac.json", "title": "test_file03.nc.stac.json", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "metadata__cas": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file03/test_file03.nc.cas", "title": "test_file03.nc.cas", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "data": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file03/test_file03.nc", "title": "test_file03.nc", "description": "size=-1;checksumType=md5;checksum=unknown;"}}, "bbox": [-180.0, -90.0, 180.0, 90.0], "stac_extensions": [], "collection": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030"}, ' \
+                       '{"type": "Feature", "stac_version": "1.0.0", "id": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file04", "properties": {"tag": "#sample", "c_data1": [1, 10, 100, 1000], "c_data2": [false, true, true, false, true], "c_data3": ["Bellman Ford"], "datetime": "2023-12-04T18:54:33.221000Z", "start_datetime": "2016-01-31T18:00:00.009000Z", "end_datetime": "2016-01-31T19:59:59.991000Z", "created": "1970-01-01T00:00:00Z", "updated": "2023-12-04T18:55:12.198000Z", "status": "completed", "provider": "unity"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"metadata__cmr": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file04/test_file04.cmr.xml", "title": "test_file04.cmr.xml", "description": "size=1768;checksumType=md5;checksum=47574084df6d14bbe9df60a2d40617ef;"}, "metadata__stac": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file04/test_file04.nc.stac.json", "title": "test_file04.nc.stac.json", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "metadata__cas": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file04/test_file04.nc.cas", "title": "test_file04.nc.cas", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "data": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file04/test_file04.nc", "title": "test_file04.nc", "description": "size=-1;checksumType=md5;checksum=unknown;"}}, "bbox": [-180.0, -90.0, 180.0, 90.0], "stac_extensions": [], "collection": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030"}, ' \
+                       '{"type": "Feature", "stac_version": "1.0.0", "id": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file05", "properties": {"tag": "#sample", "c_data1": [1, 10, 100, 1000], "c_data2": [false, true, true, false, true], "c_data3": ["Bellman Ford"], "datetime": "2023-12-04T18:58:31.381000Z", "start_datetime": "2016-01-31T18:00:00.009000Z", "end_datetime": "2016-01-31T19:59:59.991000Z", "created": "1970-01-01T00:00:00Z", "updated": "2023-12-04T18:58:42.027000Z", "status": "completed", "provider": "unity"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"metadata__stac": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file05/test_file05.nc.stac.json", "title": "test_file05.nc.stac.json", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "metadata__cmr": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file05/test_file05.cmr.xml", "title": "test_file05.cmr.xml", "description": "size=1768;checksumType=md5;checksum=03e639becc6c74ad5128ccd438fc35ae;"}, "metadata__cas": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file05/test_file05.nc.cas", "title": "test_file05.nc.cas", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "data": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file05/test_file05.nc", "title": "test_file05.nc", "description": "size=-1;checksumType=md5;checksum=unknown;"}}, "bbox": [-180.0, -90.0, 180.0, 90.0], "stac_extensions": [], "collection": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030"} ' \
+                       ']}'
+        # granule_json = json.loads(granule_json)
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.return_value.content.decode.return_value = granule_json
+
+        # mock_response.content = granule_json.encode()
+        # mock_response.content.return_value = granule_json.encode()
+        # mock_response.json.return_value = json.loads(granule_json)
+        # specify the return value of the get() method
+        mock_requests.return_value.get.return_value = mock_response
+        mock_requests.return_value.content.decode.return_value = granule_json
+
+        if len(argv) > 1:
+            argv.pop(-1)
+        argv.append('DOWNLOAD')
+        os.environ['GRANULES_DOWNLOAD_TYPE'] = 'S3'
+        os.environ['STAC_JSON'] = 'https://example.com/get_feature_collection'
+
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
+            downloading_dir = os.path.join(tmp_dir_name, 'downloading_dir')
+            FileUtils.mk_dir_p(downloading_dir)
+            os.environ['DOWNLOAD_DIR'] = downloading_dir
+            download_result_str = choose_process()
+            download_result = json.loads(download_result_str)
+            self.assertTrue('features' in download_result, f'missing features in download_result')
             self.assertEqual(len(download_result['features']) + 1, len(glob(os.path.join(downloading_dir, '*'))), f'downloaded file does not match')
             error_file = os.path.join(downloading_dir, 'error.log')
             if FileUtils.file_exist(error_file):
@@ -1297,6 +1357,59 @@ class TestDockerEntry(TestCase):
             download_result = download_result['features']
             self.assertTrue('assets' in download_result[0], f'no assets in download_result: {download_result}')
             downloaded_file_hrefs = set([k['assets']['data']['href'] for k in download_result])
+            granule_json = json.loads(granule_json)
+            for each_granule in zip(granule_json['features'], download_result):
+                remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
+                self.assertTrue(os.path.join('.', remote_filename) in downloaded_file_hrefs, f'mismatched: {remote_filename}')
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
+        return
+
+    @patch('requests.get')
+    def test_02_download__from_file_with_http(self, mock_requests):
+        granule_json = '{"numberMatched": {"total_size": 5}, "numberReturned": 6, "stac_version": "1.0.0", "type": "FeatureCollection", ' \
+                       '"links": [{"rel": "self", "href": "https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev/sbx-uds-2-dapa/collections/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/items/?limit=10"}, {"rel": "root", "href": "https://1gp9st60gd.execute-api.us-west-2.amazonaws.com/dev"}], ' \
+                       '"features": [' \
+                       '{"type": "Feature", "stac_version": "1.0.0", "id": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file01", "properties": {"tag": "#sample", "c_data1": [1, 10, 100, 1000], "c_data2": [false, true, true, false, true], "c_data3": ["Bellman Ford"], "datetime": "2023-12-04T18:21:04.234000Z", "start_datetime": "2016-01-31T18:00:00.009000Z", "end_datetime": "2016-01-31T19:59:59.991000Z", "created": "1970-01-01T00:00:00Z", "updated": "2023-12-04T18:21:47.477000Z", "status": "completed", "provider": "unity"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"metadata__cmr": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file01/test_file01.cmr.xml", "title": "test_file01.cmr.xml", "description": "size=1768;checksumType=md5;checksum=4d1935f25f3b508ca1e1a0368eeda10c;"}, "metadata__stac": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file01/test_file01.nc.stac.json", "title": "test_file01.nc.stac.json", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "metadata__cas": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file01/test_file01.nc.cas", "title": "test_file01.nc.cas", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "data": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file01/test_file01.nc", "title": "test_file01.nc", "description": "size=-1;checksumType=md5;checksum=unknown;"}}, "bbox": [-180.0, -90.0, 180.0, 90.0], "stac_extensions": [], "collection": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030"}, ' \
+                       '{"type": "Feature", "stac_version": "1.0.0", "id": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02", "properties": {"tag": "#sample", "c_data1": [1, 10, 100, 1000], "c_data2": [false, true, true, false, true], "c_data3": ["Bellman Ford"], "datetime": "2023-12-04T18:44:56.784000Z", "start_datetime": "2016-01-31T18:00:00.009000Z", "end_datetime": "2016-01-31T19:59:59.991000Z", "created": "1970-01-01T00:00:00Z", "updated": "2023-12-04T18:45:40.118000Z", "status": "completed", "provider": "unity"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"metadata__stac": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02/test_file02.nc.stac.json", "title": "test_file02.nc.stac.json", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "metadata__cmr": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02/test_file02.cmr.xml", "title": "test_file02.cmr.xml", "description": "size=1768;checksumType=md5;checksum=88b82e1824d51713d0bc897d970f3b0a;"}, "metadata__cas": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02/test_file02.nc.cas", "title": "test_file02.nc.cas", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "data": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02/test_file02.nc", "title": "test_file02.nc", "description": "size=-1;checksumType=md5;checksum=unknown;"}}, "bbox": [-180.0, -90.0, 180.0, 90.0], "stac_extensions": [], "collection": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030"}, ' \
+                       '{"type": "Feature", "stac_version": "1.0.0", "id": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file03", "properties": {"tag": "#sample", "c_data1": [1, 10, 100, 1000], "c_data2": [false, true, true, false, true], "c_data3": ["Bellman Ford"], "datetime": "2023-12-04T18:54:01.078000Z", "start_datetime": "2016-01-31T18:00:00.009000Z", "end_datetime": "2016-01-31T19:59:59.991000Z", "created": "1970-01-01T00:00:00Z", "updated": "2023-12-04T18:54:42.272000Z", "status": "completed", "provider": "unity"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"metadata__cmr": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file03/test_file03.cmr.xml", "title": "test_file03.cmr.xml", "description": "size=1768;checksumType=md5;checksum=cd84e6a6138b3aad77d013ca4fb3ded4;"}, "metadata__stac": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file03/test_file03.nc.stac.json", "title": "test_file03.nc.stac.json", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "metadata__cas": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file03/test_file03.nc.cas", "title": "test_file03.nc.cas", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "data": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file03/test_file03.nc", "title": "test_file03.nc", "description": "size=-1;checksumType=md5;checksum=unknown;"}}, "bbox": [-180.0, -90.0, 180.0, 90.0], "stac_extensions": [], "collection": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030"}, ' \
+                       '{"type": "Feature", "stac_version": "1.0.0", "id": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file04", "properties": {"tag": "#sample", "c_data1": [1, 10, 100, 1000], "c_data2": [false, true, true, false, true], "c_data3": ["Bellman Ford"], "datetime": "2023-12-04T18:54:33.221000Z", "start_datetime": "2016-01-31T18:00:00.009000Z", "end_datetime": "2016-01-31T19:59:59.991000Z", "created": "1970-01-01T00:00:00Z", "updated": "2023-12-04T18:55:12.198000Z", "status": "completed", "provider": "unity"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"metadata__cmr": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file04/test_file04.cmr.xml", "title": "test_file04.cmr.xml", "description": "size=1768;checksumType=md5;checksum=47574084df6d14bbe9df60a2d40617ef;"}, "metadata__stac": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file04/test_file04.nc.stac.json", "title": "test_file04.nc.stac.json", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "metadata__cas": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file04/test_file04.nc.cas", "title": "test_file04.nc.cas", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "data": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file04/test_file04.nc", "title": "test_file04.nc", "description": "size=-1;checksumType=md5;checksum=unknown;"}}, "bbox": [-180.0, -90.0, 180.0, 90.0], "stac_extensions": [], "collection": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030"}, ' \
+                       '{"type": "Feature", "stac_version": "1.0.0", "id": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file05", "properties": {"tag": "#sample", "c_data1": [1, 10, 100, 1000], "c_data2": [false, true, true, false, true], "c_data3": ["Bellman Ford"], "datetime": "2023-12-04T18:58:31.381000Z", "start_datetime": "2016-01-31T18:00:00.009000Z", "end_datetime": "2016-01-31T19:59:59.991000Z", "created": "1970-01-01T00:00:00Z", "updated": "2023-12-04T18:58:42.027000Z", "status": "completed", "provider": "unity"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [{"rel": "collection", "href": "."}], "assets": {"metadata__stac": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file05/test_file05.nc.stac.json", "title": "test_file05.nc.stac.json", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "metadata__cmr": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file05/test_file05.cmr.xml", "title": "test_file05.cmr.xml", "description": "size=1768;checksumType=md5;checksum=03e639becc6c74ad5128ccd438fc35ae;"}, "metadata__cas": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file05/test_file05.nc.cas", "title": "test_file05.nc.cas", "description": "size=-1;checksumType=md5;checksum=unknown;"}, "data": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file05/test_file05.nc", "title": "test_file05.nc", "description": "size=-1;checksumType=md5;checksum=unknown;"}}, "bbox": [-180.0, -90.0, 180.0, 90.0], "stac_extensions": [], "collection": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030"} ' \
+                       ']}'
+        # granule_json = json.loads(granule_json)
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.return_value.content.decode.return_value = granule_json
+
+        # mock_response.content = granule_json.encode()
+        # mock_response.content.return_value = granule_json.encode()
+        # mock_response.json.return_value = json.loads(granule_json)
+        # specify the return value of the get() method
+        mock_requests.return_value.get.return_value = mock_response
+        mock_requests.return_value.content.decode.return_value = granule_json
+
+        if len(argv) > 1:
+            argv.pop(-1)
+        argv.append('DOWNLOAD')
+        os.environ['GRANULES_DOWNLOAD_TYPE'] = 'S3'
+        os.environ['STAC_JSON'] = 'https://example.com/get_feature_collection'
+
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
+            downloading_dir = os.path.join(tmp_dir_name, 'downloading_dir')
+            FileUtils.mk_dir_p(downloading_dir)
+            os.environ['DOWNLOAD_DIR'] = downloading_dir
+            download_result_str = choose_process()
+            download_result = json.loads(download_result_str)
+            self.assertTrue('features' in download_result, f'missing features in download_result')
+            self.assertEqual(len(download_result['features'])*4 + 1, len(glob(os.path.join(downloading_dir, '*'))), f'downloaded file does not match: {glob(os.path.join(downloading_dir, "*"))}')
+            error_file = os.path.join(downloading_dir, 'error.log')
+            if FileUtils.file_exist(error_file):
+                self.assertTrue(False, f'some downloads failed. error.log exists. {FileUtils.read_json(error_file)}')
+            download_result = download_result['features']
+            self.assertTrue('assets' in download_result[0], f'no assets in download_result: {download_result}')
+            downloaded_file_hrefs = set([k['assets']['data']['href'] for k in download_result])
+            granule_json = json.loads(granule_json)
             for each_granule in zip(granule_json['features'], download_result):
                 remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
                 self.assertTrue(os.path.join('.', remote_filename) in downloaded_file_hrefs, f'mismatched: {remote_filename}')
@@ -1359,10 +1472,11 @@ class TestDockerEntry(TestCase):
             FileUtils.write_json(granule_json_file, granule_json)
             os.environ['STAC_JSON'] = granule_json_file
             os.environ['DOWNLOAD_DIR'] = downloading_dir
+            os.environ['DOWNLOADING_KEYS'] = 'data'
             download_result_str = choose_process()
             download_result = json.loads(download_result_str)
             self.assertTrue('features' in download_result, f'missing features in download_result')
-            self.assertEqual(len(download_result['features']) + 1, len(glob(os.path.join(downloading_dir, '*'))), f'downloaded file does not match')
+            self.assertEqual(len(download_result['features']) + 1, len(glob(os.path.join(downloading_dir, '*'))), f'downloaded file does not match: {download_result["features"]} v. {glob(os.path.join(downloading_dir, "*"))}')
             error_file = os.path.join(tmp_dir_name, 'error.log')
             if FileUtils.file_exist(error_file):
                 self.assertTrue(False, f'some downloads failed. error.log exists. {FileUtils.read_json(error_file)}')
@@ -1371,6 +1485,360 @@ class TestDockerEntry(TestCase):
             downloaded_file_hrefs = set([k['assets']['data']['href'] for k in download_result])
             for each_granule in zip(granule_json['features'], download_result):
                 remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
+                self.assertTrue(os.path.join('.', remote_filename) in downloaded_file_hrefs, f'mismatched: {remote_filename}')
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
+        return
+
+    def test_02_download__from_http_with_role(self):
+        granule_json = '''{
+  "numberMatched": 20,
+  "numberReturned": 20,
+  "stac_version": "1.0.0",
+  "type": "FeatureCollection",
+  "links": [
+    {
+      "rel": "self",
+      "href": "https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/SNDR_SNPP_ATMS_L1A___1/items?datetime=2016-01-14T08:00:00Z/2016-01-14T11:59:59Z&limit=100&offset=0"
+    },
+    {
+      "rel": "root",
+      "href": "https://58nbcawrvb.execute-api.us-west-2.amazonaws.com"
+    },
+    {
+      "rel": "next",
+      "href": "https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/SNDR_SNPP_ATMS_L1A___1/items?datetime=2016-01-14T08:00:00Z/2016-01-14T11:59:59Z&limit=100&offset=100"
+    },
+    {
+      "rel": "prev",
+      "href": "https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/SNDR_SNPP_ATMS_L1A___1/items?datetime=2016-01-14T08:00:00Z/2016-01-14T11:59:59Z&limit=100&offset=0"
+    }
+  ],
+  "features": [
+    {
+      "type": "Feature",
+      "stac_version": "1.0.0",
+      "id": "SNDR.SNPP.ATMS.L1A.nominal2.01",
+      "properties": {
+        "start_datetime": "2016-01-14T09:54:00Z",
+        "end_datetime": "2016-01-14T10:00:00Z",
+        "created": "2020-12-14T13:50:00Z",
+        "updated": "2022-08-15T06:26:39.830000Z",
+        "datetime": "2022-08-15T06:26:37.029000Z"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.0,
+          0.0
+        ]
+      },
+      "links": [
+        {
+          "rel": "collection",
+          "href": "."
+        }
+      ],
+      "assets": {
+        "SNDR.SNPP.ATMS.L1A.nominal2.01.nc": {
+          "href": "https://raw.githubusercontent.com/unity-sds/unity-data-services/develop/README.md",
+          "title": "SNDR.SNPP.ATMS.L1A.nominal2.01.nc",
+          "description": "SNDR.SNPP.ATMS.L1A.nominal2.01.nc",
+          "roles": [
+            "data"
+          ]
+        },
+        "SNDR.SNPP.ATMS.L1A.nominal2.01.nc.cas": {
+          "href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.01.nc.cas",
+          "title": "SNDR.SNPP.ATMS.L1A.nominal2.01.nc.cas",
+          "description": "SNDR.SNPP.ATMS.L1A.nominal2.01.nc.cas",
+          "roles": [
+            "metadata__data"
+          ]
+        },
+        "SNDR.SNPP.ATMS.L1A.nominal2.01.cmr.xml": {
+          "href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.01.cmr.xml",
+          "title": "SNDR.SNPP.ATMS.L1A.nominal2.01.cmr.xml",
+          "description": "SNDR.SNPP.ATMS.L1A.nominal2.01.cmr.xml",
+          "roles": [
+            "metadata__cmr"
+          ]
+        }
+      },
+      "bbox": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "stac_extensions": [],
+      "collection": "SNDR_SNPP_ATMS_L1A___1"
+    },
+    {
+      "type": "Feature",
+      "stac_version": "1.0.0",
+      "id": "SNDR.SNPP.ATMS.L1A.nominal2.08",
+      "properties": {
+        "start_datetime": "2016-01-14T10:36:00Z",
+        "end_datetime": "2016-01-14T10:42:00Z",
+        "created": "2020-12-14T13:50:00Z",
+        "updated": "2022-08-15T06:26:26.078000Z",
+        "datetime": "2022-08-15T06:26:19.333000Z"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.0,
+          0.0
+        ]
+      },
+      "links": [
+        {
+          "rel": "collection",
+          "href": "."
+        }
+      ],
+      "assets": {
+        "SNDR.SNPP.ATMS.L1A.nominal2.08.nc": {
+          "href": "https://raw.githubusercontent.com/unity-sds/unity-data-services/develop/CHANGELOG.md",
+          "title": "SNDR.SNPP.ATMS.L1A.nominal2.08.nc",
+          "description": "SNDR.SNPP.ATMS.L1A.nominal2.08.nc",
+          "roles": [
+            "data"
+          ]
+        },
+        "SNDR.SNPP.ATMS.L1A.nominal2.08.nc.cas": {
+          "href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.08.nc.cas",
+          "title": "SNDR.SNPP.ATMS.L1A.nominal2.08.nc.cas",
+          "description": "SNDR.SNPP.ATMS.L1A.nominal2.08.nc.cas",
+          "roles": [
+            "metadata__data"
+          ]
+        },
+        "SNDR.SNPP.ATMS.L1A.nominal2.08.cmr.xml": {
+          "href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.08.cmr.xml",
+          "title": "SNDR.SNPP.ATMS.L1A.nominal2.08.cmr.xml",
+          "description": "SNDR.SNPP.ATMS.L1A.nominal2.08.cmr.xml",
+          "roles": [
+            "metadata__cmr"
+          ]
+        }
+      },
+      "bbox": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "stac_extensions": [],
+      "collection": "SNDR_SNPP_ATMS_L1A___1"
+    },
+    {
+      "type": "Feature",
+      "stac_version": "1.0.0",
+      "id": "SNDR.SNPP.ATMS.L1A.nominal2.06",
+      "properties": {
+        "start_datetime": "2016-01-14T10:24:00Z",
+        "end_datetime": "2016-01-14T10:30:00Z",
+        "created": "2020-12-14T13:50:00Z",
+        "updated": "2022-08-15T06:26:26.068000Z",
+        "datetime": "2022-08-15T06:26:18.641000Z"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.0,
+          0.0
+        ]
+      },
+      "links": [
+        {
+          "rel": "collection",
+          "href": "."
+        }
+      ],
+      "assets": {
+        "SNDR.SNPP.ATMS.L1A.nominal2.06.nc": {
+          "href": "https://raw.githubusercontent.com/unity-sds/unity-data-services/develop/CODE_OF_CONDUCT.md",
+          "title": "SNDR.SNPP.ATMS.L1A.nominal2.06.nc",
+          "description": "SNDR.SNPP.ATMS.L1A.nominal2.06.nc",
+          "roles": [
+            "data"
+          ]
+        },
+        "SNDR.SNPP.ATMS.L1A.nominal2.06.nc.cas": {
+          "href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.06.nc.cas",
+          "title": "SNDR.SNPP.ATMS.L1A.nominal2.06.nc.cas",
+          "description": "SNDR.SNPP.ATMS.L1A.nominal2.06.nc.cas",
+          "roles": [
+            "metadata__data"
+          ]
+        },
+        "SNDR.SNPP.ATMS.L1A.nominal2.06.cmr.xml": {
+          "href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.06.cmr.xml",
+          "title": "SNDR.SNPP.ATMS.L1A.nominal2.06.cmr.xml",
+          "description": "SNDR.SNPP.ATMS.L1A.nominal2.06.cmr.xml",
+          "roles": [
+            "metadata__cmr"
+          ]
+        }
+      },
+      "bbox": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "stac_extensions": [],
+      "collection": "SNDR_SNPP_ATMS_L1A___1"
+    },
+    {
+      "type": "Feature",
+      "stac_version": "1.0.0",
+      "id": "SNDR.SNPP.ATMS.L1A.nominal2.18",
+      "properties": {
+        "start_datetime": "2016-01-14T11:36:00Z",
+        "end_datetime": "2016-01-14T11:42:00Z",
+        "created": "2020-12-14T13:50:00Z",
+        "updated": "2022-08-15T06:26:26.060000Z",
+        "datetime": "2022-08-15T06:26:19.698000Z"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.0,
+          0.0
+        ]
+      },
+      "links": [
+        {
+          "rel": "collection",
+          "href": "."
+        }
+      ],
+      "assets": {
+        "SNDR.SNPP.ATMS.L1A.nominal2.18.nc": {
+          "href": "https://raw.githubusercontent.com/unity-sds/unity-data-services/develop/CONTRIBUTING.md",
+          "title": "SNDR.SNPP.ATMS.L1A.nominal2.18.nc",
+          "description": "SNDR.SNPP.ATMS.L1A.nominal2.18.nc",
+          "roles": [
+            "data"
+          ]
+        },
+        "SNDR.SNPP.ATMS.L1A.nominal2.18.nc.cas": {
+          "href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.18.nc.cas",
+          "title": "SNDR.SNPP.ATMS.L1A.nominal2.18.nc.cas",
+          "description": "SNDR.SNPP.ATMS.L1A.nominal2.18.nc.cas",
+          "roles": [
+            "metadata__data"
+          ]
+        },
+        "SNDR.SNPP.ATMS.L1A.nominal2.18.cmr.xml": {
+          "href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.18.cmr.xml",
+          "title": "SNDR.SNPP.ATMS.L1A.nominal2.18.cmr.xml",
+          "description": "SNDR.SNPP.ATMS.L1A.nominal2.18.cmr.xml",
+          "roles": [
+            "metadata__cmr"
+          ]
+        }
+      },
+      "bbox": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "stac_extensions": [],
+      "collection": "SNDR_SNPP_ATMS_L1A___1"
+    },
+    {
+      "type": "Feature",
+      "stac_version": "1.0.0",
+      "id": "SNDR.SNPP.ATMS.L1A.nominal2.04",
+      "properties": {
+        "start_datetime": "2016-01-14T10:12:00Z",
+        "end_datetime": "2016-01-14T10:18:00Z",
+        "created": "2020-12-14T13:50:00Z",
+        "updated": "2022-08-15T06:26:26.050000Z",
+        "datetime": "2022-08-15T06:26:19.491000Z"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.0,
+          0.0
+        ]
+      },
+      "links": [
+        {
+          "rel": "collection",
+          "href": "."
+        }
+      ],
+      "assets": {
+        "SNDR.SNPP.ATMS.L1A.nominal2.04.nc": {
+          "href": "https://raw.githubusercontent.com/unity-sds/unity-data-services/develop/LICENSE",
+          "title": "SNDR.SNPP.ATMS.L1A.nominal2.04.nc",
+          "description": "SNDR.SNPP.ATMS.L1A.nominal2.04.nc",
+          "roles": [
+            "data"
+          ]
+        },
+        "SNDR.SNPP.ATMS.L1A.nominal2.04.nc.cas": {
+          "href": "s3://uds-test-cumulus-protected/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.04.nc.cas",
+          "title": "SNDR.SNPP.ATMS.L1A.nominal2.04.nc.cas",
+          "description": "SNDR.SNPP.ATMS.L1A.nominal2.04.nc.cas",
+          "roles": [
+            "metadata__data"
+          ]
+        },
+        "SNDR.SNPP.ATMS.L1A.nominal2.04.cmr.xml": {
+          "href": "s3://uds-test-cumulus-private/SNDR_SNPP_ATMS_L1A___1/SNDR.SNPP.ATMS.L1A.nominal2.04.cmr.xml",
+          "title": "SNDR.SNPP.ATMS.L1A.nominal2.04.cmr.xml",
+          "description": "SNDR.SNPP.ATMS.L1A.nominal2.04.cmr.xml",
+          "roles": [
+            "metadata__cmr"
+          ]
+        }
+      },
+      "bbox": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "stac_extensions": [],
+      "collection": "SNDR_SNPP_ATMS_L1A___1"
+    }
+  ]
+}'''
+        granule_json = json.loads(granule_json)
+        if len(argv) > 1:
+            argv.pop(-1)
+        argv.append('DOWNLOAD')
+        os.environ['GRANULES_DOWNLOAD_TYPE'] = 'HTTP'
+        os.environ['PARALLEL_COUNT'] = '3'
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
+            granule_json_file = os.path.join(tmp_dir_name, 'input_file.json')
+            downloading_dir = os.path.join(tmp_dir_name, 'downloading_dir')
+            FileUtils.mk_dir_p(downloading_dir)
+            FileUtils.write_json(granule_json_file, granule_json)
+            os.environ['STAC_JSON'] = granule_json_file
+            os.environ['DOWNLOAD_DIR'] = downloading_dir
+            os.environ['DOWNLOADING_ROLES'] = 'data'
+            download_result_str = choose_process()
+            download_result = json.loads(download_result_str)
+            self.assertTrue('features' in download_result, f'missing features in download_result')
+            self.assertEqual(len(download_result['features']) + 1, len(glob(os.path.join(downloading_dir, '*'))), f'downloaded file does not match: {download_result["features"]} v. {glob(os.path.join(downloading_dir, "*"))}')
+            error_file = os.path.join(tmp_dir_name, 'error.log')
+            if FileUtils.file_exist(error_file):
+                self.assertTrue(False, f'some downloads failed. error.log exists. {FileUtils.read_json(error_file)}')
+            download_result = download_result['features']
+            self.assertTrue('assets' in download_result[0], f'no assets in download_result: {download_result}')
+            downloaded_file_hrefs = set([list(k['assets'].values())[0]['href'] for k in download_result])
+            for each_granule in zip(granule_json['features'], download_result):
+                remote_filename = [k['href'] for k in each_granule[0]['assets'].values() if 'data' in k['roles']]
+                remote_filename = os.path.basename(remote_filename[0])
                 self.assertTrue(os.path.join('.', remote_filename) in downloaded_file_hrefs, f'mismatched: {remote_filename}')
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
@@ -1819,9 +2287,10 @@ class TestDockerEntry(TestCase):
                                  href=os.path.join('some_granules', f'{filename}.nc.stac.json'),
                                  collection='NA',
                                  assets={
-                                    'data': Asset(os.path.join('.', 'test_file01.nc'), title='main data'),
-                                    'metadata__cas': Asset(os.path.join('.', 'test_file01.nc.cas'), title='metadata cas'),
-                                    'metadata__stac': Asset(os.path.join('.', 'test_file01.nc.stac.json'), title='metadata stac'),
+
+                                    'test_file01.nc': Asset(os.path.join('.', 'test_file01.nc'), title='test_file01.nc', roles=['data']),
+                                    'test_file01.nc.cas': Asset(os.path.join('.', 'test_file01.nc.cas'), title='test_file01.nc.cas', roles=['metadata']),
+                                    'test_file01.nc.stac.json': Asset(os.path.join('.', 'test_file01.nc.stac.json'), title='test_file01.nc.stac.json', roles=['metadata']),
                                  })
                 with open(os.path.join(granules_dir, f'{filename}.nc.stac.json'), 'w') as ff:
                     ff.write(json.dumps(stac_item.to_dict(False, False)))
@@ -1854,12 +2323,12 @@ class TestDockerEntry(TestCase):
             upload_result = successful_feature_collection[0].to_dict(False, False)
             print(f'example feature: {upload_result}')
             self.assertTrue('assets' in upload_result, 'missing assets')
-            self.assertTrue('metadata__cas' in upload_result['assets'], 'missing assets#metadata__cas')
-            self.assertTrue('href' in upload_result['assets']['metadata__cas'], 'missing assets#metadata__cas#href')
-            self.assertTrue(upload_result['assets']['metadata__cas']['href'].startswith(f's3://{os.environ["STAGING_BUCKET"]}/{os.environ["COLLECTION_ID"]}/'))
-            self.assertTrue('data' in upload_result['assets'], 'missing assets#data')
-            self.assertTrue('href' in upload_result['assets']['data'], 'missing assets#data#href')
-            self.assertTrue(upload_result['assets']['data']['href'].startswith(f's3://{os.environ["STAGING_BUCKET"]}/{os.environ["COLLECTION_ID"]}/'))
+            self.assertTrue('test_file01.nc.cas' in upload_result['assets'], 'missing assets#metadata asset: test_file01.nc.cas')
+            self.assertTrue('href' in upload_result['assets']['test_file01.nc.cas'], 'missing assets#metadata__cas#href')
+            self.assertTrue(upload_result['assets']['test_file01.nc.cas']['href'].startswith(f's3://{os.environ["STAGING_BUCKET"]}/{os.environ["COLLECTION_ID"]}/'))
+            self.assertTrue('test_file01.nc' in upload_result['assets'], 'missing assets#data: test_file01.nc')
+            self.assertTrue('href' in upload_result['assets']['test_file01.nc'], 'missing assets#data#href')
+            self.assertTrue(upload_result['assets']['test_file01.nc']['href'].startswith(f's3://{os.environ["STAGING_BUCKET"]}/{os.environ["COLLECTION_ID"]}/'))
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
             """
             Example output: 
