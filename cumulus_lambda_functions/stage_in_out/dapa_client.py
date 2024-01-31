@@ -12,12 +12,12 @@ LOGGER = logging.getLogger(__name__)
 
 
 class DapaClient:
-    def __init__(self):
+    def __init__(self, api_base_prefix=WebServiceConstants.API_PREFIX):
         self.__token_retriever = CognitoTokenRetriever()
         self.__token = None
         self.__dapa_base_api = None
         self.__verify_ssl = True
-        self.__api_base_prefix = WebServiceConstants.API_PREFIX
+        self.__api_base_prefix = api_base_prefix
         self.__get_dapa_base_api()
 
     def with_verify_ssl(self, verify_ssl: bool):
