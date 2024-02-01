@@ -31,7 +31,7 @@ class GranulesIndexMapping:
         },
         "assets": {
             "type": "object",
-            "dynamic": "true",
+            "dynamic": False,
         }
     }
     mappings = {
