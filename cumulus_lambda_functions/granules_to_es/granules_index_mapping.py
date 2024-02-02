@@ -30,19 +30,8 @@ class GranulesIndexMapping:
             },
         },
         "assets": {
-            "type": "nested",
-            "dynamic": "true",
-            "properties": {
-                "dynamic_field": {
-                    "type": "nested",
-                    "dynamic": "true",
-                    "properties": {
-                        "href": {"type": "keyword"},
-                        "title": {"type": "text"},
-                        "description": {"type": "text"}
-                    }
-                }
-            }
+            "type": "object",
+            "dynamic": False,
         }
     }
     mappings = {

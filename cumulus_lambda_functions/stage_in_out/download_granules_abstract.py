@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from multiprocessing import Queue, Manager
 
 import requests
+from cumulus_lambda_functions.lib.cognito_login.cognito_token_retriever import CognitoTokenRetriever
 
 from cumulus_lambda_functions.lib.constants import Constants
 from pystac import ItemCollection, Asset, Item
@@ -66,10 +67,12 @@ class DownloadItemExecutor(JobExecutorAbstract):
 
 
 class DownloadGranulesAbstract(ABC):
+    STAC_AUTH_TYPE = 'STAC_AUTH_TYPE'
     STAC_JSON = 'STAC_JSON'
     DOWNLOAD_DIR_KEY = 'DOWNLOAD_DIR'
     DOWNLOADING_KEYS = 'DOWNLOADING_KEYS'
     DOWNLOADING_ROLES = 'DOWNLOADING_ROLES'
+    VERIFY_SSL_KEY = 'VERIFY_SSL_KEY'
 
     def __init__(self) -> None:
         super().__init__()
@@ -95,7 +98,7 @@ class DownloadGranulesAbstract(ABC):
         LOGGER.debug(f'creating download dir: {self._download_dir}')
         FileUtils.mk_dir_p(self._download_dir)
         return self
-    
+
     def _retrieve_stac_json(self):
         raw_stac_json = os.environ.get(self.STAC_JSON)
         LOGGER.debug(f'attempting to decode raw_stac_json to JSON object')
@@ -106,8 +109,16 @@ class DownloadGranulesAbstract(ABC):
             LOGGER.debug(f'raw_stac_json is not STAC_JSON: {raw_stac_json}. trying to see if file exists')
 
         if raw_stac_json.startswith('https'):
-            LOGGER.debug(f'download raw stac json from URL: {raw_stac_json}')
-            downloading_response = requests.get(raw_stac_json)
+            if os.environ.get(self.STAC_AUTH_TYPE, 'NONE').strip().upper() == 'UNITY':
+                LOGGER.debug(f'STAC_AUTH_TYPE = UNITY')
+                token_retriever = CognitoTokenRetriever()
+                token = token_retriever.start()
+                header = {'Authorization': f'Bearer {token}'}
+                verify_ssl = os.environ.get(self.VERIFY_SSL_KEY, 'TRUE').strip().upper() == 'TRUE'
+                downloading_response = requests.get(url=raw_stac_json, headers=header, verify=verify_ssl)
+            else:
+                LOGGER.debug(f'download raw stac json from public URL: {raw_stac_json}')
+                downloading_response = requests.get(raw_stac_json)
             downloading_response.raise_for_status()
             self._granules_json = ItemCollection.from_dict(json.loads(downloading_response.content.decode()))
             return self

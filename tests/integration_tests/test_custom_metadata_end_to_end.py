@@ -41,14 +41,14 @@ class TestCustomMetadataEndToEnd(TestCase):
         self.tenant = 'UDS_LOCAL_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
         self.collection_name = 'UDS_COLLECTION'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '24.01.25.13.00'.replace('.', '')  # '2309141300'
+        self.collection_version = '24.02.01.17.00'.replace('.', '')  # '2309141300'
         self.custom_metadata_body = {
             'tag': {'type': 'keyword'},
             'c_data1': {'type': 'long'},
             'c_data2': {'type': 'boolean'},
             'c_data3': {'type': 'keyword'},
         }
-        self.granule_id = 'test_file05'
+        self.granule_id = 'abcd.1234.efgh.test_file05'
         return
 
     def test_01_setup_permissions(self):
@@ -111,16 +111,16 @@ class TestCustomMetadataEndToEnd(TestCase):
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
         dapa_collection = UnityCollectionStac() \
             .with_id(temp_collection_id) \
-            .with_graule_id_regex("^test_file.*$") \
-            .with_granule_id_extraction_regex("(^test_file.*)(\\.data\\.stac\\.json|\\.nc\\.cas|\\.cmr\\.xml)") \
+            .with_graule_id_regex("^abcd.1234.efgh.test_file.*$") \
+            .with_granule_id_extraction_regex("(^abcd.1234.efgh.test_file.*)(\\.data\\.stac\\.json|\\.nc\\.cas|\\.cmr\\.xml)") \
             .with_title(f"{self.granule_id}.data.stac.json") \
             .with_process('stac') \
             .with_provider('unity') \
-            .add_file_type(f"{self.granule_id}.data.stac.json", "^test_file.*\\.data.stac.json$", 'unknown_bucket', 'application/json', 'root') \
-            .add_file_type(f"{self.granule_id}.nc", "^test_file.*\\.nc$", 'protected', 'data', 'item') \
-            .add_file_type(f"{self.granule_id}.nc.cas", "^test_file.*\\.nc.cas$", 'protected', 'metadata', 'item') \
-            .add_file_type(f"{self.granule_id}.nc.cmr.xml", "^test_file.*\\.nc.cmr.xml$", 'protected', 'metadata', 'item') \
-            .add_file_type(f"{self.granule_id}.nc.stac.json", "^test_file.*\\.nc.stac.json$", 'protected', 'metadata', 'item')
+            .add_file_type(f"{self.granule_id}.data.stac.json", "^abcd.1234.efgh.test_file.*\\.data.stac.json$", 'unknown_bucket', 'application/json', 'root') \
+            .add_file_type(f"{self.granule_id}.nc", "^abcd.1234.efgh.test_file.*\\.nc$", 'protected', 'data', 'item') \
+            .add_file_type(f"{self.granule_id}.nc.cas", "^abcd.1234.efgh.test_file.*\\.nc.cas$", 'protected', 'metadata', 'item') \
+            .add_file_type(f"{self.granule_id}.nc.cmr.xml", "^abcd.1234.efgh.test_file.*\\.nc.cmr.xml$", 'protected', 'metadata', 'item') \
+            .add_file_type(f"{self.granule_id}.nc.stac.json", "^abcd.1234.efgh.test_file.*\\.nc.stac.json$", 'protected', 'metadata', 'item')
         print(dapa_collection)
         stac_collection = dapa_collection.start()
         print(json.dumps(stac_collection))

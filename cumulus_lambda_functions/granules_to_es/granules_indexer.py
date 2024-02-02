@@ -84,9 +84,10 @@ class GranulesIndexer:
                 break
             except:
                 LOGGER.exception(f'most likely not a STAC file: {each_potential_file}')
-        if stac_input_meta is None:
-            raise RuntimeError(f'unable to find STAC JSON file in {potential_files}')
-        self.__cumulus_record['custom_metadata'] = stac_input_meta.custom_properties
+        if stac_input_meta is not None:
+            self.__cumulus_record['custom_metadata'] = stac_input_meta.custom_properties
+        else:
+            LOGGER.warning(f'unable to find STAC JSON file in {potential_files}')
         stac_item = ItemTransformer().to_stac(self.__cumulus_record)
         if 'bbox' in stac_item:
             stac_item['bbox'] = GranulesDbIndex.to_es_bbox(stac_item['bbox'])
