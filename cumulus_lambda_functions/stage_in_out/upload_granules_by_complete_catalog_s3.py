@@ -149,7 +149,6 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
             errors.append(error_list.get())
         LOGGER.debug(f'successful count: {len(dapa_body_granules)}. failed count: {len(errors)}')
         successful_item_collections = ItemCollection(items=dapa_body_granules)
-        print(f'hello: {errors}')
         failed_item_collections = ItemCollection(items=errors)
         successful_features_file = os.path.join(output_dir, 'successful_features.json')
         failed_features_file = os.path.join(output_dir, 'failed_features.json')
