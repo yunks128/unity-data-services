@@ -30,6 +30,7 @@ services:
       GRANULES_SEARCH_DOMAIN: 'UNITY'
       GRANULES_UPLOAD_TYPE: 'UPLOAD_S3_BY_STAC_CATALOG'
       UPLOAD_DIR: '/etc/snpp_upload_test_1. or empty string'
+      OUTPUT_DIRECTORY: '/some/directory'
       CATALOG_FILE: 'empty string or /path/to/stac/catalog file'
       LOG_LEVEL: '20'
     networks:
