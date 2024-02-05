@@ -54,7 +54,8 @@ class UploadItemExecutor(JobExecutorAbstract):
             current_assets = self.__gc.extract_assets_href(current_granule_stac, current_granules_dir)
             if 'data' not in current_assets:  # this is still ok .coz extract_assets_href is {'data': [url1, url2], ...}
                 LOGGER.warning(f'skipping {each_child}. no data in {current_assets}')
-                self.__error_list.put({'href': each_child, 'error': f'missing "data" in assets'})
+                current_granule_stac.properties['upload_error'] = f'missing "data" in assets'
+                self.__error_list.put(current_granule_stac.to_dict(False, False))
                 return True
             current_granule_id = str(current_granule_stac.id)
             if current_granule_id in ['', 'NA', None]:
