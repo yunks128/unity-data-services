@@ -87,6 +87,7 @@ class UploadItemExecutor(JobExecutorAbstract):
 
 class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
     CATALOG_FILE = 'CATALOG_FILE'
+    OUTPUT_DIRECTORY = 'OUTPUT_DIRECTORY'
     COLLECTION_ID_KEY = 'COLLECTION_ID'
     STAGING_BUCKET_KEY = 'STAGING_BUCKET'
 
@@ -119,6 +120,9 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
 
     def upload(self, **kwargs) -> str:
         self.__set_props_from_env()
+        output_dir = os.environ.get(self.OUTPUT_DIRECTORY)
+        if not FileUtils.dir_exist(output_dir):
+            raise ValueError(f'OUTPUT_DIRECTORY: {output_dir} does not exist')
         catalog_file_path = os.environ.get(self.CATALOG_FILE)
         child_links = self.__gc.get_child_link_hrefs(catalog_file_path)
         local_items = Manager().Queue()
@@ -144,10 +148,10 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
             errors.append(error_list.get())
         LOGGER.debug(f'successful count: {len(dapa_body_granules)}. failed count: {len(errors)}')
         successful_item_collections = ItemCollection(items=dapa_body_granules)
+        print(f'hello: {errors}')
         failed_item_collections = ItemCollection(items=errors)
-        catalog_file_dir = os.path.dirname(catalog_file_path)
-        successful_features_file = os.path.join(catalog_file_dir, 'successful_features.json')
-        failed_features_file = os.path.join(catalog_file_dir, 'failed_features.json')
+        successful_features_file = os.path.join(output_dir, 'successful_features.json')
+        failed_features_file = os.path.join(output_dir, 'failed_features.json')
         LOGGER.debug(f'writing results: {successful_features_file} && {failed_features_file}')
         FileUtils.write_json(successful_features_file, successful_item_collections.to_dict(False))
         FileUtils.write_json(failed_features_file, failed_item_collections.to_dict(False))
