@@ -1,4 +1,5 @@
 import json
+import re
 
 import requests
 from cumulus_lambda_functions.cumulus_stac.collection_transformer import CollectionTransformer
@@ -174,6 +175,8 @@ curl --request POST "$CUMULUS_BASEURL/rules" --header "Authorization: Bearer $cu
 }'
         :return:
         """
+        underscore_collection_name = re.sub(r'[^a-zA-Z0-9_]', '___', new_collection["name"])  # replace any character that's not alphanumeric or underscore with 3 underscores
+        LOGGER.debug(f'underscore_collection_name: {underscore_collection_name}')
         rule_body = {
             'workflow': workflow_name,
             'collection': {
@@ -181,7 +184,7 @@ curl --request POST "$CUMULUS_BASEURL/rules" --header "Authorization: Bearer $cu
                 'version': new_collection['version'],
             },
             # 'provider': provider_name,
-            'name': f'{new_collection["name"].replace(":", "___")}___{new_collection["version"]}___rules_sqs',
+            'name': f'{underscore_collection_name}___{new_collection["version"]}___rules_sqs',
             'rule': {
                 # 'type': 'onetime',
                 'type': 'sqs',
