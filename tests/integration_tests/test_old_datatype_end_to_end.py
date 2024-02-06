@@ -42,7 +42,7 @@ class TestOldDataEndToEnd(TestCase):
         self._url_prefix = f'{os.environ.get("UNITY_URL")}/{os.environ.get("UNITY_STAGE", "sbx-uds-dapa")}'
         self.tenant = 'UDS_LOCAL_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
-        self.collection_name = 'SNDR_SNPP_ATMS_L1B_OUTPUT'  # 'uds_collection'  # 'sbx_collection'
+        self.collection_name = 'SNDR-SNPP:ATMS@L1B$OUTPUT'  # 'uds_collection'  # 'sbx_collection'
         self.collection_version = '24.02.01.12.00'.replace('.', '')  # '2309141300'
         self.granule_id = 'abcd.1234.efgh.test_file05'
         return
