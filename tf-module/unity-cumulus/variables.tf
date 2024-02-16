@@ -136,3 +136,14 @@ variable "unity_cognito_authorizer__authorizer_id" {
   type = string
   description = "Example: 0h9egs"
 }
+
+variable "cumulus_es_domain" {
+  type = string
+  description = "Domain name of Cumulus ES Domain"
+}
+
+variable "cumulus_execution_cut_off_days" {
+  type = number
+  default = 14
+  description = "how many days of history to keep. anything older will be deleted"
+}
