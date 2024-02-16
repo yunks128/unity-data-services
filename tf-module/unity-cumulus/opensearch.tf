@@ -42,3 +42,7 @@ resource "aws_elasticsearch_domain" "uds-es" {
   )
   tags = var.tags
 }
+
+data "aws_elasticsearch_domain" "cumulus_es" {
+  domain_name = var.cumulus_es_domain
+}
