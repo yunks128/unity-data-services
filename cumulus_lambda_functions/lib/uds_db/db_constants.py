@@ -1,4 +1,5 @@
 class DBConstants:
+    cumulus_alias = 'cumulus-alias'
     collections_index = 'unity_collections'
     collection_id = 'collection_id'
 
