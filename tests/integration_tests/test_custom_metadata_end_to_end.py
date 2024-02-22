@@ -165,6 +165,8 @@ class TestCustomMetadataEndToEnd(TestCase):
 
         with tempfile.TemporaryDirectory() as tmp_dir_name:
             os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
+            os.environ['OUTPUT_DIRECTORY'] = os.path.join(tmp_dir_name, 'output_dir')
+            FileUtils.mk_dir_p(os.environ.get('OUTPUT_DIRECTORY'))
             os.environ['UPLOAD_DIR'] = ''  # not needed
             os.environ['CATALOG_FILE'] = os.path.join(tmp_dir_name, 'catalog.json')
             granules_dir = os.path.join(tmp_dir_name, 'some_granules')

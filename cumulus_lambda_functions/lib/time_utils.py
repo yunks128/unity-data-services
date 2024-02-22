@@ -17,6 +17,7 @@ class TimeUtils:
     MMDD_FORMAT = '%Y-%m-%dT%H:%M:%S'
     GB_1 = 1000000000
     YR_IN_SECOND = 31536000
+    DAY_IN_MILLISECOND = 24 * 60 * 60 * 1000
 
     def __init__(self):
         self.__time_obj = datetime.utcnow()
