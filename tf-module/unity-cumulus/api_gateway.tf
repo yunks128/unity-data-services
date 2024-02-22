@@ -127,5 +127,8 @@ resource "aws_api_gateway_deployment" "shared_services_api_gateway_deployment" {
     create_before_destroy = true
   }
 
-  depends_on = [ aws_api_gateway_integration.openapi_lambda_integration, aws_api_gateway_integration.collection_lambda_integration ]
+  depends_on = [
+    aws_api_gateway_integration.openapi_lambda_integration,
+    aws_api_gateway_integration.collection_lambda_integration
+  ]
 }
