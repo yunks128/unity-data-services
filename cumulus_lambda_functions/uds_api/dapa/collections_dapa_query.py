@@ -10,7 +10,8 @@ LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_le
 class CollectionDapaQuery:
     max_limit = 50
 
-    def __init__(self, collection_id, limit, offset, pagination_links):
+    def __init__(self, collection_id, limit, offset, pagination_links, base_url):
+        self.__base_url = base_url
         self.__pagination_links = pagination_links
         page_number = (offset // limit) + 1
         if 'CUMULUS_LAMBDA_PREFIX' not in os.environ:
@@ -37,7 +38,7 @@ class CollectionDapaQuery:
 
     def start(self):
         try:
-            cumulus_result = self.__cumulus.query_direct_to_private_api(self.__cumulus_lambda_prefix)
+            cumulus_result = self.__cumulus.query_direct_to_private_api(self.__cumulus_lambda_prefix, self.__base_url)
             if 'server_error' in cumulus_result:
                 return {
                     'statusCode': 500,
