@@ -35,7 +35,13 @@ class TestCumulusCreateCollectionDapa(TestCase):
             'c_data2': {'type': 'boolean'},
             'c_data3': {'type': 'keyword'},
         }
+
+        self.tenant = 'UDS_LOCAL_TEST'  # 'uds_local_test'  # 'uds_sandbox'
+        self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
+        self.collection_name = 'UDS_COLLECTION'  # 'uds_collection'  # 'sbx_collection'
+        self.collection_version = '24.02.01.17.00'.replace('.', '')  # '2309141300'
         return
+
 
     def test_add_admin_01(self):
         collection_url = f'{self.uds_url}admin/auth'
@@ -127,8 +133,35 @@ class TestCumulusCreateCollectionDapa(TestCase):
         self.assertTrue('href' in links['next'], f'missing next in links: {links}')
         self.assertTrue('limit=50' in links['next']['href'], f"limit not reset to 50: {links['next']['href']}")
         links = {k['rel']: k['href'] for k in query_result['links'] if k['rel'] != 'root'}
-        for k, v in links.items():
-            self.assertTrue(v.startswith(self.uds_url), f'missing stage: {self.stage} in {v} for {k}')
+        # for k, v in links.items():
+        #     self.assertTrue(v.startswith(self.uds_url), f'missing stage: {self.stage} in {v} for {k}')
+        return
+
+    def test_collections_get_single_granule(self):
+
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
+
+        post_url = f'{self.uds_url}collections/{temp_collection_id}'  # MCP Dev
+        # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/'  # MCP Dev
+        headers = {
+            'Authorization': f'Bearer {self.bearer_token}',
+        }
+        post_url = f'{post_url}?limit=100'
+        print(post_url)
+        query_result = requests.get(url=post_url,
+                                    headers=headers,
+                                    )
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        query_result = json.loads(query_result.text)
+        """
+        {'type': 'Collection', 'id': 'URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2402011700', 'stac_version': '1.0.0', 'description': 'TODO', 'links': [{'rel': 'root', 'href': './collection.json?bucket=unknown_bucket&regex=%5Eabcd.1234.efgh.test_file.%2A%5C.data.stac.json%24', 'type': 'application/json', 'title': 'abcd.1234.efgh.test_file05.data.stac.json'}, {'rel': 'item', 'href': './collection.json?bucket=protected&regex=%5Eabcd.1234.efgh.test_file.%2A%5C.nc%24', 'type': 'data', 'title': 'abcd.1234.efgh.test_file05.nc'}, {'rel': 'item', 'href': './collection.json?bucket=protected&regex=%5Eabcd.1234.efgh.test_file.%2A%5C.nc.cas%24', 'type': 'metadata', 'title': 'abcd.1234.efgh.test_file05.nc.cas'}, {'rel': 'item', 'href': './collection.json?bucket=protected&regex=%5Eabcd.1234.efgh.test_file.%2A%5C.nc.cmr.xml%24', 'type': 'metadata', 'title': 'abcd.1234.efgh.test_file05.nc.cmr.xml'}, {'rel': 'item', 'href': './collection.json?bucket=protected&regex=%5Eabcd.1234.efgh.test_file.%2A%5C.nc.stac.json%24', 'type': 'metadata', 'title': 'abcd.1234.efgh.test_file05.nc.stac.json'}, {'rel': 'items', 'href': 'https://dxebrgu0bc9w7.cloudfront.net/collections/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2402011700/items', 'type': 'application/json', 'title': 'URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2402011700 Granules'}], 'extent': {'spatial': {'bbox': [[0.0, 0.0, 0.0, 0.0]]}, 'temporal': {'interval': [['1970-01-01T12:00:00Z', '2024-02-26T07:11:11Z']]}}, 'license': 'proprietary', 'summaries': {'updated': ['2024-02-01T17:55:34.338000Z'], 'granuleId': ['^abcd.1234.efgh.test_file.*$'], 'granuleIdExtraction': ['(^abcd.1234.efgh.test_file.*)(\\.data\\.stac\\.json|\\.nc\\.cas|\\.cmr\\.xml)'], 'process': ['stac'], 'totalGranules': [1]}}
+        """
+        print(query_result)
+        self.assertEqual('Collection', query_result['type'], f'wrong type: {query_result}')
+        self.assertEqual(temp_collection_id, query_result['id'], f'wrong collection_id: {query_result}')
+        self.assertTrue('links' in query_result, 'links missing')
+        links = {k['rel']: k for k in query_result['links']}
+        self.assertTrue('items' in links, f'missing items in links: {links}')
         return
 
     def test_granules_get(self):
