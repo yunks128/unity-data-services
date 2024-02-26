@@ -13,6 +13,7 @@ class CollectionDapaQuery:
     def __init__(self, collection_id, limit, offset, pagination_links, base_url):
         self.__base_url = base_url
         self.__pagination_links = pagination_links
+        self.__collection_id = collection_id
         page_number = (offset // limit) + 1
         if 'CUMULUS_LAMBDA_PREFIX' not in os.environ:
             raise EnvironmentError('missing key: CUMULUS_LAMBDA_PREFIX')
@@ -35,6 +36,42 @@ class CollectionDapaQuery:
             LOGGER.exception(f'cannot get cumulus_size')
             cumulus_size = {'total_size': -1}
         return cumulus_size
+
+    def get_collection(self):
+        if self.__collection_id is None or self.__collection_id == '':
+            return {
+                'statusCode': 500,
+                'body': {'message': f'missing or invalid collection ID: {self.__collection_id}'}
+            }
+        try:
+            cumulus_result = self.__cumulus.query_direct_to_private_api(self.__cumulus_lambda_prefix, self.__base_url)
+            if 'server_error' in cumulus_result:
+                return {
+                    'statusCode': 500,
+                    'body': {'message': cumulus_result['server_error']}
+                }
+            if 'client_error' in cumulus_result:
+                return {
+                    'statusCode': 400,
+                    'body': {'message': cumulus_result['client_error']}
+                }
+            if len(cumulus_result['results']) != 1:
+                return {
+                    'statusCode': 500,
+                    'body': {'message': f'cannot determine exact collection. returning length: {len(cumulus_result["results"])}'}
+                }
+
+            return {
+                'statusCode': 200,
+                'body': cumulus_result['results'][0]
+            }
+        except Exception as e:
+            LOGGER.exception(f'unexpected error')
+            return {
+                'statusCode': 500,
+                'body': {'message': f'unpredicted error: {str(e)}'}
+            }
+        return
 
     def start(self):
         try:
