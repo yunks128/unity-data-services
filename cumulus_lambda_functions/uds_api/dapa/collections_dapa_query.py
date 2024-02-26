@@ -38,6 +38,10 @@ class CollectionDapaQuery:
         return cumulus_size
 
     def get_collection(self):
+        """
+        A method to retrieve a single collection.
+        :return:
+        """
         if self.__collection_id is None or self.__collection_id == '':
             return {
                 'statusCode': 500,
