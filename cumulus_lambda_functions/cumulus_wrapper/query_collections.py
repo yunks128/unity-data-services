@@ -279,7 +279,7 @@ curl --request POST "$CUMULUS_BASEURL/rules" --header "Authorization: Bearer $cu
         stats = query_result['granules']
         return stats
 
-    def query_direct_to_private_api(self, private_api_prefix: str):
+    def query_direct_to_private_api(self, private_api_prefix: str, output_base_url: str):
         payload = {
             'httpMethod': 'GET',
             'resource': '/{proxy+}',
@@ -310,7 +310,7 @@ curl --request POST "$CUMULUS_BASEURL/rules" --header "Authorization: Bearer $cu
                 each_collection['dateFrom'] = stats['dateFrom']
                 each_collection['dateTo'] = stats['dateTo']
                 each_collection['total_size'] = stats['value']
-            stac_list = [CollectionTransformer().to_stac(k) for k in query_result]
+            stac_list = [CollectionTransformer(items_base_url=output_base_url).to_stac(k) for k in query_result]
             LOGGER.debug(f'stac_list: {stac_list}')
         except Exception as e:
             LOGGER.exception('error while invoking')
