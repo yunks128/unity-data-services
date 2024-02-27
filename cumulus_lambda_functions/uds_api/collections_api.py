@@ -225,7 +225,58 @@ async def get_single_collection(request: Request, collection_id: str, limit: Uni
 
 @router.get("")
 @router.get("/")
-async def query_collections(request: Request, limit: Union[int, None] = 10, offset: Union[int, None] = 0, ):
+async def query_collections(request: Request, collection_id: Union[str, None] = None, limit: Union[int, None] = 10, offset: Union[int, None] = 0, ):
+    LOGGER.debug(f'starting query_collections: {collection_id}')
+    LOGGER.debug(f'starting query_collections request: {request}')
+
+    authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory() \
+        .get_instance(UDSAuthorizerFactory.cognito,
+                      es_url=os.getenv('ES_URL'),
+                      es_port=int(os.getenv('ES_PORT', '443'))
+                      )
+    auth_info = FastApiUtils.get_authorization_info(request)
+    uds_collections = UdsCollections(es_url=os.getenv('ES_URL'),
+                                     es_port=int(os.getenv('ES_PORT', '443')))
+    if collection_id is not None:
+        collection_identifier = uds_collections.decode_identifier(collection_id)
+        if not authorizer.is_authorized_for_collection(DBConstants.read, collection_id,
+                                                       auth_info['ldap_groups'],
+                                                       collection_identifier.tenant,
+                                                       collection_identifier.venue):
+            LOGGER.debug(f'user: {auth_info["username"]} is not authorized for {collection_id}')
+            raise HTTPException(status_code=403, detail=json.dumps({
+                'message': 'not authorized to execute this action'
+            }))
+    else:
+        collection_regexes = authorizer.get_authorized_collections(DBConstants.read, auth_info['ldap_groups'])
+        LOGGER.info(f'collection_regexes: {collection_regexes}')
+        authorized_collections = uds_collections.get_collections(collection_regexes)
+        LOGGER.info(f'authorized_collections: {authorized_collections}')
+        collection_id = [k[DBConstants.collection_id] for k in authorized_collections]
+        LOGGER.info(f'authorized_collection_ids: {collection_id}')
+        # NOTE: 2022-11-21: only pass collections. not versions
+
+    try:
+        custom_params = {}
+        if limit > CollectionDapaQuery.max_limit:
+            LOGGER.debug(f'incoming limit > {CollectionDapaQuery.max_limit}. resetting to max. incoming limit: {limit}')
+            limit = CollectionDapaQuery.max_limit
+            custom_params['limit'] = limit
+        LOGGER.debug(f'new limit: {limit}')
+        pg_link_generator = PaginationLinksGenerator(request, custom_params)
+        pagination_links = pg_link_generator.generate_pagination_links()
+        collections_dapa_query = CollectionDapaQuery(collection_id, limit, offset, pagination_links, pg_link_generator.base_url)
+        collections_result = collections_dapa_query.start()
+    except Exception as e:
+        LOGGER.exception('failed during get_granules_dapa')
+        raise HTTPException(status_code=500, detail=str(e))
+    if collections_result['statusCode'] == 200:
+        return collections_result['body']
+    raise HTTPException(status_code=collections_result['statusCode'], detail=collections_result['body'])
+
+@router.get("/catalog")
+@router.get("/catalog/")
+async def get_catalog(request: Request, limit: Union[int, None] = 10, offset: Union[int, None] = 0, ):
     LOGGER.debug(f'starting query_collections request: {request}')
 
     authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory() \
