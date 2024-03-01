@@ -114,7 +114,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
         return
 
     def test_collections_get(self):
-        post_url = f'{self.uds_url}collections/'  # MCP Dev
+        post_url = f'{self.uds_url}collections'  # MCP Dev
         # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/'  # MCP Dev
         headers = {
             'Authorization': f'Bearer {self.bearer_token}',
