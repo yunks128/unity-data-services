@@ -114,7 +114,31 @@ class TestCumulusCreateCollectionDapa(TestCase):
         return
 
     def test_collections_get(self):
-        post_url = f'{self.uds_url}collections'  # MCP Dev
+        post_url = f'{self.uds_url}collections/'  # MCP Dev
+        # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/'  # MCP Dev
+        headers = {
+            'Authorization': f'Bearer {self.bearer_token}',
+        }
+        post_url = f'{post_url}?limit=100'
+        print(post_url)
+        query_result = requests.get(url=post_url,
+                                    headers=headers,
+                                    )
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        query_result = json.loads(query_result.text)
+        print(query_result)
+        self.assertTrue('links' in query_result, 'links missing')
+        links = {k['rel']: k for k in query_result['links']}
+        self.assertTrue('next' in links, f'missing next in links: {links}')
+        self.assertTrue('href' in links['next'], f'missing next in links: {links}')
+        self.assertTrue('limit=50' in links['next']['href'], f"limit not reset to 50: {links['next']['href']}")
+        links = {k['rel']: k['href'] for k in query_result['links'] if k['rel'] != 'root'}
+        for k, v in links.items():
+            self.assertTrue(v.startswith(self.uds_url), f'missing stage: {self.stage} in {v} for {k}')
+        return
+
+    def test_catalog_get(self):
+        post_url = f'{self.uds_url}catalog'  # MCP Dev
         # post_url = 'https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/'  # MCP Dev
         headers = {
             'Authorization': f'Bearer {self.bearer_token}',
