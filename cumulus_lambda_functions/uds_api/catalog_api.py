@@ -1,8 +1,6 @@
-import json
 import os
 from typing import Union
 
-from cumulus_lambda_functions.lib.constants import Constants
 from pystac import Catalog, Link
 
 from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
@@ -17,17 +15,11 @@ from cumulus_lambda_functions.lib.authorization.uds_authorizer_abstract import U
 
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from fastapi import APIRouter, HTTPException, Request, Response
-
-from cumulus_lambda_functions.uds_api.dapa.collections_dapa_cnm import CnmRequestBody, CollectionsDapaCnm
-from cumulus_lambda_functions.uds_api.dapa.collections_dapa_creation import CollectionDapaCreation, \
-    CumulusCollectionModel
 from cumulus_lambda_functions.uds_api.dapa.collections_dapa_query import CollectionDapaQuery
 from cumulus_lambda_functions.uds_api.dapa.pagination_links_generator import PaginationLinksGenerator
 from cumulus_lambda_functions.uds_api.web_service_constants import WebServiceConstants
-from fastapi.responses import PlainTextResponse, JSONResponse
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
-api_base_prefix = os.environ.get(Constants.DAPA_API_PREIFX_KEY) if Constants.DAPA_API_PREIFX_KEY in os.environ else WebServiceConstants.API_PREFIX
 
 router = APIRouter(
     prefix=f'/{WebServiceConstants.CATALOG}',
@@ -72,6 +64,7 @@ async def get_catalog(request: Request, limit: Union[int, None] = 10, offset: Un
             title='Unity DS Catalog',
             href=pg_link_generator.base_url
         )
+        api_base_prefix = FastApiUtils.get_api_base_prefix()
         authorized_collections_links = [Link(
             rel='child',
             target=f'{pg_link_generator.base_url}/{api_base_prefix}/collections/{k["collection_id"]}',
