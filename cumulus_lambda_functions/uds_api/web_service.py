@@ -11,6 +11,8 @@ load_dotenv()
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from mangum import Mangum
 from starlette.requests import Request
 
@@ -25,7 +27,33 @@ app = FastAPI(title='Unity UDS API',
               redoc_url=f'/{api_base_prefix}/redoc',
               openapi_url=f'/{api_base_prefix}/docs/openapi',
               )
+origins = [
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(main_router, prefix=f'/{api_base_prefix}')
+"""
+Accept-Ranges:
+bytes
+Access-Control-Allow-Methods:
+HEAD, GET
+Access-Control-Allow-Origin:
+*
+Access-Control-Expose-Headers:
+ETag, x-amz-meta-custom-header
+Access-Control-Max-Age:
+3000
+"""
+
+# https://fastapi.tiangolo.com/tutorial/cors/
 
 @app.get("/")
 async def root(request: Request):
