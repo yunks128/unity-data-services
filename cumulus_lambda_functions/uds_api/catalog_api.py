@@ -74,7 +74,7 @@ async def get_catalog(request: Request, limit: Union[int, None] = 10, offset: Un
         )
         authorized_collections_links = [Link(
             rel='child',
-            target=f'{pg_link_generator.base_url}/api_base_prefix/collections/{k["collection_id"]}',
+            target=f'{pg_link_generator.base_url}/{api_base_prefix}/collections/{k["collection_id"]}',
             media_type='application/json',
             title=k["collection_id"],
         ) for k in authorized_collections]
