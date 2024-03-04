@@ -2,6 +2,7 @@ import json
 import os
 from typing import Union
 
+from cumulus_lambda_functions.lib.constants import Constants
 from pystac import Catalog, Link
 
 from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
@@ -26,6 +27,7 @@ from cumulus_lambda_functions.uds_api.web_service_constants import WebServiceCon
 from fastapi.responses import PlainTextResponse, JSONResponse
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
+api_base_prefix = os.environ.get(Constants.DAPA_API_PREIFX_KEY) if Constants.DAPA_API_PREIFX_KEY in os.environ else WebServiceConstants.API_PREFIX
 
 router = APIRouter(
     prefix=f'/{WebServiceConstants.CATALOG}',
@@ -72,7 +74,7 @@ async def get_catalog(request: Request, limit: Union[int, None] = 10, offset: Un
         )
         authorized_collections_links = [Link(
             rel='child',
-            target=f'{pg_link_generator.base_url}/collections/{k["collection_id"]}',
+            target=f'{pg_link_generator.base_url}/api_base_prefix/collections/{k["collection_id"]}',
             media_type='application/json',
             title=k["collection_id"],
         ) for k in authorized_collections]
