@@ -114,7 +114,9 @@ async def get_single_granule_dapa(request: Request, collection_id: str, granule_
             'message': 'not authorized to execute this action'
         }))
     try:
-        granules_dapa_query = GranulesDapaQueryEs(collection_id, 1, None, None, filter, None)
+        api_base_prefix = FastApiUtils.get_api_base_prefix()
+        pg_link_generator = PaginationLinksGenerator(request)
+        granules_dapa_query = GranulesDapaQueryEs(collection_id, 1, None, None, filter, None, f'{pg_link_generator.base_url}/{api_base_prefix}')
         granules_result = granules_dapa_query.get_single_granule(granule_id)
     except Exception as e:
         LOGGER.exception('failed during get_granules_dapa')
