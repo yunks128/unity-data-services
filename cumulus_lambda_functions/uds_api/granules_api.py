@@ -83,10 +83,9 @@ async def get_granules_dapa(request: Request, collection_id: str, limit: Union[i
         }))
 
     try:
-        # pagination_links = PaginationLinksGenerator(request).generate_pagination_links()
         pagination_links = PaginationLinksGenerator(request)
-
-        granules_dapa_query = GranulesDapaQueryEs(collection_id, limit, offset, datetime, filter, pagination_links)
+        api_base_prefix = FastApiUtils.get_api_base_prefix()
+        granules_dapa_query = GranulesDapaQueryEs(collection_id, limit, offset, datetime, filter, pagination_links, f'{pagination_links.base_url}/{api_base_prefix}')
         granules_result = granules_dapa_query.start()
     except Exception as e:
         LOGGER.exception('failed during get_granules_dapa')
@@ -94,3 +93,32 @@ async def get_granules_dapa(request: Request, collection_id: str, limit: Union[i
     if granules_result['statusCode'] == 200:
         return granules_result['body']
     raise HTTPException(status_code=granules_result['statusCode'], detail=granules_result['body'])
+
+
+@router.get("/{collection_id}/items/{granule_id}")
+@router.get("/{collection_id}/items/{granule_id}/")
+async def get_single_granule_dapa(request: Request, collection_id: str, granule_id: str):
+    authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory() \
+        .get_instance(UDSAuthorizerFactory.cognito,
+                      es_url=os.getenv('ES_URL'),
+                      es_port=int(os.getenv('ES_PORT', '443'))
+                      )
+    auth_info = FastApiUtils.get_authorization_info(request)
+    collection_identifier = UdsCollections.decode_identifier(collection_id)
+    if not authorizer.is_authorized_for_collection(DBConstants.read, collection_id,
+                                                   auth_info['ldap_groups'],
+                                                   collection_identifier.tenant,
+                                                   collection_identifier.venue):
+        LOGGER.debug(f'user: {auth_info["username"]} is not authorized for {collection_id}')
+        raise HTTPException(status_code=403, detail=json.dumps({
+            'message': 'not authorized to execute this action'
+        }))
+    try:
+        api_base_prefix = FastApiUtils.get_api_base_prefix()
+        pg_link_generator = PaginationLinksGenerator(request)
+        granules_dapa_query = GranulesDapaQueryEs(collection_id, 1, None, None, filter, None, f'{pg_link_generator.base_url}/{api_base_prefix}')
+        granules_result = granules_dapa_query.get_single_granule(granule_id)
+    except Exception as e:
+        LOGGER.exception('failed during get_granules_dapa')
+        raise HTTPException(status_code=500, detail=str(e))
+    return granules_result
