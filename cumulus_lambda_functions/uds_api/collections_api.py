@@ -213,8 +213,9 @@ async def get_single_collection(request: Request, collection_id: str, limit: Uni
             custom_params['limit'] = limit
         LOGGER.debug(f'new limit: {limit}')
         pg_link_generator = PaginationLinksGenerator(request, custom_params)
+        api_base_prefix = FastApiUtils.get_api_base_prefix()
         collections_dapa_query = CollectionDapaQuery(collection_id, limit, offset, None,
-                                                     pg_link_generator.base_url)
+                                                     f'{pg_link_generator.base_url}/{api_base_prefix}')
         collections_result = collections_dapa_query.get_collection()
     except Exception as e:
         LOGGER.exception('failed during get_granules_dapa')
@@ -265,7 +266,8 @@ async def query_collections(request: Request, collection_id: Union[str, None] = 
         LOGGER.debug(f'new limit: {limit}')
         pg_link_generator = PaginationLinksGenerator(request, custom_params)
         pagination_links = pg_link_generator.generate_pagination_links()
-        collections_dapa_query = CollectionDapaQuery(collection_id, limit, offset, pagination_links, pg_link_generator.base_url)
+        api_base_prefix = FastApiUtils.get_api_base_prefix()
+        collections_dapa_query = CollectionDapaQuery(collection_id, limit, offset, pagination_links, f'{pg_link_generator.base_url}/{api_base_prefix}')
         collections_result = collections_dapa_query.start()
     except Exception as e:
         LOGGER.exception('failed during get_granules_dapa')
