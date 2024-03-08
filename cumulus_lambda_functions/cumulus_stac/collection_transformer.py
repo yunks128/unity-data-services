@@ -441,7 +441,8 @@ class CollectionTransformer(StacTransformerAbstract):
 
         }, 'root')] + \
                                 [self.__convert_to_stac_link_obj(k) for k in source['files']] + \
-                                [Link(rel='items', target=f'{self.__items_base_url}/{WebServiceConstants.COLLECTIONS}/{collection_id}/items', media_type='application/json', title=f"{collection_id} Granules")]
+                                [Link(rel='parent', target=f'{self.__items_base_url}/{WebServiceConstants.CATALOG}', media_type='application/json', title=f"UDS Catalog"),
+                                 Link(rel='items', target=f'{self.__items_base_url}/{WebServiceConstants.COLLECTIONS}/{collection_id}/items', media_type='application/json', title=f"{collection_id} Granules")]
         return stac_collection.to_dict(include_self_link=False, transform_hrefs=False)
 
     def get_href(self, input_href: str):
