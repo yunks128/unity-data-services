@@ -176,7 +176,7 @@ class TestCumulusCreateCollectionDapa(TestCase):
         """
         {'type': 'Collection', 'id': 'URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2402011700', 'stac_version': '1.0.0', 'description': 'TODO', 'links': [{'rel': 'root', 'href': './collection.json?bucket=unknown_bucket&regex=%5Eabcd.1234.efgh.test_file.%2A%5C.data.stac.json%24', 'type': 'application/json', 'title': 'abcd.1234.efgh.test_file05.data.stac.json'}, {'rel': 'item', 'href': './collection.json?bucket=protected&regex=%5Eabcd.1234.efgh.test_file.%2A%5C.nc%24', 'type': 'data', 'title': 'abcd.1234.efgh.test_file05.nc'}, {'rel': 'item', 'href': './collection.json?bucket=protected&regex=%5Eabcd.1234.efgh.test_file.%2A%5C.nc.cas%24', 'type': 'metadata', 'title': 'abcd.1234.efgh.test_file05.nc.cas'}, {'rel': 'item', 'href': './collection.json?bucket=protected&regex=%5Eabcd.1234.efgh.test_file.%2A%5C.nc.cmr.xml%24', 'type': 'metadata', 'title': 'abcd.1234.efgh.test_file05.nc.cmr.xml'}, {'rel': 'item', 'href': './collection.json?bucket=protected&regex=%5Eabcd.1234.efgh.test_file.%2A%5C.nc.stac.json%24', 'type': 'metadata', 'title': 'abcd.1234.efgh.test_file05.nc.stac.json'}, {'rel': 'items', 'href': 'https://dxebrgu0bc9w7.cloudfront.net/collections/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2402011700/items', 'type': 'application/json', 'title': 'URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2402011700 Granules'}], 'extent': {'spatial': {'bbox': [[0.0, 0.0, 0.0, 0.0]]}, 'temporal': {'interval': [['1970-01-01T12:00:00Z', '2024-02-26T07:11:11Z']]}}, 'license': 'proprietary', 'summaries': {'updated': ['2024-02-01T17:55:34.338000Z'], 'granuleId': ['^abcd.1234.efgh.test_file.*$'], 'granuleIdExtraction': ['(^abcd.1234.efgh.test_file.*)(\\.data\\.stac\\.json|\\.nc\\.cas|\\.cmr\\.xml)'], 'process': ['stac'], 'totalGranules': [1]}}
         """
-        print(query_result)
+        print(json.dumps(query_result, indent=4))
         self.assertEqual('Collection', query_result['type'], f'wrong type: {query_result}')
         self.assertEqual(temp_collection_id, query_result['id'], f'wrong collection_id: {query_result}')
         self.assertTrue('links' in query_result, 'links missing')
@@ -199,6 +199,21 @@ class TestCumulusCreateCollectionDapa(TestCase):
         links = {k['rel']: k['href'] for k in response_json['links'] if k['rel'] != 'root'}
         for k, v in links.items():
             self.assertTrue(v.startswith(self.uds_url), f'missing stage: {self.stage} in {v} for {k}')
+        return
+
+    def test_single_granule_get(self):
+        post_url = f'{self.uds_url}collections/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/items/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file01'
+        headers = {
+            'Authorization': f'Bearer {self.bearer_token}',
+        }
+        print(post_url)
+        query_result = requests.get(url=post_url,
+                                    headers=headers,
+                                    )
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        response_json = json.loads(query_result.text)
+        print(json.dumps(response_json))
+
         return
 
     def test_create_new_collection(self):
