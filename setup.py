@@ -24,6 +24,9 @@ setup(
     version="7.0.2",
     packages=find_packages(),
     install_requires=install_requires,
+    package_data={
+        '': ['stac_browser/**/*', 'stac_browser/*'],
+    },
     tests_require=['mock', 'nose', 'sphinx', 'sphinx_rtd_theme', 'coverage', 'pystac', 'python-dotenv', 'jsonschema', 'pytest-mock'],
     test_suite='nose.collector',
     author=['Wai Phyo'],
