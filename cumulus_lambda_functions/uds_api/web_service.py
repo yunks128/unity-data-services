@@ -1,3 +1,5 @@
+from fastapi.staticfiles import StaticFiles
+
 from cumulus_lambda_functions.uds_api.fast_api_utils import FastApiUtils
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from dotenv import load_dotenv
@@ -34,6 +36,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(main_router, prefix=f'/{api_base_prefix}')
+app.mount(f'/{api_base_prefix}/stac_browser', StaticFiles(directory="stac_browser", html=True), name="static")
+
 """
 Accept-Ranges:
 bytes
