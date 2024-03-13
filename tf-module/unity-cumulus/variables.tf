@@ -68,6 +68,12 @@ variable "unity_default_provider" {
 
 }
 
+variable "cors_origins" {
+  default = ""
+  type = string
+  description = "Comma separated origins for CORS"
+}
+
 variable "dapa_api_prefix" {
   type = string
   description = "An API Gateway resource to identify the Project Name that this specific resource is integrated with"
