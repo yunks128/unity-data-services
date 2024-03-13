@@ -25,21 +25,17 @@ app = FastAPI(title='Unity UDS API',
               redoc_url=f'/{api_base_prefix}/redoc',
               openapi_url=f'/{api_base_prefix}/docs/openapi',
               )
-origins = [
-    "http://localhost",
-    "http://localhost:8080",
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=FastApiUtils.get_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-print(f'os.getcwd(): {os.getcwd()}')
 app.include_router(main_router, prefix=f'/{api_base_prefix}')
-app.mount(f'/{api_base_prefix}/stac_browser', StaticFiles(directory="/var/task/cumulus_lambda_functions/uds_api/stac_browser", html=True), name="static")
+static_parent_dir = '/var/task/cumulus_lambda_functions/uds_api/'
+# static_parent_dir = '/Users/wphyo/Projects/unity/unity-data-services/cumulus_lambda_functions/uds_api/'
+app.mount(f'/{api_base_prefix}/stac_browser', StaticFiles(directory=f"{static_parent_dir}stac_browser", html=True), name="static")
 
 """
 Accept-Ranges:

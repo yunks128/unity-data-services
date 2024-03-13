@@ -36,5 +36,9 @@ class FastApiUtils:
         }
 
     @staticmethod
+    def get_cors_origins():
+        cors_origins = os.environ.get(Constants.CORS_ORIGINS, '').strip().split(',')
+        return cors_origins
+    @staticmethod
     def get_api_base_prefix():
         return os.environ.get(Constants.DAPA_API_PREIFX_KEY) if Constants.DAPA_API_PREIFX_KEY in os.environ else WebServiceConstants.API_PREFIX
