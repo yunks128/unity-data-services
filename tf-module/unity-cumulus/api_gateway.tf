@@ -24,7 +24,6 @@ resource "aws_api_gateway_resource" "uds_api_base_resource" {
   path_part   = var.dapa_api_prefix
 }
 
-
 #
 # Creates the wildcard path (proxy+) resource, under the project resource
 #
@@ -35,6 +34,67 @@ resource "aws_api_gateway_resource" "collection_resource" {
   path_part   = "{proxy+}"
 }
 
+
+
+
+
+
+resource "aws_api_gateway_method" "collection_options_method" {
+    rest_api_id   = "${data.aws_api_gateway_rest_api.rest_api.id}"
+    resource_id   = "${aws_api_gateway_resource.collection_resource.id}"
+    http_method   = "OPTIONS"
+    authorization = "NONE"
+}
+resource "aws_api_gateway_method_response" "collection_options_200" {
+    rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
+    resource_id   = aws_api_gateway_resource.collection_resource.id
+    http_method   = aws_api_gateway_method.collection_options_method.http_method
+    status_code   = "200"
+    response_models = {
+        "application/json" = "Empty"
+    }
+    response_parameters = {
+        "method.response.header.Access-Control-Allow-Headers" = true
+        "method.response.header.Access-Control-Allow-Methods" = true
+        "method.response.header.Access-Control-Allow-Origin" = true
+        "method.response.header.Access-Control-Expose-Headers" = true
+        "method.response.header.Access-Control-Max-Age" = true
+    }
+    depends_on = ["aws_api_gateway_method.collection_options_method"]
+}
+resource "aws_api_gateway_integration" "options_integration" {
+    rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
+    resource_id   = aws_api_gateway_resource.collection_resource.id
+    http_method   = aws_api_gateway_method.collection_options_method.http_method
+    type          = "MOCK"
+    depends_on = ["aws_api_gateway_method.collection_options_method"]
+}
+resource "aws_api_gateway_integration_response" "options_integration_response" {
+    rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
+    resource_id   = aws_api_gateway_resource.collection_resource.id
+    http_method   = aws_api_gateway_method.collection_options_method.http_method
+    status_code   = aws_api_gateway_method_response.collection_options_200.status_code
+    response_parameters = {
+        "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+        "method.response.header.Access-Control-Allow-Methods" = "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'",
+        "method.response.header.Access-Control-Allow-Origin" = "'*'"
+        "method.response.header.Access-Control-Expose-Headers" = "'Access-Control-Allow-Methods,Access-Control-Allow-Origin,Access-Control-Expose-Headers,Access-Control-Max-Age'"
+        "method.response.header.Access-Control-Max-Age" = "'300'"
+    }
+    depends_on = ["aws_api_gateway_method_response.collection_options_200"]
+}
+
+
+
+
+
+
+
+
+
+
+
+
 resource "aws_api_gateway_method" "collection_method" {
   rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
   resource_id   = aws_api_gateway_resource.collection_resource.id
@@ -44,6 +104,20 @@ resource "aws_api_gateway_method" "collection_method" {
   request_parameters = {
     "method.request.path.proxy" = true
   }
+}
+
+resource "aws_api_gateway_method_response" "collection_method_response" {
+    rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
+    resource_id   = aws_api_gateway_resource.collection_resource.id
+    http_method   = aws_api_gateway_method.collection_method.http_method
+    status_code   = "200"
+    response_models = {
+        "application/json" = "Empty"
+    }
+    response_parameters = {
+        "method.response.header.Access-Control-Allow-Origin" = true
+    }
+    depends_on = ["aws_api_gateway_method.collection_method"]
 }
 
 resource "aws_api_gateway_integration" "collection_lambda_integration" {
@@ -127,5 +201,7 @@ resource "aws_api_gateway_deployment" "shared_services_api_gateway_deployment" {
     create_before_destroy = true
   }
 
-  depends_on = [ aws_api_gateway_integration.openapi_lambda_integration, aws_api_gateway_integration.collection_lambda_integration ]
+  depends_on = [ aws_api_gateway_integration.openapi_lambda_integration,
+    aws_api_gateway_integration.options_integration,
+    aws_api_gateway_integration.collection_lambda_integration ]
 }
