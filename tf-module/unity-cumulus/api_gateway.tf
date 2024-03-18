@@ -145,8 +145,9 @@ resource "aws_lambda_permission" "collection_lambda_integration__apigw_lambda" {
   principal     = "apigateway.amazonaws.com"
 
   # More: http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-control-access-using-iam-policies-to-invoke-api.html
-  source_arn = "arn:aws:execute-api:${var.aws_region}:${local.account_id}:${data.aws_api_gateway_rest_api.rest_api.id}/*/*${aws_api_gateway_resource.collection_resource.path}"
+  source_arn = "arn:aws:execute-api:${var.aws_region}:${local.account_id}:${data.aws_api_gateway_rest_api.rest_api.id}/*/*/${var.dapa_api_prefix}/*"
 }
+
 ##########################################################################################################################
 
 # The Shared Services API Gateway deployment
@@ -161,5 +162,7 @@ resource "aws_api_gateway_deployment" "shared_services_api_gateway_deployment" {
 
   depends_on = [ aws_api_gateway_integration.openapi_lambda_integration,
     aws_api_gateway_integration.options_integration,
+    aws_api_gateway_integration.stac_browser_lambda_integration,
+#    aws_api_gateway_integration.stac_browser_proxy_lambda_integration,
     aws_api_gateway_integration.collection_lambda_integration ]
 }
