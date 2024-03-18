@@ -1,16 +1,16 @@
-resource "aws_api_gateway_resource" "collections_base_resource" {
-  rest_api_id = data.aws_api_gateway_rest_api.rest_api.id
-  parent_id   = aws_api_gateway_resource.uds_api_base_resource.id
-  path_part   = "collections"
-}
-resource "aws_api_gateway_resource" "collections_resource" {
+resource "aws_api_gateway_resource" "collection_id_base_resource" {
   rest_api_id = data.aws_api_gateway_rest_api.rest_api.id
   parent_id   = aws_api_gateway_resource.collections_base_resource.id
+  path_part   = "{collectionId}"
+}
+resource "aws_api_gateway_resource" "collection_id_resource" {
+  rest_api_id = data.aws_api_gateway_rest_api.rest_api.id
+  parent_id   = aws_api_gateway_resource.collection_id_base_resource.id
   path_part   = "{proxy+}"
 }
-resource "aws_api_gateway_method" "collections_method" {
+resource "aws_api_gateway_method" "collection_id_method" {
   rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-  resource_id   = aws_api_gateway_resource.collections_resource.id
+  resource_id   = aws_api_gateway_resource.collection_id_resource.id
   http_method   = "ANY"
   authorization = "NONE"
   request_parameters = {
@@ -18,10 +18,10 @@ resource "aws_api_gateway_method" "collections_method" {
   }
 }
 
-resource "aws_api_gateway_method_response" "collections_method_response" {
+resource "aws_api_gateway_method_response" "collection_id_method_response" {
     rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-    resource_id   = aws_api_gateway_resource.collections_resource.id
-    http_method   = aws_api_gateway_method.collections_method.http_method
+    resource_id   = aws_api_gateway_resource.collection_id_resource.id
+    http_method   = aws_api_gateway_method.collection_id_method.http_method
     status_code   = "200"
     response_models = {
         "application/json" = "Empty"
@@ -29,13 +29,13 @@ resource "aws_api_gateway_method_response" "collections_method_response" {
     response_parameters = {
         "method.response.header.Access-Control-Allow-Origin" = true
     }
-    depends_on = ["aws_api_gateway_method.collections_method"]
+    depends_on = ["aws_api_gateway_method.collection_id_method"]
 }
 
-resource "aws_api_gateway_integration" "collections_lambda_integration" {
+resource "aws_api_gateway_integration" "collection_id_lambda_integration" {
   rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-  resource_id          = aws_api_gateway_resource.collections_resource.id
-  http_method          = aws_api_gateway_method.collections_method.http_method
+  resource_id          = aws_api_gateway_resource.collection_id_resource.id
+  http_method          = aws_api_gateway_method.collection_id_method.http_method
   type                 = "AWS_PROXY"
   uri = aws_lambda_function.uds_api_1.invoke_arn
   integration_http_method = "POST"
@@ -50,16 +50,16 @@ resource "aws_api_gateway_integration" "collections_lambda_integration" {
 
 ##########################################################################################################################
 
-resource "aws_api_gateway_method" "collections_options_method" {
+resource "aws_api_gateway_method" "collection_id_options_method" {
     rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-    resource_id   = aws_api_gateway_resource.collections_resource.id
+    resource_id   = aws_api_gateway_resource.collection_id_resource.id
     http_method   = "OPTIONS"
     authorization = "NONE"
 }
-resource "aws_api_gateway_method_response" "collections_options_200" {
+resource "aws_api_gateway_method_response" "collection_id_options_200" {
     rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-    resource_id   = aws_api_gateway_resource.collections_resource.id
-    http_method   = aws_api_gateway_method.collections_options_method.http_method
+    resource_id   = aws_api_gateway_resource.collection_id_resource.id
+    http_method   = aws_api_gateway_method.collection_id_options_method.http_method
     status_code   = "200"
     response_models = {
         "application/json" = "Empty"
@@ -71,20 +71,20 @@ resource "aws_api_gateway_method_response" "collections_options_200" {
         "method.response.header.Access-Control-Expose-Headers" = true
         "method.response.header.Access-Control-Max-Age" = true
     }
-    depends_on = ["aws_api_gateway_method.collections_options_method"]
+    depends_on = ["aws_api_gateway_method.collection_id_options_method"]
 }
-resource "aws_api_gateway_integration" "collections_options_integration" {
+resource "aws_api_gateway_integration" "collection_id_options_integration" {
     rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-    resource_id   = aws_api_gateway_resource.collections_resource.id
-    http_method   = aws_api_gateway_method.collections_options_method.http_method
+    resource_id   = aws_api_gateway_resource.collection_id_resource.id
+    http_method   = aws_api_gateway_method.collection_id_options_method.http_method
     type          = "MOCK"
-    depends_on = ["aws_api_gateway_method.collections_options_method"]
+    depends_on = ["aws_api_gateway_method.collection_id_options_method"]
 }
-resource "aws_api_gateway_integration_response" "collections_options_integration_response" {
+resource "aws_api_gateway_integration_response" "collection_id_options_integration_response" {
     rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-    resource_id   = aws_api_gateway_resource.collections_resource.id
-    http_method   = aws_api_gateway_method.collections_options_method.http_method
-    status_code   = aws_api_gateway_method_response.collections_options_200.status_code
+    resource_id   = aws_api_gateway_resource.collection_id_resource.id
+    http_method   = aws_api_gateway_method.collection_id_options_method.http_method
+    status_code   = aws_api_gateway_method_response.collection_id_options_200.status_code
     response_parameters = {
         "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
         "method.response.header.Access-Control-Allow-Methods" = "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'",
@@ -92,5 +92,5 @@ resource "aws_api_gateway_integration_response" "collections_options_integration
         "method.response.header.Access-Control-Expose-Headers" = "'Access-Control-Allow-Methods,Access-Control-Allow-Origin,Access-Control-Expose-Headers,Access-Control-Max-Age'"
         "method.response.header.Access-Control-Max-Age" = "'300'"
     }
-    depends_on = ["aws_api_gateway_method_response.collections_options_200"]
+    depends_on = ["aws_api_gateway_method_response.collection_id_options_200"]
 }
