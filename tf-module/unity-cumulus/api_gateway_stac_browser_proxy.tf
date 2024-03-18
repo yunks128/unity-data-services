@@ -7,7 +7,7 @@ resource "aws_api_gateway_resource" "stac_browser_proxy_resource" {
 resource "aws_api_gateway_method" "stac_browser_proxy_method" {
   rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
   resource_id   = aws_api_gateway_resource.stac_browser_proxy_resource.id
-  http_method   = "ANY"
+  http_method   = "GET"
   authorization = "NONE"
   request_parameters = {
     "method.request.path.proxy" = true

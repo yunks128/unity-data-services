@@ -14,8 +14,7 @@ data "aws_api_gateway_authorizer" "unity_cognito_authorizer" {  # https://regist
 #  authorizer_id = data.aws_api_gateway_authorizers.unity_cognito_authorizers.ids[0]  # TODO why this is not working?
   authorizer_id = var.unity_cognito_authorizer__authorizer_id
 }
-
-#
+##########################################################################################################################
 # Creates the project API Gateway resource to be pointed to a project level API gateway.
 # DEPLOYER SHOULD MODIFY THE VARIABLE var.dapa_api_prefix TO BE THE PROJECT NAME (e.g. "soundersips"). It is TIED to Lambda setting
 resource "aws_api_gateway_resource" "uds_api_base_resource" {
@@ -27,77 +26,15 @@ resource "aws_api_gateway_resource" "uds_api_base_resource" {
 #
 # Creates the wildcard path (proxy+) resource, under the project resource
 #
-
-resource "aws_api_gateway_resource" "collection_resource" {
+resource "aws_api_gateway_resource" "uds_all_resource" {
   rest_api_id = data.aws_api_gateway_rest_api.rest_api.id
   parent_id   = aws_api_gateway_resource.uds_api_base_resource.id
   path_part   = "{proxy+}"
 }
 
-
-
-
-
-
-resource "aws_api_gateway_method" "collection_options_method" {
-    rest_api_id   = "${data.aws_api_gateway_rest_api.rest_api.id}"
-    resource_id   = "${aws_api_gateway_resource.collection_resource.id}"
-    http_method   = "OPTIONS"
-    authorization = "NONE"
-}
-resource "aws_api_gateway_method_response" "collection_options_200" {
-    rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-    resource_id   = aws_api_gateway_resource.collection_resource.id
-    http_method   = aws_api_gateway_method.collection_options_method.http_method
-    status_code   = "200"
-    response_models = {
-        "application/json" = "Empty"
-    }
-    response_parameters = {
-        "method.response.header.Access-Control-Allow-Headers" = true
-        "method.response.header.Access-Control-Allow-Methods" = true
-        "method.response.header.Access-Control-Allow-Origin" = true
-        "method.response.header.Access-Control-Expose-Headers" = true
-        "method.response.header.Access-Control-Max-Age" = true
-    }
-    depends_on = ["aws_api_gateway_method.collection_options_method"]
-}
-resource "aws_api_gateway_integration" "options_integration" {
-    rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-    resource_id   = aws_api_gateway_resource.collection_resource.id
-    http_method   = aws_api_gateway_method.collection_options_method.http_method
-    type          = "MOCK"
-    depends_on = ["aws_api_gateway_method.collection_options_method"]
-}
-resource "aws_api_gateway_integration_response" "options_integration_response" {
-    rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-    resource_id   = aws_api_gateway_resource.collection_resource.id
-    http_method   = aws_api_gateway_method.collection_options_method.http_method
-    status_code   = aws_api_gateway_method_response.collection_options_200.status_code
-    response_parameters = {
-        "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-        "method.response.header.Access-Control-Allow-Methods" = "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'",
-        "method.response.header.Access-Control-Allow-Origin" = "'*'"
-        "method.response.header.Access-Control-Expose-Headers" = "'Access-Control-Allow-Methods,Access-Control-Allow-Origin,Access-Control-Expose-Headers,Access-Control-Max-Age'"
-        "method.response.header.Access-Control-Max-Age" = "'300'"
-    }
-    depends_on = ["aws_api_gateway_method_response.collection_options_200"]
-}
-
-
-
-
-
-
-
-
-
-
-
-
-resource "aws_api_gateway_method" "collection_method" {
+resource "aws_api_gateway_method" "uds_all_method" {
   rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-  resource_id   = aws_api_gateway_resource.collection_resource.id
+  resource_id   = aws_api_gateway_resource.uds_all_resource.id
   http_method   = "ANY"
   authorization = "CUSTOM"
   authorizer_id = data.aws_api_gateway_authorizer.unity_cognito_authorizer.id
@@ -106,10 +43,10 @@ resource "aws_api_gateway_method" "collection_method" {
   }
 }
 
-resource "aws_api_gateway_method_response" "collection_method_response" {
+resource "aws_api_gateway_method_response" "uds_all_method_response" {
     rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-    resource_id   = aws_api_gateway_resource.collection_resource.id
-    http_method   = aws_api_gateway_method.collection_method.http_method
+    resource_id   = aws_api_gateway_resource.uds_all_resource.id
+    http_method   = aws_api_gateway_method.uds_all_method.http_method
     status_code   = "200"
     response_models = {
         "application/json" = "Empty"
@@ -117,14 +54,13 @@ resource "aws_api_gateway_method_response" "collection_method_response" {
     response_parameters = {
         "method.response.header.Access-Control-Allow-Origin" = true
     }
-    depends_on = ["aws_api_gateway_method.collection_method"]
+    depends_on = ["aws_api_gateway_method.uds_all_method"]
 }
 
-resource "aws_api_gateway_integration" "collection_lambda_integration" {
+resource "aws_api_gateway_integration" "uds_all_lambda_integration" {
   rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-  resource_id          = aws_api_gateway_resource.collection_resource.id
-#  resource_id = "/testing-uds-dapa/collections"
-  http_method          = aws_api_gateway_method.collection_method.http_method
+  resource_id          = aws_api_gateway_resource.uds_all_resource.id
+  http_method          = aws_api_gateway_method.uds_all_method.http_method
   type                 = "AWS_PROXY"
   uri = aws_lambda_function.uds_api_1.invoke_arn
   integration_http_method = "POST"
@@ -138,7 +74,7 @@ resource "aws_api_gateway_integration" "collection_lambda_integration" {
 }
 
 
-resource "aws_lambda_permission" "collection_lambda_integration__apigw_lambda" {
+resource "aws_lambda_permission" "uds_all_lambda_integration__apigw_lambda" {
   statement_id  = "AllowExecutionFromAPIGatewayWildCard"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.uds_api_1.function_name
@@ -149,7 +85,51 @@ resource "aws_lambda_permission" "collection_lambda_integration__apigw_lambda" {
 }
 
 ##########################################################################################################################
-
+resource "aws_api_gateway_method" "uds_all_options_method" {
+    rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
+    resource_id   = aws_api_gateway_resource.uds_all_resource.id
+    http_method   = "OPTIONS"
+    authorization = "NONE"
+}
+resource "aws_api_gateway_method_response" "uds_all_options_200" {
+    rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
+    resource_id   = aws_api_gateway_resource.uds_all_resource.id
+    http_method   = aws_api_gateway_method.uds_all_options_method.http_method
+    status_code   = "200"
+    response_models = {
+        "application/json" = "Empty"
+    }
+    response_parameters = {
+        "method.response.header.Access-Control-Allow-Headers" = true
+        "method.response.header.Access-Control-Allow-Methods" = true
+        "method.response.header.Access-Control-Allow-Origin" = true
+        "method.response.header.Access-Control-Expose-Headers" = true
+        "method.response.header.Access-Control-Max-Age" = true
+    }
+    depends_on = ["aws_api_gateway_method.uds_all_options_method"]
+}
+resource "aws_api_gateway_integration" "uds_all_options_integration" {
+    rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
+    resource_id   = aws_api_gateway_resource.uds_all_resource.id
+    http_method   = aws_api_gateway_method.uds_all_options_method.http_method
+    type          = "MOCK"
+    depends_on = ["aws_api_gateway_method.uds_all_options_method"]
+}
+resource "aws_api_gateway_integration_response" "uds_all_options_integration_response" {
+    rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
+    resource_id   = aws_api_gateway_resource.uds_all_resource.id
+    http_method   = aws_api_gateway_method.uds_all_options_method.http_method
+    status_code   = aws_api_gateway_method_response.uds_all_options_200.status_code
+    response_parameters = {
+        "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+        "method.response.header.Access-Control-Allow-Methods" = "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'",
+        "method.response.header.Access-Control-Allow-Origin" = "'*'"
+        "method.response.header.Access-Control-Expose-Headers" = "'Access-Control-Allow-Methods,Access-Control-Allow-Origin,Access-Control-Expose-Headers,Access-Control-Max-Age'"
+        "method.response.header.Access-Control-Max-Age" = "'300'"
+    }
+    depends_on = ["aws_api_gateway_method_response.uds_all_options_200"]
+}
+##########################################################################################################################
 # The Shared Services API Gateway deployment
 resource "aws_api_gateway_deployment" "shared_services_api_gateway_deployment" {
   rest_api_id = data.aws_api_gateway_rest_api.rest_api.id
@@ -160,9 +140,15 @@ resource "aws_api_gateway_deployment" "shared_services_api_gateway_deployment" {
     create_before_destroy = true
   }
 
-  depends_on = [ aws_api_gateway_integration.openapi_lambda_integration,
-    aws_api_gateway_integration.options_integration,
+  depends_on = [
+    aws_api_gateway_integration.openapi_lambda_integration,
+    aws_api_gateway_integration.collections_lambda_integration,
+    aws_api_gateway_integration.collections_options_integration,
+
     aws_api_gateway_integration.stac_browser_lambda_integration,
-#    aws_api_gateway_integration.stac_browser_proxy_lambda_integration,
-    aws_api_gateway_integration.collection_lambda_integration ]
+    aws_api_gateway_integration.stac_browser_proxy_lambda_integration,
+
+    aws_api_gateway_integration.uds_all_options_integration,
+    aws_api_gateway_integration.uds_all_lambda_integration
+  ]
 }
