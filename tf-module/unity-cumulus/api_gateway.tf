@@ -143,6 +143,9 @@ resource "aws_api_gateway_deployment" "shared_services_api_gateway_deployment" {
   depends_on = [
     aws_api_gateway_integration.openapi_lambda_integration,
 
+    aws_api_gateway_integration.collections_base_lambda_integration,
+    aws_api_gateway_integration.collections_base_options_integration,
+
     aws_api_gateway_integration.collections_lambda_integration,
     aws_api_gateway_integration.collections_options_integration,
 
