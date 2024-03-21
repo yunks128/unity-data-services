@@ -7,7 +7,8 @@ resource "aws_api_gateway_method" "collection_id_method" {
   rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
   resource_id   = aws_api_gateway_resource.collection_id_resource.id
   http_method   = "ANY"
-  authorization = "NONE"
+  authorization = "CUSTOM"
+  authorizer_id = data.aws_api_gateway_authorizer.unity_cognito_authorizer.id
   request_parameters = {
     "method.request.path.proxy" = true
   }

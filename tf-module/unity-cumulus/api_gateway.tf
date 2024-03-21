@@ -99,14 +99,7 @@ resource "aws_api_gateway_method_response" "uds_all_options_200" {
     response_models = {
         "application/json" = "Empty"
     }
-    response_parameters = {
-        "method.response.header.Access-Control-Allow-Credentials" = true
-        "method.response.header.Access-Control-Allow-Headers" = true
-        "method.response.header.Access-Control-Allow-Methods" = true
-        "method.response.header.Access-Control-Allow-Origin" = true
-        "method.response.header.Access-Control-Expose-Headers" = true
-        "method.response.header.Access-Control-Max-Age" = true
-    }
+    response_parameters = var.cors_200_response_parameters
     depends_on = ["aws_api_gateway_method.uds_all_options_method"]
 }
 resource "aws_api_gateway_integration" "uds_all_options_integration" {
@@ -128,14 +121,7 @@ resource "aws_api_gateway_integration_response" "uds_all_options_integration_res
     resource_id   = aws_api_gateway_resource.uds_all_resource.id
     http_method   = aws_api_gateway_method.uds_all_options_method.http_method
     status_code   = aws_api_gateway_method_response.uds_all_options_200.status_code
-    response_parameters = {
-        "method.response.header.Access-Control-Allow-Credentials" = "'true'",
-        "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-        "method.response.header.Access-Control-Allow-Methods" = "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'",
-        "method.response.header.Access-Control-Allow-Origin" = "'*'"
-        "method.response.header.Access-Control-Expose-Headers" = "'Access-Control-Allow-Methods,Access-Control-Expose-Headers,Access-Control-Max-Age'"
-        "method.response.header.Access-Control-Max-Age" = "'300'"
-    }
+    response_parameters = var.cors_integration_response
     depends_on = ["aws_api_gateway_method_response.uds_all_options_200"]
 }
 ##########################################################################################################################
