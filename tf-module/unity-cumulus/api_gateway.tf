@@ -85,45 +85,12 @@ resource "aws_lambda_permission" "uds_all_lambda_integration__apigw_lambda" {
 }
 
 ##########################################################################################################################
-resource "aws_api_gateway_method" "uds_all_options_method" {
-    rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-    resource_id   = aws_api_gateway_resource.uds_all_resource.id
-    http_method   = "OPTIONS"
-    authorization = "NONE"
-}
-resource "aws_api_gateway_method_response" "uds_all_options_200" {
-    rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-    resource_id   = aws_api_gateway_resource.uds_all_resource.id
-    http_method   = aws_api_gateway_method.uds_all_options_method.http_method
-    status_code   = 200
-    response_models = {
-        "application/json" = "Empty"
-    }
-    response_parameters = var.cors_200_response_parameters
-    depends_on = ["aws_api_gateway_method.uds_all_options_method"]
-}
-resource "aws_api_gateway_integration" "uds_all_options_integration" {
-    rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-    resource_id   = aws_api_gateway_resource.uds_all_resource.id
-    http_method   = aws_api_gateway_method.uds_all_options_method.http_method
-        type          = "MOCK"
-    request_templates = {
-      "application/json" = jsonencode(
-        {
-          statusCode = 200
-        })
-    }
-    depends_on = ["aws_api_gateway_method.uds_all_options_method"]
+module "cors_method" {
+  source           = "./cors_module"
+  rest_api_id      = data.aws_api_gateway_rest_api.rest_api.id
+  resource_id      = aws_api_gateway_resource.uds_all_resource.id
 }
 
-resource "aws_api_gateway_integration_response" "uds_all_options_integration_response" {
-    rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-    resource_id   = aws_api_gateway_resource.uds_all_resource.id
-    http_method   = aws_api_gateway_method.uds_all_options_method.http_method
-    status_code   = aws_api_gateway_method_response.uds_all_options_200.status_code
-    response_parameters = var.cors_integration_response
-    depends_on = ["aws_api_gateway_method_response.uds_all_options_200"]
-}
 ##########################################################################################################################
 # The Shared Services API Gateway deployment
 resource "aws_api_gateway_deployment" "shared_services_api_gateway_deployment" {
@@ -140,8 +107,7 @@ resource "aws_api_gateway_deployment" "shared_services_api_gateway_deployment" {
 
     aws_api_gateway_integration.stac_browser_lambda_integration,
     aws_api_gateway_integration.stac_browser_proxy_lambda_integration,
-
-    aws_api_gateway_integration.uds_all_options_integration,
+    module.cors_method.options_integration_object,
     aws_api_gateway_integration.uds_all_lambda_integration
   ]
 }
