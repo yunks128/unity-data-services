@@ -14,6 +14,21 @@ resource "aws_api_gateway_method" "stac_browser_proxy_method" {
   }
 }
 
+resource "aws_api_gateway_method_response" "stac_browser_proxy_method_response" {
+    rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
+    resource_id   = aws_api_gateway_resource.stac_browser_proxy_resource.id
+    http_method   = aws_api_gateway_method.stac_browser_proxy_method.http_method
+    status_code   = 200
+    response_models = {
+        "application/json" = "Empty"
+    }
+    response_parameters = {
+        "method.response.header.Access-Control-Allow-Origin" = true
+    }
+    depends_on = ["aws_api_gateway_method.stac_browser_proxy_method"]
+}
+
+
 resource "aws_api_gateway_integration" "stac_browser_proxy_lambda_integration" {
   rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
   resource_id          = aws_api_gateway_resource.stac_browser_proxy_resource.id

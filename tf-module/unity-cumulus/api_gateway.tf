@@ -47,13 +47,13 @@ resource "aws_api_gateway_method_response" "uds_all_method_response" {
     rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
     resource_id   = aws_api_gateway_resource.uds_all_resource.id
     http_method   = aws_api_gateway_method.uds_all_method.http_method
-    status_code   = "200"
+    status_code   = 200
     response_models = {
         "application/json" = "Empty"
     }
-    response_parameters = {
-        "method.response.header.Access-Control-Allow-Origin" = true
-    }
+#    response_parameters = {
+#        "method.response.header.Access-Control-Allow-Origin" = true
+#    }
     depends_on = ["aws_api_gateway_method.uds_all_method"]
 }
 
@@ -95,11 +95,12 @@ resource "aws_api_gateway_method_response" "uds_all_options_200" {
     rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
     resource_id   = aws_api_gateway_resource.uds_all_resource.id
     http_method   = aws_api_gateway_method.uds_all_options_method.http_method
-    status_code   = "200"
+    status_code   = 200
     response_models = {
         "application/json" = "Empty"
     }
     response_parameters = {
+        "method.response.header.Access-Control-Allow-Credentials" = true
         "method.response.header.Access-Control-Allow-Headers" = true
         "method.response.header.Access-Control-Allow-Methods" = true
         "method.response.header.Access-Control-Allow-Origin" = true
@@ -112,19 +113,27 @@ resource "aws_api_gateway_integration" "uds_all_options_integration" {
     rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
     resource_id   = aws_api_gateway_resource.uds_all_resource.id
     http_method   = aws_api_gateway_method.uds_all_options_method.http_method
-    type          = "MOCK"
+        type          = "MOCK"
+    request_templates = {
+      "application/json" = jsonencode(
+        {
+          statusCode = 200
+        })
+    }
     depends_on = ["aws_api_gateway_method.uds_all_options_method"]
 }
+
 resource "aws_api_gateway_integration_response" "uds_all_options_integration_response" {
     rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
     resource_id   = aws_api_gateway_resource.uds_all_resource.id
     http_method   = aws_api_gateway_method.uds_all_options_method.http_method
     status_code   = aws_api_gateway_method_response.uds_all_options_200.status_code
     response_parameters = {
+        "method.response.header.Access-Control-Allow-Credentials" = "'true'",
         "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
         "method.response.header.Access-Control-Allow-Methods" = "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'",
         "method.response.header.Access-Control-Allow-Origin" = "'*'"
-        "method.response.header.Access-Control-Expose-Headers" = "'Access-Control-Allow-Methods,Access-Control-Allow-Origin,Access-Control-Expose-Headers,Access-Control-Max-Age'"
+        "method.response.header.Access-Control-Expose-Headers" = "'Access-Control-Allow-Methods,Access-Control-Expose-Headers,Access-Control-Max-Age'"
         "method.response.header.Access-Control-Max-Age" = "'300'"
     }
     depends_on = ["aws_api_gateway_method_response.uds_all_options_200"]
@@ -142,18 +151,6 @@ resource "aws_api_gateway_deployment" "shared_services_api_gateway_deployment" {
 
   depends_on = [
     aws_api_gateway_integration.openapi_lambda_integration,
-
-    aws_api_gateway_integration.collections_base_lambda_integration,
-    aws_api_gateway_integration.collections_base_options_integration,
-
-    aws_api_gateway_integration.collections_lambda_integration,
-    aws_api_gateway_integration.collections_options_integration,
-
-    aws_api_gateway_integration.collection_id_base_lambda_integration,
-    aws_api_gateway_integration.collection_id_base_options_integration,
-
-    aws_api_gateway_integration.collection_id_lambda_integration,
-    aws_api_gateway_integration.collection_id_options_integration,
 
     aws_api_gateway_integration.stac_browser_lambda_integration,
     aws_api_gateway_integration.stac_browser_proxy_lambda_integration,
