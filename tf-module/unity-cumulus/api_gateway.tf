@@ -32,47 +32,13 @@ resource "aws_api_gateway_resource" "uds_all_resource" {
   path_part   = "{proxy+}"
 }
 
-resource "aws_api_gateway_method" "uds_all_method" {
-  rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-  resource_id   = aws_api_gateway_resource.uds_all_resource.id
-  http_method   = "ANY"
-  authorization = "CUSTOM"
+module "uds_all_any_to_lambda_module" {
+  source = "./any_to_lambda_module"
   authorizer_id = data.aws_api_gateway_authorizer.unity_cognito_authorizer.id
-  request_parameters = {
-    "method.request.path.proxy" = true
-  }
+  lambda_invoke_arn = aws_lambda_function.uds_api_1.invoke_arn
+  rest_api_id      = data.aws_api_gateway_rest_api.rest_api.id
+  resource_id      = aws_api_gateway_resource.uds_all_resource.id
 }
-
-resource "aws_api_gateway_method_response" "uds_all_method_response" {
-    rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-    resource_id   = aws_api_gateway_resource.uds_all_resource.id
-    http_method   = aws_api_gateway_method.uds_all_method.http_method
-    status_code   = 200
-    response_models = {
-        "application/json" = "Empty"
-    }
-#    response_parameters = {
-#        "method.response.header.Access-Control-Allow-Origin" = true
-#    }
-    depends_on = ["aws_api_gateway_method.uds_all_method"]
-}
-
-resource "aws_api_gateway_integration" "uds_all_lambda_integration" {
-  rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
-  resource_id          = aws_api_gateway_resource.uds_all_resource.id
-  http_method          = aws_api_gateway_method.uds_all_method.http_method
-  type                 = "AWS_PROXY"
-  uri = aws_lambda_function.uds_api_1.invoke_arn
-  integration_http_method = "POST"
-
-#  cache_key_parameters = ["method.request.path.proxy"]
-
-  timeout_milliseconds = 29000
-#  request_parameters = {
-#    "integration.request.path.proxy" = "method.request.path.proxy"
-#  }
-}
-
 
 resource "aws_lambda_permission" "uds_all_lambda_integration__apigw_lambda" {
   statement_id  = "AllowExecutionFromAPIGatewayWildCard"
@@ -107,7 +73,8 @@ resource "aws_api_gateway_deployment" "shared_services_api_gateway_deployment" {
 
     aws_api_gateway_integration.stac_browser_lambda_integration,
     aws_api_gateway_integration.stac_browser_proxy_lambda_integration,
+
     module.cors_method.options_integration_object,
-    aws_api_gateway_integration.uds_all_lambda_integration
+    module.uds_all_any_to_lambda_module.lambda_integration_object,
   ]
 }
