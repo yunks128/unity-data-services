@@ -1,6 +1,7 @@
 resource "aws_api_gateway_method" "uds_all_options_method" {
     rest_api_id   = var.rest_api_id
     resource_id   = var.resource_id
+    operation_name = "${var.prefix}-uds_cors"
     http_method   = "OPTIONS"
     authorization = "NONE"
 }

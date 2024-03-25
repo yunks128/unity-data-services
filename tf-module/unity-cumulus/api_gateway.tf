@@ -51,10 +51,11 @@ resource "aws_lambda_permission" "uds_all_lambda_integration__apigw_lambda" {
 }
 
 ##########################################################################################################################
-module "cors_method" {
+module "uds_all_cors_method" {
   source           = "./cors_module"
   rest_api_id      = data.aws_api_gateway_rest_api.rest_api.id
   resource_id      = aws_api_gateway_resource.uds_all_resource.id
+  prefix           = "${var.prefix}_uds_all"
 }
 
 ##########################################################################################################################
@@ -74,7 +75,19 @@ resource "aws_api_gateway_deployment" "shared_services_api_gateway_deployment" {
     aws_api_gateway_integration.stac_browser_lambda_integration,
     aws_api_gateway_integration.stac_browser_proxy_lambda_integration,
 
-    module.cors_method.options_integration_object,
+    module.uds_all_cors_method.options_integration_object,
     module.uds_all_any_to_lambda_module.lambda_integration_object,
+
+    module.collections_base_cors_method.options_integration_object,
+    module.collections_base_any_to_lambda_module.lambda_integration_object,
+
+#    module.collections_cors_method.options_integration_object,
+#    module.collections_any_to_lambda_module.lambda_integration_object,
+#
+#    module.collection_id_base_cors_method.options_integration_object,
+#    module.collection_id_base_any_to_lambda_module.lambda_integration_object,
+#
+#    module.collection_id_cors_method.options_integration_object,
+#    module.collection_id_any_to_lambda_module.lambda_integration_object,
   ]
 }

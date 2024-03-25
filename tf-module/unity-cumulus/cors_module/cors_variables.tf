@@ -29,3 +29,7 @@ variable "rest_api_id" {
 variable "resource_id" {
   type = string
 }
+
+variable "prefix" {
+  type = string
+}
