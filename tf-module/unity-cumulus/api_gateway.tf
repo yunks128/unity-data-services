@@ -1,10 +1,10 @@
 data "aws_api_gateway_rest_api" "rest_api" {
-
   # Name of the REST API to look up. If no REST API is found with this name, an error will be returned.
   # If multiple REST APIs are found with this name, an error will be returned. At the moment there is noi data source to
   # get REST API by ID.
   name = var.shared_services_rest_api_name
 }
+
 data "aws_api_gateway_authorizers" "unity_cognito_authorizers" {  # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/api_gateway_authorizers
   rest_api_id   = data.aws_api_gateway_rest_api.rest_api.id
 }
@@ -26,19 +26,6 @@ resource "aws_api_gateway_resource" "uds_api_base_resource" {
 #
 # Creates the wildcard path (proxy+) resource, under the project resource
 #
-resource "aws_api_gateway_resource" "uds_all_resource" {
-  rest_api_id = data.aws_api_gateway_rest_api.rest_api.id
-  parent_id   = aws_api_gateway_resource.uds_api_base_resource.id
-  path_part   = "{proxy+}"
-}
-
-module "uds_all_any_to_lambda_module" {
-  source = "./any_to_lambda_module"
-  authorizer_id = data.aws_api_gateway_authorizer.unity_cognito_authorizer.id
-  lambda_invoke_arn = aws_lambda_function.uds_api_1.invoke_arn
-  rest_api_id      = data.aws_api_gateway_rest_api.rest_api.id
-  resource_id      = aws_api_gateway_resource.uds_all_resource.id
-}
 
 resource "aws_lambda_permission" "uds_all_lambda_integration__apigw_lambda" {
   statement_id  = "AllowExecutionFromAPIGatewayWildCard"
@@ -48,14 +35,6 @@ resource "aws_lambda_permission" "uds_all_lambda_integration__apigw_lambda" {
 
   # More: http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-control-access-using-iam-policies-to-invoke-api.html
   source_arn = "arn:aws:execute-api:${var.aws_region}:${local.account_id}:${data.aws_api_gateway_rest_api.rest_api.id}/*/*/${var.dapa_api_prefix}/*"
-}
-
-##########################################################################################################################
-module "uds_all_cors_method" {
-  source           = "./cors_module"
-  rest_api_id      = data.aws_api_gateway_rest_api.rest_api.id
-  resource_id      = aws_api_gateway_resource.uds_all_resource.id
-  prefix           = "${var.prefix}_uds_all"
 }
 
 ##########################################################################################################################
