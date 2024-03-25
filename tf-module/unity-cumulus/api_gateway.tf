@@ -81,13 +81,10 @@ resource "aws_api_gateway_deployment" "shared_services_api_gateway_deployment" {
     module.collections_base_cors_method.options_integration_object,
     module.collections_base_any_to_lambda_module.lambda_integration_object,
 
-    module.collections_cors_method.options_integration_object,
-    module.collections_any_to_lambda_module.lambda_integration_object,
-
     module.collection_id_base_cors_method.options_integration_object,
     module.collection_id_base_any_to_lambda_module.lambda_integration_object,
-#
-#    module.collection_id_cors_method.options_integration_object,
-#    module.collection_id_any_to_lambda_module.lambda_integration_object,
+
+    module.collection_id_cors_method.options_integration_object,
+    module.collection_id_any_to_lambda_module.lambda_integration_object,
   ]
 }
