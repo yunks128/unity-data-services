@@ -30,7 +30,7 @@ router = APIRouter(
 @router.get("")
 @router.get("/")
 async def get_catalog(request: Request, limit: Union[int, None] = 10, offset: Union[int, None] = 0, ):
-    LOGGER.debug(f'starting query_collections request: {request}')
+    LOGGER.debug(f'starting get_catalog request: {request}')
 
     authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory() \
         .get_instance(UDSAuthorizerFactory.cognito,
