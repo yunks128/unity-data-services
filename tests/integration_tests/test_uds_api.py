@@ -251,9 +251,8 @@ class TestCumulusCreateCollectionDapa(TestCase):
         collection_created_result = requests.get(url=f'{post_url}{temp_collection_id}', headers=headers)
         self.assertEqual(collection_created_result.status_code, 200, f'wrong status code. {collection_created_result.text}')
         collection_created_result = json.loads(collection_created_result.text)
-        self.assertTrue('features' in collection_created_result, f'features not in collection_created_result: {collection_created_result}')
-        self.assertEqual(len(collection_created_result['features']), 1, f'wrong length: {collection_created_result}')
-        self.assertEqual(collection_created_result['features'][0]['id'], temp_collection_id, f'wrong id')
+        self.assertTrue('id' in collection_created_result, f'id not in collection_created_result: {collection_created_result}')
+        self.assertEqual(collection_created_result['id'], temp_collection_id, f'wrong id')
         print(collection_created_result)
         # TODO check if collection shows up
         return
