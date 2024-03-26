@@ -36,6 +36,7 @@ app.include_router(main_router, prefix=f'/{api_base_prefix}')
 static_parent_dir = '/var/task/cumulus_lambda_functions/uds_api/'
 # static_parent_dir = '/Users/wphyo/Projects/unity/unity-data-services/cumulus_lambda_functions/uds_api/'
 app.mount(f'/{api_base_prefix}/stac_browser', StaticFiles(directory=f"{static_parent_dir}stac_browser", html=True), name="static")
+app.mount(f'/{api_base_prefix}/stac_browser/', StaticFiles(directory=f"{static_parent_dir}stac_browser", html=True), name="static")
 
 """
 Accept-Ranges:
