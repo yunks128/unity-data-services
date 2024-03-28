@@ -182,8 +182,8 @@ async def create_new_collection_real(request: Request, new_collection: CumulusCo
 @router.get("/{collection_id}")
 @router.get("/{collection_id}/")
 async def get_single_collection(request: Request, collection_id: str, limit: Union[int, None] = 10, offset: Union[int, None] = 0, ):
-    LOGGER.debug(f'starting query_collections: {collection_id}')
-    LOGGER.debug(f'starting query_collections request: {request}')
+    LOGGER.debug(f'starting get_single_collection: {collection_id}')
+    LOGGER.debug(f'starting get_single_collection request: {request}')
 
     authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory() \
         .get_instance(UDSAuthorizerFactory.cognito,

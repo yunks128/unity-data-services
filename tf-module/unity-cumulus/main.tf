@@ -37,6 +37,7 @@ data "aws_iam_policy_document" "lambda_assume_role_policy" {
 
 resource "aws_lambda_function" "metadata_s4pa_generate_cmr" {
   filename      = local.lambda_file_name
+  source_code_hash = filebase64sha256(local.lambda_file_name)
   function_name = "${var.prefix}-metadata_s4pa_generate_cmr"
   role          = var.lambda_processing_role_arn
   handler       = "cumulus_lambda_functions.metadata_s4pa_generate_cmr.lambda_function.lambda_handler"
@@ -58,6 +59,7 @@ resource "aws_lambda_function" "metadata_s4pa_generate_cmr" {
 
 resource "aws_lambda_function" "metadata_cas_generate_cmr" {
   filename      = local.lambda_file_name
+  source_code_hash = filebase64sha256(local.lambda_file_name)
   function_name = "${var.prefix}-metadata_cas_generate_cmr"
   role          = var.lambda_processing_role_arn
   handler       = "cumulus_lambda_functions.metadata_cas_generate_cmr.lambda_function.lambda_handler"
@@ -78,6 +80,7 @@ resource "aws_lambda_function" "metadata_cas_generate_cmr" {
 
 resource "aws_lambda_function" "metadata_stac_generate_cmr" {
   filename      = local.lambda_file_name
+  source_code_hash = filebase64sha256(local.lambda_file_name)
   function_name = "${var.prefix}-metadata_stac_generate_cmr"
   role          = var.lambda_processing_role_arn
   handler       = "cumulus_lambda_functions.metadata_stac_generate_cmr.lambda_function.lambda_handler"
@@ -103,6 +106,7 @@ resource "aws_lambda_function" "metadata_stac_generate_cmr" {
 
 resource "aws_lambda_function" "granules_to_es" {
   filename      = local.lambda_file_name
+  source_code_hash = filebase64sha256(local.lambda_file_name)
   function_name = "${var.prefix}-granules_to_es"
   role          = var.lambda_processing_role_arn
   handler       = "cumulus_lambda_functions.granules_to_es.lambda_function.lambda_handler"
@@ -127,6 +131,7 @@ resource "aws_lambda_function" "granules_to_es" {
 
 resource "aws_lambda_function" "uds_api_1" {
   filename      = local.lambda_file_name
+  source_code_hash = filebase64sha256(local.lambda_file_name)
   function_name = "${var.prefix}-uds_api_1"
   role          = var.lambda_processing_role_arn
   handler       = "cumulus_lambda_functions.uds_api.web_service.handler"
@@ -145,6 +150,7 @@ resource "aws_lambda_function" "uds_api_1" {
       SNS_TOPIC_ARN = var.cnm_sns_topic_arn
       UNITY_DEFAULT_PROVIDER = var.unity_default_provider
       DAPA_API_PREIFX_KEY = var.dapa_api_prefix
+      CORS_ORIGINS = var.cors_origins
       UDS_BASE_URL = var.uds_base_url
       ES_URL = aws_elasticsearch_domain.uds-es.endpoint
       ES_PORT = 443
