@@ -135,6 +135,7 @@ class GenerateCmr:
     def __get_potential_files(self):
         potential_files = []
         self.__input_file_list = self.__event['cma']['event']['meta']['input_granules'][0]['files']
+        LOGGER.debug(f'before restructure: {self.__input_file_list}')
         for each_file in self.__input_file_list:
             if 'fileName' not in each_file and 'name' in each_file:  # add fileName if there is only name
                 each_file['fileName'] = each_file['name']
@@ -150,6 +151,7 @@ class GenerateCmr:
             LOGGER.debug(f'checking file_key_upper: {file_key_upper} against {self.__file_postfixes}')
             if any([file_key_upper.endswith(k) for k in self.__file_postfixes]):
                 potential_files.append(each_file)
+        LOGGER.debug(f'after restructure: {self.__input_file_list}')
         return potential_files
 
     def __read_pds_metadata_file(self, potential_file):
