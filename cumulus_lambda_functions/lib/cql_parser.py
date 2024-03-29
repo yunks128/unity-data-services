@@ -17,8 +17,8 @@ class CqlParser:
         return
 
     def __transform_key(self, input_key: str):
-        updated_key = input_key.replace('::', '.')
-        return f'{self.__key_prefix}{updated_key}'
+        # updated_key = input_key.replace('::', '.')
+        return f'{self.__key_prefix}{input_key}'
     
     def __transform_this(self, parsed_obj):
         if isinstance(parsed_obj, And):
