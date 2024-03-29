@@ -43,7 +43,7 @@ class TestOldDataEndToEnd(TestCase):
         self.tenant = 'UDS_LOCAL_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
         self.collection_name = 'SNDR-SNPP_ATMS@L1B$OUTPUT'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '24.03.20.14.40'.replace('.', '')  # '2402011200'
+        self.collection_version = '24.03.26.14.40'.replace('.', '')  # '2402011200'
         self.granule_id = 'abcd.1234.efgh.test_file05'
         return
 
