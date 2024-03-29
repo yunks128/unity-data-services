@@ -136,9 +136,6 @@ class GenerateCmr:
         potential_files = []
         self.__input_file_list = self.__event['cma']['event']['meta']['input_granules'][0]['files']
         for each_file in self.__input_file_list:
-            if 'type' in each_file and each_file['type'].strip().lower() != self.__valid_filetype_name:
-                LOGGER.debug(f'Not metadata. skipping {each_file}')
-                continue
             if 'fileName' not in each_file and 'name' in each_file:  # add fileName if there is only name
                 each_file['fileName'] = each_file['name']
             if 'url_path' in each_file:
@@ -146,6 +143,9 @@ class GenerateCmr:
                 each_file['bucket'] = s3_bucket
                 each_file['key'] = s3_key
             LOGGER.debug(f'checking file: {each_file}')
+            if 'type' in each_file and each_file['type'].strip().lower() != self.__valid_filetype_name:
+                LOGGER.debug(f'Not metadata. skipping {each_file}')
+                continue
             file_key_upper = each_file['key'].upper().strip()
             LOGGER.debug(f'checking file_key_upper: {file_key_upper} against {self.__file_postfixes}')
             if any([file_key_upper.endswith(k) for k in self.__file_postfixes]):
