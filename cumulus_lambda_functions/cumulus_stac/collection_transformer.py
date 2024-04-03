@@ -3,6 +3,7 @@ from datetime import datetime
 from urllib.parse import quote_plus, urlparse, unquote_plus
 
 import pystac
+from cumulus_lambda_functions.uds_api.web_service_constants import WebServiceConstants
 from pystac.utils import datetime_to_str
 
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
@@ -288,7 +289,7 @@ LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_le
 
 
 class CollectionTransformer(StacTransformerAbstract):
-    def __init__(self, report_to_ems:bool = True, include_date_range=False):
+    def __init__(self, report_to_ems:bool = True, include_date_range=False, items_base_url=''):
         super().__init__()
         self.__stac_collection_schema = json.loads(STAC_COLLECTION_SCHEMA)
         self.__cumulus_collection_schema = {}
@@ -298,6 +299,7 @@ class CollectionTransformer(StacTransformerAbstract):
         self.__output_provider = None
         self.__output_cumulus_collection = None
         self.__input_dapa_collection: Collection = None
+        self.__items_base_url = items_base_url
 
     def get_collection_id(self):
         if self.__input_dapa_collection is None:
@@ -405,13 +407,14 @@ class CollectionTransformer(StacTransformerAbstract):
             "url_path": "{cmrMetadata.Granule.Collection.ShortName}___{cmrMetadata.Granule.Collection.VersionId}",
             "timestamp": 1647992849273
         }
+        collection_id = f"{source['name']}___{source['version']}"
         temporal_extent = []
         if 'dateFrom' in source:
             temporal_extent.append(self.get_time_obj(source['dateFrom']))
         if 'dateTo' in source:
             temporal_extent.append(self.get_time_obj(source['dateTo']))
         stac_collection = Collection(
-            id=f"{source['name']}___{source['version']}",
+            id=collection_id,
             # href=f"https://ideas-api-to-be-hosted/slcp/collections/{input_collection['ShortName']}::{input_collection['VersionId']}",
             description="TODO",
             extent=Extent(
@@ -436,7 +439,10 @@ class CollectionTransformer(StacTransformerAbstract):
             "sampleFileName": source['sampleFileName'],
             "type": "application/json",
 
-        }, 'root')] + [self.__convert_to_stac_link_obj(k) for k in source['files']]
+        }, 'root')] + \
+                                [self.__convert_to_stac_link_obj(k) for k in source['files']] + \
+                                [Link(rel='parent', target=f'{self.__items_base_url}/{WebServiceConstants.CATALOG}', media_type='application/json', title=f"UDS Catalog"),
+                                 Link(rel='items', target=f'{self.__items_base_url}/{WebServiceConstants.COLLECTIONS}/{collection_id}/items', media_type='application/json', title=f"{collection_id} Granules")]
         return stac_collection.to_dict(include_self_link=False, transform_hrefs=False)
 
     def get_href(self, input_href: str):

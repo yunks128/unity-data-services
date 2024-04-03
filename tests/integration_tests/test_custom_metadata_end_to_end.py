@@ -41,12 +41,20 @@ class TestCustomMetadataEndToEnd(TestCase):
         self.tenant = 'UDS_LOCAL_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
         self.collection_name = 'UDS_COLLECTION'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '24.02.01.17.00'.replace('.', '')  # '2309141300'
+        self.collection_version = '24.03.29.10.00'.replace('.', '')  # '2402011200'
+
         self.custom_metadata_body = {
             'tag': {'type': 'keyword'},
             'c_data1': {'type': 'long'},
             'c_data2': {'type': 'boolean'},
             'c_data3': {'type': 'keyword'},
+            'soil10': {
+                "properties": {
+                    "0_0": {"type": "integer"},
+                    "0_1": {"type": "integer"},
+                    "0_2": {"type": "integer"},
+                }
+            }
         }
         self.granule_id = 'abcd.1234.efgh.test_file05'
         return
@@ -135,10 +143,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         self.assertEqual(collection_created_result.status_code, 200,
                          f'wrong status code. {collection_created_result.text}')
         collection_created_result = json.loads(collection_created_result.text)
-        self.assertTrue('features' in collection_created_result,
-                        f'features not in collection_created_result: {collection_created_result}')
-        self.assertEqual(len(collection_created_result['features']), 1, f'wrong length: {collection_created_result}')
-        self.assertEqual(collection_created_result['features'][0]['id'], temp_collection_id, f'wrong id')
+        self.assertEqual(collection_created_result['id'], temp_collection_id, f'wrong id')
         print(collection_created_result)
         return
 
@@ -148,6 +153,11 @@ class TestCustomMetadataEndToEnd(TestCase):
             'c_data1': [1, 10, 10**2, 10**3],
             'c_data2': [False, True, True, False, True],
             'c_data3': ['Bellman Ford'],
+            'soil10': {
+                "0_0": 0,
+                "0_1": 1,
+                "0_2": 0,
+            }
         }
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
         os.environ['VERIFY_SSL'] = 'FALSE'
@@ -167,6 +177,8 @@ class TestCustomMetadataEndToEnd(TestCase):
             os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
             os.environ['UPLOAD_DIR'] = ''  # not needed
             os.environ['CATALOG_FILE'] = os.path.join(tmp_dir_name, 'catalog.json')
+            os.environ['OUTPUT_DIRECTORY'] = os.path.join(tmp_dir_name, 'output_dir')
+            FileUtils.mk_dir_p(os.environ.get('OUTPUT_DIRECTORY'))
             granules_dir = os.path.join(tmp_dir_name, 'some_granules')
             FileUtils.mk_dir_p(granules_dir)
             with open(os.path.join(granules_dir, f'{self.granule_id}.data.stac.json'), 'w') as ff:
@@ -432,7 +444,7 @@ class TestCustomMetadataEndToEnd(TestCase):
 
     def test_06_01_retrieve_granule_filter(self):
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
-        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/items?filter=c_data3 = \'Bellman Ford\' AND end_datetime >= \'2016-01-31T11:11:11.000001Z\''
+        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/items?filter=soil10::0_0 >= 0 AND end_datetime >= \'2016-01-31T11:11:11.000001Z\''
         headers = {
             'Authorization': f'Bearer {self.cognito_login.token}',
             'Content-Type': 'application/json',
@@ -451,9 +463,25 @@ class TestCustomMetadataEndToEnd(TestCase):
             self.assertTrue('c_data3' in stac_item.properties, f'missing custom_metadata: {each_feature}')
         return
 
+
     def test_06_02_retrieve_granule_filter_no_result(self):
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
-        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/items?filter=c_data3 = \'Bellman Ford\' AND end_datetime >= \'2016-01-31T20:11:11.000001Z\''
+        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/items?filter=soil10::0_0 >= 0 AND end_datetime >= \'2016-01-31T20:11:11.000001Z\''
+        headers = {
+            'Authorization': f'Bearer {self.cognito_login.token}',
+            'Content-Type': 'application/json',
+        }
+        query_result = requests.get(url=post_url,
+                                    headers=headers)
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        response_json = json.loads(query_result.content.decode())
+        print(response_json)
+        self.assertTrue(len(response_json['features']) == 0, f'empty granules. Need collections to compare')
+        return
+
+    def test_06_03_retrieve_granule_filter_no_result(self):
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
+        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/items?filter=soil10::0_0 >= 1 AND end_datetime >= \'2016-01-31T11:11:11.000001Z\''
         headers = {
             'Authorization': f'Bearer {self.cognito_login.token}',
             'Content-Type': 'application/json',

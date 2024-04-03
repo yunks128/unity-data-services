@@ -1,9 +1,8 @@
 import os
 
-from fastapi.openapi.utils import get_openapi
+from fastapi.staticfiles import StaticFiles
 
-from cumulus_lambda_functions.lib.constants import Constants
-
+from cumulus_lambda_functions.uds_api.fast_api_utils import FastApiUtils
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from dotenv import load_dotenv
 
@@ -11,21 +10,48 @@ load_dotenv()
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from mangum import Mangum
 from starlette.requests import Request
 
 from cumulus_lambda_functions.uds_api.routes_api import main_router
-from cumulus_lambda_functions.uds_api.web_service_constants import WebServiceConstants
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
-api_base_prefix = os.environ.get(Constants.DAPA_API_PREIFX_KEY) if Constants.DAPA_API_PREIFX_KEY in os.environ else WebServiceConstants.API_PREFIX
+api_base_prefix = FastApiUtils.get_api_base_prefix()
 app = FastAPI(title='Unity UDS API',
               description='API to interact with UDS services',
               docs_url=f'/{api_base_prefix}/docs',
               redoc_url=f'/{api_base_prefix}/redoc',
               openapi_url=f'/{api_base_prefix}/docs/openapi',
               )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=FastApiUtils.get_cors_origins(),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(main_router, prefix=f'/{api_base_prefix}')
+static_parent_dir = '/var/task/cumulus_lambda_functions/uds_api/'
+# static_parent_dir = '/Users/wphyo/Projects/unity/unity-data-services/cumulus_lambda_functions/uds_api/'
+app.mount(f'/{api_base_prefix}/stac_browser', StaticFiles(directory=f"{static_parent_dir}stac_browser", html=True), name="static")
+app.mount(f'/{api_base_prefix}/stac_browser/', StaticFiles(directory=f"{static_parent_dir}stac_browser", html=True), name="static")
+
+"""
+Accept-Ranges:
+bytes
+Access-Control-Allow-Methods:
+HEAD, GET
+Access-Control-Allow-Origin:
+*
+Access-Control-Expose-Headers:
+ETag, x-amz-meta-custom-header
+Access-Control-Max-Age:
+3000
+"""
+
+# https://fastapi.tiangolo.com/tutorial/cors/
 
 @app.get("/")
 async def root(request: Request):

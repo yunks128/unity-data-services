@@ -16,6 +16,10 @@ class CqlParser:
             raise ValueError(f'not accepting right hand side to be another field. {parsed_obj.rhs}')
         return
 
+    def __transform_key(self, input_key: str):
+        # updated_key = input_key.replace('::', '.')
+        return f'{self.__key_prefix}{input_key}'
+    
     def __transform_this(self, parsed_obj):
         if isinstance(parsed_obj, And):
             return {
@@ -38,37 +42,37 @@ class CqlParser:
         if isinstance(parsed_obj, IsNull):
             return {
                 'must_not': [{
-                    'exists': f'{self.__key_prefix}{parsed_obj.lhs.name}'
+                    'exists': self.__transform_key(parsed_obj.lhs.name)
                 }]
             }
         if isinstance(parsed_obj, Equal):
             self.__valide_core_expression(parsed_obj)
             return {
-                'term': {f'{self.__key_prefix}{parsed_obj.lhs.name}': parsed_obj.rhs},  # TODO it rhs might be an attribute as well
+                'term': {self.__transform_key(parsed_obj.lhs.name): parsed_obj.rhs},  # TODO it rhs might be an attribute as well
             }
         if isinstance(parsed_obj, In):
             return {
-                'terms': {f'{self.__key_prefix}{parsed_obj.lhs.name}': parsed_obj.sub_nodes},  # TODO it rhs might be an attribute as well
+                'terms': {self.__transform_key(parsed_obj.lhs.name): parsed_obj.sub_nodes},  # TODO it rhs might be an attribute as well
             }
         if isinstance(parsed_obj, LessThan):
             self.__valide_core_expression(parsed_obj)
             return {
-                'range': {f'{self.__key_prefix}{parsed_obj.lhs.name}': {'lt': parsed_obj.rhs}},
+                'range': {self.__transform_key(parsed_obj.lhs.name): {'lt': parsed_obj.rhs}},
             }
         if isinstance(parsed_obj, LessEqual):
             self.__valide_core_expression(parsed_obj)
             return {
-                'range': {f'{self.__key_prefix}{parsed_obj.lhs.name}': {'lte': parsed_obj.rhs}},
+                'range': {self.__transform_key(parsed_obj.lhs.name): {'lte': parsed_obj.rhs}},
             }
         if isinstance(parsed_obj, GreaterThan):
             self.__valide_core_expression(parsed_obj)
             return {
-                'range': {f'{self.__key_prefix}{parsed_obj.lhs.name}': {'gt': parsed_obj.rhs}},
+                'range': {self.__transform_key(parsed_obj.lhs.name): {'gt': parsed_obj.rhs}},
             }
         if isinstance(parsed_obj, GreaterEqual):
             self.__valide_core_expression(parsed_obj)
             return {
-                'range': {f'{self.__key_prefix}{parsed_obj.lhs.name}': {'gte': parsed_obj.rhs}},
+                'range': {self.__transform_key(parsed_obj.lhs.name): {'gte': parsed_obj.rhs}},
             }
         return
 

@@ -1,8 +1,13 @@
 import base64
 import json
+import os
+
+from cumulus_lambda_functions.lib.constants import Constants
 
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from fastapi import APIRouter, HTTPException, Request, Response
+
+from cumulus_lambda_functions.uds_api.web_service_constants import WebServiceConstants
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
@@ -29,3 +34,11 @@ class FastApiUtils:
             'action': action,
             'resource': resource,
         }
+
+    @staticmethod
+    def get_cors_origins():
+        cors_origins = os.environ.get(Constants.CORS_ORIGINS, '').strip().split(',')
+        return cors_origins
+    @staticmethod
+    def get_api_base_prefix():
+        return os.environ.get(Constants.DAPA_API_PREIFX_KEY) if Constants.DAPA_API_PREIFX_KEY in os.environ else WebServiceConstants.API_PREFIX

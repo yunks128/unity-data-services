@@ -43,7 +43,7 @@ class TestOldDataEndToEnd(TestCase):
         self.tenant = 'UDS_LOCAL_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
         self.collection_name = 'SNDR-SNPP_ATMS@L1B$OUTPUT'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '24.02.01.12.00'.replace('.', '')  # '2309141300'
+        self.collection_version = '24.03.26.14.40'.replace('.', '')  # '2402011200'
         self.granule_id = 'abcd.1234.efgh.test_file05'
         return
 
@@ -100,10 +100,7 @@ class TestOldDataEndToEnd(TestCase):
         self.assertEqual(collection_created_result.status_code, 200,
                          f'wrong status code. {collection_created_result.text}')
         collection_created_result = json.loads(collection_created_result.text)
-        self.assertTrue('features' in collection_created_result,
-                        f'features not in collection_created_result: {collection_created_result}')
-        self.assertEqual(len(collection_created_result['features']), 1, f'wrong length: {collection_created_result}')
-        self.assertEqual(collection_created_result['features'][0]['id'], temp_collection_id, f'wrong id')
+        self.assertEqual(collection_created_result['id'], temp_collection_id, f'wrong id')
         print(collection_created_result)
         return
 

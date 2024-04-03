@@ -1,22 +1,26 @@
 from copy import deepcopy
 
+from pystac import Link
+
 from cumulus_lambda_functions.uds_api.dapa.pagination_links_generator import PaginationLinksGenerator
 from cumulus_lambda_functions.lib.aws.es_middleware import ESMiddleware
 from cumulus_lambda_functions.lib.cql_parser import CqlParser
 from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from cumulus_lambda_functions.uds_api.dapa.granules_db_index import GranulesDbIndex
+from cumulus_lambda_functions.uds_api.web_service_constants import WebServiceConstants
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
 class GranulesDapaQueryEs:
-    def __init__(self, collection_id, limit, offset, input_datetime, filter_input, pagination_link_obj: PaginationLinksGenerator):
+    def __init__(self, collection_id, limit, offset, input_datetime, filter_input, pagination_link_obj: PaginationLinksGenerator, base_url):
         self.__pagination_link_obj = pagination_link_obj
         self.__input_datetime = input_datetime
         self.__collection_id = collection_id
         self.__limit = limit
         self.__offset = offset
+        self.__base_url = base_url
         self.__filter_input = filter_input
         self.__granules_index = GranulesDbIndex()
 
@@ -81,6 +85,30 @@ class GranulesDapaQueryEs:
             pagination_links.append({'rel': 'next', 'href': f"{self.__pagination_link_obj.requesting_base_url}?{'&'.join([f'{k}={v}' for k, v in new_queries.items()])}"})
         return pagination_links
 
+    def get_single_granule(self, granule_id):
+        granules_query_dsl = {
+            'query': {'bool': {'must': [{
+                'term': {'id': granule_id}
+            }]}}
+        }
+        LOGGER.debug(f'granules_query_dsl: {granules_query_dsl}')
+        collection_identifier = UdsCollections.decode_identifier(self.__collection_id)
+        granules_query_result = GranulesDbIndex().dsl_search(collection_identifier.tenant,
+                                                             collection_identifier.venue,
+                                                             granules_query_dsl)
+        LOGGER.debug(f'granules_query_result: {granules_query_result}')
+        if len(granules_query_result['hits']['hits']) < 1:
+            raise ValueError(f'cannot find granule for : {granule_id}')
+
+        each_granules_query_result_stripped = granules_query_result['hits']['hits'][0]['_source']
+        self_link = Link(rel='self', target=f'{self.__base_url}/{WebServiceConstants.COLLECTIONS}/{self.__collection_id}/items/{each_granules_query_result_stripped["id"]}', media_type='application/json', title=each_granules_query_result_stripped["id"]).to_dict(False)
+        each_granules_query_result_stripped['links'].append(self_link)
+        if 'event_time' in each_granules_query_result_stripped:
+            each_granules_query_result_stripped.pop('event_time')
+        if 'bbox' in each_granules_query_result_stripped:
+            each_granules_query_result_stripped['bbox'] = GranulesDbIndex.from_es_bbox(each_granules_query_result_stripped['bbox'])
+        return each_granules_query_result_stripped
+
     def start(self):
         try:
             granules_query_dsl = self.__generate_es_dsl()
@@ -93,6 +121,8 @@ class GranulesDapaQueryEs:
             result_size = ESMiddleware.get_result_size(granules_query_result)
             granules_query_result_stripped = [k['_source'] for k in granules_query_result['hits']['hits']]
             for each_granules_query_result_stripped in granules_query_result_stripped:
+                self_link = Link(rel='self', target=f'{self.__base_url}/{WebServiceConstants.COLLECTIONS}/{self.__collection_id}/items/{each_granules_query_result_stripped["id"]}', media_type='application/json', title=each_granules_query_result_stripped["id"]).to_dict(False)
+                each_granules_query_result_stripped['links'].append(self_link)
                 if 'event_time' in each_granules_query_result_stripped:
                     each_granules_query_result_stripped.pop('event_time')
                 if 'bbox' in each_granules_query_result_stripped:
