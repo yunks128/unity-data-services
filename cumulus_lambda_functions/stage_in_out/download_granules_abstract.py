@@ -164,7 +164,7 @@ class DownloadGranulesAbstract(ABC):
 
         self._granules_json.items = local_items_list
         LOGGER.debug(f'writing features collection json to downloading directory')
-        granules_json_dict = self._granules_json.to_dict(False)
+        granules_json_dict = self._granules_json.to_dict(transform_hrefs=False)
         FileUtils.write_json(os.path.join(self._download_dir, 'downloaded_feature_collection.json'), granules_json_dict, overwrite=True, prettify=True)
         LOGGER.debug(f'writing errors if any')
         if len(error_list_list) > 0:

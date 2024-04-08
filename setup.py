@@ -5,7 +5,8 @@ install_requires = [
     'urllib3===1.26.11',
     'requests_aws4auth',
     'requests===2.31.0',
-    'pystac', 'jsonschema',
+    'pystac===1.9.0',
+    'jsonschema',
     'fastjsonschema',
     'xmltodict',
     'tenacity',
@@ -21,7 +22,7 @@ extra_requires = ['botocore', 'boto3',]
 
 setup(
     name="cumulus_lambda_functions",
-    version="7.2.0",
+    version="7.2.1",
     packages=find_packages(),
     install_requires=install_requires,
     package_data={
