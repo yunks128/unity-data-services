@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [Unity Release 24.1] - 2024-04-09
+
+### Repository Tags
+- [unity-data-services](https://github.com/unity-sds/unity-data-services/) : [7.2.1](https://github.com/unity-sds/unity-data-services/releases/tag/v7.2.1)
+
+### Added
+- [#254](https://github.com/unity-sds/unity-data-services/pull/254) breaking: allow custom-metadata in granules dapa query
+- [#333](https://github.com/unity-sds/unity-data-services/pull/333) breaking: catalog & collection endpoint + items link
+### Changed
+- [#295](https://github.com/unity-sds/unity-data-services/pull/295) feat: download granule json is public url
+- [#297](https://github.com/unity-sds/unity-data-services/pull/297) feat: granule stac asset with "roles" logic
+- [#303](https://github.com/unity-sds/unity-data-services/pull/303) feat: find stac metadata file
+- [#312](https://github.com/unity-sds/unity-data-services/pull/312) feat: stage in step to use dapa url to get the queries.
+- [#339](https://github.com/unity-sds/unity-data-services/pull/339) feat: testing stac browser ui
+- [#344](https://github.com/unity-sds/unity-data-services/pull/344) feat: update stac catalog list
+### Fixed
+- [#316](https://github.com/unity-sds/unity-data-services/pull/316) fix: granules cnm bug fixes
+- [#320](https://github.com/unity-sds/unity-data-services/pull/320) fix: stage out result file in a different directory
+- [#325](https://github.com/unity-sds/unity-data-services/pull/325) fix: replace anything not alphanumeric to 3 underscores
+- [#335](https://github.com/unity-sds/unity-data-services/pull/335) fix: split into different catalog base url
+- [#337](https://github.com/unity-sds/unity-data-services/pull/337) fix: add cors to fast api
+- [#342](https://github.com/unity-sds/unity-data-services/pull/342) fix: no filename in main data.stac.json file
+- [#347](https://github.com/unity-sds/unity-data-services/pull/347) fix: downgrade pystac to 1.9
+
 ## [7.2.1] - 2024-04-08
 ### Fixed
 - [#347](https://github.com/unity-sds/unity-data-services/pull/347) fix: downgrade pystac to 1.9
