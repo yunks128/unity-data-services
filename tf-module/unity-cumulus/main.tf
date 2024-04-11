@@ -171,3 +171,10 @@ resource "aws_ssm_parameter" "uds_api_1" {
   type  = "String"
   value = aws_lambda_function.uds_api_1.function_name
 }
+
+
+ resource "aws_ssm_parameter" "health_check_value" {
+  name  = "/unity/healthCheck/${var.health_check_marketplace_item}/${var.health_check_component_name}/url"
+  type  = "String"
+  value = "${var.uds_base_url}/${var.dapa_api_prefix}/collections"
+}

@@ -166,3 +166,16 @@ variable "cors_integration_response" {
         "method.response.header.Access-Control-Max-Age" = "'300'"
     }
 }
+
+
+variable "health_check_marketplace_item" {
+  type = string
+  default = "shared-services"
+  description = "name of the portion of market place item as path of SSM token"
+}
+
+variable "health_check_component_name" {
+  type = string
+  default = "data-catalog"
+  description = "name of the portion of market place item as path of SSM token"
+}
