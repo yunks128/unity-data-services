@@ -179,3 +179,9 @@ variable "health_check_component_name" {
   default = "data-catalog"
   description = "name of the portion of market place item as path of SSM token"
 }
+
+variable "is_deploying_healthcheck" {
+  type = bool
+  default = true
+  description = "flag to specify if deploying health check"
+}

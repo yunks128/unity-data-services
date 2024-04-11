@@ -174,6 +174,7 @@ resource "aws_ssm_parameter" "uds_api_1" {
 
 
  resource "aws_ssm_parameter" "health_check_value" {
+  count = var.is_deploying_healthcheck ? 1 : 0
   name  = "/unity/healthCheck/${var.health_check_marketplace_item}/${var.health_check_component_name}/url"
   type  = "String"
   value = "${var.uds_base_url}/${var.dapa_api_prefix}/collections"
