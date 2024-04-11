@@ -26,6 +26,7 @@ services:
       COLLECTION_ID: 'NEW_COLLECTION_EXAMPLE_L1B___9'
       STAGING_BUCKET: 'uds-test-cumulus-staging'
       DELETE_FILES: 'FALSE'
+      RESULT_PATH_PREFIX: 'stage_out/sample_dir  (Optional:defaulted to stage_out if missing. NOTE: No need to begin or end with "/". )'
 
       GRANULES_SEARCH_DOMAIN: 'UNITY'
       GRANULES_UPLOAD_TYPE: 'UPLOAD_S3_BY_STAC_CATALOG'
