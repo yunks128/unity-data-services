@@ -185,3 +185,9 @@ variable "is_deploying_healthcheck" {
   default = true
   description = "flag to specify if deploying health check"
 }
+
+variable "health_check_base_path" {
+  type = string
+  default = "/unity/healthCheck"
+  description = "base path for healthcheck which should start with, but not end with `/`"
+}
