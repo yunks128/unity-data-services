@@ -22,6 +22,7 @@ resource "aws_sqs_queue" "granules_to_es_queue" {  // https://registry.terraform
 //  tags = {
 //    Environment = "production"
 //  }
+  tags = var.tags
 }
 
 resource "aws_sns_topic_subscription" "report_granules_topic_subscription" { // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription
