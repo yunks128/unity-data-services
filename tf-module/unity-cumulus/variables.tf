@@ -210,4 +210,15 @@ variable "granules_cnm_ingester__lambda_concurrency" {
   default = 20
   description = "How many Lambdas can be executed for CNM ingester concurrently"
 }
+
+variable "granules_cnm_ingester__bucket_notification_prefix" {
+  type = string
+  default = "stage_out"
+  description = "path to the directory where catalogs.json will be written"
+}
+#variable "granules_cnm_ingester__is_deploying_bucket" {
+#  type = bool
+#  default = false
+#  description = "flag to specify if deploying example bucket"
+#}
 //         <<  Variables for granules_cnm_ingester END   >>

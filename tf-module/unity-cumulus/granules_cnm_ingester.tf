@@ -26,6 +26,15 @@ resource "aws_sns_topic" "granules_cnm_ingester" {
   tags = var.tags
 }
 
+resource "aws_sns_topic_policy" "granules_cnm_ingester_policy" {
+  arn = aws_sns_topic.granules_cnm_ingester.arn
+  policy = templatefile("${path.module}/sns_policy.json", {
+    region: var.aws_region,
+    accountId: local.account_id,
+    snsName: "${var.prefix}-granules_cnm_ingester",
+  })
+}
+
 resource "aws_sqs_queue" "dead_letter_granules_cnm_ingester" {  // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue
   // TODO how to notify admin for failed ingestion?
   tags = var.tags
@@ -84,3 +93,55 @@ resource "aws_lambda_event_source_mapping" "granules_cnm_ingester_queue_lambda_t
   batch_size = 1
   enabled = true
 }
+
+#resource "aws_s3_bucket" "granules_cnm_ingester_example_bucket" {
+##  count = var.granules_cnm_ingester__is_deploying_bucket ? 1 : 0
+#  bucket = replace("${var.prefix}-granules_cnm_ingester_example_bucket", "_", "-")
+#  tags = var.tags
+#
+#}
+#
+#resource "aws_s3_bucket_server_side_encryption_configuration" "granules_cnm_ingester_example_bucket" {  // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration
+#  bucket = aws_s3_bucket.granules_cnm_ingester_example_bucket.id
+#  rule {
+#    apply_server_side_encryption_by_default {
+#      sse_algorithm     = "AES256"
+#    }
+#  }
+#}
+
+#resource "aws_s3_bucket_policy" "granules_cnm_ingester_example_bucket" {
+#  // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy
+#  bucket = aws_s3_bucket.granules_cnm_ingester_example_bucket.id
+#  policy = data.aws_iam_policy_document.granules_cnm_ingester_example_bucket.json
+#}
+
+#data "aws_iam_policy_document" "granules_cnm_ingester_example_bucket" {
+#  statement {
+#    principals {
+#      type        = "AWS"
+#      identifiers = ["*"]
+#    }
+#
+#    actions = [
+#      "s3:ListBucket",
+#      "s3:GetObject*",
+#      "s3:PutObject*"
+#    ]
+#
+#    resources = [
+#      aws_s3_bucket.granules_cnm_ingester_example_bucket.arn,
+#      "${aws_s3_bucket.granules_cnm_ingester_example_bucket.arn}/*",
+#    ]
+#  }
+#}
+
+#resource "aws_s3_bucket_notification" "bucket_notification" {
+#  bucket = aws_s3_bucket.granules_cnm_ingester_example_bucket.id
+#  topic {
+#    topic_arn     = aws_sns_topic.granules_cnm_ingester.arn
+#    events        = ["s3:ObjectCreated:*"]
+#    filter_suffix = ".json"
+#    filter_prefix = var.granules_cnm_ingester__bucket_notification_prefix
+#  }
+#}
