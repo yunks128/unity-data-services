@@ -12,7 +12,7 @@
         "sqs:SendMessage*"
       ],
       "Principal": {
-        "Service": "sns.amazonaws.com"
+        "Service": ["sns.amazonaws.com", "sqs.amazonaws.com"]
       },
       "Resource": "arn:aws:sqs:${region}:${accountId}:${sqsName}"
     },
