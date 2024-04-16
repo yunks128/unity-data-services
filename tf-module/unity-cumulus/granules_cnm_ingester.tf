@@ -6,6 +6,7 @@ resource "aws_lambda_function" "granules_cnm_ingester" {
   handler       = "cumulus_lambda_functions.granules_cnm_ingester.lambda_function.lambda_handler"
   runtime       = "python3.9"
   timeout       = 300
+  reserved_concurrent_executions = var.granules_cnm_ingester__lambda_concurrency  # TODO
   environment {
     variables = {
       LOG_LEVEL = var.log_level
@@ -22,14 +23,17 @@ resource "aws_lambda_function" "granules_cnm_ingester" {
 
 resource "aws_sns_topic" "granules_cnm_ingester" {
   name = "${var.prefix}-granules_cnm_ingester"
+  tags = var.tags
 }
 
 resource "aws_sqs_queue" "dead_letter_granules_cnm_ingester" {  // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue
+  // TODO how to notify admin for failed ingestion?
+  tags = var.tags
   name                      = "${var.prefix}-dead_letter_granules_cnm_ingester"
   delay_seconds             = 0
   max_message_size          = 262144
   message_retention_seconds = 345600
-  visibility_timeout_seconds = 310
+  visibility_timeout_seconds = 300
   receive_wait_time_seconds = 0
   policy = templatefile("${path.module}/sqs_policy.json", {
     region: var.aws_region,
@@ -51,7 +55,7 @@ resource "aws_sqs_queue" "granules_cnm_ingester" {  // https://registry.terrafor
   delay_seconds             = 0
   max_message_size          = 262144
   message_retention_seconds = 345600
-  visibility_timeout_seconds = 310
+  visibility_timeout_seconds = var.granules_cnm_ingester__sqs_visibility_timeout_seconds  // Used as cool off time in seconds. It will wait for 5 min if it fails
   receive_wait_time_seconds = 0
   policy = templatefile("${path.module}/sqs_policy.json", {
     region: var.aws_region,
@@ -61,11 +65,9 @@ resource "aws_sqs_queue" "granules_cnm_ingester" {  // https://registry.terrafor
   })
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.dead_letter_granules_cnm_ingester.arn
-    maxReceiveCount     = 3
+    maxReceiveCount     = var.granules_cnm_ingester__sqs_retried_count  // How many times it will be retried.
   })
-//  tags = {
-//    Environment = "production"
-//  }
+  tags = var.tags
 }
 
 resource "aws_sns_topic_subscription" "granules_cnm_ingester_topic_subscription" { // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription

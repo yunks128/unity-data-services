@@ -191,3 +191,23 @@ variable "health_check_base_path" {
   default = "/unity/healthCheck"
   description = "base path for healthcheck which should start with, but not end with `/`"
 }
+
+//         <<  Variables for granules_cnm_ingester   >>
+variable "granules_cnm_ingester__sqs_visibility_timeout_seconds" {
+  type = number
+  default = 300
+  description = "when a lambda ends in error, how much sqs should wait till it is retried again. (in seconds). defaulted to 5 min"
+}
+
+variable "granules_cnm_ingester__sqs_retried_count" {
+  type = number
+  default = 3
+  description = "How many times it is retried before pushing it to DLQ. defaulted to 3 times"
+}
+
+variable "granules_cnm_ingester__lambda_concurrency" {
+  type = number
+  default = 20
+  description = "How many Lambdas can be executed for CNM ingester concurrently"
+}
+//         <<  Variables for granules_cnm_ingester END   >>

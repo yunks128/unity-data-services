@@ -170,6 +170,7 @@ resource "aws_ssm_parameter" "uds_api_1" {
   name  = "/unity/unity-ds/api-gateway/integrations/${var.prefix}-uds_api_1-function-name"
   type  = "String"
   value = aws_lambda_function.uds_api_1.function_name
+  tags = var.tags
 }
 
 
@@ -178,4 +179,5 @@ resource "aws_ssm_parameter" "uds_api_1" {
   name  = "${var.health_check_base_path}/${var.health_check_marketplace_item}/${var.health_check_component_name}/url"
   type  = "String"
   value = "${var.uds_base_url}/${var.dapa_api_prefix}/collections"
+  tags = var.tags
 }
