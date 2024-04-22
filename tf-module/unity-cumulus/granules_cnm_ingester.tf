@@ -32,6 +32,7 @@ resource "aws_sns_topic_policy" "granules_cnm_ingester_policy" {
     region: var.aws_region,
     accountId: local.account_id,
     snsName: "${var.prefix}-granules_cnm_ingester",
+    s3Glob: var.granules_cnm_ingester__s3_glob
   })
 }
 

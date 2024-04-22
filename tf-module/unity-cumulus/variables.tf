@@ -216,6 +216,12 @@ variable "granules_cnm_ingester__bucket_notification_prefix" {
   default = "stage_out"
   description = "path to the directory where catalogs.json will be written"
 }
+
+variable "granules_cnm_ingester__s3_glob" {
+    type = string
+  default = "*unity*"
+  description = "GLOB expression that has all s3 buckets connecting to SNS topic"
+}
 #variable "granules_cnm_ingester__is_deploying_bucket" {
 #  type = bool
 #  default = false
