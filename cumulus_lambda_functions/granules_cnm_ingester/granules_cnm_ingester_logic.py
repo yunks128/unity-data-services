@@ -1,3 +1,7 @@
+from cumulus_lambda_functions.cumulus_stac.unity_collection_stac import UnityCollectionStac
+
+from cumulus_lambda_functions.uds_api.dapa.collections_dapa_creation import CollectionDapaCreation
+
 from cumulus_lambda_functions.cumulus_stac.item_transformer import ItemTransformer
 from pystac import ItemCollection, Item
 
@@ -10,27 +14,13 @@ from cumulus_lambda_functions.lib.aws.aws_s3 import AwsS3
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 """
-{
-                'type': 'FeatureCollection', 
-                'features': [{
-                    'type': 'Feature', 
-                    'stac_version': '1.0.0', 
-                    'id': 'NEW_COLLECTION_EXAMPLE_L1B___9:test_file01',
-                    'properties': {'start_datetime': '2016-01-31T18:00:00.009057Z',
-                                'end_datetime': '2016-01-31T19:59:59.991043Z', 'created': '2016-02-01T02:45:59.639000Z',
-                                'updated': '2022-03-23T15:48:21.578000Z', 'datetime': '1970-01-01T00:00:00Z'},
-                    'geometry': {'type': 'Point', 'coordinates': [0.0, 0.0]}, 'links': [], 
-                    'assets': {'data': {
-                        'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc',
-                        'title': 'main data'}, 'metadata__cas': {
-                        'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.cas',
-                        'title': 'metadata cas'}, 'metadata__stac': {
-                        'href': 's3://uds-test-cumulus-staging/NEW_COLLECTION_EXAMPLE_L1B___9/NEW_COLLECTION_EXAMPLE_L1B___9:test_file01/test_file01.nc.stac.json',
-                        'title': 'metadata stac'}}, 
-                    'bbox': [0.0, 0.0, 0.0, 0.0], 
-                    'stac_extensions': [],
-                    'collection': 'NEW_COLLECTION_EXAMPLE_L1B___9'}]}
-                        
+TODO
+
+UNITY_DEFAULT_PROVIDER
+CUMULUS_WORKFLOW_NAME
+REPORT_TO_EMS
+CUMULUS_WORKFLOW_SQS_URL  
+ES_URL                
 
 """
 class GranulesCnmIngesterLogic:
@@ -118,4 +108,29 @@ class GranulesCnmIngesterLogic:
             raise ValueError(f'missing STAC metadata. Unable to continue.')
         self.__collection_id = sample_stac_metadata.collection_id
         return
+
+    def create_collection(self):
+        if self.collection_id is None:
+            raise RuntimeError(f'NULL collection_id')
+        # TODO check if it already exists
+        # ref: https://github.com/unity-sds/unity-py/blob/0.4.0/unity_sds_client/services/data_service.py
+        dapa_collection = UnityCollectionStac() \
+            .with_id(self.collection_id) \
+            .with_graule_id_regex("^test_file.*$") \
+            .with_granule_id_extraction_regex("(^test_file.*)(\\.nc|\\.nc\\.cas|\\.cmr\\.xml)") \
+            .with_title(f'Collection: {self.collection_id}') \
+            .with_process('stac') \
+            .add_file_type("test_file01.nc", "^test_file.*\\.nc$", 'unknown_bucket', 'application/json', 'root') \
+            .add_file_type("test_file01.nc", "^test_file.*\\.nc$", 'protected', 'data', 'item') \
+            .add_file_type("test_file01.nc.cas", "^test_file.*\\.nc.cas$", 'protected', 'metadata', 'item') \
+            .add_file_type("test_file01.nc.cmr.xml", "^test_file.*\\.nc.cmr.xml$", 'protected', 'metadata', 'item') \
+            .add_file_type("test_file01.nc.stac.json", "^test_file.*\\.nc.stac.json$", 'protected', 'metadata', 'item')
+        stac_collection = dapa_collection.start()
+        creation_result = CollectionDapaCreation(stac_collection).create()
+        if creation_result['statusCode'] >= 400:
+            raise RuntimeError(f'failed to create collection: {self.collection_id}. details: {creation_result["body"]}')
+        # TODO check if it already exists
+
+        return
+
 
