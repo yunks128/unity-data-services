@@ -2,6 +2,8 @@ import json
 import time
 from multiprocessing import Manager
 
+from cumulus_lambda_functions.lib.time_utils import TimeUtils
+
 from cumulus_lambda_functions.lib.utils.file_utils import FileUtils
 
 from cumulus_lambda_functions.lib.constants import Constants
@@ -87,6 +89,8 @@ class UploadItemExecutor(JobExecutorAbstract):
 
 
 class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
+    RESULT_PATH_PREFIX = 'RESULT_PATH_PREFIX'
+    DEFAULT_RESULT_PATH_PREFIX = 'stage_out'
     CATALOG_FILE = 'CATALOG_FILE'
     OUTPUT_DIRECTORY = 'OUTPUT_DIRECTORY'
     COLLECTION_ID_KEY = 'COLLECTION_ID'
@@ -100,6 +104,7 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
         self.__gc = GranulesCatalog()
         self.__collection_id = ''
         self.__staging_bucket = ''
+        self.__result_path_prefix = ''
         self.__verify_ssl = True
         self.__delete_files = False
         self.__s3 = AwsS3()
@@ -114,7 +119,9 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
 
         self.__collection_id = os.environ.get(self.COLLECTION_ID_KEY)
         self.__staging_bucket = os.environ.get(self.STAGING_BUCKET_KEY)
-
+        self.__result_path_prefix = os.environ.get(self.RESULT_PATH_PREFIX, self.DEFAULT_RESULT_PATH_PREFIX)
+        self.__result_path_prefix = self.__result_path_prefix[:-1] if self.__result_path_prefix.endswith('/') else self.__result_path_prefix
+        self.__result_path_prefix = self.__result_path_prefix[1:] if self.__result_path_prefix.startswith('/') else self.__result_path_prefix
         self.__verify_ssl = os.environ.get(self.VERIFY_SSL_KEY, 'TRUE').strip().upper() == 'TRUE'
         self.__delete_files = os.environ.get(self.DELETE_FILES_KEY, 'FALSE').strip().upper() == 'TRUE'
         return self
@@ -151,10 +158,18 @@ class UploadGranulesByCompleteCatalogS3(UploadGranulesAbstract):
         successful_item_collections = ItemCollection(items=dapa_body_granules)
         failed_item_collections = ItemCollection(items=errors)
         successful_features_file = os.path.join(output_dir, 'successful_features.json')
+
+
+
         failed_features_file = os.path.join(output_dir, 'failed_features.json')
         LOGGER.debug(f'writing results: {successful_features_file} && {failed_features_file}')
         FileUtils.write_json(successful_features_file, successful_item_collections.to_dict(False))
         FileUtils.write_json(failed_features_file, failed_item_collections.to_dict(False))
+        s3_url = self.__s3.upload(successful_features_file, self.__staging_bucket,
+                                  self.__result_path_prefix,
+                                  s3_name=f'successful_features_{TimeUtils.get_current_time()}.json',
+                                  delete_files=self.__delete_files)
+        LOGGER.debug(f'uploaded successful features to S3: {s3_url}')
         LOGGER.debug(f'creating response catalog')
         catalog_json = GranulesCatalog().update_catalog(catalog_file_path, [successful_features_file, failed_features_file])
         LOGGER.debug(f'catalog_json: {catalog_json}')
