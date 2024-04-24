@@ -1,4 +1,5 @@
 import json
+from urllib.parse import unquote
 
 from cumulus_lambda_functions.lib.json_validator import JsonValidator
 
@@ -89,10 +90,9 @@ class AwsMessageTransformers:
         result = JsonValidator(self.S3_RECORD_SCHEMA).validate(sns_msg_body)
         if result is not None:
             raise ValueError(f'sqs_msg did not pass SQS_MSG_SCHEMA: {result}')
-
         s3_summary = {
             'eventName': sns_msg_body['Records'][0]['eventName'],
             'bucket': sns_msg_body['Records'][0]['s3']['bucket']['name'],
-            'key': sns_msg_body['Records'][0]['s3']['object']['key'],
+            'key': unquote(sns_msg_body['Records'][0]['s3']['object']['key'].replace('+', ' ')),
         }
         return s3_summary
