@@ -29,8 +29,15 @@ class AwsMessageTransformers:
             "Type": {"type": "string"},
             "MessageId": {"type": "string"},
             "TopicArn": {"type": "string"},
+            "Subject": {"type": "string"},
+            "Timestamp": {"type": "string"},
+            "SignatureVersion": {"type": "string"},
+            "Signature": {"type": "string"},
+            "SigningCertURL": {"type": "string"},
+            "UnsubscribeURL": {"type": "string"},
             "Message": {"type": "string"},
-        }
+        },
+        "required": ["Message"]
     }
 
     S3_RECORD_SCHEMA = {
@@ -41,22 +48,25 @@ class AwsMessageTransformers:
             'maxItems': 1,
             'items': {
                 'type': 'object',
-                'properties': {'s3': {
-                    'type': 'object',
-                    'properties': {
-                        'bucket': {
-                            'type': 'object',
-                            'properties': {'name': {'type': 'string', 'minLength': 1}},
-                            'required': ['name']
-                        },
-                        'object': {
-                            'type': 'object',
-                            'properties': {'key': {'type': 'string', 'minLength': 1}},
-                            'required': ['key']
-                        }},
-                    'required': ['bucket', 'object']
-                }},
-                'required': ['s3']
+                'properties': {
+                    'eventName': {'type': 'string'},
+                    's3': {
+                        'type': 'object',
+                        'properties': {
+                            'bucket': {
+                                'type': 'object',
+                                'properties': {'name': {'type': 'string', 'minLength': 1}},
+                                'required': ['name']
+                            },
+                            'object': {
+                                'type': 'object',
+                                'properties': {'key': {'type': 'string', 'minLength': 1}},
+                                'required': ['key']
+                            }},
+                        'required': ['bucket', 'object']
+                    }
+                },
+                'required': ['eventName', 's3']
             }
         }},
         'required': ['Records']
@@ -74,3 +84,15 @@ class AwsMessageTransformers:
         sns_msg_body = sqs_msg_body['Message']
         sns_msg_body = json.loads(sns_msg_body)
         return sns_msg_body
+
+    def get_s3_from_sns(self, sns_msg_body):
+        result = JsonValidator(self.S3_RECORD_SCHEMA).validate(sns_msg_body)
+        if result is not None:
+            raise ValueError(f'sqs_msg did not pass SQS_MSG_SCHEMA: {result}')
+
+        s3_summary = {
+            'eventName': sns_msg_body['Records'][0]['eventName'],
+            'bucket': sns_msg_body['Records'][0]['s3']['bucket']['name'],
+            'key': sns_msg_body['Records'][0]['s3']['object']['key'],
+        }
+        return s3_summary

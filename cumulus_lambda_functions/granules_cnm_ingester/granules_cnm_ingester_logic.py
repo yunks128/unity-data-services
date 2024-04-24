@@ -1,5 +1,6 @@
 import os
 
+from cumulus_lambda_functions.lib.aws.aws_message_transformers import AwsMessageTransformers
 from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
 
 from cumulus_lambda_functions.stage_in_out.stage_in_out_utils import StageInOutUtils
@@ -173,4 +174,16 @@ class GranulesCnmIngesterLogic:
             raise ValueError(f'failed to ingest to CNM: {e}')
         if len(errors) > 0:
             raise RuntimeError(f'failures during CNM ingestion: {errors}')
+        return
+
+    def start(self, event):
+        LOGGER.debug(f'event: {event}')
+        sns_msg = AwsMessageTransformers().sqs_sns(event)
+        s3_details = AwsMessageTransformers().get_s3_from_sns(sns_msg)
+        s3_url = f's3://{s3_details["bucket"]}/{s3_details["key"]}'
+        self.load_successful_features_s3(s3_url)
+        self.validate_granules()
+        self.extract_collection_id()
+        self.create_collection()
+        self.send_cnm_msg()
         return
