@@ -1,3 +1,4 @@
+import json
 import os
 from unittest import TestCase
 
@@ -8,6 +9,19 @@ from cumulus_lambda_functions.granules_cnm_ingester.granules_cnm_ingester_logic 
 
 
 class TestGranulesCnmIngesterLogic(TestCase):
+
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName)
+        os.environ['SNS_TOPIC_ARN'] = 'arn:aws:sns:us-west-2:237868187491:uds-sbx-cumulus-cnm-submission-sns'
+        os.environ['COLLECTION_CREATION_LAMBDA_NAME'] = 'NA'
+        os.environ['UNITY_DEFAULT_PROVIDER'] = 'unity'
+        os.environ['CUMULUS_WORKFLOW_NAME'] = 'CatalogGranule'
+        os.environ['REPORT_TO_EMS'] = 'FALSE'
+        os.environ['CUMULUS_LAMBDA_PREFIX'] = 'uds-sbx-cumulus'
+        os.environ['CUMULUS_WORKFLOW_SQS_URL'] = 'https://sqs.us-west-2.amazonaws.com/237868187491/uds-sbx-cumulus-cnm-submission-queue'
+        os.environ['ES_URL'] = 'vpc-uds-sbx-cumulus-es-qk73x5h47jwmela5nbwjte4yzq.us-west-2.es.amazonaws.com'
+        os.environ['ES_PORT'] = '9200'
+
     def test_load_successful_features_s3(self):
         s3_url = 's3://uds-sbx-cumulus-staging/integration_test/stag_eout/successful_features_2024-04-11T21:21:13.019769.json'
         a = GranulesCnmIngesterLogic().load_successful_features_s3(s3_url)
@@ -27,17 +41,10 @@ class TestGranulesCnmIngesterLogic(TestCase):
         a = GranulesCnmIngesterLogic()
         a.successful_features = result
         a.extract_collection_id()
-        self.assertEqual(a.collection_id, 'NA')
+        self.assertEqual(a.collection_id, 'NEW_COLLECTION_EXAMPLE_L1B___9')
         return
 
     def test_create_collection(self):
-        os.environ['UNITY_DEFAULT_PROVIDER'] = 'unity'
-        os.environ['CUMULUS_WORKFLOW_NAME'] = 'CatalogGranule'
-        os.environ['REPORT_TO_EMS'] = 'FALSE'
-        os.environ['CUMULUS_LAMBDA_PREFIX'] = 'uds-sbx-cumulus'
-        os.environ['CUMULUS_WORKFLOW_SQS_URL'] = 'https://sqs.us-west-2.amazonaws.com/237868187491/uds-sbx-cumulus-cnm-submission-queue'
-        os.environ['ES_URL'] = 'vpc-uds-sbx-cumulus-es-qk73x5h47jwmela5nbwjte4yzq.us-west-2.es.amazonaws.com'
-        os.environ['ES_PORT'] = '9200'
         a = GranulesCnmIngesterLogic()
         self.tenant = 'UDS_LOCAL_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
@@ -48,3 +55,11 @@ class TestGranulesCnmIngesterLogic(TestCase):
         a.create_collection()
         return
 
+    def test_send_cnm_msg(self):
+        result = '''{"type": "FeatureCollection", "features": [{"type": "Feature", "stac_version": "1.0.0", "id": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2404240700:abcd.1234.efgh.test_file05", "properties": {"tag": "#sample", "c_data1": [1, 10, 100, 1000], "c_data2": [false, true, true, false, true], "c_data3": ["Bellman Ford"], "soil10": {"0_0": 0, "0_1": 1, "0_2": 0}, "start_datetime": "2016-01-31T18:00:00.009057Z", "end_datetime": "2016-01-31T19:59:59.991043Z", "created": "2016-02-01T02:45:59.639000Z", "updated": "2022-03-23T15:48:21.578000Z", "datetime": "1970-01-01T00:00:00Z"}, "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}, "links": [], "assets": {"abcd.1234.efgh.test_file05.data.stac.json": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2404240700/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2404240700:abcd.1234.efgh.test_file05/abcd.1234.efgh.test_file05.data.stac.json", "title": "abcd.1234.efgh.test_file05.data.stac.json", "roles": ["data"]}, "abcd.1234.efgh.test_file05.nc.cas": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2404240700/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2404240700:abcd.1234.efgh.test_file05/abcd.1234.efgh.test_file05.nc.cas", "title": "abcd.1234.efgh.test_file05.nc.cas", "roles": ["metadata"]}, "abcd.1234.efgh.test_file05.nc.stac.json": {"href": "s3://uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2404240700/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2404240700:abcd.1234.efgh.test_file05/abcd.1234.efgh.test_file05.nc.stac.json", "title": "abcd.1234.efgh.test_file05.nc.stac.json", "roles": ["metadata"]}}, "bbox": [0.0, 0.0, 0.0, 0.0], "stac_extensions": [], "collection": "URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2404240700"}]}
+        '''
+        result = json.loads(result)
+        a = GranulesCnmIngesterLogic()
+        a.successful_features_json = result
+        a.send_cnm_msg()
+        return

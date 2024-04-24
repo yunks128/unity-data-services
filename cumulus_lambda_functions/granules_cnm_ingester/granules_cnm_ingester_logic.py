@@ -116,21 +116,7 @@ class GranulesCnmIngesterLogic:
         if len(self.successful_features.items) < 1:
             LOGGER.error(f'not required to process. No Granules: {self.successful_features.to_dict(False)}')
             return
-        sample_stac_metadata = None
-        for each_asset_name, each_asset in self.successful_features.items[0].assets.items():
-            if 'metadata' in each_asset.roles and each_asset.href.upper().endswith('JSON'):
-                local_metadata_file = self.__s3.set_s3_url(each_asset.href).download('/tmp')
-                stac_metadata = FileUtils.read_json(local_metadata_file)
-                FileUtils.remove_if_exists(local_metadata_file)
-                try:
-                    sample_stac_metadata: Item = ItemTransformer().from_stac(stac_metadata)
-                    break
-                except:
-                    LOGGER.debug(f'{each_asset_name} is not STAC metadata')
-                    sample_stac_metadata = None
-        if sample_stac_metadata is None:
-            raise ValueError(f'missing STAC metadata. Unable to continue.')
-        self.__collection_id = sample_stac_metadata.collection_id
+        self.collection_id = self.successful_features.items[0].collection_id
         return
 
     def has_collection(self):
@@ -177,7 +163,7 @@ class GranulesCnmIngesterLogic:
                     }
                     collections_dapa_cnm = CollectionsDapaCnm(dapa_body)
                     cnm_result = collections_dapa_cnm.start()
-                    if cnm_result['statusCode'] != 202:
+                    if cnm_result['statusCode'] != 200:
                         errors.extend(features_chunk)
                 except Exception as e1:
                     LOGGER.exception(f'failed to queue CNM process.')
