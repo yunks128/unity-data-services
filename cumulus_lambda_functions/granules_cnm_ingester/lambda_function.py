@@ -1,9 +1,6 @@
 import json
-<<<<<<< HEAD
 
 from cumulus_lambda_functions.granules_cnm_ingester.granules_cnm_ingester_logic import GranulesCnmIngesterLogic
-=======
->>>>>>> 33310aefc1092c2afc719e2af5aae39b0c3b3411
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 
 
