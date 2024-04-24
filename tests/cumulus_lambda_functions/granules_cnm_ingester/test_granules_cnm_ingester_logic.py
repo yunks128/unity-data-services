@@ -37,8 +37,14 @@ class TestGranulesCnmIngesterLogic(TestCase):
         os.environ['CUMULUS_LAMBDA_PREFIX'] = 'uds-sbx-cumulus'
         os.environ['CUMULUS_WORKFLOW_SQS_URL'] = 'https://sqs.us-west-2.amazonaws.com/237868187491/uds-sbx-cumulus-cnm-submission-queue'
         os.environ['ES_URL'] = 'vpc-uds-sbx-cumulus-es-qk73x5h47jwmela5nbwjte4yzq.us-west-2.es.amazonaws.com'
+        os.environ['ES_PORT'] = '9200'
         a = GranulesCnmIngesterLogic()
-        a.collection_id = f'URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION_{TimeUtils.get_current_time(False, True, False)}'
+        self.tenant = 'UDS_LOCAL_TEST'  # 'uds_local_test'  # 'uds_sandbox'
+        self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
+        self.collection_name = 'UDS_COLLECTION_CNM_INGESTION'  # 'uds_collection'  # 'sbx_collection'
+        self.collection_version = '24.04.24.06.00'.replace('.', '')  # '2402011200'
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
+        a.collection_id = temp_collection_id
         a.create_collection()
         return
 

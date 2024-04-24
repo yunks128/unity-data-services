@@ -1,14 +1,17 @@
+import os
+
+from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
+
+from cumulus_lambda_functions.stage_in_out.stage_in_out_utils import StageInOutUtils
+
+from cumulus_lambda_functions.uds_api.dapa.collections_dapa_cnm import CollectionsDapaCnm
+
 from cumulus_lambda_functions.cumulus_stac.unity_collection_stac import UnityCollectionStac
-
 from cumulus_lambda_functions.uds_api.dapa.collections_dapa_creation import CollectionDapaCreation
-
 from cumulus_lambda_functions.cumulus_stac.item_transformer import ItemTransformer
 from pystac import ItemCollection, Item
-
 from cumulus_lambda_functions.lib.utils.file_utils import FileUtils
-
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
-
 from cumulus_lambda_functions.lib.aws.aws_s3 import AwsS3
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
@@ -20,14 +23,35 @@ UNITY_DEFAULT_PROVIDER
 CUMULUS_WORKFLOW_NAME
 REPORT_TO_EMS
 CUMULUS_WORKFLOW_SQS_URL  
+CUMULUS_LAMBDA_PREFIX
 ES_URL                
-
+ES_PORT              
+SNS_TOPIC_ARN
 """
 class GranulesCnmIngesterLogic:
     def __init__(self):
         self.__s3 = AwsS3()
+        self.__successful_features_json = None
         self.__successful_features: ItemCollection = None
         self.__collection_id = None
+        self.__chunk_size = StageInOutUtils.CATALOG_DEFAULT_CHUNK_SIZE
+        if 'UNITY_DEFAULT_PROVIDER' not in os.environ:
+            raise ValueError(f'missing UNITY_DEFAULT_PROVIDER')
+        self.__default_provider = os.environ.get('UNITY_DEFAULT_PROVIDER')
+        self.__uds_collection = UdsCollections(es_url=os.getenv('ES_URL'), es_port=int(os.getenv('ES_PORT', '443')))
+
+    @property
+    def successful_features_json(self):
+        return self.__successful_features_json
+
+    @successful_features_json.setter
+    def successful_features_json(self, val):
+        """
+        :param val:
+        :return: None
+        """
+        self.__successful_features_json = val
+        return
 
     @property
     def collection_id(self):
@@ -61,9 +85,9 @@ class GranulesCnmIngesterLogic:
             LOGGER.error(f'missing successful_features: {successful_features_s3_url}')
             raise ValueError(f'missing successful_features: {successful_features_s3_url}')
         local_successful_features = self.__s3.download('/tmp')
-        self.__successful_features = FileUtils.read_json(local_successful_features)
+        self.__successful_features_json = FileUtils.read_json(local_successful_features)
         FileUtils.remove_if_exists(local_successful_features)
-        self.__successful_features = ItemCollection.from_dict(self.__successful_features)
+        self.__successful_features = ItemCollection.from_dict(self.__successful_features_json)
         return
 
     def validate_granules(self):
@@ -109,10 +133,16 @@ class GranulesCnmIngesterLogic:
         self.__collection_id = sample_stac_metadata.collection_id
         return
 
+    def has_collection(self):
+        uds_collection_result = self.__uds_collection.get_collection(self.collection_id)
+        return len(uds_collection_result) > 0
+
     def create_collection(self):
         if self.collection_id is None:
             raise RuntimeError(f'NULL collection_id')
-        # TODO check if it already exists
+        if self.has_collection():
+            LOGGER.debug(f'{self.collection_id} already exists. continuing..')
+            return
         # ref: https://github.com/unity-sds/unity-py/blob/0.4.0/unity_sds_client/services/data_service.py
         dapa_collection = UnityCollectionStac() \
             .with_id(self.collection_id) \
@@ -129,8 +159,32 @@ class GranulesCnmIngesterLogic:
         creation_result = CollectionDapaCreation(stac_collection).create()
         if creation_result['statusCode'] >= 400:
             raise RuntimeError(f'failed to create collection: {self.collection_id}. details: {creation_result["body"]}')
-        # TODO check if it already exists
-
+        if not self.has_collection():
+            LOGGER.error(f'missing collection. (failed to create): {self.collection_id}')
+            raise ValueError(f'missing collection. (failed to create): {self.collection_id}')
         return
 
-
+    def send_cnm_msg(self):
+        LOGGER.debug(f'starting ingest_cnm_dapa_actual')
+        try:
+            errors = []
+            for i, features_chunk in enumerate(StageInOutUtils.chunk_list(self.successful_features_json['features'], self.__chunk_size)):
+                try:
+                    LOGGER.debug(f'working on chunk_index {i}')
+                    dapa_body = {
+                        "provider_id": self.__default_provider,
+                        "features": features_chunk
+                    }
+                    collections_dapa_cnm = CollectionsDapaCnm(dapa_body)
+                    cnm_result = collections_dapa_cnm.start()
+                    if cnm_result['statusCode'] != 202:
+                        errors.extend(features_chunk)
+                except Exception as e1:
+                    LOGGER.exception(f'failed to queue CNM process.')
+                    errors.extend(features_chunk)
+        except Exception as e:
+            LOGGER.exception('failed to ingest to CNM')
+            raise ValueError(f'failed to ingest to CNM: {e}')
+        if len(errors) > 0:
+            raise RuntimeError(f'failures during CNM ingestion: {errors}')
+        return
