@@ -1,4 +1,5 @@
 import os
+import time
 
 from cumulus_lambda_functions.lib.aws.aws_message_transformers import AwsMessageTransformers
 from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
@@ -146,6 +147,7 @@ class GranulesCnmIngesterLogic:
         creation_result = CollectionDapaCreation(stac_collection).create()
         if creation_result['statusCode'] >= 400:
             raise RuntimeError(f'failed to create collection: {self.collection_id}. details: {creation_result["body"]}')
+        time.sleep(3)  # cool off period before checking DB
         if not self.has_collection():
             LOGGER.error(f'missing collection. (failed to create): {self.collection_id}')
             raise ValueError(f'missing collection. (failed to create): {self.collection_id}')

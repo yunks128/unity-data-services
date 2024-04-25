@@ -41,7 +41,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         self.tenant = 'UDS_LOCAL_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
         self.collection_name = 'UDS_COLLECTION'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '24.04.24.07.00'.replace('.', '')  # '2402011200'
+        self.collection_version = '24.04.25.09.00'.replace('.', '')  # '2402011200'
 
         self.custom_metadata_body = {
             'tag': {'type': 'keyword'},
