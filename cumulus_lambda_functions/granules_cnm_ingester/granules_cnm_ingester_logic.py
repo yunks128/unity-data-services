@@ -138,11 +138,13 @@ class GranulesCnmIngesterLogic:
             .with_granule_id_extraction_regex("(^test_file.*)(\\.nc|\\.nc\\.cas|\\.cmr\\.xml)") \
             .with_title(f'Collection: {self.collection_id}') \
             .with_process('stac') \
+            .with_provider(self.__default_provider) \
             .add_file_type("test_file01.nc", "^test_file.*\\.nc$", 'unknown_bucket', 'application/json', 'root') \
             .add_file_type("test_file01.nc", "^test_file.*\\.nc$", 'protected', 'data', 'item') \
             .add_file_type("test_file01.nc.cas", "^test_file.*\\.nc.cas$", 'protected', 'metadata', 'item') \
             .add_file_type("test_file01.nc.cmr.xml", "^test_file.*\\.nc.cmr.xml$", 'protected', 'metadata', 'item') \
             .add_file_type("test_file01.nc.stac.json", "^test_file.*\\.nc.stac.json$", 'protected', 'metadata', 'item')
+
         stac_collection = dapa_collection.start()
         creation_result = CollectionDapaCreation(stac_collection).create()
         if creation_result['statusCode'] >= 400:
