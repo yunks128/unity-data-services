@@ -58,6 +58,13 @@ class AwsS3(AwsCred):
                 raise e
         return f's3://{bucket}/{s3_key}'
 
+    def exists(self, base_path: str, relative_path: str):
+        try:
+            response = self.__s3_client.head_object(Bucket=base_path, Key=relative_path)
+        except:
+            return False
+        return True
+
     def upload(self, file_path: str, base_path: str, relative_parent_path: str, delete_files: bool,
                s3_name: Union[str, None] = None, obj_tags: dict = {}, overwrite: bool = False):
         s3_url = self.__upload_to_s3(base_path, relative_parent_path, file_path, delete_files, True, obj_tags, s3_name)

@@ -21,7 +21,7 @@ upload_lambda:
 	aws --profile saml-pub s3 cp cumulus_lambda_functions_deployment.zip s3://am-uds-dev-cumulus-tf-state/unity_cumulus_lambda/
 
 upload_lambda_mcp_dev:
-	aws s3 cp cumulus_lambda_functions_deployment.zip s3://uds-dev-cumulus-public/unity_cumulus_lambda/
+	aws s3 cp tf-module/unity-cumulus/build/cumulus_lambda_functions_deployment.zip s3://uds-dev-cumulus-public/unity_cumulus_lambda/
 update_lambda_function_mcp_dev_6:
 	aws lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket uds-dev-cumulus-public --function-name arn:aws:lambda:us-west-2:237868187491:function:uds-dev-cumulus-metadata_s4pa_generate_cmr --publish &>/dev/null
 update_lambda_function_mcp_dev_7:
@@ -48,6 +48,9 @@ update_lambda_function_mcp_sbx_7:
 
 update_lambda_function_mcp_sbx_8:
 	aws lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket uds-dev-cumulus-public --function-name arn:aws:lambda:us-west-2:237868187491:function:uds-sbx-cumulus-granules_to_es --publish &>/dev/null
+
+update_lambda_function_mcp_sbx_ingester:
+	aws lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket uds-dev-cumulus-public --function-name arn:aws:lambda:us-west-2:237868187491:function:uds-sbx-cumulus-granules_cnm_ingester --publish &>/dev/null
 
 mcp_sbx: upload_lambda_mcp_dev update_lambda_function_mcp_sbx_7 update_lambda_function_mcp_sbx_8
 
