@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 install_requires = [
-    'rfc3986===2.0.0',
+    'rfc3986===1.5.0',
     'elasticsearch===7.13.4',
     'urllib3===1.26.11',
     'requests_aws4auth',
