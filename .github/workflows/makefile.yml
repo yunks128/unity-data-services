@@ -19,7 +19,7 @@ jobs:
       with:
         python-version: '3.9'
     - run: |
-        python3 "${GITHUB_WORKSPACE}/setup.py" install
+        python3 -m pip install -r "${GITHUB_WORKSPACE}/requirements.txt"
     - run: |
         python3 "${GITHUB_WORKSPACE}/setup.py" install_lib
     - run: |
