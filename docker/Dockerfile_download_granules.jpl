@@ -5,8 +5,8 @@ RUN apt-get update -y && apt-get install vim -y
 ENV PYTHONPATH "${PYTHONPATH}:/usr/src/app/unity"
 RUN python -m pip install boto3
 RUN mkdir -p /usr/src/app/unity
-COPY setup.py ./setup.py
-RUN ["python", "setup.py", "install"]
+COPY requirements.txt ./requirements.txt
+RUN python3 -m pip install -r requirements.txt
 
 COPY setup.py /usr/src/app/unity/setup.py
 COPY cumulus_lambda_functions /usr/src/app/unity/cumulus_lambda_functions

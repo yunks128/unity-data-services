@@ -70,6 +70,25 @@ class UdsCollections:
         self.__es.index_one(indexing_dict, collection_id, DBConstants.collections_index)
         return self
 
+    def get_collection(self, collection_id: str):
+        authorized_collection_ids_dsl = {
+            'size': 20,
+            'query': {
+                'bool': {
+                    'must': [
+                        {'term': {DBConstants.collection_id: {'value': collection_id}}}
+                    ]
+                }
+            },
+            'sort': [
+                {DBConstants.collection_id: {'order': 'asc'}}
+            ]
+        }
+        LOGGER.debug(f'authorized_collection_ids_dsl: {authorized_collection_ids_dsl}')
+        authorized_collection_ids = self.__es.query(authorized_collection_ids_dsl, DBConstants.collections_index)
+        authorized_collection_ids = [k['_source'] for k in authorized_collection_ids['hits']['hits']]
+        return authorized_collection_ids
+
     def get_collections(self, collection_regex: list):
         # temp_dsl = {
         #     'query': {'match_all': {}},
