@@ -219,7 +219,7 @@ variable "granules_cnm_response_writer__lambda_concurrency" {
 
 variable "granules_cnm_response_topic" {
   type = string
-  description = "ARN of CNM Response SNS Topic"
+  description = "Name of CNM Response SNS Topic"
 }
 
 variable "granules_cnm_ingester__bucket_notification_prefix" {

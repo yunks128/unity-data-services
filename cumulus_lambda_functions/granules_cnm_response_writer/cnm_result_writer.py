@@ -85,5 +85,6 @@ class CnmResultWriter:
         sns_msg = AwsMessageTransformers().sqs_sns(event)
         LOGGER.debug(f'sns_msg: {sns_msg}')
         self.cnm_response = sns_msg
+        self.extract_s3_location()
         self.__s3.set_s3_url(self.s3_url).upload_bytes(json.dumps(self.cnm_response, indent=4).encode())
         return
