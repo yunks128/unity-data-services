@@ -4,7 +4,6 @@ from cumulus_lambda_functions.lib.json_validator import JsonValidator
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from cumulus_lambda_functions.lib.aws.aws_message_transformers import AwsMessageTransformers
 from cumulus_lambda_functions.lib.aws.aws_s3 import AwsS3
-from urllib.parse import urlparse
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
@@ -74,8 +73,8 @@ class CnmResultWriter:
             LOGGER.error(f'invalid JSON: {result}. request_body: {self.cnm_response}')
             raise ValueError(f'invalid JSON: {result}. request_body: {self.cnm_response}')
         response_filename = f'{self.cnm_response["product"]["name"]}.{self.cnm_response["submissionTime"]}.cnm.json'
-        parsed_url = urlparse(self.cnm_response['product']['files'][0]['uri'])
-        s3_url = parsed_url.path.split('/')
+        parsed_url = self.cnm_response['product']['files'][0]['uri'].split('//')[1]
+        s3_url = parsed_url.split('/')
         s3_url[-1] = response_filename
         self.__s3_url = 's3://' + '/'.join(s3_url[1:])
         LOGGER.debug(f'extracted s3_url: {self.__s3_url}')
