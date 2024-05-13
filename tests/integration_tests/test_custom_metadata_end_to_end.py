@@ -8,6 +8,8 @@ from unittest import TestCase
 
 import pystac
 import requests
+from cumulus_lambda_functions.lib.aws.aws_s3 import AwsS3
+
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
 from pystac import Link, Catalog, Asset, Item, ItemCollection
 
@@ -41,7 +43,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         self.tenant = 'UDS_LOCAL_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
         self.collection_name = 'UDS_COLLECTION'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '24.04.25.09.00'.replace('.', '')  # '2402011200'
+        self.collection_version = '24.05.01.14.00'.replace('.', '')  # '2402011200'
 
         self.custom_metadata_body = {
             'tag': {'type': 'keyword'},
@@ -492,6 +494,20 @@ class TestCustomMetadataEndToEnd(TestCase):
         response_json = json.loads(query_result.content.decode())
         print(response_json)
         self.assertTrue(len(response_json['features']) == 0, f'empty granules. Need collections to compare')
+        return
+
+    def test_07_check_cnm_response(self):
+        os.environ['STAGING_BUCKET'] = 'uds-sbx-cumulus-staging'
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
+        s3 = AwsS3()
+        child_files = [k for k in s3.get_child_s3_files(os.environ['STAGING_BUCKET'], f'{temp_collection_id}/{temp_collection_id}:{self.granule_id}')]
+        cnm_response = [k for k in child_files if k[0].endswith('.cnm.json')]
+        self.assertEqual(len(cnm_response), 1)
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            local_file_path = s3.set_s3_url(f's3://{os.environ["STAGING_BUCKET"]}/{cnm_response[0][0]}').download(tmp_dir_name)
+            cnm_response = FileUtils.read_json(local_file_path)
+            # NOTE: CNM response do not have collection version
+            self.assertEqual(cnm_response['collection'], f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}', f'wrong collection ID')
         return
 
     def test_01_pagination(self):

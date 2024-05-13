@@ -102,3 +102,62 @@ resource "aws_lambda_event_source_mapping" "granules_cnm_ingester_queue_lambda_t
   batch_size = 1
   enabled = true
 }
+################# << CNM Response Writer >> ########################
+
+resource "aws_lambda_function" "granules_cnm_response_writer" {
+  filename      = local.lambda_file_name
+  source_code_hash = filebase64sha256(local.lambda_file_name)
+  function_name = "${var.prefix}-granules_cnm_response_writer"
+  role          = var.lambda_processing_role_arn
+  handler       = "cumulus_lambda_functions.granules_cnm_response_writer.lambda_function.lambda_handler"
+  runtime       = "python3.9"
+  timeout       = 300
+  reserved_concurrent_executions = var.granules_cnm_response_writer__lambda_concurrency  # TODO
+  environment {
+    variables = {
+      LOG_LEVEL = var.log_level
+      SNS_TOPIC_ARN = var.cnm_sns_topic_arn
+    }
+  }
+
+  vpc_config {
+    subnet_ids         = var.cumulus_lambda_subnet_ids
+    security_group_ids = local.security_group_ids_set ? var.security_group_ids : [aws_security_group.unity_cumulus_lambda_sg[0].id]
+  }
+  tags = var.tags
+}
+
+data "aws_sns_topic" "granules_cnm_response_topic" {  // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic.html
+  name              = var.granules_cnm_response_topic
+}
+
+resource "aws_sqs_queue" "granules_cnm_response_writer" {  // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue
+  name                      = "${var.prefix}-granules_cnm_response_writer"
+  delay_seconds             = 0
+  max_message_size          = 262144
+  message_retention_seconds = 345600
+  visibility_timeout_seconds = var.granules_cnm_ingester__sqs_visibility_timeout_seconds  // Used as cool off time in seconds. It will wait for 5 min if it fails
+  receive_wait_time_seconds = 0
+  policy = templatefile("${path.module}/sqs_policy.json", {
+    region: var.aws_region,
+    roleArn: var.lambda_processing_role_arn,
+    accountId: local.account_id,
+    sqsName: "${var.prefix}-granules_cnm_response_writer",
+  })
+  tags = var.tags
+}
+
+resource "aws_sns_topic_subscription" "granules_cnm_response_writer_subscription" { // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription
+  topic_arn = data.aws_sns_topic.granules_cnm_response_topic.arn
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.granules_cnm_response_writer.arn
+#  filter_policy_scope = "MessageBody"  // MessageAttributes. not using attributes
+#  filter_policy = templatefile("${path.module}/ideas_api_job_results_filter_policy.json", {})
+}
+
+resource "aws_lambda_event_source_mapping" "granules_cnm_response_writer_lambda_trigger" {  // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping#sqs
+  event_source_arn = aws_sqs_queue.granules_cnm_response_writer.arn
+  function_name    = aws_lambda_function.granules_cnm_response_writer.arn
+  batch_size = 1
+  enabled = true
+}
