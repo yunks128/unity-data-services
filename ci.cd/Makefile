@@ -53,6 +53,9 @@ update_lambda_function_mcp_sbx_8:
 update_lambda_function_uds-sbx-cumulus-granules_cnm_response_writer:
 	aws lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket uds-dev-cumulus-public --function-name arn:aws:lambda:us-west-2:237868187491:function:uds-sbx-cumulus-granules_cnm_response_writer --publish &>/dev/null
 
+update_lambda_function_mcp_sbx_ingester:
+	aws lambda update-function-code --s3-key unity_cumulus_lambda/cumulus_lambda_functions_deployment.zip --s3-bucket uds-dev-cumulus-public --function-name arn:aws:lambda:us-west-2:237868187491:function:uds-sbx-cumulus-granules_cnm_ingester --publish &>/dev/null
+
 mcp_sbx: upload_lambda_mcp_dev update_lambda_function_mcp_sbx_7 update_lambda_function_mcp_sbx_8
 
 mcp_sbx_fastapi: upload_lambda_mcp_dev update_lambda_function_mcp_sbx_uds_api

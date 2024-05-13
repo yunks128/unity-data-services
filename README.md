@@ -10,7 +10,7 @@
 
 </div>
 
-<pre align="center">This repository contains source code that handles data ingest, data catalog, data search and data access that complies to OGC DAPA and STAC specifications.</pre>
+<pre align="center">This repository contains source code that handles data ingest, data catalog, data search and data access that complies to OGC DAPA and STAC specifications</pre>
 <!-- ☝️ Replace with a single sentence describing the purpose of your repo / proj ☝️ -->
 
 <!-- Header block for project -->
