@@ -211,6 +211,17 @@ variable "granules_cnm_ingester__lambda_concurrency" {
   description = "How many Lambdas can be executed for CNM ingester concurrently"
 }
 
+variable "granules_cnm_response_writer__lambda_concurrency" {
+  type = number
+  default = 20
+  description = "How many Lambdas can be executed for CNM Response Writer concurrently"
+}
+
+variable "granules_cnm_response_topic" {
+  type = string
+  description = "Name of CNM Response SNS Topic"
+}
+
 variable "granules_cnm_ingester__bucket_notification_prefix" {
   type = string
   default = "stage_out"
