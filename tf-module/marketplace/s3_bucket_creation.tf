@@ -1,13 +1,3 @@
-variable "market_bucket_name" {
-  type = string
-  description = "name of S3 bucket. Note-1: it will be prefixed with '<project prefix>-unity-'. Note-2: It should only have '-'. '_' will be replaced with '-'"
-}
-variable "market_bucket__notification_prefix" {
-  type = string
-  default = "stage_out"
-  description = "path to the directory where catalogs.json will be written"
-}
-
 data "aws_sns_topic" "uds_granules_auto_ingester_topic" {  // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic.html
   name              = "${var.prefix}-granules_cnm_ingester"
 }
