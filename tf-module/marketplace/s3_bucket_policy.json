@@ -5,7 +5,11 @@
             "Sid": "DelegateS3Access",
             "Effect": "Allow",
             "Principal": {
-                "Service": "s3.amazonaws.com"
+                "Service": "s3.amazonaws.com",
+                "AWS": [
+                    "arn:aws:iam::${udsAwsAccount}:root",
+                    "arn:aws:iam::${udsAwsAccount}:role/${cumulus_lambda_processing_role_name}"
+                ]
             },
             "Action": [
                 "s3:ListBucket",

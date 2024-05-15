@@ -2,6 +2,10 @@ data "aws_sns_topic" "uds_granules_auto_ingester_topic" {  // https://registry.t
   name              = "${var.prefix}-granules_cnm_ingester"
 }
 
+data "aws_ssm_parameter" "uds_aws_account" {
+  name = var.uds_aws_account_ssm_path
+}
+
 resource "aws_s3_bucket" "market_bucket" {
   bucket = replace("${var.prefix}-unity-${var.market_bucket_name}", "_", "-")
   tags = var.tags
@@ -21,8 +25,9 @@ resource "aws_s3_bucket_policy" "granules_cnm_ingester_example_bucket" {
   // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy
   bucket = aws_s3_bucket.market_bucket.id
   policy = templatefile("${path.module}/s3_bucket_policy.json", {
-    region: var.aws_region,
+    udsAwsAccount: data.aws_ssm_parameter.uds_aws_account.value,
     s3BucketName: aws_s3_bucket.market_bucket.id,
+    cumulus_lambda_processing_role_name: "${var.prefix}-${var.cumulus_lambda_processing_role_name_postfix}"
   })
 }
 

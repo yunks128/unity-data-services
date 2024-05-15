@@ -11,3 +11,5 @@ tags = {
   Env = "test",
   Stack = "Cumulus"
 }
+uds_aws_account_ssm_path="/unity/uds/account"
+cumulus_lambda_processing_role_name_postfix="lambda-processing"

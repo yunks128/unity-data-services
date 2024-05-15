@@ -15,3 +15,14 @@ variable "market_bucket__notification_prefix" {
   default = "stage_out"
   description = "path to the directory where catalogs.json will be written"
 }
+variable "uds_aws_account_ssm_path" {
+  type = string
+  default = "/unity/uds/account"
+  description = "SSM parameter path where aws account for interacting UDS to created S3 bucket is stored"
+}
+variable "cumulus_lambda_processing_role_name_postfix" {
+  type = string
+  default = "lambda-processing"
+  description = "name of the Lambda Processing role by Cumulus after `prefix`"
+}
+
