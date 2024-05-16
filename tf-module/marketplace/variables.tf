@@ -20,6 +20,11 @@ variable "uds_aws_account_ssm_path" {
   default = "/unity/uds/account"
   description = "SSM parameter path where aws account for interacting UDS to created S3 bucket is stored"
 }
+variable "uds_aws_account_region_ssm_path" {
+    type = string
+  default = "/unity/uds/account/region"
+  description = "SSM parameter path where aws account for interacting UDS to created S3 bucket is stored"
+}
 variable "uds_prefix_ssm_path" {
   type = string
   default = "/unity/uds/prefix"
