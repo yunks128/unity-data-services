@@ -27,7 +27,7 @@ variable "uds_aws_account_region_ssm_path" {
 }
 variable "uds_prefix_ssm_path" {
   type = string
-  default = "/unity/uds/prefix"
+  default = "/unity/shared-services/data-catalog/deployment/prefix"
   description = "SSM parameter path where aws account for interacting UDS to created S3 bucket is stored"
 }
 variable "cumulus_lambda_processing_role_name_postfix" {
