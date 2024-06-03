@@ -12,6 +12,6 @@ tags = {
   Stack = "Cumulus"
 }
 uds_aws_account_ssm_path="/unity/shared-services/aws/account"
-uds_aws_account_region_ssm_path="/unity/shared-services/aws/account/region""
+uds_aws_account_region_ssm_path="/unity/shared-services/aws/account/region"
 uds_prefix_ssm_path="/unity/shared-services/data-catalog/deployment/prefix"
 cumulus_lambda_processing_role_name_postfix="lambda-processing"
