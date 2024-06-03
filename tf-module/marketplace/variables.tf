@@ -17,12 +17,12 @@ variable "market_bucket__notification_prefix" {
 }
 variable "uds_aws_account_ssm_path" {
   type = string
-  default = "/unity/uds/account"
+  default = "/unity/shared-services/aws/account"
   description = "SSM parameter path where aws account for interacting UDS to created S3 bucket is stored"
 }
 variable "uds_aws_account_region_ssm_path" {
     type = string
-  default = "/unity/uds/account/region"
+  default = "/unity/shared-services/aws/account/region"
   description = "SSM parameter path where aws account for interacting UDS to created S3 bucket is stored"
 }
 variable "uds_prefix_ssm_path" {

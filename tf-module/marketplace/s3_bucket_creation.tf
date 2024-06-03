@@ -5,14 +5,9 @@ data "aws_ssm_parameter" "uds_aws_account" {
 data "aws_ssm_parameter" "uds_aws_account_region" {
   name = var.uds_aws_account_region_ssm_path
 }
-provider "aws" {
-  alias  = "uds_account"
-  region = data.aws_ssm_parameter.uds_aws_account_region.value
-}
 
 data "aws_ssm_parameter" "uds_prefix" {
-  provider = aws.uds_account
-  name = "arn:aws:ssm:us-west-2:${data.aws_ssm_parameter.uds_aws_account.value}:parameter${var.uds_prefix_ssm_path}"
+  name = "arn:aws:ssm:${data.aws_ssm_parameter.uds_aws_account_region.value}:${data.aws_ssm_parameter.uds_aws_account.value}:parameter${var.uds_prefix_ssm_path}"
 #  name = var.uds_prefix_ssm_path
 }
 resource "aws_s3_bucket" "market_bucket" {
