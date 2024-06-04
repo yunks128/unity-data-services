@@ -10,9 +10,14 @@ data "aws_ssm_parameter" "uds_prefix" {
   name = "arn:aws:ssm:${data.aws_ssm_parameter.uds_aws_account_region.value}:${data.aws_ssm_parameter.uds_aws_account.value}:parameter${var.uds_prefix_ssm_path}"
 }
 resource "aws_s3_bucket" "market_bucket" {
-  bucket = replace("${var.prefix}-unity-${var.market_bucket_name}", "_", "-")
-  tags = var.tags
-
+  bucket = lower(replace("${var.project}-${var.venue}-unity-${var.market_bucket_name}", "_", "-"))
+  tags = merge(
+    var.tags,
+    {
+      "project" = var.project
+      "venue"   = var.venue
+    }
+  )
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "market_bucket" {  // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration

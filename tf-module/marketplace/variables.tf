@@ -1,5 +1,12 @@
-variable "prefix" {
+variable "project" {
   type = string
+  default = "UnknownProject"
+  description = "Name of Project"
+}
+variable "venue" {
+  type = string
+  default = "Unknownvenue"
+  description = "Name of Project"
 }
 variable "tags" {
   description = "Tags to be applied to Cumulus resources that support tags"
@@ -8,7 +15,7 @@ variable "tags" {
 }
 variable "market_bucket_name" {
   type = string
-  description = "name of S3 bucket. Note-1: it will be prefixed with '<project prefix>-unity-'. Note-2: It should only have '-'. '_' will be replaced with '-'"
+  description = "name of S3 bucket. Note-1: it will be prefixed with '<project prefix>-<project venue>-unity-'. Note-2: It should only have '-'. '_' will be replaced with '-'"
 }
 variable "market_bucket__notification_prefix" {
   type = string
