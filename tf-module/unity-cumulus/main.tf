@@ -173,10 +173,20 @@ resource "aws_ssm_parameter" "uds_api_1" {
 }
 
 
- resource "aws_ssm_parameter" "health_check_value" {
+resource "aws_ssm_parameter" "health_check_value" {
   count = var.is_deploying_healthcheck ? 1 : 0
   name  = "${var.health_check_base_path}/${var.health_check_marketplace_item}/${var.health_check_component_name}/url"
   type  = "String"
+  tier = "Advanced"
   value = "${var.uds_base_url}/${var.dapa_api_prefix}/collections"
+  tags = var.tags
+}
+
+resource "aws_ssm_parameter" "marketplace_prefix" {
+  count = var.is_deploying_healthcheck ? 1 : 0
+  name  = "/unity/${var.health_check_marketplace_item}/${var.health_check_component_name}/deployment/prefix"
+  type  = "String"
+  value = var.prefix
+  tier = "Advanced"
   tags = var.tags
 }
