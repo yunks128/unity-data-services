@@ -1,3 +1,13 @@
+variable "installprefix" {
+  type = string
+  default = ""
+  description = "This is not needed, but required by UCS marketplace. Empty string is good enough for manual deployment"
+}
+variable "deployment_name" {
+  type = string
+  default = ""
+  description = "This is not needed, but required by UCS marketplace. Empty string is good enough for manual deployment"
+}
 variable "project" {
   type = string
   default = "UnknownProject"
