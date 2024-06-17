@@ -34,10 +34,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(main_router, prefix=f'/{api_base_prefix}')
-static_parent_dir = os.environ.get(WebServiceConstants.STATIC_PARENT_DIR, WebServiceConstants.STATIC_PARENT_DIR_DEFAULT)
 
-app.mount(f'/{api_base_prefix}/{WebServiceConstants.STAC_BROWSER}', StaticFiles(directory=f"{static_parent_dir}stac_browser", html=True), name="static")
-app.mount(f'/{api_base_prefix}/{WebServiceConstants.STAC_BROWSER}/', StaticFiles(directory=f"{static_parent_dir}stac_browser", html=True), name="static")
+static_parent_dir = os.environ.get(WebServiceConstants.STATIC_PARENT_DIR, WebServiceConstants.STATIC_PARENT_DIR_DEFAULT)
+stac_browser_prefix = f'/{api_base_prefix}/{WebServiceConstants.STAC_BROWSER}'
+FastApiUtils.replace_in_folder(static_parent_dir, WebServiceConstants.STAC_BROWSER_REPLACING_PREFIX, stac_browser_prefix)
+
+app.mount(stac_browser_prefix, StaticFiles(directory=f"{static_parent_dir}stac_browser", html=True), name="static")
+app.mount(f'/{stac_browser_prefix}/', StaticFiles(directory=f"{static_parent_dir}stac_browser", html=True), name="static")
 
 """
 Accept-Ranges:
