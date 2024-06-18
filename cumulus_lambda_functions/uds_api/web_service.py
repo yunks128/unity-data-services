@@ -37,7 +37,8 @@ app.include_router(main_router, prefix=f'/{api_base_prefix}')
 
 static_parent_dir = f'{os.environ.get(WebServiceConstants.STATIC_PARENT_DIR, WebServiceConstants.STATIC_PARENT_DIR_DEFAULT)}stac_browser'
 stac_browser_prefix = f'/{api_base_prefix}/{WebServiceConstants.STAC_BROWSER}'
-FastApiUtils.replace_in_folder(static_parent_dir, WebServiceConstants.STAC_BROWSER_REPLACING_PREFIX, stac_browser_prefix)
+# Cannot change READ ONLY system in lambda. Need a workaround.
+# FastApiUtils.replace_in_folder(static_parent_dir, WebServiceConstants.STAC_BROWSER_REPLACING_PREFIX, stac_browser_prefix)
 
 app.mount(stac_browser_prefix, StaticFiles(directory=static_parent_dir, html=True), name="static")
 app.mount(f'/{stac_browser_prefix}/', StaticFiles(directory=static_parent_dir, html=True), name="static")
