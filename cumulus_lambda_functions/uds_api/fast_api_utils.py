@@ -61,6 +61,7 @@ class FastApiUtils:
     def replace_in_folder(folder_path, old_string, new_string):
         for dirpath, _, filenames in os.walk(folder_path):
             for filename in filenames:
+                print(f'replace_in_folder: filename={filename}')
                 file_path = os.path.join(dirpath, filename)
                 FastApiUtils.replace_in_file(file_path, old_string, new_string)
         return
