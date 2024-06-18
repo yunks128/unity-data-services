@@ -1,5 +1,7 @@
 import os
 
+from cumulus_lambda_functions.lib.utils.file_utils import FileUtils
+
 from cumulus_lambda_functions.uds_api.web_service_constants import WebServiceConstants
 from fastapi.staticfiles import StaticFiles
 
@@ -35,13 +37,16 @@ app.add_middleware(
 )
 app.include_router(main_router, prefix=f'/{api_base_prefix}')
 
-static_parent_dir = f'{os.environ.get(WebServiceConstants.STATIC_PARENT_DIR, WebServiceConstants.STATIC_PARENT_DIR_DEFAULT)}stac_browser'
+original_static_parent_dir = f'{os.environ.get(WebServiceConstants.STATIC_PARENT_DIR, WebServiceConstants.STATIC_PARENT_DIR_DEFAULT)}stac_browser'
+temp_static_parent_dir = f'/tmp/stac_browser'
+FileUtils.copy_dir(original_static_parent_dir, temp_static_parent_dir)
+
 stac_browser_prefix = f'/{api_base_prefix}/{WebServiceConstants.STAC_BROWSER}'
 # Cannot change READ ONLY system in lambda. Need a workaround.
-# FastApiUtils.replace_in_folder(static_parent_dir, WebServiceConstants.STAC_BROWSER_REPLACING_PREFIX, stac_browser_prefix)
+FastApiUtils.replace_in_folder(temp_static_parent_dir, WebServiceConstants.STAC_BROWSER_REPLACING_PREFIX, stac_browser_prefix)
 
-app.mount(stac_browser_prefix, StaticFiles(directory=static_parent_dir, html=True), name="static")
-app.mount(f'/{stac_browser_prefix}/', StaticFiles(directory=static_parent_dir, html=True), name="static")
+app.mount(stac_browser_prefix, StaticFiles(directory=temp_static_parent_dir, html=True), name="static")
+app.mount(f'/{stac_browser_prefix}/', StaticFiles(directory=temp_static_parent_dir, html=True), name="static")
 
 """
 Accept-Ranges:
