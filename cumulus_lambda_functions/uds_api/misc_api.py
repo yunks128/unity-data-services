@@ -39,6 +39,7 @@ async def stac_entry(request: Request, response: Response):
     ending_url = f'{WebServiceConstants.STAC_BROWSER}/' if str(request.url).endswith('/') else WebServiceConstants.STAC_BROWSER
     redirect_response = RedirectResponse(f'/{api_base_prefix}/{ending_url}')
     if 'oidc_access_token' in request_headers:
+        # TODO not sure cookie settings need to be stricter
         redirect_response.set_cookie(key="unity_token", value=request_headers['oidc_access_token'], httponly=False, secure=False, samesite='strict')  # missing , domain=base_url
         redirect_response.set_cookie(key="test1", value=f"{time()}", httponly=False, secure=False, samesite='strict')  # missing , domain=base_url
     return redirect_response
