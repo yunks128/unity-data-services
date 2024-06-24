@@ -42,3 +42,26 @@ class FastApiUtils:
     @staticmethod
     def get_api_base_prefix():
         return os.environ.get(Constants.DAPA_API_PREIFX_KEY) if Constants.DAPA_API_PREIFX_KEY in os.environ else WebServiceConstants.API_PREFIX
+
+    @staticmethod
+    def replace_in_file(file_path, old_string, new_string):
+        try:
+            with open(file_path, 'r') as file:
+                content = file.read()
+
+            content = content.replace(old_string, new_string)
+
+            with open(file_path, 'w') as file:
+                file.write(content)
+        except Exception as e:
+            print(f'{file_path}.. {str(e)}')
+        return
+
+    @staticmethod
+    def replace_in_folder(folder_path, old_string, new_string):
+        for dirpath, _, filenames in os.walk(folder_path):
+            for filename in filenames:
+                print(f'replace_in_folder: filename={filename}')
+                file_path = os.path.join(dirpath, filename)
+                FastApiUtils.replace_in_file(file_path, old_string, new_string)
+        return
