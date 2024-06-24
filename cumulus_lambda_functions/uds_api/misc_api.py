@@ -20,11 +20,28 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-# https://docs.ogc.org/per/20-025r1.html#_get_collectionscollectionidvariables
-@router.get("/{collection_id}/variables")
-@router.get("/{collection_id}/variables/")
-async def get_granules_dapa(request: Request, collection_id: str):
-    return
+
+@router.get(f'/catalog_list')
+@router.get(f'/catalog_list/')
+async def stac_entry(request: Request, response: Response):
+    base_url = os.environ.get(WebServiceConstants.BASE_URL, f'{request.url.scheme}://{request.url.netloc}')
+    base_url = base_url[:-1] if base_url.endswith('/') else base_url
+    base_url = base_url if base_url.startswith('http') else f'https://{base_url}'
+    api_base_prefix = FastApiUtils.get_api_base_prefix()
+    stac_browser_expecting_result = [{
+        "id": 1,
+        "url": f'{base_url}/{api_base_prefix}/catalog',
+        "slug": "unity-ds",
+        "title": "Unity DS (Venue: TODO)",
+        "summary": "Unity DS collections & granules",
+        "access": "public",
+        "created": "2023-03-16T09:15:31.242Z",
+        "updated": "2023-03-16T09:15:31.242Z",
+        "isPrivate": False,
+        "isApi": False,
+        "accessInfo": None
+    }]
+    return stac_browser_expecting_result
 
 @router.get(f'/stac_entry')
 @router.get(f'/stac_entry/')
