@@ -46,6 +46,7 @@ stac_browser_prefix = f'/{api_base_prefix}/{WebServiceConstants.STAC_BROWSER}'
 # Cannot change READ ONLY system in lambda. Need a workaround.
 FastApiUtils.replace_in_folder(temp_static_parent_dir, WebServiceConstants.STAC_BROWSER_REPLACING_PREFIX, stac_browser_prefix)
 FastApiUtils.replace_in_folder(temp_static_parent_dir, '"SETTING_PLACEHOLDER"', json.dumps({'catalogUrl': 'https://d3vc8w9zcq658.cloudfront.net/data/misc/catalog_list/'}))
+FastApiUtils.replace_in_folder(temp_static_parent_dir, "'SETTING_PLACEHOLDER'", json.dumps({'catalogUrl': 'https://d3vc8w9zcq658.cloudfront.net/data/misc/catalog_list/'}))
 
 app.mount(stac_browser_prefix, StaticFiles(directory=temp_static_parent_dir, html=True), name="static")
 app.mount(f'/{stac_browser_prefix}/', StaticFiles(directory=temp_static_parent_dir, html=True), name="static")
