@@ -11,3 +11,4 @@ class WebServiceConstants:
     STATIC_PARENT_DIR = 'STATIC_PARENT_DIR'
     STATIC_PARENT_DIR_DEFAULT = '/var/task/cumulus_lambda_functions/uds_api/'
     STAC_BROWSER_REPLACING_PREFIX = '/to/be/replaced/stac_browser'
+    SETTING_PLACEHOLDER = 'SETTING_PLACEHOLDER'

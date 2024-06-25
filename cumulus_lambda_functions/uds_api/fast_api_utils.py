@@ -44,6 +44,14 @@ class FastApiUtils:
         return os.environ.get(Constants.DAPA_API_PREIFX_KEY) if Constants.DAPA_API_PREIFX_KEY in os.environ else WebServiceConstants.API_PREFIX
 
     @staticmethod
+    def get_api_url_base():
+        if Constants.DAPA_API_URL_BASE not in os.environ:
+            raise ValueError(f'missing DAPA_API_URL_BASE in ENV')
+        dapa_api_base = os.environ.get(Constants.DAPA_API_URL_BASE)
+        dapa_api_base = dapa_api_base[:-1] if dapa_api_base.endswith('/') else dapa_api_base
+        return dapa_api_base
+
+    @staticmethod
     def replace_in_file(file_path, old_string, new_string):
         try:
             with open(file_path, 'r') as file:
