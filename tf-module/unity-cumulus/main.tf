@@ -155,6 +155,7 @@ resource "aws_lambda_function" "uds_api_1" {
       ES_PORT = 443
       REPORT_TO_EMS = var.report_to_ems
       ADMIN_COMMA_SEP_GROUPS = var.comma_separated_admin_groups
+      DAPA_API_URL_BASE = "${var.uds_base_url}/${var.dapa_api_prefix}"
     }
   }
 
