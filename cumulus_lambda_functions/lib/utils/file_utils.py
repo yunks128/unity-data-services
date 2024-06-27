@@ -21,6 +21,7 @@ import zlib
 from functools import partial
 from pathlib import Path
 from subprocess import Popen, PIPE
+from distutils.dir_util import copy_tree
 
 
 class FileUtils:
@@ -41,6 +42,11 @@ class FileUtils:
     @staticmethod
     def mk_dir_p(dir_path):
         Path(dir_path).mkdir(parents=True, exist_ok=True)
+        return
+
+    @staticmethod
+    def copy_dir(source_dir, dest_dir):
+        copy_tree(source_dir, dest_dir)
         return
 
     @staticmethod
