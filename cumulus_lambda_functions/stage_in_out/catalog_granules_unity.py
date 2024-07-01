@@ -19,7 +19,6 @@ class CatalogGranulesUnity(CatalogGranulesAbstract):
     DELAY_SECOND = 'DELAY_SECOND'
     REPEAT_TIMES = 'REPEAT_TIMES'
     CHUNK_SIZE = 'CHUNK_SIZE'
-    DEFAULT_CHUNK_SIZE = 5
 
     def __init__(self) -> None:
         super().__init__()
@@ -27,15 +26,15 @@ class CatalogGranulesUnity(CatalogGranulesAbstract):
         self.__verify_ssl = True
         self.__delaying_second = 30
         self.__repeating_times = 0
-        self.__chunk_size = self.DEFAULT_CHUNK_SIZE
+        self.__chunk_size = StageInOutUtils.CATALOG_DEFAULT_CHUNK_SIZE
 
     def __set_props_from_env(self):
         missing_keys = [k for k in [self.UPLOADED_FILES_JSON, self.PROVIDER_ID_KEY] if k not in os.environ]
         if len(missing_keys) > 0:
             raise ValueError(f'missing environment keys: {missing_keys}')
         self._retrieve_stac_json()
-        self.__chunk_size = int(os.environ.get(self.CHUNK_SIZE, self.DEFAULT_CHUNK_SIZE))
-        self.__chunk_size = self.__chunk_size if self.__chunk_size > 0 else self.DEFAULT_CHUNK_SIZE
+        self.__chunk_size = int(os.environ.get(self.CHUNK_SIZE, StageInOutUtils.CATALOG_DEFAULT_CHUNK_SIZE))
+        self.__chunk_size = self.__chunk_size if self.__chunk_size > 0 else StageInOutUtils.CATALOG_DEFAULT_CHUNK_SIZE
         self.__provider_id = os.environ.get(self.PROVIDER_ID_KEY)
         self.__verify_ssl = os.environ.get(self.VERIFY_SSL_KEY, 'TRUE').strip().upper() == 'TRUE'
         self.__delaying_second = int(os.environ.get(self.DELAY_SECOND, '30'))

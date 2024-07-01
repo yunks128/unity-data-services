@@ -1,5 +1,3 @@
-import os
-
 from fastapi.staticfiles import StaticFiles
 
 from cumulus_lambda_functions.uds_api.fast_api_utils import FastApiUtils
@@ -33,10 +31,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(main_router, prefix=f'/{api_base_prefix}')
-static_parent_dir = '/var/task/cumulus_lambda_functions/uds_api/'
-# static_parent_dir = '/Users/wphyo/Projects/unity/unity-data-services/cumulus_lambda_functions/uds_api/'
-app.mount(f'/{api_base_prefix}/stac_browser', StaticFiles(directory=f"{static_parent_dir}stac_browser", html=True), name="static")
-app.mount(f'/{api_base_prefix}/stac_browser/', StaticFiles(directory=f"{static_parent_dir}stac_browser", html=True), name="static")
+
+stac_browser_prefix, temp_static_parent_dir = FastApiUtils.prep_stac_browser()
+app.mount(stac_browser_prefix, StaticFiles(directory=temp_static_parent_dir, html=True), name="static")
+app.mount(f'/{stac_browser_prefix}/', StaticFiles(directory=temp_static_parent_dir, html=True), name="static")
 
 """
 Accept-Ranges:
@@ -56,7 +54,6 @@ Access-Control-Max-Age:
 @app.get("/")
 async def root(request: Request):
     return {"message": "Hello World", "root_path": request.scope.get("root_path")}
-
 
 @app.get(f'/{api_base_prefix}/openapi')
 @app.get(f'/{api_base_prefix}/openapi/')

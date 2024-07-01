@@ -148,7 +148,6 @@ resource "aws_lambda_function" "uds_api_1" {
       UNITY_DEFAULT_PROVIDER = var.unity_default_provider
       COLLECTION_CREATION_LAMBDA_NAME = "arn:aws:lambda:${var.aws_region}:${local.account_id}:function:${var.prefix}-uds_api_1"
       SNS_TOPIC_ARN = var.cnm_sns_topic_arn
-      UNITY_DEFAULT_PROVIDER = var.unity_default_provider
       DAPA_API_PREIFX_KEY = var.dapa_api_prefix
       CORS_ORIGINS = var.cors_origins
       UDS_BASE_URL = var.uds_base_url
@@ -156,6 +155,7 @@ resource "aws_lambda_function" "uds_api_1" {
       ES_PORT = 443
       REPORT_TO_EMS = var.report_to_ems
       ADMIN_COMMA_SEP_GROUPS = var.comma_separated_admin_groups
+      DAPA_API_URL_BASE = "${var.uds_base_url}/${var.dapa_api_prefix}"
     }
   }
 
@@ -170,12 +170,24 @@ resource "aws_ssm_parameter" "uds_api_1" {
   name  = "/unity/unity-ds/api-gateway/integrations/${var.prefix}-uds_api_1-function-name"
   type  = "String"
   value = aws_lambda_function.uds_api_1.function_name
+  tags = var.tags
 }
 
 
- resource "aws_ssm_parameter" "health_check_value" {
+resource "aws_ssm_parameter" "health_check_value" {
   count = var.is_deploying_healthcheck ? 1 : 0
   name  = "${var.health_check_base_path}/${var.health_check_marketplace_item}/${var.health_check_component_name}/url"
   type  = "String"
+  tier = "Advanced"
   value = "${var.uds_base_url}/${var.dapa_api_prefix}/collections"
+  tags = var.tags
+}
+
+resource "aws_ssm_parameter" "marketplace_prefix" {
+  count = var.is_deploying_healthcheck ? 1 : 0
+  name  = "/unity/${var.health_check_marketplace_item}/${var.health_check_component_name}/deployment/prefix"
+  type  = "String"
+  value = var.prefix
+  tier = "Advanced"
+  tags = var.tags
 }

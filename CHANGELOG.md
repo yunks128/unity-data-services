@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.9.0] - 2024-07-01
+### Changed
+- [#385](https://github.com/unity-sds/unity-data-services/pull/385) feat: different web service for stac browser
+
+## [7.8.1] - 2024-06-27
+### Fixed
+- [#373](https://github.com/unity-sds/unity-data-services/pull/373) fix: updating path for httpd testing
+
+## [7.8.0] - 2024-06-27
+### Changed
+- [#372](https://github.com/unity-sds/unity-data-services/pull/372) feat: market place bucket
+
+## [7.7.0] - 2024-05-13
+### Changed
+- [#369](https://github.com/unity-sds/unity-data-services/pull/369) feat: add cnm response archival lambda
+
+## [7.6.0] - 2024-05-13
+### Changed
+- [#368](https://github.com/unity-sds/unity-data-services/pull/368) feat: adding automated ingestion lambda
+
+## [7.5.0] - 2024-04-24
+### Changed
+- [#365](https://github.com/unity-sds/unity-data-services/pull/365) feat: add granuile cnm ingester tf
+
 ## [7.4.0] - 2024-04-15
 ### Changed
 - [#361](https://github.com/unity-sds/unity-data-services/pull/361) feat: uploading successful feature collection to s3

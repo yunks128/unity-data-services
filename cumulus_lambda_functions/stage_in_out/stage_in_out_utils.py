@@ -10,6 +10,7 @@ LOGGER = logging.getLogger(__name__)
 
 class StageInOutUtils:
     OUTPUT_FILE = 'OUTPUT_FILE'
+    CATALOG_DEFAULT_CHUNK_SIZE = 5
 
     @staticmethod
     def write_output_to_file(output_json: Union[dict, str, list]):
