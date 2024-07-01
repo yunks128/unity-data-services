@@ -1,9 +1,3 @@
-import json
-import os
-
-from cumulus_lambda_functions.lib.utils.file_utils import FileUtils
-
-from cumulus_lambda_functions.uds_api.web_service_constants import WebServiceConstants
 from fastapi.staticfiles import StaticFiles
 
 from cumulus_lambda_functions.uds_api.fast_api_utils import FastApiUtils
@@ -38,18 +32,7 @@ app.add_middleware(
 )
 app.include_router(main_router, prefix=f'/{api_base_prefix}')
 
-original_static_parent_dir = f'{os.environ.get(WebServiceConstants.STATIC_PARENT_DIR, WebServiceConstants.STATIC_PARENT_DIR_DEFAULT)}stac_browser'
-temp_static_parent_dir = f'/tmp/stac_browser'
-FileUtils.copy_dir(original_static_parent_dir, temp_static_parent_dir)
-
-stac_browser_prefix = f'/{api_base_prefix}/{WebServiceConstants.STAC_BROWSER}'
-# Cannot change READ ONLY system in lambda. Need a workaround.
-FastApiUtils.replace_in_folder(temp_static_parent_dir, WebServiceConstants.STAC_BROWSER_REPLACING_PREFIX, stac_browser_prefix)
-
-stac_browser_settings = {'catalogUrl': f'{FastApiUtils.get_api_url_base()}/misc/catalog_list/'}
-FastApiUtils.replace_in_folder(temp_static_parent_dir, f'"{WebServiceConstants.SETTING_PLACEHOLDER}"', json.dumps(stac_browser_settings))
-FastApiUtils.replace_in_folder(temp_static_parent_dir, f"'{WebServiceConstants.SETTING_PLACEHOLDER}'", json.dumps(stac_browser_settings))
-
+stac_browser_prefix, temp_static_parent_dir = FastApiUtils.prep_stac_browser()
 app.mount(stac_browser_prefix, StaticFiles(directory=temp_static_parent_dir, html=True), name="static")
 app.mount(f'/{stac_browser_prefix}/', StaticFiles(directory=temp_static_parent_dir, html=True), name="static")
 

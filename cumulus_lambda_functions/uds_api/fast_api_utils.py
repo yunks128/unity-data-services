@@ -2,6 +2,8 @@ import base64
 import json
 import os
 
+from cumulus_lambda_functions.lib.utils.file_utils import FileUtils
+
 from cumulus_lambda_functions.lib.constants import Constants
 
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
@@ -73,3 +75,19 @@ class FastApiUtils:
                 file_path = os.path.join(dirpath, filename)
                 FastApiUtils.replace_in_file(file_path, old_string, new_string)
         return
+
+    @staticmethod
+    def prep_stac_browser():
+        api_base_prefix = FastApiUtils.get_api_base_prefix()
+        original_static_parent_dir = f'{os.environ.get(WebServiceConstants.STATIC_PARENT_DIR, WebServiceConstants.STATIC_PARENT_DIR_DEFAULT)}stac_browser'
+        temp_static_parent_dir = f'/tmp/stac_browser'
+        FileUtils.copy_dir(original_static_parent_dir, temp_static_parent_dir)
+
+        stac_browser_prefix = f'/{api_base_prefix}/{WebServiceConstants.STAC_BROWSER}'
+        # Cannot change READ ONLY system in lambda. Need a workaround.
+        FastApiUtils.replace_in_folder(temp_static_parent_dir, WebServiceConstants.STAC_BROWSER_REPLACING_PREFIX, stac_browser_prefix)
+
+        stac_browser_settings = {'catalogUrl': f'{FastApiUtils.get_api_url_base()}/misc/catalog_list/'}
+        FastApiUtils.replace_in_folder(temp_static_parent_dir, f'"{WebServiceConstants.SETTING_PLACEHOLDER}"', json.dumps(stac_browser_settings))
+        FastApiUtils.replace_in_folder(temp_static_parent_dir, f"'{WebServiceConstants.SETTING_PLACEHOLDER}'", json.dumps(stac_browser_settings))
+        return stac_browser_prefix, temp_static_parent_dir
