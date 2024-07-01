@@ -72,5 +72,5 @@ async def get_open_api(request: Request):
 handler = Mangum(app=app)
 
 if __name__ == '__main__':
-    uvicorn.run("web_service:app", port=8005, log_level="info", reload=True)
+    uvicorn.run("web_service_stac_browser:app", port=8005, log_level="info", reload=True)
     print("running")
