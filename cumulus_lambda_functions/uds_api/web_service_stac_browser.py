@@ -1,5 +1,6 @@
 from fastapi.staticfiles import StaticFiles
 
+from cumulus_lambda_functions.uds_api import misc_api
 from cumulus_lambda_functions.uds_api.fast_api_utils import FastApiUtils
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from dotenv import load_dotenv
@@ -7,13 +8,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 
 from mangum import Mangum
 from starlette.requests import Request
 
-from cumulus_lambda_functions.uds_api.routes_api import main_router
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 api_base_prefix = FastApiUtils.get_api_base_prefix()
@@ -30,6 +30,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+main_router = APIRouter(redirect_slashes=False)
+main_router.include_router(misc_api.router)
+
 app.include_router(main_router, prefix=f'/{api_base_prefix}')
 
 stac_browser_prefix, temp_static_parent_dir = FastApiUtils.prep_stac_browser()
@@ -69,5 +72,5 @@ async def get_open_api(request: Request):
 handler = Mangum(app=app)
 
 if __name__ == '__main__':
-    uvicorn.run("web_service:app", port=8005, log_level="info", reload=True)
+    uvicorn.run("web_service_stac_browser:app", port=8005, log_level="info", reload=True)
     print("running")
