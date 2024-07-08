@@ -35,7 +35,8 @@ resource "aws_s3_bucket_policy" "market_bucket" {
   policy = templatefile("${path.module}/s3_bucket_policy.json", {
     udsAwsAccount: data.aws_ssm_parameter.uds_aws_account.value,
     s3BucketName: aws_s3_bucket.market_bucket.id,
-    cumulus_lambda_processing_role_name: "${data.aws_ssm_parameter.uds_prefix.value}-${var.cumulus_lambda_processing_role_name_postfix}"
+    cumulus_lambda_processing_role_name: "${data.aws_ssm_parameter.uds_prefix.value}-${var.cumulus_lambda_processing_role_name_postfix}",
+    cumulus_sf_lambda_role_name: "${data.aws_ssm_parameter.uds_prefix.value}${var.cumulus_sf_lambda_role_name_postfix}",
   })
 }
 
