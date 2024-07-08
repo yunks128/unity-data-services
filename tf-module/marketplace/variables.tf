@@ -56,6 +56,6 @@ variable "cumulus_lambda_processing_role_name_postfix" {
 variable "cumulus_sf_lambda_role_name_postfix" {
   type = string
   default = "_sf_event_sqs_to_db_records_lambda_role"
-  description = "name of the Lambda Processing role by Cumulus after `prefix`"
+  description = "name of the Lambda role by Cumulus SF after `prefix`"
 }
 
