@@ -48,6 +48,10 @@ class TestESMiddleware(TestCase):
                         }
                     }
         })
+        self.assertEqual(True, es.has_index(f'{test_index_name}_01'), f'{test_index_name}_01 does exist')
+        self.assertEqual(True, es.has_index(f'{test_index_name}_02'), f'{test_index_name}_02 does exist')
+        self.assertEqual(False, es.has_index(f'{test_index_name}_03'), f'{test_index_name}_03 does NOT exist')
+
         for j in range(15):
             j *= 10000
             documents = {
@@ -61,6 +65,9 @@ class TestESMiddleware(TestCase):
         result = es.query({'track_total_hits': True, 'size': 0, 'query': {'match_all': {}}}, f'{test_index_name}_01')
         self.assertEqual(0, es.get_result_size(result), 'old index is empty')
         result = es.query({'track_total_hits': True, 'size': 0, 'query': {'match_all': {}}}, f'{test_index_name}_02')
-        self.assertEqual(14000, es.get_result_size(result), 'new index is not empty')
+        self.assertEqual(15000, es.get_result_size(result), 'new index is not empty')
+        with self.assertRaises(ValueError) as context:
+            result = es.migrate_index_data(f'{test_index_name}_03', f'{test_index_name}_02')
+        self.assertTrue(str(context.exception).startswith('at least one of the indices do not exist'))
         return
 

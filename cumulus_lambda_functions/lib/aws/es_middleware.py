@@ -47,6 +47,8 @@ class ESMiddleware(ESAbstract):
         return err_list
 
     def migrate_index_data(self, old_index, new_index, remove_old_data=True):
+        if not self.has_index(old_index) or not self.has_index(new_index):
+            raise ValueError(f'at least one of the indices do not exist: [{old_index}, {new_index}]')
         result = self._engine.reindex(
             body={
                 "source": {

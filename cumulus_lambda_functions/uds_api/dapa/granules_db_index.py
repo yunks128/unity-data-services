@@ -105,7 +105,7 @@ class GranulesDbIndex:
         tenant = tenant.replace(':', '--')
         write_alias_name = f'{DBConstants.granules_write_alias_prefix}_{tenant}_{tenant_venue}'.lower().strip()
         read_alias_name = f'{DBConstants.granules_read_alias_prefix}_{tenant}_{tenant_venue}'.lower().strip()
-        read_perc_alias_name = f'{DBConstants.granules_read_alias_prefix}_{tenant}_{tenant_venue}_perc'.lower().strip()
+
         current_alias = self.__es.get_alias(write_alias_name)
         # {'meta_labels_v2': {'aliases': {'metadata_labels': {}}}}
         current_index_name = f'{write_alias_name}__v0' if current_alias == {} else [k for k in current_alias.keys()][0]
@@ -127,6 +127,7 @@ class GranulesDbIndex:
         self.__es.create_alias(new_index_name, read_alias_name)
         self.__es.swap_index_for_alias(write_alias_name, current_index_name, new_index_name)
 
+        current_perc_index_name = f'{write_alias_name}_perc__v0' if current_alias == {} else [k for k in current_alias.keys()][0]
         new_perc_index_name = f'{DBConstants.granules_index_prefix}_{tenant}_{tenant_venue}_perc__v{new_version:02d}'.lower().strip()
         customized_perc_es_mapping = self.__add_custom_mappings(es_mapping, True)
         perc_index_mapping = {
@@ -139,9 +140,12 @@ class GranulesDbIndex:
                 "properties": customized_perc_es_mapping,
             }
         }
+        write_perc_alias_name = f'{DBConstants.granules_write_alias_prefix}_{tenant}_{tenant_venue}_perc'.lower().strip()
+        read_perc_alias_name = f'{DBConstants.granules_read_alias_prefix}_{tenant}_{tenant_venue}_perc'.lower().strip()
         self.__es.create_index(new_perc_index_name, perc_index_mapping)
         self.__es.create_alias(new_perc_index_name, read_perc_alias_name)
-        self.__es.swap_index_for_alias(write_alias_name, current_index_name, new_index_name)
+        self.__es.swap_index_for_alias(write_perc_alias_name, current_perc_index_name, new_perc_index_name)
+        self.__es.migrate_index_data(current_perc_index_name, new_perc_index_name)
         return
 
     def get_latest_index(self, tenant, tenant_venue):
