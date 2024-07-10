@@ -3,7 +3,7 @@ import os
 from typing import Union
 
 from cumulus_lambda_functions.uds_api.dapa.granules_dapa_query_es import GranulesDapaQueryEs
-from cumulus_lambda_functions.uds_api.dapa.granules_db_index import GranulesDbIndex
+from cumulus_lambda_functions.lib.uds_db.granules_db_index import GranulesDbIndex
 from cumulus_lambda_functions.uds_api.fast_api_utils import FastApiUtils
 
 from cumulus_lambda_functions.lib.authorization.uds_authorizer_abstract import UDSAuthorizorAbstract
