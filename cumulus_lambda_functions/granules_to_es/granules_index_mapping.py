@@ -1,4 +1,15 @@
 class GranulesIndexMapping:
+    percolator_mappings = {
+        "ss_name": {
+            "type": "keyword"
+        },
+        "ss_query": {
+            "type": "percolator"
+        },
+        "ss_username": {
+            "type": "keyword"
+        },
+    }
     stac_mappings = {
         "event_time": {"type": "long"},
         "type": {"type": "keyword"},
