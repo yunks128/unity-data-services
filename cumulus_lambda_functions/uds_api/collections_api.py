@@ -50,6 +50,7 @@ async def dapa_archive_delete_config(request: Request):
 @router.get("/archive")
 @router.get("/archive/")
 async def dapa_archive_get_config(request: Request):
+    # TODO return UDS SNS to accept DAAC messages here
     return {}
 
 @router.put("")
