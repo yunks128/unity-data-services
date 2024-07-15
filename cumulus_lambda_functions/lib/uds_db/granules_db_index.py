@@ -136,6 +136,7 @@ class GranulesDbIndex:
         current_perc_index_name = f'{write_alias_name}_perc__v0' if current_perc_alias == {} else [k for k in current_perc_alias.keys()][0]
         new_perc_index_name = f'{DBConstants.granules_index_prefix}_{tenant}_{tenant_venue}_perc__v{new_version:02d}'.lower().strip()
         customized_perc_es_mapping = self.__add_custom_mappings(es_mapping, True)
+        LOGGER.debug(f'customized_perc_es_mapping: {customized_perc_es_mapping}')
         perc_index_mapping = {
             "settings": {
                 "number_of_shards": 3,
