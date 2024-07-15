@@ -32,3 +32,18 @@ class AwsSns(AwsCred):
             # MessageGroupId='string'
         )
         return response
+
+    def create_sqs_subscription(self, sqs_arn):
+        # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns/client/subscribe.html
+        if self.__topic_arn == '':
+            raise ValueError('missing topic arn to publish message')
+        response = self.__sns_client.subscribe(
+            TopicArn=self.__topic_arn,
+            Protocol='sqs',
+            Endpoint=sqs_arn,  # For the sqs protocol, the endpoint is the ARN of an Amazon SQS queue.
+            # Attributes={
+            #     'string': 'string'
+            # },
+            ReturnSubscriptionArn=True  # if the API request parameter ReturnSubscriptionArn is true, then the value is always the subscription ARN, even if the subscription requires confirmation.
+        )
+        return response['SubscriptionArn']
