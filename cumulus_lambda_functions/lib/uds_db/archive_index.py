@@ -17,15 +17,16 @@ class UdsArchiveConfigIndex:
         self.__tenant, self.__venue = tenant, venue
         return self
 
-    def get_config(self, collection_id):
+    def get_config(self, collection_id, username=None):
         read_alias_name = f'{DBConstants.granules_read_alias_prefix}_{self.__tenant}_{self.__venue}_perc'.lower().strip()
+        conditions = [{"term": {"collection": {"value": collection_id}}}]
+        if username is not None:
+            conditions.append({"term": {"ss_username": {"value": username}}})
         result = self.__es.query({
             'size': 9999,
             'query': {
                 'bool': {
-                    'must': [{
-                        "term": {"collection": {"value": collection_id}}
-                    }]
+                    'must': conditions
                 }
             }
         }, read_alias_name)

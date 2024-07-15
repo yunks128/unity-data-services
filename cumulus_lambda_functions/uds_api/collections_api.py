@@ -32,26 +32,6 @@ router = APIRouter(
     tags=["Collection CRUD API"],
     responses={404: {"description": "Not found"}},
 )
-@router.put("/archive")
-@router.put("/archive/")
-async def dapa_archive_new_config(request: Request):
-    return {}
-
-@router.post("/archive")
-@router.post("/archive/")
-async def dapa_archive_update_config(request: Request):
-    return {}
-
-@router.delete("/archive")
-@router.delete("/archive/")
-async def dapa_archive_delete_config(request: Request):
-    return {}
-
-@router.get("/archive")
-@router.get("/archive/")
-async def dapa_archive_get_config(request: Request):
-    # TODO return UDS SNS to accept DAAC messages here
-    return {}
 
 @router.put("")
 @router.put("/")
