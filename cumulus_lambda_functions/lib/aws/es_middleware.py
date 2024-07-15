@@ -86,6 +86,7 @@ class ESMiddleware(ESAbstract):
         try:
             temp_result = self._engine.indices.delete_alias(index=old_index_name, name=alias_name)
         except NotFoundError as ee:
+            LOGGER.exception(f'error while unlinking {old_index_name} from {alias_name}')
             temp_result = {}
         result = self.create_alias(new_index_name, alias_name)
         return result
@@ -136,9 +137,9 @@ class ESMiddleware(ESAbstract):
                                               body=doc, doc_type=DEFAULT_TYPE, id=doc_id)
             LOGGER.info('indexed. result: {}'.format(index_result))
             pass
-        except:
+        except Exception as e:
             LOGGER.exception('cannot add a new index with id: {} for index: {}'.format(doc_id, index))
-            return None
+            raise e
         return self
 
     def update_many(self, docs=None, doc_ids=None, doc_dict=None, index=None):
