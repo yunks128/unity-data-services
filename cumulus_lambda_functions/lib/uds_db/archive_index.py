@@ -30,7 +30,7 @@ class UdsArchiveConfigIndex:
                 }
             }
         }, read_alias_name)
-        return result
+        return [k['_source'] for k in result['hits']['hits']]
 
     def add_new_config(self, collection_id, daac_collection_id, daac_sns_topic_arn, username):
         write_alias_name = f'{DBConstants.granules_write_alias_prefix}_{self.__tenant}_{self.__venue}_perc'.lower().strip()

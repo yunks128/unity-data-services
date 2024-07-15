@@ -79,7 +79,7 @@ class TestDapaStac(TestCase):
         self.assertEqual(json.loads(query_result.text), self.custom_metadata_body, f'wrong body')
         return
 
-    def test_01(self):
+    def test_01_insert(self):
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
         post_url = f'{self._url_prefix}/collections/{temp_collection_id}/archive'  # MCP Dev
         print(post_url)
@@ -98,4 +98,113 @@ class TestDapaStac(TestCase):
         print(query_result.text)
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
         self.assertEqual(json.loads(query_result.text), {'message': 'inserted'}, f'wrong body')
+        return
+
+    def test_02_get(self):
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
+        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/archive'  # MCP Dev
+        print(post_url)
+        headers = {
+            'Authorization': f'Bearer {self.cognito_login.token}',
+        }
+        query_result = requests.get(url=post_url,
+                                    headers=headers,
+                                    )
+        print(query_result.text)
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        query_result = json.loads(query_result.text)
+        self.assertTrue('uds_daac_sns_arn' in query_result, f'missing uds_daac_sns_arn')
+        return
+
+    def test_03_update(self):
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
+        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/archive'  # MCP Dev
+        print(post_url)
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.cognito_login.token}',
+        }
+        daac_config = {
+            'daac_collection_id': 'sample_collection',
+            'daac_sns_topic_arn': 'sample_sns_3'
+        }
+        query_result = requests.post(url=post_url,
+                                    headers=headers,
+                                    json = daac_config,
+                                    )
+        print(query_result.text)
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        self.assertEqual(json.loads(query_result.text), {'message': 'updated'}, f'wrong body')
+        return
+
+    def test_03_update_invalid(self):
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
+        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/archive'  # MCP Dev
+        print(post_url)
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.cognito_login.token}',
+        }
+        daac_config = {
+            'daac_collection_id': 'sample_collection_invalid',
+            'daac_sns_topic_arn': 'sample_sns_3'
+        }
+        query_result = requests.post(url=post_url,
+                                    headers=headers,
+                                    json = daac_config,
+                                    )
+        print(query_result.text)
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        self.assertEqual(json.loads(query_result.text), {'message': 'updated'}, f'wrong body')
+        return
+    def test_04_get(self):
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
+        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/archive'  # MCP Dev
+        print(post_url)
+        headers = {
+            'Authorization': f'Bearer {self.cognito_login.token}',
+        }
+        query_result = requests.get(url=post_url,
+                                    headers=headers,
+                                    )
+        print(query_result.text)
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        query_result = json.loads(query_result.text)
+        self.assertTrue('uds_daac_sns_arn' in query_result, f'missing uds_daac_sns_arn')
+        return
+
+    def test_05_delete(self):
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
+        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/archive'  # MCP Dev
+        print(post_url)
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.cognito_login.token}',
+        }
+        daac_config = {
+            'daac_collection_id': 'sample_collection',
+        }
+        query_result = requests.delete(url=post_url,
+                                    headers=headers,
+                                    json = daac_config,
+                                    )
+        print(query_result.text)
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        self.assertEqual(json.loads(query_result.text), {'message': 'deleted'}, f'wrong body')
+        return
+
+    def test_06_get(self):
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
+        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/archive'  # MCP Dev
+        print(post_url)
+        headers = {
+            'Authorization': f'Bearer {self.cognito_login.token}',
+        }
+        query_result = requests.get(url=post_url,
+                                    headers=headers,
+                                    )
+        print(query_result.text)
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        query_result = json.loads(query_result.text)
+        self.assertTrue('uds_daac_sns_arn' in query_result, f'missing uds_daac_sns_arn')
         return
