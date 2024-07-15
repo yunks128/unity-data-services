@@ -1,4 +1,18 @@
 class GranulesIndexMapping:
+    percolator_mappings = {
+        "daac_collection_name": {
+            "type": "keyword"
+        },
+        "daac_sns_topic_arn": {
+            "type": "keyword"
+        },
+        "ss_query": {
+            "type": "percolator"
+        },
+        "ss_username": {
+            "type": "keyword"
+        },
+    }
     stac_mappings = {
         "event_time": {"type": "long"},
         "type": {"type": "keyword"},
