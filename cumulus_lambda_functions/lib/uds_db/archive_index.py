@@ -8,7 +8,7 @@ from cumulus_lambda_functions.lib.aws.es_factory import ESFactory
 class UdsArchiveConfigIndex:
     def __init__(self, es_url, es_port=443):
         self.__es: ESAbstract = ESFactory().get_instance('AWS',
-                                                         index=None,
+                                                         index='TODO',
                                                          base_url=es_url,
                                                          port=es_port)
         self.__tenant, self.__venue = '', ''
