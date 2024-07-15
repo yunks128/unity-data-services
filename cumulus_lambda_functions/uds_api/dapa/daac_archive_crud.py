@@ -1,5 +1,7 @@
 import os
 
+from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
+
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from pydantic import BaseModel
 
@@ -28,6 +30,8 @@ class DaacArchiveCrud:
         self.__es_url = os.getenv('ES_URL')
         self.__es_port = int(os.getenv('ES_PORT', '443'))
         self.__daac_config = UdsArchiveConfigIndex(self.__es_url, self.__es_port)
+        collection_identifier = UdsCollections.decode_identifier(collection_id)
+        self.__daac_config.set_tenant_venue(collection_identifier.tenant, collection_identifier.venue)
 
     def delete_config(self):
         try:
