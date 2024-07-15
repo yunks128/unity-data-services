@@ -16,7 +16,8 @@ class ESMiddleware(ESAbstract):
             raise ValueError(f'index or base_url is None')
         self.__index = index
         base_url = base_url.replace('https://', '')  # hide https
-        self._engine = Elasticsearch(hosts=[{'host': base_url, 'port': port}])
+        # https://elasticsearch-py.readthedocs.io/en/v7.13.4/api.html#elasticsearch.Elasticsearch
+        self._engine = Elasticsearch(hosts=[{'host': base_url, 'port': port, 'use_ssl': True}])
 
     def __validate_index(self, index):
         if index is not None:
@@ -44,6 +45,25 @@ class ESMiddleware(ESAbstract):
             return
         LOGGER.exception('failed to add some items. details: {}'.format(err_list))
         return err_list
+
+    def migrate_index_data(self, old_index, new_index, remove_old_data=True):
+        if not self.has_index(old_index) or not self.has_index(new_index):
+            raise ValueError(f'at least one of the indices do not exist: [{old_index}, {new_index}]')
+        result = self._engine.reindex(
+            body={
+                "source": {
+                    "index": old_index,
+                    # "query": {
+                    #     "match_all": {}
+                    # }
+                },
+                "dest": {
+                    "index": new_index
+                }
+            }
+        )
+        self.delete_by_query({'query': {'match_all': {}}}, old_index)
+        return result
 
     def create_index(self, index_name, index_body):
         result = self._engine.indices.create(index=index_name, body=index_body, include_type_name=False)
@@ -91,6 +111,7 @@ class ESMiddleware(ESAbstract):
         return result['acknowledged']
 
     def index_many(self, docs=None, doc_ids=None, doc_dict=None, index=None):
+        # https://elasticsearch-py.readthedocs.io/en/v7.13.4/api.html#elasticsearch.Elasticsearch.bulk
         doc_dict = self.__get_doc_dict(docs, doc_ids, doc_dict)
         body = []
         for k, v in doc_dict.items():
