@@ -72,9 +72,9 @@ class GranulesDbIndex:
     def __add_custom_mappings(self, es_mapping: dict, include_perc=False):
         potential_ss_fields = {} if not include_perc else self.__ss_fields
         customized_es_mapping = deepcopy(self.default_fields)
-        customized_es_mapping['properties'] = {
+        customized_es_mapping = {
             **potential_ss_fields,
-            **self.default_fields['properties'],
+            **self.default_fields,
         }
         customized_es_mapping['properties']['properties'] = {
             **es_mapping,
