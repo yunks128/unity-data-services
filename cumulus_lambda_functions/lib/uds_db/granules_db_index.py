@@ -30,6 +30,7 @@ class GranulesDbIndex:
         #     "event_time": {"type": "long"}
         # }
         self.__default_fields = GranulesIndexMapping.stac_mappings
+        self.__ss_fields = GranulesIndexMapping.percolator_mappings
 
     @staticmethod
     def to_es_bbox(bbox_array):
@@ -68,8 +69,13 @@ class GranulesDbIndex:
         self.__default_fields = val
         return
 
-    def __add_custom_mappings(self, es_mapping: dict):
+    def __add_custom_mappings(self, es_mapping: dict, include_perc=False):
+        potential_ss_fields = {} if not include_perc else self.__ss_fields
         customized_es_mapping = deepcopy(self.default_fields)
+        customized_es_mapping['properties'] = {
+            **potential_ss_fields,
+            **self.default_fields['properties'],
+        }
         customized_es_mapping['properties']['properties'] = {
             **es_mapping,
             **self.default_fields['properties']['properties'],
@@ -102,6 +108,7 @@ class GranulesDbIndex:
         tenant = tenant.replace(':', '--')
         write_alias_name = f'{DBConstants.granules_write_alias_prefix}_{tenant}_{tenant_venue}'.lower().strip()
         read_alias_name = f'{DBConstants.granules_read_alias_prefix}_{tenant}_{tenant_venue}'.lower().strip()
+
         current_alias = self.__es.get_alias(write_alias_name)
         # {'meta_labels_v2': {'aliases': {'metadata_labels': {}}}}
         current_index_name = f'{write_alias_name}__v0' if current_alias == {} else [k for k in current_alias.keys()][0]
@@ -122,6 +129,28 @@ class GranulesDbIndex:
         self.__es.create_index(new_index_name, index_mapping)
         self.__es.create_alias(new_index_name, read_alias_name)
         self.__es.swap_index_for_alias(write_alias_name, current_index_name, new_index_name)
+
+        write_perc_alias_name = f'{DBConstants.granules_write_alias_prefix}_{tenant}_{tenant_venue}_perc'.lower().strip()
+        read_perc_alias_name = f'{DBConstants.granules_read_alias_prefix}_{tenant}_{tenant_venue}_perc'.lower().strip()
+        current_perc_alias = self.__es.get_alias(write_perc_alias_name)
+        current_perc_index_name = f'{write_alias_name}_perc__v0' if current_perc_alias == {} else [k for k in current_perc_alias.keys()][0]
+        new_perc_index_name = f'{DBConstants.granules_index_prefix}_{tenant}_{tenant_venue}_perc__v{new_version:02d}'.lower().strip()
+        customized_perc_es_mapping = self.__add_custom_mappings(es_mapping, True)
+        LOGGER.debug(f'customized_perc_es_mapping: {customized_perc_es_mapping}')
+        perc_index_mapping = {
+            "settings": {
+                "number_of_shards": 3,
+                "number_of_replicas": 2
+            },
+            "mappings": {
+                "dynamic": "strict",
+                "properties": customized_perc_es_mapping,
+            }
+        }
+        self.__es.create_index(new_perc_index_name, perc_index_mapping)
+        self.__es.create_alias(new_perc_index_name, read_perc_alias_name)
+        self.__es.swap_index_for_alias(write_perc_alias_name, current_perc_index_name, new_perc_index_name)
+        self.__es.migrate_index_data(current_perc_index_name, new_perc_index_name)
         return
 
     def get_latest_index(self, tenant, tenant_venue):
