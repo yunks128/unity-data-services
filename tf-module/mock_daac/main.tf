@@ -46,6 +46,10 @@ resource "aws_lambda_function" "mock_daac_lambda" {
   environment {
     variables = {
       LOG_LEVEL = var.log_level
+      NO_RESPONSE_PERC = var.no_response_perc
+      FAIL_PERC = var.no_response_perc
+      FAIL_PERC = var.fail_perc
+      UDS_ARCHIVE_SNS_TOPIC_ARN = "arn:aws:sns:${var.uds_region}:${var.uds_account}:${var.uds_prefix}-daac_archiver"
     }
   }
 
@@ -59,4 +63,12 @@ resource "aws_lambda_function" "mock_daac_lambda" {
 resource "aws_sns_topic" "mock_daac_cnm_sns" {
   name = "${var.prefix}-mock_daac_cnm_sns"
   tags = var.tags
+}
+
+resource "aws_sns_topic_subscription" "mock_daac_cnm_sns" { // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription
+  topic_arn = aws_sns_topic.mock_daac_cnm_sns.arn
+  protocol  = "lambda"
+  endpoint  = aws_lambda_function.mock_daac_lambda.arn
+#  filter_policy_scope = "MessageBody"  // MessageAttributes. not using attributes
+#  filter_policy = templatefile("${path.module}/ideas_api_job_results_filter_policy.json", {})
 }

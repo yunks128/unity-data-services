@@ -15,3 +15,8 @@ tags = {
 }
 lambda_processing_role_arn = "arn:aws:iam::237868187491:role/uds-dev-cumulus-lambda-processing"
 security_group_ids = ["sg-01bd913c02bceea05"]
+fail_perc = 0.25
+no_response_perc = 0.25
+uds_region="us-west-2"
+uds_account="237868187491"
+uds_prefix="uds-sbx-cumulus"
