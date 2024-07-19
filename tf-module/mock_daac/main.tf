@@ -25,7 +25,7 @@ resource "aws_security_group" "unity_cumulus_lambda_sg" {
   tags = var.tags
 }
 
-data "aws_iam_policy_document" "lambda_assume_role_policy" {
+data "aws_iam_policy_document" "mock_daac_lambda_assume_role_policy" {
   statement {
     principals {
       type        = "Service"
@@ -35,11 +35,62 @@ data "aws_iam_policy_document" "lambda_assume_role_policy" {
   }
 }
 
+
+# IAM Role for Lambda Function
+resource "aws_iam_role" "mock_daac_lambda_role" {
+  name = "${var.prefix}-mock_daac_lambda_role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+# IAM Policy for accessing S3 and SNS in other accounts
+resource "aws_iam_policy" "mock_daac_lambda_policy" {
+  name        = "${var.prefix}-mock_daac_lambda_policy"
+  description = "IAM policy for Lambda to access S3 bucket and publish to SNS topic in another account"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:GetObject*",
+          "s3:PutObject"
+        ],
+        Resource = "arn:aws:s3:::/*unity*/*"
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "sns:Publish"
+        ],
+        Resource = "arn:aws:sns:${var.uds_region}:${var.uds_account}:${var.uds_prefix}-daac_archiver"
+      }
+    ]
+  })
+}
+
+# Attach policy to the role
+resource "aws_iam_role_policy_attachment" "mock_daac_lambda_policy_attachment" {
+  role       = aws_iam_role.mock_daac_lambda_role.name
+  policy_arn = aws_iam_policy.mock_daac_lambda_policy.arn
+}
+
+
 resource "aws_lambda_function" "mock_daac_lambda" {
   filename      = local.lambda_file_name
   source_code_hash = filebase64sha256(local.lambda_file_name)
   function_name = "${var.prefix}-mock_daac_lambda"
-  role          = var.lambda_processing_role_arn
+  role          = aws_iam_role.mock_daac_lambda_role.arn
   handler       = "cumulus_lambda_functions.mock_daac.lambda_function.lambda_handler"
   runtime       = "python3.9"
   timeout       = 300

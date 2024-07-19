@@ -15,9 +15,7 @@ variable "log_level" {
 variable "prefix" {
   type = string
 }
-variable "lambda_processing_role_arn" {
-  type = string
-}
+
 variable "security_group_ids" {
   description = "Security Group IDs for Lambdas"
   type        = list(string)
