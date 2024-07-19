@@ -39,6 +39,7 @@ data "aws_iam_policy_document" "mock_daac_lambda_assume_role_policy" {
 # IAM Role for Lambda Function
 resource "aws_iam_role" "mock_daac_lambda_role" {
   name = "${var.prefix}-mock_daac_lambda_role"
+  permissions_boundary = "arn:aws:iam::${local.account_id}:policy/mcp-tenantOperator-AMI-APIG"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -53,6 +54,7 @@ resource "aws_iam_role" "mock_daac_lambda_role" {
   })
 }
 
+
 # IAM Policy for accessing S3 and SNS in other accounts
 resource "aws_iam_policy" "mock_daac_lambda_policy" {
   name        = "${var.prefix}-mock_daac_lambda_policy"
@@ -60,6 +62,17 @@ resource "aws_iam_policy" "mock_daac_lambda_policy" {
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:CreateNetworkInterface",
+          "ec2:DeleteNetworkInterface",
+          "ec2:DescribeInstances",
+          "ec2:AttachNetworkInterface"
+        ],
+        "Resource": "*"
+      },
       {
         Effect = "Allow",
         Action = [
