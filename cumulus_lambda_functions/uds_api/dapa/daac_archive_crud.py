@@ -14,12 +14,12 @@ class ArchivingTypesModel(BaseModel):
     data_type: str
     file_extension: Optional[list[str]] = []
 
+
 class DaacAddModel(BaseModel):
     daac_collection_id: str
     daac_data_version: str
     daac_sns_topic_arn: str
     archiving_types: Optional[list[ArchivingTypesModel]] = []
-
 
 
 class DaacDeleteModel(BaseModel):
@@ -72,7 +72,12 @@ class DaacArchiveCrud:
 
     def add_new_config(self):
         try:
-            result = self.__daac_config.add_new_config(self.__collection_id, self.__request_body['daac_collection_id'], self.__request_body['daac_sns_topic_arn'], self.__authorization_info['username'])
+            ingesting_dict = {
+                **self.__request_body,
+                'ss_username': self.__authorization_info['username'],
+                'collection': self.__collection_id,
+            }
+            result = self.__daac_config.add_new_config(ingesting_dict)
         except Exception as e:
             LOGGER.exception(f'error during add config: {self.__request_body}')
             return {
