@@ -13,7 +13,7 @@ from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGen
 from cumulus_lambda_functions.lib.metadata_extraction.echo_metadata import EchoMetadata
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
 from cumulus_lambda_functions.metadata_stac_generate_cmr.stac_input_metadata import StacInputMetadata
-from cumulus_lambda_functions.uds_api.dapa.granules_db_index import GranulesDbIndex
+from cumulus_lambda_functions.lib.uds_db.granules_db_index import GranulesDbIndex
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
