@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
 
@@ -9,9 +10,16 @@ from cumulus_lambda_functions.lib.uds_db.archive_index import UdsArchiveConfigIn
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
+class ArchivingTypesModel(BaseModel):
+    data_type: str
+    file_extension: Optional[str] = ''
+
 class DaacAddModel(BaseModel):
     daac_collection_id: str
+    daac_data_version: str
     daac_sns_topic_arn: str
+    archiving_types: Optional[list[ArchivingTypesModel]] = []
+
 
 
 class DaacDeleteModel(BaseModel):

@@ -89,7 +89,13 @@ class TestDapaStac(TestCase):
         }
         daac_config = {
             'daac_collection_id': 'sample_collection',
-            'daac_sns_topic_arn': 'sample_sns'
+            'daac_sns_topic_arn': 'sample_sns',
+            'daac_data_version': '123',
+            'archiving_types': [
+                {'data_type': 'data', 'file_extension': ['.json', '.nc']},
+                {'data_type': 'metadata', 'file_extension': ['.xml']},
+                {'data_type': 'browse'},
+            ],
         }
         query_result = requests.put(url=post_url,
                                     headers=headers,

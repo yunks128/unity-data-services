@@ -3,6 +3,16 @@ class GranulesIndexMapping:
         "daac_collection_name": {
             "type": "keyword"
         },
+        "daac_data_version": {
+            "type": "keyword"
+        },
+        "archiving_types": {
+            "type": "object",
+            "properties": {
+                "data_type": {"type": "keyword"},
+                "file_extension": {"type": "keyword"},
+            }
+        },
         "daac_sns_topic_arn": {
             "type": "keyword"
         },
