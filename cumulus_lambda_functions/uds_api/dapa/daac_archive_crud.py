@@ -12,7 +12,7 @@ LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_le
 
 class ArchivingTypesModel(BaseModel):
     data_type: str
-    file_extension: Optional[str] = ''
+    file_extension: Optional[list[str]] = []
 
 class DaacAddModel(BaseModel):
     daac_collection_id: str
