@@ -69,7 +69,11 @@ resource "aws_iam_policy" "mock_daac_lambda_policy" {
           "ec2:CreateNetworkInterface",
           "ec2:DeleteNetworkInterface",
           "ec2:DescribeInstances",
-          "ec2:AttachNetworkInterface"
+          "ec2:AttachNetworkInterface",
+          "logs:PutLogEvents",
+          "logs:DescribeLogStreams",
+          "logs:CreateLogStream",
+          "logs:CreateLogGroup",
         ],
         "Resource": "*"
       },
@@ -127,6 +131,21 @@ resource "aws_lambda_function" "mock_daac_lambda" {
 resource "aws_sns_topic" "mock_daac_cnm_sns" {
   name = "${var.prefix}-mock_daac_cnm_sns"
   tags = var.tags
+
+}
+
+resource "aws_sns_topic_policy" "granules_cnm_ingester_policy" {
+  arn = aws_sns_topic.mock_daac_cnm_sns.arn
+  policy = templatefile("${path.module}/mock_daac_sns_policy.json", {
+    region: var.aws_region,
+    accountId: local.account_id,
+    snsName: "${var.prefix}-granules_cnm_ingester",
+    prefix: var.prefix,
+
+    uds_region: var.uds_region,
+    uds_accountId: var.uds_account,
+    uds_prefix: var.uds_prefix,
+  })
 }
 
 resource "aws_sns_topic_subscription" "mock_daac_cnm_sns" { // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription
@@ -135,4 +154,11 @@ resource "aws_sns_topic_subscription" "mock_daac_cnm_sns" { // https://registry.
   endpoint  = aws_lambda_function.mock_daac_lambda.arn
 #  filter_policy_scope = "MessageBody"  // MessageAttributes. not using attributes
 #  filter_policy = templatefile("${path.module}/ideas_api_job_results_filter_policy.json", {})
+}
+
+resource "aws_lambda_permission" "kinesis_fallback" {
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.mock_daac_lambda.arn
+  principal     = "sns.amazonaws.com"
+  source_arn    = aws_sns_topic.mock_daac_cnm_sns.arn
 }
