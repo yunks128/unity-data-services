@@ -69,7 +69,7 @@ class MockDaacLogic:
         event: {'Records': [{'EventSource': 'aws:sns', 'EventVersion': '1.0', 'EventSubscriptionArn': 'arn:aws:sns:us-west-2:429178552491:uds-sbx-cumulus-mock_daac_cnm_sns:35fc364f-2c1a-4139-af3f-bbc2921ea50b', 'Sns': {'Type': 'Notification', 'MessageId': '2f324e04-4d7b-5f56-a46e-1110e4ac1f51', 'TopicArn': 'arn:aws:sns:us-west-2:429178552491:uds-sbx-cumulus-mock_daac_cnm_sns', 'Subject': None, 'Message': 'asfdsadfsa', 'Timestamp': '2024-07-19T17:51:19.598Z', 'SignatureVersion': '1', 'Signature': 'Bh1CYWOwQrPcF7C7pOZ3h8khg9W2P01C8XhnIFQ0GE1H7vkXHm/vjLRFJbL0e2/6I0M2rlMJwSC/doS87PNCZ9NW+QPhyr/LmfSib1rfqbGMSIVBA3V1VbXokwvYqTwE05S8+UltEhezgexqDqxd/37WPB9iFOK0v3S5XTvNDRelQJUcTUpy8Ts/F2xFB0vgjKvdTQg+c3KDNIUzukcvNexDVfrp8QMEv/7/kO8A5JVYu0HagiBcIdVWPhgFjtTdcs0A3qSYx5C+sqoSX2Cb+opUZESQ9iNax5vZ1nZxokicSFqOts8uoSNDBE9x695BBET9IRD140bE3iF7xT5ZOQ==', 'SigningCertUrl': 'https://sns.us-west-2.amazonaws.com/SimpleNotificationService-60eadc530605d63b8e62a523676ef735.pem', 'UnsubscribeUrl': 'https://sns.us-west-2.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-west-2:429178552491:uds-sbx-cumulus-mock_daac_cnm_sns:35fc364f-2c1a-4139-af3f-bbc2921ea50b', 'MessageAttributes': {}}}]}
         """
         input_event = AwsMessageTransformers().get_message_from_sns_event(event)
-
+        LOGGER.debug(f'input_event: {input_event}')
         # Check input message is validated according to https://github.com/podaac/cloud-notification-message-schema?tab=readme-ov-file#notification-message-fields
 
         # validate using this: https://raw.githubusercontent.com/podaac/cloud-notification-message-schema/v1.6.1/cumulus_sns_schema.json
@@ -81,7 +81,7 @@ class MockDaacLogic:
             raise ValueError(f'input cnm event has cnm_msg_schema validation errors: {result}')
 
         # Check if S3 can be downloaded
-        self.__check_s3_file(input_event['product']['files'])
+        # self.__check_s3_file(input_event['product']['files'])
         # .25/.25/.50 P() on No send, send failure, send success
         # Return with this message: https://github.com/podaac/cloud-notification-message-schema?tab=readme-ov-file#response-message-fields
         self.__response_message = {
