@@ -20,7 +20,7 @@
       "Resource": "arn:aws:sns:${region}:${accountId}:${snsName}",
       "Condition": {
         "ArnLike": {
-          "aws:SourceArn": ["arn:aws:lambda:${uds_region}:${uds_accountId}:${uds_prefix}-daac_archiver", "arn:aws:lambda:${region}:${accountId}:${var.prefix}-mock_daac_lambda"]
+          "aws:SourceArn": ["arn:aws:lambda:${uds_region}:${uds_accountId}:${uds_prefix}-daac_archiver", "arn:aws:lambda:${region}:${accountId}:${prefix}-mock_daac_lambda"]
         }
       }
     }
