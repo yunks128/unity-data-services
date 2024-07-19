@@ -14,7 +14,7 @@ from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGen
 from cumulus_lambda_functions.lib.json_validator import JsonValidator
 
 from cumulus_lambda_functions.lib.aws.aws_message_transformers import AwsMessageTransformers
-from cumulus_lambda_functions.uds_api.dapa.granules_db_index import GranulesDbIndex
+from cumulus_lambda_functions.lib.uds_db.granules_db_index import GranulesDbIndex
 
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
