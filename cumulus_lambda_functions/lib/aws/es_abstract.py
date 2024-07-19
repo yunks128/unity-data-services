@@ -6,6 +6,9 @@ DEFAULT_TYPE = '_doc'
 
 class ESAbstract(ABC):
     @abstractmethod
+    def migrate_index_data(self, old_index, new_index):
+        return
+    @abstractmethod
     def create_index(self, index_name, index_body):
         return
 

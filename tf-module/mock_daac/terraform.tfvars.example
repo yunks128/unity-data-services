@@ -1,0 +1,21 @@
+prefix  = "uds-sbx-cumulus"
+cumulus_lambda_vpc_id        = "vpc-0106218dbddd3a753"
+cumulus_lambda_subnet_ids    = ["subnet-092597c48cfec3f04", "subnet-00db2965967acb6b1"]
+aws_region = "us-west-2"
+log_level="10"
+tags = {
+  Venue = "dev",
+  ServiceArea = "ds",
+  CapVersion = "16.0.0"
+  Component = "Cumulus",
+  Proj = "Unity",
+  CreatedBy = "ds",
+  Env = "sbx",
+  Stack = "Cumulus"
+}
+security_group_ids = ["sg-01bd913c02bceea05"]
+fail_perc = 0.25
+no_response_perc = 0.25
+uds_region="us-west-2"
+uds_account="237868187491"
+uds_prefix="uds-sbx-cumulus"
