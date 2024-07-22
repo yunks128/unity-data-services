@@ -61,7 +61,7 @@ urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPSConnection objec
         try:
             headers: Dict = {'Accept': 'application/json'}  # noqa E501
             resp = requests.post(url + "/token", headers=headers, auth=HTTPBasicAuth(self.__username, self.__dwssap))
-            if resp.status_code < 300:
+            if resp.status_code > 300:
                 raise ValueError(f'invalid response code: {resp.status_code}. details: {resp.content}')
             response_content: Dict = json.loads(resp.content)
             if "error" in response_content:
