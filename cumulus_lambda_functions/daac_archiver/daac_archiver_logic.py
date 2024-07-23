@@ -2,6 +2,8 @@ import json
 import os
 
 import requests
+
+from cumulus_lambda_functions.lib.aws.aws_message_transformers import AwsMessageTransformers
 from cumulus_lambda_functions.lib.json_validator import JsonValidator
 
 from cumulus_lambda_functions.lib.uds_db.granules_db_index import GranulesDbIndex
@@ -47,7 +49,12 @@ class DaacArchiverLogic:
                 result_files.append(each_file)  # TODO remove missing md5?
         return result_files
 
-    def send_to_daac(self, uds_cnm_json: dict):
+    def send_to_daac(self, event: dict):
+        LOGGER.debug(f'send_to_daac#event: {event}')
+        sns_msg = AwsMessageTransformers().sqs_sns(event)
+        LOGGER.debug(f'sns_msg: {sns_msg}')
+        uds_cnm_json = sns_msg
+
         granule_identifier = UdsCollections.decode_identifier(uds_cnm_json['identifier'])  # This is normally meant to be for collection. Since our granule ID also has collection id prefix. we can use this.
         self.__archive_index_logic.set_tenant_venue(granule_identifier.tenant, granule_identifier.venue)
         daac_config = self.__archive_index_logic.percolate_document(uds_cnm_json['collection'])
@@ -76,7 +83,12 @@ class DaacArchiverLogic:
             self.__granules_index.update_entry(granule_identifier.tenant, granule_identifier.venue, {'archive_status': 'cnm_s_failed'}, uds_cnm_json['identifier'])
         return
 
-    def receive_from_daac(self, cnm_notification_msg: dict):
+    def receive_from_daac(self, event: dict):
+        LOGGER.debug(f'receive_from_daac#event: {event}')
+        sns_msg = AwsMessageTransformers().sqs_sns(event)
+        LOGGER.debug(f'sns_msg: {sns_msg}')
+        cnm_notification_msg = sns_msg
+
         cnm_msg_schema = requests.get('https://raw.githubusercontent.com/podaac/cloud-notification-message-schema/v1.6.1/cumulus_sns_schema.json')
         cnm_msg_schema.raise_for_status()
         cnm_msg_schema = json.loads(cnm_msg_schema.text)
