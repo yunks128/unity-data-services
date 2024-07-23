@@ -131,7 +131,6 @@ resource "aws_lambda_function" "mock_daac_lambda" {
 resource "aws_sns_topic" "mock_daac_cnm_sns" {
   name = "${var.prefix}-mock_daac_cnm_sns"
   tags = var.tags
-
 }
 
 resource "aws_sns_topic_policy" "granules_cnm_ingester_policy" {

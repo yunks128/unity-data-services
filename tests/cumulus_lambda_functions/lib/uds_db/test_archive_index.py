@@ -14,7 +14,19 @@ class TestUdsArchiveConfigIndex(TestCase):
         collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:unit_test_1'
         archive_index = UdsArchiveConfigIndex('vpc-uds-sbx-cumulus-es-qk73x5h47jwmela5nbwjte4yzq.us-west-2.es.amazonaws.com', 9200)
         archive_index.set_tenant_venue(self.tenant, self.tenant_venue)
-        archive_index.add_new_config(collection_id, 'daac_unit_test_collection', 'daac_unit_test_sns', 'unit_test')
+        ingesting_dict = {
+            'daac_collection_id': 'daac_unit_test_collection',
+            'daac_sns_topic_arn': 'daac_unit_test_sns',
+            'daac_data_version': 'unit_test',
+            'collection': collection_id,
+            'ss_username': 'unit_test',
+            'archiving_types': [
+                {'data_type': 'data', 'file_extension': ['.json', '.nc']},
+                {'data_type': 'metadata', 'file_extension': ['.xml']},
+                {'data_type': 'browse'},
+            ],
+        }
+        archive_index.add_new_config(ingesting_dict)
         sleep(3)
         result = archive_index.get_config(collection_id)
         result_len = len(result)
