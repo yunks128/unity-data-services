@@ -21,7 +21,7 @@ resource "aws_lambda_function" "daac_archiver_request" {
   tags = var.tags
 }
 
-resource "aws_lambda_event_source_mapping" "granules_cnm_response_writer_lambda_trigger" {  // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping#sqs
+resource "aws_lambda_event_source_mapping" "daac_archiver_request_lambda_trigger" {  // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping#sqs
   event_source_arn = aws_sqs_queue.granules_cnm_response_writer.arn
   function_name    = aws_lambda_function.daac_archiver_request.arn
   batch_size = 1
@@ -62,7 +62,7 @@ resource "aws_sns_topic" "daac_archiver_response" {
 
 resource "aws_sns_topic_policy" "daac_archiver_response_policy" {
   arn = aws_sns_topic.daac_archiver_response.arn
-  policy = templatefile("${path.module}/daac_archiver_response_sns_policy.json", {
+  policy = templatefile("${path.module}/daac_archiver_sns_policy.json", {
     region: var.aws_region,
     accountId: local.account_id,
     snsName: "${var.prefix}-daac_archiver_response",
