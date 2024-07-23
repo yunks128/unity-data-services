@@ -1,6 +1,9 @@
 import json
 import os
 
+import requests
+from cumulus_lambda_functions.lib.json_validator import JsonValidator
+
 from cumulus_lambda_functions.lib.uds_db.granules_db_index import GranulesDbIndex
 from cumulus_lambda_functions.lib.aws.aws_sns import AwsSns
 from cumulus_lambda_functions.lib.time_utils import TimeUtils
@@ -45,10 +48,9 @@ class DaacArchiverLogic:
         return result_files
 
     def send_to_daac(self, uds_cnm_json: dict):
-        collection_identifier = UdsCollections.decode_identifier(uds_cnm_json['collection'])
         granule_identifier = UdsCollections.decode_identifier(uds_cnm_json['identifier'])  # This is normally meant to be for collection. Since our granule ID also has collection id prefix. we can use this.
-        self.__archive_index_logic.set_tenant_venue(collection_identifier.tenant, collection_identifier.venue)
-        daac_config = self.__archive_index_logic.percolate_document(uds_cnm_json['identifier'])
+        self.__archive_index_logic.set_tenant_venue(granule_identifier.tenant, granule_identifier.venue)
+        daac_config = self.__archive_index_logic.percolate_document(uds_cnm_json['collection'])
         if daac_config is None:
             LOGGER.debug(f'uds_cnm_json is not configured for archival. uds_cnm_json: {uds_cnm_json}')
             return
@@ -59,7 +61,7 @@ class DaacArchiverLogic:
                 "collection": daac_config['daac_collection_id'],
                 "identifier": uds_cnm_json['identifier'],
                 "submissionTime": f'{TimeUtils.get_current_time()}Z',
-                "provider": collection_identifier.tenant,
+                "provider": granule_identifier.tenant,
                 "version": "1.6.0",  # TODO this is hardcoded?
                 "product": {
                     "name": granule_identifier.id,
@@ -68,11 +70,28 @@ class DaacArchiverLogic:
                 }
             }
             self.__sns.publish_message(json.dumps(daac_cnm_message))
-            self.__granules_index.update_entry(collection_identifier.tenant, collection_identifier.venue, {'archive_status': 'cnm_s_success'}, uds_cnm_json['identifier'])
+            self.__granules_index.update_entry(granule_identifier.tenant, granule_identifier.venue, {'archive_status': 'cnm_s_success'}, uds_cnm_json['identifier'])
         except Exception as e:
             LOGGER.exception(f'failed during archival process')
-            self.__granules_index.update_entry(collection_identifier.tenant, collection_identifier.venue, {'archive_status': 'cnm_s_success'}, uds_cnm_json['identifier'])
+            self.__granules_index.update_entry(granule_identifier.tenant, granule_identifier.venue, {'archive_status': 'cnm_s_failed'}, uds_cnm_json['identifier'])
         return
 
-    def receive_from_daac(self, event_msg):
+    def receive_from_daac(self, cnm_notification_msg: dict):
+        cnm_msg_schema = requests.get('https://raw.githubusercontent.com/podaac/cloud-notification-message-schema/v1.6.1/cumulus_sns_schema.json')
+        cnm_msg_schema.raise_for_status()
+        cnm_msg_schema = json.loads(cnm_msg_schema.text)
+        result = JsonValidator(cnm_msg_schema).validate(cnm_notification_msg)
+        if result is not None:
+            raise ValueError(f'input cnm event has cnm_msg_schema validation errors: {result}')
+        if 'response' not in cnm_notification_msg:
+            raise ValueError(f'missing response in {cnm_notification_msg}')
+        granule_identifier = UdsCollections.decode_identifier(cnm_notification_msg['identifier'])  # This is normally meant to be for collection. Since our granule ID also has collection id prefix. we can use this.
+        if cnm_notification_msg['response']['status'] == 'SUCCESS':
+            self.__granules_index.update_entry(granule_identifier.tenant, granule_identifier.venue, {'archive_status': 'cnm_r_success'}, cnm_notification_msg['identifier'])
+            return
+        self.__granules_index.update_entry(granule_identifier.tenant, granule_identifier.venue, {
+            'archive_status': 'cnm_r_failed',
+            'archive_error_message': cnm_notification_msg['response']['errorMessage'] if 'errorMessage' in cnm_notification_msg['response'] else 'unknown',
+            'archive_error_code': cnm_notification_msg['response']['errorCode'] if 'errorCode' in cnm_notification_msg['response'] else 'unknown',
+        }, cnm_notification_msg['identifier'])
         return
