@@ -26,6 +26,27 @@ class UdsArchiveConfigIndex:
                                                          port=es_port)
         self.__tenant, self.__venue = '', ''
 
+    def percolate_document(self, document_id):
+        write_alias_name = f'{DBConstants.granules_write_alias_prefix}_{self.__tenant}_{self.__venue}'.lower().strip()
+        current_alias = self.__es.get_alias(write_alias_name)
+        current_index_name = f'{write_alias_name}__v0' if current_alias == {} else [k for k in current_alias.keys()][0]
+        read_alias_perc_name = f'{DBConstants.granules_read_alias_prefix}_{self.__tenant}_{self.__venue}_perc'.lower().strip()
+        dsl = {
+
+            '_source': ['ss_name', 'ss_type', 'ss_username'],
+            'query': {
+                'percolate': {
+                    'field': 'ss_query',
+                    'index': current_index_name,
+                    'id': document_id,
+                }
+            },
+            'sort': [{'ss_name': {'order': 'asc'}}]
+        }
+        percolated_result = self.__es.query(dsl, querying_index=read_alias_perc_name)
+        percolated_result = [k['_source'] for k in percolated_result['hits']['hits']]
+        return percolated_result
+
     def set_tenant_venue(self, tenant, venue):
         self.__tenant, self.__venue = tenant, venue
         return self
