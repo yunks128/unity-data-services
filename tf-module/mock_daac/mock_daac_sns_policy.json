@@ -3,7 +3,6 @@
   "Id": "__default_policy_ID",
   "Statement": [
     {
-      "Sid": "1",
       "Effect": "Allow",
       "Principal": {
         "Service": ["lambda.amazonaws.com"]
@@ -18,18 +17,12 @@
         "SNS:ListSubscriptionsByTopic",
         "SNS:Publish"
       ],
-      "Resource": "arn:aws:sns:${region}:${accountId}:${snsName}"
-    },
-    {
-      "Sid": "2",
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "*"
-      },
-      "Action": [
-        "SNS:Publish"
-      ],
-      "Resource": "arn:aws:sns:${region}:${accountId}:${snsName}"
+      "Resource": "arn:aws:sns:${region}:${accountId}:${snsName}",
+      "Condition": {
+        "ArnLike": {
+          "aws:SourceArn": ["arn:aws:lambda:${uds_region}:${uds_accountId}:${uds_prefix}-daac_archiver", "arn:aws:lambda:${region}:${accountId}:${prefix}-mock_daac_lambda"]
+        }
+      }
     }
   ]
 }

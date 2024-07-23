@@ -23,6 +23,24 @@ class AwsMessageTransformers:
         },
         'required': ['Records']
     }
+    SNS_EVENT_SCHEMA = {
+        'type': 'object',
+        'properties': {
+            'Records': {
+                'type': 'array',
+                'minItems': 1,
+                'maxItems': 1,
+                'items': {
+                    'type': 'object',
+                    'properties': {
+                        'Sns': {'type': 'object'}
+                    },
+                    'required': ['Sns']
+                }
+            }
+        },
+        'required': ['Records']
+    }
 
     SNS_SCHEMA = {
         "type": "object",
@@ -86,10 +104,22 @@ class AwsMessageTransformers:
         sns_msg_body = json.loads(sns_msg_body)
         return sns_msg_body
 
+    def get_message_from_sns_event(self, raw_msg: json):
+        result = JsonValidator(self.SNS_EVENT_SCHEMA).validate(raw_msg)
+        if result is not None:
+            raise ValueError(f'input json has SNS_EVENT_SCHEMA validation errors: {result}')
+        sns_msg = raw_msg['Records'][0]['Sns']
+        result = JsonValidator(self.SNS_SCHEMA).validate(sns_msg)
+        if result is not None:
+            raise ValueError(f'input json has SNS validation errors: {result}')
+        sns_msg_body = sns_msg['Message']
+        sns_msg_body = json.loads(sns_msg_body)
+        return sns_msg_body
+
     def get_s3_from_sns(self, sns_msg_body):
         result = JsonValidator(self.S3_RECORD_SCHEMA).validate(sns_msg_body)
         if result is not None:
-            raise ValueError(f'sqs_msg did not pass SQS_MSG_SCHEMA: {result}')
+            raise ValueError(f'sns_msg_body did not pass S3_RECORD_SCHEMA: {result}')
         s3_summary = {
             'eventName': sns_msg_body['Records'][0]['eventName'],
             'bucket': sns_msg_body['Records'][0]['s3']['bucket']['name'],

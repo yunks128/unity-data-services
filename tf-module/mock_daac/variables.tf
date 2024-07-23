@@ -15,9 +15,7 @@ variable "log_level" {
 variable "prefix" {
   type = string
 }
-variable "lambda_processing_role_arn" {
-  type = string
-}
+
 variable "security_group_ids" {
   description = "Security Group IDs for Lambdas"
   type        = list(string)
@@ -30,4 +28,35 @@ variable "cumulus_lambda_subnet_ids" {
 }
 variable "cumulus_lambda_vpc_id" {
   type = string
+}
+
+variable "uds_archive_sns_topic_arn" {
+  type = string
+  default = "UDS Archive SNS Topic ARN"
+}
+
+variable "no_response_perc" {
+  type = number
+  default = 0.25
+  description = "percentage in float form when it should not return anything. defaulted to 0.25"
+}
+
+variable "fail_perc" {
+  type = number
+  default = 0.25
+  description = "percentage in float form when it should not return anything. defaulted to 0.25"
+}
+
+variable "uds_region" {
+  type = string
+  default = "us-west-2"
+}
+variable "uds_account" {
+  type = string
+}
+
+variable "uds_prefix" {
+  type = string
+  default = "uds-sbx-cumulus"
+  description = "UDS Prefix"
 }
