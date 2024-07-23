@@ -1,9 +1,12 @@
+from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
+
 from cumulus_lambda_functions.lib.json_validator import JsonValidator
 from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
 
 from cumulus_lambda_functions.lib.aws.es_abstract import ESAbstract
 
 from cumulus_lambda_functions.lib.aws.es_factory import ESFactory
+LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
 class UdsArchiveConfigIndex:
@@ -33,7 +36,7 @@ class UdsArchiveConfigIndex:
         read_alias_perc_name = f'{DBConstants.granules_read_alias_prefix}_{self.__tenant}_{self.__venue}_perc'.lower().strip()
         dsl = {
 
-            '_source': ['ss_name', 'ss_type', 'ss_username'],
+            # '_source': ['ss_name', 'ss_type', 'ss_username'],
             'query': {
                 'percolate': {
                     'field': 'ss_query',
@@ -41,9 +44,16 @@ class UdsArchiveConfigIndex:
                     'id': document_id,
                 }
             },
-            'sort': [{'ss_name': {'order': 'asc'}}]
+            # 'sort': [{'ss_name': {'order': 'asc'}}]
         }
-        percolated_result = self.__es.query(dsl, querying_index=read_alias_perc_name)
+        try:
+            percolated_result = self.__es.query(dsl, querying_index=read_alias_perc_name)
+        except Exception as e:
+            if e.error == 'resource_not_found_exception':
+                LOGGER.debug(f'unable to find document_id: {document_id} on index: {current_index_name}')
+                return None
+            LOGGER.exception(f'error while percolating')
+            raise e
         percolated_result = [k['_source'] for k in percolated_result['hits']['hits']]
         return percolated_result
 
@@ -75,7 +85,7 @@ class UdsArchiveConfigIndex:
         ingesting_dict['ss_query'] = {
                 "bool": {
                     "must": [{
-                        "term": {"collection": {"value": ingesting_dict['collection']} }
+                        "prefix": {"collection": {"value": ingesting_dict['collection']} }
                     }]
                 }
             }

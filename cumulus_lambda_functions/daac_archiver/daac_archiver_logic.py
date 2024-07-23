@@ -24,11 +24,12 @@ class DaacArchiverLogic:
         self.__sns = AwsSns()
 
     def __extract_files(self, uds_cnm_json: dict, daac_config: dict):
+        granule_files = uds_cnm_json['product']['files']
         if 'archiving_types' not in daac_config or len(daac_config['archiving_types']) < 1:
-            return uds_cnm_json['files']  # TODO remove missing md5?
+            return granule_files  # TODO remove missing md5?
         archiving_types = [{k['data_type']: [] if 'file_extension' not in k else k['file_extension'] for k in daac_config['archiving_types']}]
         result_files = []
-        for each_file in uds_cnm_json['files']:
+        for each_file in granule_files:
             """
             {
                 "type": "data",
@@ -51,21 +52,20 @@ class DaacArchiverLogic:
 
     def send_to_daac(self, event: dict):
         LOGGER.debug(f'send_to_daac#event: {event}')
-        sns_msg = AwsMessageTransformers().sqs_sns(event)
-        LOGGER.debug(f'sns_msg: {sns_msg}')
-        uds_cnm_json = sns_msg
+        uds_cnm_json = AwsMessageTransformers().sqs_sns(event)
+        LOGGER.debug(f'sns_msg: {uds_cnm_json}')
 
         granule_identifier = UdsCollections.decode_identifier(uds_cnm_json['identifier'])  # This is normally meant to be for collection. Since our granule ID also has collection id prefix. we can use this.
         self.__archive_index_logic.set_tenant_venue(granule_identifier.tenant, granule_identifier.venue)
-        daac_config = self.__archive_index_logic.percolate_document(uds_cnm_json['collection'])
+        daac_config = self.__archive_index_logic.percolate_document(uds_cnm_json['identifier'])
         if daac_config is None:
             LOGGER.debug(f'uds_cnm_json is not configured for archival. uds_cnm_json: {uds_cnm_json}')
             return
-        # TODO This is currently not supporting more than 1 daac.
+        daac_config = daac_config[0]  # TODO This is currently not supporting more than 1 daac.
         try:
             self.__sns.set_topic_arn(daac_config['daac_sns_topic_arn'])
             daac_cnm_message = {
-                "collection": daac_config['daac_collection_id'],
+                "collection": daac_config['daac_collection_name'],
                 "identifier": uds_cnm_json['identifier'],
                 "submissionTime": f'{TimeUtils.get_current_time()}Z',
                 "provider": granule_identifier.tenant,
