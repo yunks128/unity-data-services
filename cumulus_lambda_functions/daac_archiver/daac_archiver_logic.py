@@ -7,20 +7,13 @@ from cumulus_lambda_functions.lib.time_utils import TimeUtils
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from cumulus_lambda_functions.lib.uds_db.uds_collections import UdsCollections
 from cumulus_lambda_functions.lib.uds_db.archive_index import UdsArchiveConfigIndex
-from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
-from cumulus_lambda_functions.lib.aws.es_abstract import ESAbstract
 
-from cumulus_lambda_functions.lib.aws.es_factory import ESFactory
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
 
 class DaacArchiverLogic:
     def __init__(self):
         self.__es_url, self.__es_port = os.getenv('ES_URL'), int(os.getenv('ES_PORT', '443'))
-        self.__es: ESAbstract = ESFactory().get_instance('AWS',
-                                                         index=DBConstants.collections_index,
-                                                         base_url=self.__es_url,
-                                                         port=self.__es_port)
         self.__archive_index_logic = UdsArchiveConfigIndex(self.__es_url, self.__es_port)
         self.__granules_index = GranulesDbIndex()
         self.__sns = AwsSns()
@@ -75,12 +68,11 @@ class DaacArchiverLogic:
                 }
             }
             self.__sns.publish_message(json.dumps(daac_cnm_message))
-            self.__es.update_one({'archive_status': 'cnm_s_success'}, uds_cnm_json['identifier'], index=)
+            self.__granules_index.update_entry(collection_identifier.tenant, collection_identifier.venue, {'archive_status': 'cnm_s_success'}, uds_cnm_json['identifier'])
         except Exception as e:
             LOGGER.exception(f'failed during archival process')
-            self.__es.update_one({'archive_status': 'cnm_s_failed'}, uds_cnm_json['identifier'], index=)
+            self.__granules_index.update_entry(collection_identifier.tenant, collection_identifier.venue, {'archive_status': 'cnm_s_success'}, uds_cnm_json['identifier'])
         return
 
-
-    def start(self):
+    def receive_from_daac(self, event_msg):
         return
