@@ -191,6 +191,13 @@ class GranulesDbIndex:
             self.__es.delete_index(each_index)
         return
 
+    def update_entry(self, tenant: str, tenant_venue: str, json_body: dict, doc_id: str, ):
+        write_alias_name = f'{DBConstants.granules_write_alias_prefix}_{tenant}_{tenant_venue}'.lower().strip()
+        json_body['event_time'] = TimeUtils.get_current_unix_milli()
+        self.__es.update_one(json_body, doc_id, index=write_alias_name)  # TODO assuming granule_id is prefixed with collection id
+        LOGGER.debug(f'custom_metadata indexed')
+        return
+
     def add_entry(self, tenant: str, tenant_venue: str, json_body: dict, doc_id: str, ):
         write_alias_name = f'{DBConstants.granules_write_alias_prefix}_{tenant}_{tenant_venue}'.lower().strip()
         json_body['event_time'] = TimeUtils.get_current_unix_milli()
