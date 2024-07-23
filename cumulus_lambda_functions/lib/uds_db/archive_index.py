@@ -1,5 +1,4 @@
 from cumulus_lambda_functions.lib.json_validator import JsonValidator
-
 from cumulus_lambda_functions.lib.uds_db.db_constants import DBConstants
 
 from cumulus_lambda_functions.lib.aws.es_abstract import ESAbstract
