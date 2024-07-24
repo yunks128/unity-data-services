@@ -87,7 +87,7 @@ class TestDaacArchiverLogic(TestCase):
                 }
             ]
         }
-
+        # print(json.dumps(sqs_event))
         daac_archiver = DaacArchiverLogic()
         daac_archiver.send_to_daac(sqs_event)
         return

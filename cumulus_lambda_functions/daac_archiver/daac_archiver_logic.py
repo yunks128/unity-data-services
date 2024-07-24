@@ -80,7 +80,10 @@ class DaacArchiverLogic:
             self.__granules_index.update_entry(granule_identifier.tenant, granule_identifier.venue, {'archive_status': 'cnm_s_success'}, uds_cnm_json['identifier'])
         except Exception as e:
             LOGGER.exception(f'failed during archival process')
-            self.__granules_index.update_entry(granule_identifier.tenant, granule_identifier.venue, {'archive_status': 'cnm_s_failed'}, uds_cnm_json['identifier'])
+            self.__granules_index.update_entry(granule_identifier.tenant, granule_identifier.venue, {
+                'archive_status': 'cnm_s_failed',
+                'archive_error_message': str(e),
+            }, uds_cnm_json['identifier'])
         return
 
     def receive_from_daac(self, event: dict):
