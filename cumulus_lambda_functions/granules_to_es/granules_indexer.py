@@ -71,13 +71,19 @@ class GranulesIndexer:
     def __get_cnm_response_json_file(self, potential_file, granule_id):
         LOGGER.debug(f'attempting to retrieve cnm response from : {granule_id} & {potential_file}')
         current_bucket, current_key = potential_file['bucket'], potential_file['key']
-        cnm_response_key = f'{os.path.dirname(current_key)}/{granule_id}.cnm.json'
-        if not self.__s3.exists(current_bucket, cnm_response_key):
-            LOGGER.debug(f'missing cnm response file: {cnm_response_key}.. trying again in 30 second.')
+        cnm_response_keys = [k for k, _ in self.__s3.get_child_s3_files(current_bucket, os.path.dirname(current_key)) if k.lower().endswith('.cnm.json')]
+        if len(cnm_response_keys) < 1:
+            LOGGER.debug(f'missing cnm response file: {os.path.dirname(current_key)}.. trying again in 30 second.')
             sleep(30)  # waiting 30 second. should be enough.
-            if not self.__s3.exists(current_bucket, cnm_response_key):
+            cnm_response_keys = [k for k, _ in self.__s3.get_child_s3_files(current_bucket, os.path.dirname(current_key)) if k.lower().endswith('.cnm.json')]
+            if len(cnm_response_keys) < 1:
+                LOGGER.debug(f'missing cnm response file after 2nd try: {os.path.dirname(current_key)}.. quitting.')
                 return None
-        local_file = self.__s3.download('/tmp')
+        if len(cnm_response_keys) > 1:
+            LOGGER.warning(f'more than 1 cnm response file: {cnm_response_keys}')
+        cnm_response_keys = cnm_response_keys[0]
+        LOGGER.debug(f'cnm_response_keys: {cnm_response_keys}')
+        local_file = self.__s3.set_s3_url(f's3://{current_bucket}/{cnm_response_keys}').download('/tmp')
         return FileUtils.read_json(local_file)
 
     def start(self):
