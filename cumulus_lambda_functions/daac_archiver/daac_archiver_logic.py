@@ -27,7 +27,7 @@ class DaacArchiverLogic:
         granule_files = uds_cnm_json['product']['files']
         if 'archiving_types' not in daac_config or len(daac_config['archiving_types']) < 1:
             return granule_files  # TODO remove missing md5?
-        archiving_types = [{k['data_type']: [] if 'file_extension' not in k else k['file_extension'] for k in daac_config['archiving_types']}]
+        archiving_types = {k['data_type']: [] if 'file_extension' not in k else k['file_extension'] for k in daac_config['archiving_types']}
         result_files = []
         for each_file in granule_files:
             """
@@ -40,6 +40,7 @@ class DaacArchiverLogic:
                 "size": -1
             }
             """
+            a = each_file['type']
             if each_file['type'] not in archiving_types:
                 continue
             file_extensions = archiving_types[each_file['type']]

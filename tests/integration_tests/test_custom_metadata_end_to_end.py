@@ -42,8 +42,8 @@ class TestCustomMetadataEndToEnd(TestCase):
         self._url_prefix = f'{os.environ.get("UNITY_URL")}/{os.environ.get("UNITY_STAGE", "sbx-uds-dapa")}'
         self.tenant = 'UDS_LOCAL_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
-        self.collection_name = 'UDS_COLLECTION'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '24.07.23.17.00'.replace('.', '')  # '2402011200'
+        self.collection_name = 'UDS_UNIT_COLLECTION'  # 'uds_collection'  # 'sbx_collection'
+        self.collection_version = '24.07.29.14.00'.replace('.', '')  # '2402011200'
 
         self.custom_metadata_body = {
             'tag': {'type': 'keyword'},
@@ -109,6 +109,33 @@ class TestCustomMetadataEndToEnd(TestCase):
         print(query_result.text)
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
         self.assertEqual(json.loads(query_result.text), self.custom_metadata_body, f'wrong body')
+        return
+
+    def test_03_pre_insert(self):
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
+        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/archive'  # MCP Dev
+        print(post_url)
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.cognito_login.token}',
+        }
+        daac_config = {
+            'daac_collection_id': f'DAAC:MOCK:{self.collection_name}',
+            'daac_sns_topic_arn': 'arn:aws:sns:us-west-2:429178552491:uds-sbx-cumulus-mock_daac_cnm_sns',
+            'daac_data_version': '9098',
+            'archiving_types': [
+                {'data_type': 'data', 'file_extension': ['.json', '.nc']},
+                {'data_type': 'metadata', 'file_extension': ['.xml']},
+                {'data_type': 'browse'},
+            ],
+        }
+        query_result = requests.put(url=post_url,
+                                    headers=headers,
+                                    json = daac_config,
+                                    )
+        print(query_result.text)
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        self.assertEqual(json.loads(query_result.text), {'message': 'inserted'}, f'wrong body')
         return
 
     def test_03_create_collection(self):
@@ -464,7 +491,6 @@ class TestCustomMetadataEndToEnd(TestCase):
                             f'wrong validation for : {json.dumps(each_feature, indent=4)}. details: {validation_result}')
             self.assertTrue('c_data3' in stac_item.properties, f'missing custom_metadata: {each_feature}')
         return
-
 
     def test_06_02_retrieve_granule_filter_no_result(self):
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'

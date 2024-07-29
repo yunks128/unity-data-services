@@ -23,17 +23,17 @@ class TestDaacArchiverLogic(TestCase):
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
         temp_collection_id_no_version = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}'
         ingesting_dict = {
-            'daac_collection_id': f'MOCK:DAAC:{self.collection_name}',
+            'daac_collection_id': f'MOCK:DAAC-1:{self.collection_name}',
             'daac_sns_topic_arn': 'arn:aws:sns:us-west-2:429178552491:uds-sbx-cumulus-mock_daac_cnm_sns',
             'daac_data_version': '123',
             'collection': temp_collection_id_no_version,
             'ss_username': 'unit_test',
-            'archiving_types': [],
-            # 'archiving_types': [
-            #     {'data_type': 'data', 'file_extension': ['.json', '.nc']},
-            #     {'data_type': 'metadata', 'file_extension': ['.xml']},
-            #     {'data_type': 'browse'},
-            # ],
+            # 'archiving_types': [],
+            'archiving_types': [  # TODO this is not working correctly.
+                {'data_type': 'data', 'file_extension': ['.json', '.nc']},
+                {'data_type': 'metadata', 'file_extension': ['.xml']},
+                {'data_type': 'browse'},
+            ],
         }
         archive_index.add_new_config(ingesting_dict)
         sleep(3)
