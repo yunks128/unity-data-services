@@ -51,11 +51,7 @@ class DaacArchiverLogic:
                 result_files.append(each_file)  # TODO remove missing md5?
         return result_files
 
-    def send_to_daac(self, event: dict):
-        LOGGER.debug(f'send_to_daac#event: {event}')
-        uds_cnm_json = AwsMessageTransformers().sqs_sns(event)
-        LOGGER.debug(f'sns_msg: {uds_cnm_json}')
-
+    def send_to_daac_internal(self, uds_cnm_json: dict):
         granule_identifier = UdsCollections.decode_identifier(uds_cnm_json['identifier'])  # This is normally meant to be for collection. Since our granule ID also has collection id prefix. we can use this.
         self.__archive_index_logic.set_tenant_venue(granule_identifier.tenant, granule_identifier.venue)
         daac_config = self.__archive_index_logic.percolate_document(uds_cnm_json['identifier'])
@@ -85,6 +81,13 @@ class DaacArchiverLogic:
                 'archive_status': 'cnm_s_failed',
                 'archive_error_message': str(e),
             }, uds_cnm_json['identifier'])
+        return
+
+    def send_to_daac(self, event: dict):
+        LOGGER.debug(f'send_to_daac#event: {event}')
+        uds_cnm_json = AwsMessageTransformers().sqs_sns(event)
+        LOGGER.debug(f'sns_msg: {uds_cnm_json}')
+        self.send_to_daac_internal(uds_cnm_json)
         return
 
     def receive_from_daac(self, event: dict):
