@@ -1,5 +1,9 @@
 import json
 import os
+from time import sleep
+
+from cumulus_lambda_functions.daac_archiver.daac_archiver_logic import DaacArchiverLogic
+from cumulus_lambda_functions.lib.utils.file_utils import FileUtils
 
 from cumulus_lambda_functions.cumulus_stac.item_transformer import ItemTransformer
 
@@ -64,6 +68,24 @@ class GranulesIndexer:
         self.__s3.target_key = potential_file['key']
         return self.__s3.read_small_txt_file()
 
+    def __get_cnm_response_json_file(self, potential_file, granule_id):
+        LOGGER.debug(f'attempting to retrieve cnm response from : {granule_id} & {potential_file}')
+        current_bucket, current_key = potential_file['bucket'], potential_file['key']
+        cnm_response_keys = [k for k, _ in self.__s3.get_child_s3_files(current_bucket, os.path.dirname(current_key)) if k.lower().endswith('.cnm.json')]
+        if len(cnm_response_keys) < 1:
+            LOGGER.debug(f'missing cnm response file: {os.path.dirname(current_key)}.. trying again in 30 second.')
+            sleep(30)  # waiting 30 second. should be enough.
+            cnm_response_keys = [k for k, _ in self.__s3.get_child_s3_files(current_bucket, os.path.dirname(current_key)) if k.lower().endswith('.cnm.json')]
+            if len(cnm_response_keys) < 1:
+                LOGGER.debug(f'missing cnm response file after 2nd try: {os.path.dirname(current_key)}.. quitting.')
+                return None
+        if len(cnm_response_keys) > 1:
+            LOGGER.warning(f'more than 1 cnm response file: {cnm_response_keys}')
+        cnm_response_keys = cnm_response_keys[0]
+        LOGGER.debug(f'cnm_response_keys: {cnm_response_keys}')
+        local_file = self.__s3.set_s3_url(f's3://{current_bucket}/{cnm_response_keys}').download('/tmp')
+        return FileUtils.read_json(local_file)
+
     def start(self):
         incoming_msg = AwsMessageTransformers().sqs_sns(self.__event)
         result = JsonValidator(self.CUMULUS_SCHEMA).validate(incoming_msg)
@@ -99,4 +121,9 @@ class GranulesIndexer:
                                     self.__cumulus_record['granuleId']
                                     )
         LOGGER.debug(f'added to GranulesDbIndex')
+        cnm_response = self.__get_cnm_response_json_file(potential_files[0], self.__cumulus_record['granuleId'])
+        if cnm_response is None:
+            LOGGER.error(f'no CNM Response file. Not continuing to DAAC Archiving')
+            return self
+        DaacArchiverLogic().send_to_daac_internal(cnm_response)
         return self
