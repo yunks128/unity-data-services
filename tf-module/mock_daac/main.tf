@@ -138,7 +138,7 @@ resource "aws_sns_topic_policy" "granules_cnm_ingester_policy" {
   policy = templatefile("${path.module}/mock_daac_sns_policy.json", {
     region: var.aws_region,
     accountId: local.account_id,
-    snsName: "${var.prefix}-granules_cnm_ingester",
+    snsName: "${var.prefix}-mock_daac_cnm_sns",
     prefix: var.prefix,
 
     uds_region: var.uds_region,
