@@ -96,7 +96,7 @@ class TestDapaStac(TestCase):
                                     headers=headers,
                                     json = daac_config,
                                     )
-        print(query_result.text)
+        print(json.dumps(json.loads(query_result.text), indent=4))
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
         self.assertEqual(json.loads(query_result.text), {'message': 'inserted'}, f'wrong body')
         return
@@ -167,13 +167,13 @@ class TestDapaStac(TestCase):
             'Authorization': f'Bearer {self.cognito_login.token}',
         }
         daac_config = {
-            'daac_collection_id': 'sample_collection',
+            'daac_collection_id': f'MOCK:DAAC:modified_{self.collection_name}',
         }
         query_result = requests.delete(url=post_url,
                                     headers=headers,
                                     json = daac_config,
                                     )
-        print(query_result.text)
+        print(json.dumps(json.loads(query_result.text), indent=4))
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
         self.assertEqual(json.loads(query_result.text), {'message': 'deleted'}, f'wrong body')
         return
@@ -188,7 +188,7 @@ class TestDapaStac(TestCase):
         query_result = requests.get(url=post_url,
                                     headers=headers,
                                     )
-        print(query_result.text)
+        print(json.dumps(json.loads(query_result.text), indent=4))
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
         query_result = json.loads(query_result.text)
         self.assertTrue('uds_daac_sns_arn' in query_result, f'missing uds_daac_sns_arn')
