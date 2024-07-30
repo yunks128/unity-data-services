@@ -120,6 +120,6 @@ class UdsArchiveConfigIndex:
         if result is not None:
             raise ValueError(f'input ingesting_dict has basic_schema validation errors: {result}')
         write_alias_name = f'{DBConstants.granules_write_alias_prefix}_{self.__tenant}_{self.__venue}_perc'.lower().strip()
-        updating_schema['daac_collection_name'] = updating_schema.pop('daac_collection_id')
-        result = self.__es.update_one(updating_schema, f"{updating_dict['daac_collection_name']}__{updating_dict['collection']}", index=write_alias_name)
+        updating_dict['daac_collection_name'] = updating_dict.pop('daac_collection_id')
+        result = self.__es.update_one(updating_dict, f"{updating_dict['daac_collection_name']}__{updating_dict['collection']}", index=write_alias_name)
         return
