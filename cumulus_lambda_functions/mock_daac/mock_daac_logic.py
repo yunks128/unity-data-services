@@ -101,6 +101,7 @@ Traceback (most recent call last):
         # .25/.25/.50 P() on No send, send failure, send success
         # Return with this message: https://github.com/podaac/cloud-notification-message-schema?tab=readme-ov-file#response-message-fields
         self.__response_message = {
+            'version': input_event['version'],
             'submissionTime': f'{TimeUtils.get_current_time()}Z',
             'receivedTime': input_event['submissionTime'],
             'processCompleteTime': f'{TimeUtils.get_current_time()}Z',
