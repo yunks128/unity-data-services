@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 
 from cumulus_lambda_functions.lib.json_validator import JsonValidator
@@ -112,9 +114,9 @@ class UdsArchiveConfigIndex:
         return
 
     def update_config(self, updating_dict: dict):
-        updating_schema = {**self.basic_schema},
+        updating_schema = deepcopy(self.basic_schema)
         updating_schema['required'] = ['daac_collection_id', 'collection']
-        result = JsonValidator(self.basic_schema).validate(updating_dict)
+        result = JsonValidator(updating_schema).validate(updating_dict)
         if result is not None:
             raise ValueError(f'input ingesting_dict has basic_schema validation errors: {result}')
         write_alias_name = f'{DBConstants.granules_write_alias_prefix}_{self.__tenant}_{self.__venue}_perc'.lower().strip()
