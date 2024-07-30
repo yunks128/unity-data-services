@@ -71,7 +71,7 @@ class DaacArchiveCrud:
                     'body': {'message': f'Invalid current result for the update: missing or duplicate results: {current_result}'}
                 }
             updating_dict = {
-                **self.__request_body,
+                **{k: v for k, v in self.__request_body.items() if v is not None},
                 'ss_username': self.__authorization_info['username'],
                 'collection': self.__collection_id,
             }
