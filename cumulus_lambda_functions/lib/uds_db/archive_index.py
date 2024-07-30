@@ -12,6 +12,7 @@ LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_le
 class UdsArchiveConfigIndex:
     basic_schema = {
         'type': 'object',
+        "additionalProperties": False,
         'required': ['daac_collection_id', 'daac_sns_topic_arn', 'daac_data_version', 'collection', 'ss_username', 'archiving_types'],
         'properties': {
             'daac_collection_id': {'type': 'string'},
@@ -61,11 +62,14 @@ class UdsArchiveConfigIndex:
         self.__tenant, self.__venue = tenant, venue
         return self
 
-    def get_config(self, collection_id, username=None):
+    def get_config(self, collection_id, username=None, daac_collection_id=None):
         read_alias_name = f'{DBConstants.granules_read_alias_prefix}_{self.__tenant}_{self.__venue}_perc'.lower().strip()
         conditions = [{"term": {"collection": {"value": collection_id}}}]
         if username is not None:
             conditions.append({"term": {"ss_username": {"value": username}}})
+        if daac_collection_id is not None:
+            conditions.append({"term": {"daac_collection_id": {"value": daac_collection_id}}})
+
         result = self.__es.query({
             'size': 9999,
             'query': {
@@ -107,19 +111,13 @@ class UdsArchiveConfigIndex:
         }, write_alias_name)
         return
 
-    def update_config(self, collection_id, daac_collection_id, daac_sns_topic_arn, username):
+    def update_config(self, updating_dict: dict):
+        updating_schema = {**self.basic_schema},
+        updating_schema['required'] = ['daac_collection_id', 'collection']
+        result = JsonValidator(self.basic_schema).validate(updating_dict)
+        if result is not None:
+            raise ValueError(f'input ingesting_dict has basic_schema validation errors: {result}')
         write_alias_name = f'{DBConstants.granules_write_alias_prefix}_{self.__tenant}_{self.__venue}_perc'.lower().strip()
-        result = self.__es.update_one({
-            "collection": collection_id,
-            "daac_collection_name": daac_collection_id,
-            "daac_sns_topic_arn": daac_sns_topic_arn,
-            "ss_query": {
-                "bool": {
-                    "must": [{
-                        "term": {"collection": {"value": collection_id}}
-                    }]
-                }
-            },
-            "ss_username": username,
-        }, f'{daac_collection_id}__{collection_id}', index=write_alias_name)
+        updating_schema['daac_collection_name'] = updating_schema.pop('daac_collection_id')
+        result = self.__es.update_one(updating_schema, f"{updating_dict['daac_collection_name']}__{updating_dict['collection']}", index=write_alias_name)
         return

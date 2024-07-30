@@ -150,7 +150,10 @@ class GranulesDbIndex:
         self.__es.create_index(new_perc_index_name, perc_index_mapping)
         self.__es.create_alias(new_perc_index_name, read_perc_alias_name)
         self.__es.swap_index_for_alias(write_perc_alias_name, current_perc_index_name, new_perc_index_name)
-        self.__es.migrate_index_data(current_perc_index_name, new_perc_index_name)
+        try:
+            self.__es.migrate_index_data(current_perc_index_name, new_perc_index_name)
+        except Exception as e:
+            LOGGER.exception(f'failed to migrate index data: {(current_perc_index_name, new_perc_index_name)}')
         return
 
     def get_latest_index(self, tenant, tenant_venue):
