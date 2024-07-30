@@ -90,6 +90,15 @@ class DaacArchiveCrud:
 
     def add_new_config(self):
         try:
+            current_result = self.__daac_config.get_config(self.__collection_id, None,
+                                                           self.__request_body['daac_collection_id'])
+            if len(current_result) > 0:
+                return {
+                    'statusCode': 500,
+                    'body': {
+                        'message': f'Already have config for specified daac: {current_result}'}
+                }
+
             ingesting_dict = {
                 **self.__request_body,
                 'ss_username': self.__authorization_info['username'],

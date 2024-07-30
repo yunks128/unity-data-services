@@ -68,7 +68,7 @@ class UdsArchiveConfigIndex:
         if username is not None:
             conditions.append({"term": {"ss_username": {"value": username}}})
         if daac_collection_id is not None:
-            conditions.append({"term": {"daac_collection_id": {"value": daac_collection_id}}})
+            conditions.append({"term": {"daac_collection_name": {"value": daac_collection_id}}})
 
         result = self.__es.query({
             'size': 9999,
