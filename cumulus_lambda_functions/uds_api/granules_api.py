@@ -2,7 +2,8 @@ import json
 import os
 from typing import Union
 
-from cumulus_lambda_functions.uds_api.dapa.daac_archive_crud import DaacArchiveCrud, DaacDeleteModel, DaacAddModel
+from cumulus_lambda_functions.uds_api.dapa.daac_archive_crud import DaacArchiveCrud, DaacDeleteModel, DaacAddModel, \
+    DaacUpdateModel
 from cumulus_lambda_functions.uds_api.dapa.granules_dapa_query_es import GranulesDapaQueryEs
 from cumulus_lambda_functions.lib.uds_db.granules_db_index import GranulesDbIndex
 from cumulus_lambda_functions.uds_api.fast_api_utils import FastApiUtils
@@ -44,7 +45,7 @@ async def dapa_archive_add_config(request: Request, collection_id: str, new_body
 
 @router.post("/{collection_id}/archive")
 @router.post("/{collection_id}/archive/")
-async def dapa_archive_update_config(request: Request, collection_id: str, new_body: DaacAddModel):
+async def dapa_archive_update_config(request: Request, collection_id: str, new_body: DaacUpdateModel):
     LOGGER.debug(f'started dapa_archive_add_config. {new_body.model_dump()}')
     authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory() \
         .get_instance(UDSAuthorizerFactory.cognito,
