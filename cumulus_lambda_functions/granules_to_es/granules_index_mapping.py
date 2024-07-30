@@ -24,6 +24,10 @@ class GranulesIndexMapping:
         },
     }
     stac_mappings = {
+        "archive_status": {"type": "keyword"},
+        "archive_error_message": {"type": "text"},
+        "archive_error_code": {"type": "keyword"},
+
         "event_time": {"type": "long"},
         "type": {"type": "keyword"},
         "stac_version": {"type": "keyword"},
