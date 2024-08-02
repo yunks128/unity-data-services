@@ -32,7 +32,18 @@ class MockDaacLogic:
         self.__response_message = {}
         self.__s3 = AwsS3()
 
-    def __send_random_result(self):
+    def __send_random_result(self, errored_list: list):
+        if len(errored_list) > 0:
+            LOGGER.debug(f'sending real failure message')
+            self.__response_message['response'] = {
+                'status': 'FAILURE',
+                'errorCode': "VALIDATION_ERROR",
+                'errorMessage': json.dumps(errored_list),
+            }
+            sns_response = self.__sns.publish_message(json.dumps(self.__response_message))
+            LOGGER.debug(f'sns_response: {sns_response}')
+            return
+
         # https://github.com/podaac/cloud-notification-message-schema?tab=readme-ov-file#response-message-fields
         random_success = random.uniform(0, 1)
         if random_success < self.__no_response_percentage:
@@ -57,10 +68,28 @@ class MockDaacLogic:
         return
 
     def __check_s3_file(self, input_files: list):
+        # {
+        # "type": "data",
+        # "name": "abcd.1234.efgh.test_file05.data.stac.json",
+        # "uri": "https://uds-distribution-placeholder/uds-sbx-cumulus-staging/URN:NASA:UNITY:UDS_LOCAL_ARCHIVE_TEST:DEV:UDS_UNIT_COLLECTION___2407291400/URN:NASA:UNITY:UDS_LOCAL_ARCHIVE_TEST:DEV:UDS_UNIT_COLLECTION___2407291400:abcd.1234.efgh.test_file05/abcd.1234.efgh.test_file05.data.stac.json",
+        # "checksumType": "md5", "checksum": "unknown", "size": -1}
+        errored_list = []
         for each_file in input_files:
-            s3_obj_size = self.__s3.set_s3_url(each_file['uri']).get_s3_obj_size()
-            print(f'{each_file}: {s3_obj_size}')
-        return
+            try:
+                s3_url = each_file['uri'].replace('https://uds-distribution-placeholder/', 's3://')
+                s3_obj_size = self.__s3.set_s3_url(s3_url).get_s3_obj_size()
+                if s3_obj_size != each_file['size']:
+                    errored_list.append({
+                        'uri': each_file['uri'],
+                        'error': f'mismatched size: {s3_obj_size} v. {each_file["size"]}',
+                    })
+                # TODO validate md5?
+            except Exception as e:
+                errored_list.append({
+                    'uri': each_file['uri'],
+                    'error': f'unknown error: {str(e)}',
+                })
+        return errored_list
 
 
     def start(self, event):
@@ -97,7 +126,7 @@ Traceback (most recent call last):
             raise ValueError(f'input cnm event has cnm_msg_schema validation errors: {result}')
 
         # Check if S3 can be downloaded
-        # self.__check_s3_file(input_event['product']['files'])
+        errored_list = self.__check_s3_file(input_event['product']['files'])
         # .25/.25/.50 P() on No send, send failure, send success
         # Return with this message: https://github.com/podaac/cloud-notification-message-schema?tab=readme-ov-file#response-message-fields
         self.__response_message = {
@@ -108,5 +137,5 @@ Traceback (most recent call last):
             'collection': input_event['collection'],
             'identifier': input_event['identifier'],
         }
-        self.__send_random_result()
+        self.__send_random_result(errored_list)
         return
