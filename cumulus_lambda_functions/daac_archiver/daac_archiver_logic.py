@@ -1,7 +1,11 @@
 import json
 import os
+from time import sleep
 
 import requests
+from cumulus_lambda_functions.lib.utils.file_utils import FileUtils
+
+from cumulus_lambda_functions.lib.aws.aws_s3 import AwsS3
 
 from cumulus_lambda_functions.lib.aws.aws_message_transformers import AwsMessageTransformers
 from cumulus_lambda_functions.lib.json_validator import JsonValidator
@@ -22,6 +26,29 @@ class DaacArchiverLogic:
         self.__archive_index_logic = UdsArchiveConfigIndex(self.__es_url, self.__es_port)
         self.__granules_index = GranulesDbIndex()
         self.__sns = AwsSns()
+        self.__s3 = AwsS3()
+
+    def get_cnm_response_json_file(self, potential_file, granule_id):
+        if 'href' not in potential_file:
+            raise ValueError(f'missing href in potential_file: {potential_file}')
+        self.__s3.set_s3_url(potential_file['href'])
+        LOGGER.debug(f'attempting to retrieve cnm response from : {granule_id} & {potential_file}')
+        cnm_response_keys = [k for k, _ in self.__s3.get_child_s3_files(self.__s3.target_bucket, os.path.dirname(self.__s3.target_key)) if k.lower().endswith('.cnm.json')]
+        if len(cnm_response_keys) < 1:
+            LOGGER.debug(f'missing cnm response file: {os.path.dirname(self.__s3.target_key)}.. trying again in 30 second.')
+            sleep(30)  # waiting 30 second. should be enough.
+            cnm_response_keys = [k for k, _ in self.__s3.get_child_s3_files(self.__s3.target_bucket, os.path.dirname(self.__s3.target_key)) if k.lower().endswith('.cnm.json')]
+            if len(cnm_response_keys) < 1:
+                LOGGER.debug(f'missing cnm response file after 2nd try: {os.path.dirname(self.__s3.target_key)}.. quitting.')
+                return None
+        if len(cnm_response_keys) > 1:
+            LOGGER.warning(f'more than 1 cnm response file: {cnm_response_keys}')
+        cnm_response_keys = cnm_response_keys[0]
+        LOGGER.debug(f'cnm_response_keys: {cnm_response_keys}')
+        local_file = self.__s3.set_s3_url(f's3://{self.__s3.target_bucket}/{cnm_response_keys}').download('/tmp')
+        cnm_response_json = FileUtils.read_json(local_file)
+        FileUtils.remove_if_exists(local_file)
+        return cnm_response_json
 
     def __extract_files(self, uds_cnm_json: dict, daac_config: dict):
         granule_files = uds_cnm_json['product']['files']

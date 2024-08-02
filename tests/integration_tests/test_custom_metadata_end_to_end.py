@@ -40,7 +40,7 @@ class TestCustomMetadataEndToEnd(TestCase):
             .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(),
                    base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
         self._url_prefix = f'{os.environ.get("UNITY_URL")}/{os.environ.get("UNITY_STAGE", "sbx-uds-dapa")}'
-        self.tenant = 'UDS_LOCAL_TEST'  # 'uds_local_test'  # 'uds_sandbox'
+        self.tenant = 'UDS_LOCAL_ARCHIVE_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
         self.collection_name = 'UDS_UNIT_COLLECTION'  # 'uds_collection'  # 'sbx_collection'
         self.collection_version = '24.07.29.14.00'.replace('.', '')  # '2402011200'
@@ -112,7 +112,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         return
 
     def test_03_pre_insert(self):
-        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}'
         post_url = f'{self._url_prefix}/collections/{temp_collection_id}/archive'  # MCP Dev
         print(post_url)
         headers = {
@@ -461,7 +461,7 @@ class TestCustomMetadataEndToEnd(TestCase):
                                     headers=headers)
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
         response_json = json.loads(query_result.content.decode())
-        print(response_json)
+        print(json.dumps(response_json, indent=4))
         self.assertTrue(len(response_json['features']) > 0, f'empty granules. Need collections to compare')
         for each_feature in response_json['features']:
             stac_item = pystac.Item.from_dict(each_feature)
@@ -482,7 +482,7 @@ class TestCustomMetadataEndToEnd(TestCase):
                                     headers=headers)
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
         response_json = json.loads(query_result.content.decode())
-        print(response_json)
+        print(json.dumps(response_json, indent=4))
         self.assertTrue(len(response_json['features']) > 0, f'empty granules. Need collections to compare')
         for each_feature in response_json['features']:
             stac_item = pystac.Item.from_dict(each_feature)
