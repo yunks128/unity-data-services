@@ -76,8 +76,15 @@ class MockDaacLogic:
         errored_list = []
         for each_file in input_files:
             try:
-                s3_url = each_file['uri'].replace('https://uds-distribution-placeholder/', 's3://')
-                s3_obj_size = self.__s3.set_s3_url(s3_url).get_s3_obj_size()
+                each_uri = each_file['uri']
+                if each_file.startswith('https'):
+                    each_uri = each_uri.replace('https://', 's3://')
+                    self.__s3.set_s3_url(each_uri)
+                    self.__s3.set_s3_url(f's3://{self.__s3.target_key}')
+                else:
+                    self.__s3.set_s3_url(each_uri)
+                LOGGER.debug(f'working on s3://{self.__s3.target_bucket}/{self.__s3.target_key}')
+                s3_obj_size = self.__s3.get_s3_obj_size()
                 if s3_obj_size != each_file['size']:
                     errored_list.append({
                         'uri': each_file['uri'],
