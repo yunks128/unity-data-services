@@ -471,6 +471,7 @@ class TestCustomMetadataEndToEnd(TestCase):
             self.assertTrue('c_data3' in stac_item.properties, f'missing custom_metadata: {each_feature}')
         return
 
+
     def test_06_01_retrieve_granule_filter(self):
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
         post_url = f'{self._url_prefix}/collections/{temp_collection_id}/items?filter=soil10::0_0 >= 0 AND end_datetime >= \'2016-01-31T11:11:11.000001Z\''
@@ -534,6 +535,23 @@ class TestCustomMetadataEndToEnd(TestCase):
             cnm_response = FileUtils.read_json(local_file_path)
             # NOTE: CNM response do not have collection version
             self.assertEqual(cnm_response['collection'], f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}', f'wrong collection ID')
+        return
+
+    def test_08_manual_archive(self):
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
+        temp_granule_id = f'{temp_collection_id}:{self.granule_id}'
+        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/archive/{temp_granule_id}'
+        # post_url = f'{self._url_prefix}/collections/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/items?limit=2&offset=URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02'
+        print(post_url)
+        headers = {
+            'Authorization': f'Bearer {self.cognito_login.token}',
+            'Content-Type': 'application/json',
+        }
+        query_result = requests.put(url=post_url,
+                                    headers=headers)
+        self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
+        response_json = json.loads(query_result.content.decode())
+        print(json.dumps(response_json, indent=4))
         return
 
     def test_01_pagination(self):
