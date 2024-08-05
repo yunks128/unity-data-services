@@ -37,7 +37,25 @@ router = APIRouter(
 @router.put("/{collection_id}/archive/")
 async def dapa_archive_add_config(request: Request, collection_id: str, new_body: DaacAddModel):
     LOGGER.debug(f'started dapa_archive_add_config. {new_body.model_dump()}')
+    authorizer: UDSAuthorizorAbstract = UDSAuthorizerFactory() \
+        .get_instance(UDSAuthorizerFactory.cognito,
+                      es_url=os.getenv('ES_URL'),
+                      es_port=int(os.getenv('ES_PORT', '443'))
+                      )
     auth_info = FastApiUtils.get_authorization_info(request)
+    collection_identifier = UdsCollections.decode_identifier(collection_id)
+    if not authorizer.is_authorized_for_collection(DBConstants.read, collection_id,
+                                                   auth_info['ldap_groups'],
+                                                   collection_identifier.tenant,
+                                                   collection_identifier.venue):
+        LOGGER.debug(f'user: {auth_info["username"]} is not authorized for {collection_id}')
+        raise HTTPException(status_code=403, detail=json.dumps({
+            'message': 'not authorized to execute this action'
+        }))
+    if '___' not in collection_identifier.id:
+        raise HTTPException(status_code=500, detail=json.dumps({
+            'message': f'missing version in collection ID. collection_id: {collection_id}'
+        }))
     daac_crud = DaacArchiveCrud(auth_info, collection_id, new_body.model_dump())
     add_result = daac_crud.add_new_config()
     if add_result['statusCode'] == 200:
@@ -63,6 +81,10 @@ async def dapa_archive_update_config(request: Request, collection_id: str, new_b
         raise HTTPException(status_code=403, detail=json.dumps({
             'message': 'not authorized to execute this action'
         }))
+    if '___' not in collection_identifier.id:
+        raise HTTPException(status_code=500, detail=json.dumps({
+            'message': f'missing version in collection ID. collection_id: {collection_id}'
+        }))
     daac_crud = DaacArchiveCrud(auth_info, collection_id, new_body.model_dump())
     add_result = daac_crud.update_config()
     if add_result['statusCode'] == 200:
@@ -87,6 +109,10 @@ async def dapa_archive_delete_config(request: Request, collection_id: str, new_b
         LOGGER.debug(f'user: {auth_info["username"]} is not authorized for {collection_id}')
         raise HTTPException(status_code=403, detail=json.dumps({
             'message': 'not authorized to execute this action'
+        }))
+    if '___' not in collection_identifier.id:
+        raise HTTPException(status_code=500, detail=json.dumps({
+            'message': f'missing version in collection ID. collection_id: {collection_id}'
         }))
     daac_crud = DaacArchiveCrud(auth_info, collection_id, new_body.model_dump())
     add_result = daac_crud.delete_config()
