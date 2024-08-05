@@ -111,9 +111,34 @@ class TestCustomMetadataEndToEnd(TestCase):
         self.assertEqual(json.loads(query_result.text), self.custom_metadata_body, f'wrong body')
         return
 
+    def test_03_pre_insert_500_respon(self):
+        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}'
+        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/archive'  # MCP Dev
+        print(post_url)
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.cognito_login.token}',
+        }
+        daac_config = {
+            'daac_collection_id': f'DAAC:MOCK:{self.collection_name}',
+            'daac_sns_topic_arn': 'arn:aws:sns:us-west-2:429178552491:uds-sbx-cumulus-mock_daac_cnm_sns',
+            'daac_data_version': '9098',
+            'archiving_types': [
+                {'data_type': 'data', 'file_extension': ['.json', '.nc']},
+                {'data_type': 'metadata', 'file_extension': ['.xml']},
+                {'data_type': 'browse'},
+            ],
+        }
+        query_result = requests.put(url=post_url,
+                                    headers=headers,
+                                    json = daac_config,
+                                    )
+        print(query_result.text)
+        self.assertEqual(query_result.status_code, 500, f'wrong status code. {query_result.text}')
+        self.assertTrue('missing version in collection ID' in query_result.text, f'wrong error message: {query_result.text}')
+        return
     def test_03_pre_insert(self):
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
-        temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}'
         post_url = f'{self._url_prefix}/collections/{temp_collection_id}/archive'  # MCP Dev
         print(post_url)
         headers = {
