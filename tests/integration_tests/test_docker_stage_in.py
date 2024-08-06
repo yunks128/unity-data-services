@@ -1,3 +1,6 @@
+import os
+os.environ['OBJC_DISABLE_INITIALIZE_FORK_SAFETY'] = 'YES'
+os.environ['no_proxy'] = '*'
 import logging
 
 import requests
@@ -7,7 +10,6 @@ logging.basicConfig(level=10, format="%(asctime)s [%(levelname)s] [%(name)s::%(l
 import math
 from unittest.mock import patch, MagicMock
 import json
-import os
 import tempfile
 from glob import glob
 from sys import argv
@@ -1226,10 +1228,155 @@ class TestDockerStageIn(TestCase):
             download_result = download_result['features']
             self.assertTrue('assets' in download_result[0], f'no assets in download_result: {download_result}')
             downloaded_file_hrefs = set([k['assets']['data']['href'] for k in download_result])
+            print(downloaded_file_hrefs)
             for each_granule in zip(granule_json['features'], download_result):
                 remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
                 self.assertTrue(os.path.join('.', remote_filename) in downloaded_file_hrefs,
                                 f'mismatched: {remote_filename}')
+                self.assertTrue(FileUtils.get_size(os.path.join(downloading_dir, remote_filename)) > 0, f'empty file: {remote_filename}')
+                print()
+            self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
+        return
+
+    def test_02_download__from_file_large_github_data_file(self):
+        granule_json = '''
+        {
+            "numberMatched": 20,
+            "numberReturned": 20,
+            "stac_version": "1.0.0",
+            "type": "FeatureCollection",
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/SNDR_SNPP_ATMS_L1A___1/items?datetime=2016-01-14T08:00:00Z/2016-01-14T11:59:59Z&limit=100&offset=0"
+                },
+                {
+                    "rel": "root",
+                    "href": "https://58nbcawrvb.execute-api.us-west-2.amazonaws.com"
+                },
+                {
+                    "rel": "next",
+                    "href": "https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/SNDR_SNPP_ATMS_L1A___1/items?datetime=2016-01-14T08:00:00Z/2016-01-14T11:59:59Z&limit=100&offset=100"
+                },
+                {
+                    "rel": "prev",
+                    "href": "https://58nbcawrvb.execute-api.us-west-2.amazonaws.com/test/am-uds-dapa/collections/SNDR_SNPP_ATMS_L1A___1/items?datetime=2016-01-14T08:00:00Z/2016-01-14T11:59:59Z&limit=100&offset=0"
+                }
+            ],
+            "features": [
+                {
+                    "type": "Feature",
+                    "stac_version": "1.0.0",
+                    "id": "SNDR.SNPP.ATMS.L1A.nominal2.01",
+                    "properties": {
+                        "start_datetime": "2016-01-14T09:54:00Z",
+                        "end_datetime": "2016-01-14T10:00:00Z",
+                        "created": "2020-12-14T13:50:00Z",
+                        "updated": "2022-08-15T06:26:39.830000Z",
+                        "datetime": "2022-08-15T06:26:37.029000Z"
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            0.0,
+                            0.0
+                        ]
+                    },
+                    "links": [
+                        {
+                            "rel": "collection",
+                            "href": "."
+                        }
+                    ],
+                    "assets": {
+                        "data": {
+                            "href": "https://raw.githubusercontent.com/unity-sds/unity-tutorial-application/main/test/stage_in/SNDR.SS1330.CHIRP.20160822T0005.m06.g001.L1_AQ.std.v02_48.G.200425095850.nc",
+                            "title": "SNDR.SS1330.CHIRP.20160822T0005.m06.g001.L1_AQ.std.v02_48.G.200425095850.nc",
+                            "description": "SNDR.SS1330.CHIRP.20160822T0005.m06.g001.L1_AQ.std.v02_48.G.200425095850.nc"
+                        }
+                    },
+                    "bbox": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "stac_extensions": [],
+                    "collection": "SNDR_SNPP_ATMS_L1A___1"
+                },
+                {
+                    "type": "Feature",
+                    "stac_version": "1.0.0",
+                    "id": "SNDR.SNPP.ATMS.L1A.nominal2.08",
+                    "properties": {
+                        "start_datetime": "2016-01-14T10:36:00Z",
+                        "end_datetime": "2016-01-14T10:42:00Z",
+                        "created": "2020-12-14T13:50:00Z",
+                        "updated": "2022-08-15T06:26:26.078000Z",
+                        "datetime": "2022-08-15T06:26:19.333000Z"
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            0.0,
+                            0.0
+                        ]
+                    },
+                    "links": [
+                        {
+                            "rel": "collection",
+                            "href": "."
+                        }
+                    ],
+                    "assets": {
+                        "data": {
+                            "href": "https://raw.githubusercontent.com/unity-sds/unity-tutorial-application/main/test/stage_in/SNDR.SS1330.CHIRP.20160822T0011.m06.g002.L1_AQ.std.v02_48.G.200425095901.nc",
+                            "title": "SNDR.SS1330.CHIRP.20160822T0011.m06.g002.L1_AQ.std.v02_48.G.200425095901.nc",
+                            "description": "SNDR.SS1330.CHIRP.20160822T0011.m06.g002.L1_AQ.std.v02_48.G.200425095901.nc"
+                        }
+                    },
+                    "bbox": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "stac_extensions": [],
+                    "collection": "SNDR_SNPP_ATMS_L1A___1"
+                }
+            ]
+        }
+        '''
+        granule_json = json.loads(granule_json)
+        if len(argv) > 1:
+            argv.pop(-1)
+        argv.append('DOWNLOAD')
+        os.environ['GRANULES_DOWNLOAD_TYPE'] = 'HTTP'
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            # tmp_dir_name = '/tmp/unity-ds'
+            os.environ['OUTPUT_FILE'] = os.path.join(tmp_dir_name, 'some_output', 'output.json')
+            granule_json_file = os.path.join(tmp_dir_name, 'input_file.json')
+            downloading_dir = os.path.join(tmp_dir_name, 'downloading_dir')
+            FileUtils.mk_dir_p(downloading_dir)
+            FileUtils.write_json(granule_json_file, granule_json)
+            os.environ['STAC_JSON'] = granule_json_file
+            os.environ['DOWNLOAD_DIR'] = downloading_dir
+            download_result_str = choose_process()
+            download_result = json.loads(download_result_str)
+            self.assertTrue('features' in download_result, f'missing features in download_result')
+            self.assertEqual(len(download_result['features']) + 1, len(glob(os.path.join(downloading_dir, '*'))),
+                             f'downloaded file does not match: {download_result["features"]}')
+            error_file = os.path.join(downloading_dir, 'error.log')
+            if FileUtils.file_exist(error_file):
+                self.assertTrue(False, f'some downloads failed. error.log exists. {FileUtils.read_json(error_file)}')
+            download_result = download_result['features']
+            self.assertTrue('assets' in download_result[0], f'no assets in download_result: {download_result}')
+            downloaded_file_hrefs = set([k['assets']['data']['href'] for k in download_result])
+            for each_granule in zip(granule_json['features'], download_result):
+                remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
+                self.assertTrue(os.path.join('.', remote_filename) in downloaded_file_hrefs,
+                                f'mismatched: {remote_filename}')
+                self.assertTrue(FileUtils.get_size(os.path.join(downloading_dir, remote_filename)) > 40 * 2**20, f'empty file: {remote_filename}')
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
 
