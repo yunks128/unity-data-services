@@ -43,7 +43,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         self.tenant = 'UDS_LOCAL_ARCHIVE_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
         self.collection_name = 'UDS_UNIT_COLLECTION'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '24.07.29.14.00'.replace('.', '')  # '2402011200'
+        self.collection_version = '24.08.05.17.00'.replace('.', '')  # '2402011200'
 
         self.custom_metadata_body = {
             'tag': {'type': 'keyword'},
@@ -58,7 +58,8 @@ class TestCustomMetadataEndToEnd(TestCase):
                 }
             }
         }
-        self.granule_id = 'abcd.1234.efgh.test_file05'
+        self.granule_id = 'tah-24.08.06.10.30'
+        self.s3_bucket = 'uds-sbx-cumulus-staging'  # 'unity-dev-unity-william-test-5'  # uds-sbx-cumulus-staging
         return
 
     def test_01_setup_permissions(self):
@@ -111,7 +112,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         self.assertEqual(json.loads(query_result.text), self.custom_metadata_body, f'wrong body')
         return
 
-    def test_03_pre_insert_500_respon(self):
+    def test_03_pre_insert_500_response(self):
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}'
         post_url = f'{self._url_prefix}/collections/{temp_collection_id}/archive'  # MCP Dev
         print(post_url)
@@ -218,7 +219,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         os.environ['VERIFY_SSL'] = 'FALSE'
 
         os.environ['COLLECTION_ID'] = temp_collection_id
-        os.environ['STAGING_BUCKET'] = 'uds-sbx-cumulus-staging'
+        os.environ['STAGING_BUCKET'] = self.s3_bucket
 
         os.environ['GRANULES_SEARCH_DOMAIN'] = 'UNITY'
         # os.environ['GRANULES_UPLOAD_TYPE'] = 'UPLOAD_S3_BY_STAC_CATALOG'
@@ -420,17 +421,17 @@ class TestCustomMetadataEndToEnd(TestCase):
             'geometry': {'type': 'Point', 'coordinates': [0.0, 0.0]}, 'links': [],
             'assets': {
                 f'{self.granule_id}.data.stac.json': {
-                'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:{self.granule_id}/{self.granule_id}.data.stac.json',
+                'href': f's3://{self.s3_bucket}/{temp_collection_id}/{temp_collection_id}:{self.granule_id}/{self.granule_id}.data.stac.json',
                 'title': f'{self.granule_id}.data.stac.json',
                 'roles': ['data'],
                 },
                 f'{self.granule_id}.nc.cas': {
-                'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:{self.granule_id}/{self.granule_id}.nc.cas',
+                'href': f's3://{self.s3_bucket}/{temp_collection_id}/{temp_collection_id}:{self.granule_id}/{self.granule_id}.nc.cas',
                 'title': f'{self.granule_id}.nc.cas',
                 'roles': ['metadata'],
                 },
                 f'{self.granule_id}.nc.stac.json': {
-                'href': f's3://uds-sbx-cumulus-staging/{temp_collection_id}/{temp_collection_id}:{self.granule_id}/{self.granule_id}.nc.stac.json',
+                'href': f's3://{self.s3_bucket}/{temp_collection_id}/{temp_collection_id}:{self.granule_id}/{self.granule_id}.nc.stac.json',
                 'title': f'{self.granule_id}.nc.stac.json',
                 'roles': ['metadata'],
                 }
@@ -476,7 +477,7 @@ class TestCustomMetadataEndToEnd(TestCase):
 
     def test_06_retrieve_granule(self):
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
-        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/items?limit=2'
+        post_url = f'{self._url_prefix}/collections/{temp_collection_id}/items?limit=20'
         # post_url = f'{self._url_prefix}/collections/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/items?limit=2&offset=URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02'
         print(post_url)
         headers = {
@@ -550,7 +551,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         return
 
     def test_07_check_cnm_response(self):
-        os.environ['STAGING_BUCKET'] = 'uds-sbx-cumulus-staging'
+        os.environ['STAGING_BUCKET'] = self.s3_bucket
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
         s3 = AwsS3()
         child_files = [k for k in s3.get_child_s3_files(os.environ['STAGING_BUCKET'], f'{temp_collection_id}/{temp_collection_id}:{self.granule_id}')]

@@ -83,7 +83,7 @@ resource "aws_iam_policy" "mock_daac_lambda_policy" {
           "s3:GetObject*",
           "s3:PutObject"
         ],
-        Resource = "arn:aws:s3:::/*unity*/*"
+        Resource = ["arn:aws:s3:::uds-sbx-cumulus-staging", "arn:aws:s3:::uds-sbx-cumulus-staging/*", "arn:aws:s3:::*unity*/*", "arn:aws:s3:::*unity*/*"]
       },
       {
         Effect = "Allow",

@@ -15,6 +15,28 @@ from cumulus_lambda_functions.lib.time_utils import TimeUtils
 from cumulus_lambda_functions.lib.aws.aws_sns import AwsSns
 LOGGER = LambdaLoggerGenerator.get_logger(__name__, LambdaLoggerGenerator.get_level_from_env())
 
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "DelegateS3Access",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "s3.amazonaws.com",
+                "AWS": "arn:aws:iam::429178552491:role/uds-sbx-cumulus-mock_daac_lambda_role"
+            },
+            "Action": [
+                "s3:ListBucket",
+                "s3:GetObject*",
+                "s3:PutObject*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::uds-sbx-cumulus-staging/*",
+                "arn:aws:s3:::uds-sbx-cumulus-staging"
+            ]
+        }
+    ]
+}
 
 class MockDaacLogic:
     NO_RESPONSE_PERC = 'NO_RESPONSE_PERC'
