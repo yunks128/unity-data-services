@@ -56,7 +56,7 @@ class MockDaacLogic:
 
     def __send_random_result(self, errored_list: list):
         if len(errored_list) > 0:
-            LOGGER.debug(f'sending real failure message')
+            LOGGER.debug(f'sending real failure message: {json.dumps(errored_list)}')
             self.__response_message['response'] = {
                 'status': 'FAILURE',
                 'errorCode': "VALIDATION_ERROR",
@@ -99,12 +99,14 @@ class MockDaacLogic:
         for each_file in input_files:
             try:
                 each_uri = each_file['uri']
-                if each_file.startswith('https'):
+                if each_uri.startswith('https'):
                     each_uri = each_uri.replace('https://', 's3://')
                     self.__s3.set_s3_url(each_uri)
                     self.__s3.set_s3_url(f's3://{self.__s3.target_key}')
+                    LOGGER.debug(f'S3 URL with https: {self.__s3.target_key}')
                 else:
                     self.__s3.set_s3_url(each_uri)
+                    LOGGER.debug(f'S3 URL without https: {self.__s3.target_key}')
                 LOGGER.debug(f'working on s3://{self.__s3.target_bucket}/{self.__s3.target_key}')
                 s3_obj_size = self.__s3.get_s3_obj_size()
                 if s3_obj_size != each_file['size']:
