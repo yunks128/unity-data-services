@@ -148,6 +148,7 @@ resource "aws_lambda_function" "uds_api_1" {
       UNITY_DEFAULT_PROVIDER = var.unity_default_provider
       COLLECTION_CREATION_LAMBDA_NAME = "arn:aws:lambda:${var.aws_region}:${local.account_id}:function:${var.prefix}-uds_api_1"
       SNS_TOPIC_ARN = var.cnm_sns_topic_arn
+      DAAC_SNS_TOPIC_ARN = aws_sns_topic.daac_archiver.arn
       DAPA_API_PREIFX_KEY = var.dapa_api_prefix
       CORS_ORIGINS = var.cors_origins
       UDS_BASE_URL = var.uds_base_url
@@ -176,11 +177,16 @@ resource "aws_ssm_parameter" "uds_api_1" {
 
 resource "aws_ssm_parameter" "health_check_value" {
   count = var.is_deploying_healthcheck ? 1 : 0
-  name  = "${var.health_check_base_path}/${var.health_check_marketplace_item}/${var.health_check_component_name}/url"
+  name  = "${var.health_check_base_path}/${var.health_check_marketplace_item}/component/${var.health_check_component_name}"
   type  = "String"
   tier = "Advanced"
-  value = "${var.uds_base_url}/${var.dapa_api_prefix}/collections"
+  value = jsonencode({
+    healthCheckUrl   = "${var.uds_base_url}/${var.dapa_api_prefix}/collections",
+    landingPageUrl   = "${var.unity_ui_base_url}/data/misc/stac_entry",
+    componentName    = "Data Catalog",
+  })
   tags = var.tags
+  overwrite = true
 }
 
 resource "aws_ssm_parameter" "marketplace_prefix" {
@@ -190,4 +196,5 @@ resource "aws_ssm_parameter" "marketplace_prefix" {
   value = var.prefix
   tier = "Advanced"
   tags = var.tags
+  overwrite = true
 }

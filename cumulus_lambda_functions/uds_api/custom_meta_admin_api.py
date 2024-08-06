@@ -3,7 +3,7 @@ from typing import Union
 from cumulus_lambda_functions.cumulus_es_setup.es_setup import SetupESIndexAlias
 from cumulus_lambda_functions.lib.lambda_logger_generator import LambdaLoggerGenerator
 from cumulus_lambda_functions.uds_api.dapa.auth_crud import AuthCrud, AuthDeleteModel, AuthListModel, AuthAddModel
-from cumulus_lambda_functions.uds_api.dapa.granules_db_index import GranulesDbIndex
+from cumulus_lambda_functions.lib.uds_db.granules_db_index import GranulesDbIndex
 from cumulus_lambda_functions.uds_api.fast_api_utils import FastApiUtils
 from cumulus_lambda_functions.uds_api.web_service_constants import WebServiceConstants
 from fastapi import APIRouter, HTTPException, Request, Response

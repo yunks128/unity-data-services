@@ -84,6 +84,11 @@ variable "uds_base_url" {
   type = string
 }
 
+variable "unity_ui_base_url" {
+  type = string
+  description = "Example: https://www.dev.mdps.mcp.nasa.gov:4443. Make sure it does NOT end with `/`"
+}
+
 variable "report_to_ems" {
   type = string
   default = "TRUE"
@@ -188,7 +193,7 @@ variable "is_deploying_healthcheck" {
 
 variable "health_check_base_path" {
   type = string
-  default = "/unity/healthCheck"
+  default = "/unity"
   description = "base path for healthcheck which should start with, but not end with `/`"
 }
 
