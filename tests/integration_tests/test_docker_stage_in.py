@@ -1562,6 +1562,7 @@ class TestDockerStageIn(TestCase):
                 remote_filename = os.path.basename(each_granule[0]['assets']['data']['href'])
                 self.assertTrue(os.path.join('.', remote_filename) in downloaded_file_hrefs,
                                 f'mismatched: {remote_filename}')
+                self.assertTrue(FileUtils.get_size(os.path.join(downloading_dir, remote_filename)) > 0, f'empty file: {remote_filename}')
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
 
@@ -1916,7 +1917,7 @@ class TestDockerStageIn(TestCase):
             for each_granule in zip(granule_json['features'], download_result):
                 remote_filename = [k['href'] for k in each_granule[0]['assets'].values() if 'data' in k['roles']]
                 remote_filename = os.path.basename(remote_filename[0])
-                self.assertTrue(os.path.join('.', remote_filename) in downloaded_file_hrefs,
-                                f'mismatched: {remote_filename}')
+                self.assertTrue(os.path.join('.', remote_filename) in downloaded_file_hrefs, f'mismatched: {remote_filename}')
+                self.assertTrue(FileUtils.get_size(os.path.join(downloading_dir, remote_filename)) > 0, f'empty file: {remote_filename}')
             self.assertTrue(FileUtils.file_exist(os.environ['OUTPUT_FILE']), f'missing output file')
         return
