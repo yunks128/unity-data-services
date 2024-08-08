@@ -101,7 +101,11 @@ class DaacArchiverLogic:
                 }
             }
             self.__sns.publish_message(json.dumps(daac_cnm_message))
-            self.__granules_index.update_entry(granule_identifier.tenant, granule_identifier.venue, {'archive_status': 'cnm_s_success'}, uds_cnm_json['identifier'])
+            self.__granules_index.update_entry(granule_identifier.tenant, granule_identifier.venue, {
+                'archive_status': 'cnm_s_success',
+                'archive_error_message': '',
+                'archive_error_code': '',
+            }, uds_cnm_json['identifier'])
         except Exception as e:
             LOGGER.exception(f'failed during archival process')
             self.__granules_index.update_entry(granule_identifier.tenant, granule_identifier.venue, {
@@ -133,7 +137,11 @@ class DaacArchiverLogic:
             raise ValueError(f'missing response in {cnm_notification_msg}')
         granule_identifier = UdsCollections.decode_identifier(cnm_notification_msg['identifier'])  # This is normally meant to be for collection. Since our granule ID also has collection id prefix. we can use this.
         if cnm_notification_msg['response']['status'] == 'SUCCESS':
-            self.__granules_index.update_entry(granule_identifier.tenant, granule_identifier.venue, {'archive_status': 'cnm_r_success'}, cnm_notification_msg['identifier'])
+            self.__granules_index.update_entry(granule_identifier.tenant, granule_identifier.venue, {
+                'archive_status': 'cnm_r_success',
+                'archive_error_message': '',
+                'archive_error_code': '',
+            }, cnm_notification_msg['identifier'])
             return
         self.__granules_index.update_entry(granule_identifier.tenant, granule_identifier.venue, {
             'archive_status': 'cnm_r_failed',

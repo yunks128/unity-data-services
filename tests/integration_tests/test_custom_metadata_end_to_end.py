@@ -40,10 +40,10 @@ class TestCustomMetadataEndToEnd(TestCase):
             .start(base64.standard_b64decode(os.environ.get('USERNAME')).decode(),
                    base64.standard_b64decode(os.environ.get('PASSWORD')).decode())
         self._url_prefix = f'{os.environ.get("UNITY_URL")}/{os.environ.get("UNITY_STAGE", "sbx-uds-dapa")}'
-        self.tenant = 'UDS_LOCAL_ARCHIVE_TEST'  # 'uds_local_test'  # 'uds_sandbox'
+        self.tenant = 'UDS_MY_LOCAL_ARCHIVE_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
         self.collection_name = 'UDS_UNIT_COLLECTION'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '24.08.05.17.00'.replace('.', '')  # '2402011200'
+        self.collection_version = '24.08.07.10.15'.replace('.', '')  # '2402011200'
 
         self.custom_metadata_body = {
             'tag': {'type': 'keyword'},
@@ -58,8 +58,8 @@ class TestCustomMetadataEndToEnd(TestCase):
                 }
             }
         }
-        self.granule_id = 'tah-24.08.06.10.30'
-        self.s3_bucket = 'uds-sbx-cumulus-staging'  # 'unity-dev-unity-william-test-5'  # uds-sbx-cumulus-staging
+        self.granule_id = 'abcd.1234.efgh.test_file-24.08.07.14.20'
+        self.s3_bucket = 'unity-dev-unity-william-test-11'  # 'unity-dev-unity-william-test-11'  # uds-sbx-cumulus-staging
         return
 
     def test_01_setup_permissions(self):
@@ -488,14 +488,20 @@ class TestCustomMetadataEndToEnd(TestCase):
                                     headers=headers)
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
         response_json = json.loads(query_result.content.decode())
-        print(json.dumps(response_json, indent=4))
+        # print(json.dumps(response_json, indent=4))
         self.assertTrue(len(response_json['features']) > 0, f'empty granules. Need collections to compare')
+        has_item = False
         for each_feature in response_json['features']:
             stac_item = pystac.Item.from_dict(each_feature)
+            if self.granule_id not in stac_item.id:
+                continue
+            has_item = True
+            print(json.dumps(each_feature, indent=4))
             validation_result = stac_item.validate()
             self.assertTrue(isinstance(validation_result, list),
                             f'wrong validation for : {json.dumps(each_feature, indent=4)}. details: {validation_result}')
             self.assertTrue('c_data3' in stac_item.properties, f'missing custom_metadata: {each_feature}')
+        self.assertTrue(has_item, f'missing item: {json.dumps(response_json, indent=4)}')
         return
 
 
