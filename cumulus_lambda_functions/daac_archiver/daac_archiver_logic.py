@@ -136,6 +136,12 @@ class DaacArchiverLogic:
         if 'response' not in cnm_notification_msg:
             raise ValueError(f'missing response in {cnm_notification_msg}')
         granule_identifier = UdsCollections.decode_identifier(cnm_notification_msg['identifier'])  # This is normally meant to be for collection. Since our granule ID also has collection id prefix. we can use this.
+        try:
+            existing_granule_object = self.__granules_index.get_entry(granule_identifier.tenant, granule_identifier.venue, cnm_notification_msg['identifier'])
+        except Exception as e:
+            LOGGER.exception(f"error while attempting to retrieve existing record: {cnm_notification_msg['identifier']}, not continuing")
+            return
+        LOGGER.debug(f'existing_granule_object: {existing_granule_object}')
         if cnm_notification_msg['response']['status'] == 'SUCCESS':
             self.__granules_index.update_entry(granule_identifier.tenant, granule_identifier.venue, {
                 'archive_status': 'cnm_r_success',
