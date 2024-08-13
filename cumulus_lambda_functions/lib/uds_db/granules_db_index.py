@@ -194,6 +194,13 @@ class GranulesDbIndex:
             self.__es.delete_index(each_index)
         return
 
+    def get_entry(self, tenant: str, tenant_venue: str, doc_id: str, ):
+        read_alias_name = f'{DBConstants.granules_read_alias_prefix}_{tenant}_{tenant_venue}'.lower().strip()
+        result = self.__es.query_by_id(doc_id, read_alias_name)
+        if result is None:
+            raise ValueError(f"no such granule: {doc_id}")
+        return result
+
     def update_entry(self, tenant: str, tenant_venue: str, json_body: dict, doc_id: str, ):
         write_alias_name = f'{DBConstants.granules_write_alias_prefix}_{tenant}_{tenant_venue}'.lower().strip()
         json_body['event_time'] = TimeUtils.get_current_unix_milli()
