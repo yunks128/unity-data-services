@@ -58,7 +58,7 @@ class TestCustomMetadataEndToEnd(TestCase):
                 }
             }
         }
-        self.granule_id = 'abcd.1234.efgh.test_file-24.08.07.14.20'
+        self.granule_id = 'abcd.1234.efgh.test_file-24.08.13.13.53'
         self.s3_bucket = 'unity-dev-unity-william-test-11'  # 'unity-dev-unity-william-test-11'  # uds-sbx-cumulus-staging
         return
 
