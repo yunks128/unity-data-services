@@ -18,6 +18,7 @@ from pystac import Item, Asset, ItemCollection, Catalog, Link
 
 LOGGER = logging.getLogger(__name__)
 
+
 class UploadItemExecutor(JobExecutorAbstract):
     def __init__(self, result_list, error_list, collection_id, staging_bucket, retry_wait_time_sec, retry_times, delete_files: bool) -> None:
         super().__init__()
@@ -38,8 +39,12 @@ class UploadItemExecutor(JobExecutorAbstract):
 
     def generate_sample_stac(self, filepath: str):
         filename = os.path.basename(filepath)
+        file_checksum = FileUtils.get_checksum(filepath, True)
+        # https://github.com/stac-extensions/file
+        # https://github.com/stac-extensions/file/blob/main/examples/item.json
         sample_stac_item = Item(
                          id=os.path.splitext(filename)[0],
+                         stac_extensions=["https://stac-extensions.github.io/file/v2.1.0/schema.json"],
                          geometry={
                              "type": "Point",
                              "coordinates": [0.0, 0.0]
@@ -54,8 +59,16 @@ class UploadItemExecutor(JobExecutorAbstract):
                          },
                          collection=self.__collection_id,
                          assets={
-                             filename: Asset(href=filepath, roles=['data']),
-                             f'{filename}.stac.json': Asset(href=f'{filepath}.stac.json', roles=['metadata'], description='metadata stac'),
+                             filename: Asset(
+                                 href=filepath,
+                                 roles=['data'],
+                                 title=os.path.basename(filename),
+                                 extra_fields={
+                                     'file:size': FileUtils.get_size(filepath),
+                                     'file:checksum': file_checksum,
+                                 },
+                                 description=f'size={FileUtils.get_size(filepath)};checksumType=md5;checksum={file_checksum}'),
+                             f'{filename}.stac.json': Asset(href=f'{filepath}.stac.json', roles=['metadata'], description='desc=metadata stac;size=-1;checksumType=md5;checksum=unknown'),  # How to update this? It's a circular dependency
                          })
 
         return sample_stac_item
@@ -68,7 +81,7 @@ class UploadItemExecutor(JobExecutorAbstract):
             updating_assets[os.path.basename(s3_url)] = s3_url
             uploading_current_granule_stac = f'{s3_url}.stac.json'
             self.__s3.set_s3_url(uploading_current_granule_stac)
-            self.__s3.upload_bytes(json.dumps(sample_stac_item.to_dict(False, False)).encode())
+            self.__s3.upload_bytes(json.dumps(sample_stac_item.to_dict(False, False),indent=4).encode())
             updating_assets[os.path.basename(uploading_current_granule_stac)] = uploading_current_granule_stac
             self.__gc.update_assets_href(sample_stac_item, updating_assets)
             self.__result_list.put(sample_stac_item.to_dict(False, False))

@@ -792,7 +792,7 @@ class TestDockerStageOut(TestCase):
         os.environ['COLLECTION_ID'] = temp_collection_id
         os.environ['STAGING_BUCKET'] = 'uds-sbx-cumulus-staging'
         os.environ['VERIFY_SSL'] = 'FALSE'
-        os.environ['RESULT_PATH_PREFIX'] = 'integration_test/auxiliary/stage_out'
+        os.environ['RESULT_PATH_PREFIX'] = 'stage_out'
         os.environ['PARALLEL_COUNT'] = '1'
 
         if len(argv) > 1:
