@@ -344,6 +344,8 @@ class ItemTransformer(StacTransformerAbstract):
         :param input_dict:
         :return:
         """
+        # https://github.com/stac-extensions/file
+        # https://github.com/stac-extensions/file/blob/main/examples/item.json
         description_keys = ['size', 'checksumType', 'checksum']
         descriptions = [f'{k}={input_dict[k]};' for k in description_keys if k in input_dict]
         asset = Asset(

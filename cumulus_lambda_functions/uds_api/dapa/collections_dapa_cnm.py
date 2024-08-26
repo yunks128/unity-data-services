@@ -98,7 +98,7 @@ class CollectionsDapaCnm:
     def start(self):
         """
         Publish granule messages to CNM SNS Topic.
-        This is the workflow: cnm (Rest endpoint) -> sns -> sqs -> event bridge rule -> uds-dev-cumulus-sqsMessageConsumer lambda -> sqs -> uds-dev-cumulus-sqs2sf lambda -> step function
+        This is the workflow: cnm (Rest endpoint) -> sns -> sqs -> event bridge rule (every 1 minute) -> uds-dev-cumulus-sqsMessageConsumer lambda -> sqs -> uds-dev-cumulus-sqs2sf lambda -> step function
 Sample Output:
 {
     "collection": "SNDR_SNPP_ATMS_L1A",
