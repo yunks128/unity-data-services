@@ -43,7 +43,7 @@ class UploadItemExecutor(JobExecutorAbstract):
         # https://github.com/stac-extensions/file
         # https://github.com/stac-extensions/file/blob/main/examples/item.json
         sample_stac_item = Item(
-                         id=os.path.splitext(filename)[0],
+                         id=f'{self.__collection_id}:{os.path.splitext(filename)[0]}',
                          stac_extensions=["https://stac-extensions.github.io/file/v2.1.0/schema.json"],
                          geometry={
                              "type": "Point",
