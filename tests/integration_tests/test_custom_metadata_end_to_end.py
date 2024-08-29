@@ -43,7 +43,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         self.tenant = 'UDS_MY_LOCAL_ARCHIVE_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
         self.collection_name = 'UDS_UNIT_COLLECTION'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '24.08.07.10.15'.replace('.', '')  # '2402011200'
+        self.collection_version = '24.08.29.06.44'.replace('.', '')  # '2402011200'
 
         self.custom_metadata_body = {
             'tag': {'type': 'keyword'},
@@ -58,7 +58,7 @@ class TestCustomMetadataEndToEnd(TestCase):
                 }
             }
         }
-        self.granule_id = 'abcd.1234.efgh.test_file-24.08.07.14.20'
+        self.granule_id = 'abcd.1234.efgh.test_file-24.08.13.13.53'
         self.s3_bucket = 'unity-dev-unity-william-test-11'  # 'unity-dev-unity-william-test-11'  # uds-sbx-cumulus-staging
         return
 
@@ -476,6 +476,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         return
 
     def test_06_retrieve_granule(self):
+        self.collection_version = '24.08.29.09.00'.replace('.', '')  # '2402011200'
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
         post_url = f'{self._url_prefix}/collections/{temp_collection_id}/items?limit=20'
         # post_url = f'{self._url_prefix}/collections/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/items?limit=2&offset=URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02'
@@ -488,7 +489,7 @@ class TestCustomMetadataEndToEnd(TestCase):
                                     headers=headers)
         self.assertEqual(query_result.status_code, 200, f'wrong status code. {query_result.text}')
         response_json = json.loads(query_result.content.decode())
-        # print(json.dumps(response_json, indent=4))
+        print(json.dumps(response_json, indent=4))
         self.assertTrue(len(response_json['features']) > 0, f'empty granules. Need collections to compare')
         has_item = False
         for each_feature in response_json['features']:
