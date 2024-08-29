@@ -95,6 +95,23 @@ class CollectionsDapaCnm:
             }
         }
 
+    def __generate_cumulus_asset(self, v):
+        if 'extra_fields' not in v:
+            checksum, size = 'unknown', -1
+        else:
+            extra_fields = v['extra_fields']
+            checksum = extra_fields['file:checksum'] if 'file:checksum' in extra_fields else -1
+            size = extra_fields['file:size'] if 'file:size' in extra_fields else -1
+        cumulus_asset = {
+                            'name': os.path.basename(v['href']),
+                            'type': v['roles'][0] if 'roles' in v and len(v['roles']) > 0 else 'unknown',
+                            'uri': v['href'],
+                            'checksumType': 'md5',  # TODO Is this the only type?
+                            'checksum': checksum,
+                            'size': size,
+                        }
+        return cumulus_asset
+
     def start(self):
         """
         Publish granule messages to CNM SNS Topic.
@@ -202,14 +219,7 @@ Test Input message
                     'product': {
                         'name': each_granule['id'],
                         'dataVersion': collection_id_version[1],
-                        'files': [{
-                            'name': os.path.basename(v['href']),
-                            'type': v['roles'][0] if 'roles' in v and len(v['roles']) > 0 else 'unknown',
-                            'uri': v['href'],
-                            'checksumType': 'md5',
-                            'checksum': 'unknown',  # TODO
-                            'size': -1,  # TODO
-                        } for k, v in each_granule['assets'].items()],
+                        'files': [self.__generate_cumulus_asset(v) for k, v in each_granule['assets'].items()],
                     }
                 }
                 LOGGER.debug(f'sending sns message: {sns_msg}')
