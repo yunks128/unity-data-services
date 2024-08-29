@@ -29,7 +29,7 @@ class TestDockerStageOut(TestCase):
         self.tenant = 'UDS_MY_LOCAL_ARCHIVE_TEST'  # 'uds_local_test'  # 'uds_sandbox'
         self.tenant_venue = 'DEV'  # 'DEV1'  # 'dev'
         self.collection_name = 'UDS_UNIT_COLLECTION'  # 'uds_collection'  # 'sbx_collection'
-        self.collection_version = '24.08.29.06.44'.replace('.', '')  # '2402011200'
+        self.collection_version = '24.08.29.08.25'.replace('.', '')  # '2402011200'
 
     def not_in_used_test_03_upload(self):
         os.environ[Constants.USERNAME] = '/unity/uds/user/wphyo/username'

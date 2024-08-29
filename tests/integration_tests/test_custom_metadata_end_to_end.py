@@ -476,6 +476,7 @@ class TestCustomMetadataEndToEnd(TestCase):
         return
 
     def test_06_retrieve_granule(self):
+        self.collection_version = '24.08.29.08.25'.replace('.', '')  # '2402011200'
         temp_collection_id = f'URN:NASA:UNITY:{self.tenant}:{self.tenant_venue}:{self.collection_name}___{self.collection_version}'
         post_url = f'{self._url_prefix}/collections/{temp_collection_id}/items?limit=20'
         # post_url = f'{self._url_prefix}/collections/URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030/items?limit=2&offset=URN:NASA:UNITY:UDS_LOCAL_TEST:DEV:UDS_COLLECTION___2312041030:test_file02'

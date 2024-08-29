@@ -96,19 +96,13 @@ class CollectionsDapaCnm:
         }
 
     def __generate_cumulus_asset(self, v):
-        if 'extra_fields' not in v:
-            checksum, size = 'unknown', -1
-        else:
-            extra_fields = v['extra_fields']
-            checksum = extra_fields['file:checksum'] if 'file:checksum' in extra_fields else -1
-            size = extra_fields['file:size'] if 'file:size' in extra_fields else -1
         cumulus_asset = {
                             'name': os.path.basename(v['href']),
                             'type': v['roles'][0] if 'roles' in v and len(v['roles']) > 0 else 'unknown',
                             'uri': v['href'],
                             'checksumType': 'md5',  # TODO Is this the only type?
-                            'checksum': checksum,
-                            'size': size,
+                            'checksum': v['file:checksum'] if 'file:checksum' in v else 'unknown',
+                            'size': v['file:size'] if 'file:size' in v else -1,
                         }
         return cumulus_asset
 
