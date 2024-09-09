@@ -47,7 +47,7 @@ class GranulesIndexMapping:
                 "title": {"type": "text"}
             }
         },
-        "stac_extensions": {"type": "object"},
+        "stac_extensions": {"type": "keyword"},
         "properties": {
             "dynamic": "false",
             "properties": {
